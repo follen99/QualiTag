@@ -121,7 +121,7 @@ public class Tag {
      *
      * @return the RGB color
      */
-    public int[] getRgb() {
+    public int[] getRgbAsIntArr() {
         return rgb;
     }
 
@@ -130,7 +130,7 @@ public class Tag {
      *
      * @return the RGB color as a string
      */
-    public String getRGB() {
+    public String getRgbAsHexString() {
         return String.format("#%02x%02x%02x", rgb[0], rgb[1], rgb[2]);
     }
 
@@ -161,7 +161,7 @@ public class Tag {
      *
      * @param hex the hexadecimal color
      */
-    public void setRGB(String hex) {
+    public void setRgb(String hex) {
         this.rgb[0] = Integer.parseInt(hex.substring(1, 3), 16);
         this.rgb[1] = Integer.parseInt(hex.substring(3, 5), 16);
         this.rgb[2] = Integer.parseInt(hex.substring(5, 7), 16);
@@ -179,7 +179,7 @@ public class Tag {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Tag tag = (Tag) o;
-        return Objects.equals(getTag_id(), tag.getTag_id()) && Objects.equals(getProject_id(), tag.getProject_id()) && Objects.equals(getUser_id(), tag.getUser_id()) && Objects.equals(getValue(), tag.getValue()) && Objects.deepEquals(getRgb(), tag.getRgb());
+        return Objects.equals(getTag_id(), tag.getTag_id()) && Objects.equals(getProject_id(), tag.getProject_id()) && Objects.equals(getUser_id(), tag.getUser_id()) && Objects.equals(getValue(), tag.getValue()) && Objects.deepEquals(getRgbAsIntArr(), tag.getRgbAsIntArr());
     }
 
     /**
@@ -189,7 +189,7 @@ public class Tag {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(getTag_id(), getProject_id(), getUser_id(), getValue(), Arrays.hashCode(getRgb()));
+        return Objects.hash(getTag_id(), getProject_id(), getUser_id(), getValue(), Arrays.hashCode(getRgbAsIntArr()));
     }
 
     // TO STRING

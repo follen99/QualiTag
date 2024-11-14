@@ -18,7 +18,7 @@ public class Team {
     /**
      * Default constructor for Team.
      */
-    private Team() {
+    public Team() {
         this.users = new ArrayList<User>();
     }
 
@@ -31,7 +31,7 @@ public class Team {
      * @param creation_date the creation date of the team
      * @param team_description the description of the team
      */
-    private Team(String team_id, String project_id, String team_name, Date creation_date, String team_description) {
+    public Team(String team_id, String project_id, String team_name, Date creation_date, String team_description) {
         this.team_id = team_id;
         this.project_id = project_id;
         this.team_name = team_name;
