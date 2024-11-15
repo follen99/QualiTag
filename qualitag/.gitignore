@@ -36,3 +36,20 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Vaadin ###
+/.vaadin/
+.flow/
+.flow-build-info.json
+/webpack.generated.js
+
+### OS specific ###
+.DS_Store
+Thumbs.db
+
+### Log files ###
+*.log
+
+### Temporary files ###
+*.tmp
+*.swp
