@@ -1,4 +1,4 @@
-package it.unisannio.studenti.qualitag.View;
+package it.unisannio.studenti.qualitag.view;
 
 import com.vaadin.flow.router.Route;
 
