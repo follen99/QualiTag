@@ -1,6 +1,5 @@
-package it.unisannio.studenti.qualitag.Model;
+package it.unisannio.studenti.qualitag.model;
 
-<<<<<<< HEAD
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -210,7 +209,4 @@ public class Tag {
                 ", rgb=" + Arrays.toString(rgb) +
                 '}';
     }
-=======
-public class Tag {
->>>>>>> model-artifact-project
 }

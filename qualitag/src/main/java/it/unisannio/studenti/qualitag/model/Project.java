@@ -1,4 +1,4 @@
-package it.unisannio.studenti.qualitag.Model;
+package it.unisannio.studenti.qualitag.model;
 
 /**
  * Represents a project in the system

@@ -14,6 +14,7 @@ public class User {
   private List<String> projectIds;
   private List<String> teamIds;
   private List<String> tagIds;
+  public String userID;
 
   /**
    * Attributes regarding log-in, authentication and roles.
@@ -52,4 +53,12 @@ public class User {
   }
 
   // ************ METHODS ************
+
+  public String getUserID() {
+    return userID;
+  }
+
+  public void setUserID(String userID) {
+    this.userID = userID;
+  }
 }

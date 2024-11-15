@@ -1,8 +1,8 @@
-package it.unisannio.studenti.qualitag.Model;
+package it.unisannio.studenti.qualitag.model;
 
-<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -11,7 +11,7 @@ import java.util.Objects;
 public class Team {
     private String team_id;
     private String project_id;
-    private ArrayList<User> users;
+    private List<String> users;
     private String team_name;
     private Date creation_date;
     private String team_description;
@@ -20,16 +20,16 @@ public class Team {
      * Default constructor for Team.
      */
     public Team() {
-        this.users = new ArrayList<User>();
+        this.users = new ArrayList<String>();
     }
 
     /**
      * Constructs a Team with the specified details.
      *
-     * @param team_id the ID of the team
-     * @param project_id the ID of the project
-     * @param team_name the name of the team
-     * @param creation_date the creation date of the team
+     * @param team_id          the ID of the team
+     * @param project_id       the ID of the project
+     * @param team_name        the name of the team
+     * @param creation_date    the creation date of the team
      * @param team_description the description of the team
      */
     public Team(String team_id, String project_id, String team_name, Date creation_date, String team_description) {
@@ -38,7 +38,7 @@ public class Team {
         this.team_name = team_name;
         this.creation_date = creation_date;
         this.team_description = team_description;
-        this.users = new ArrayList<User>();
+        this.users = new ArrayList<String>();
     }
 
 
@@ -85,7 +85,7 @@ public class Team {
      *
      * @return the list of users
      */
-    public ArrayList<User> getUsers() {
+    public List<String> getUsers() {
         return users;
     }
 
@@ -94,7 +94,16 @@ public class Team {
      *
      * @param users the list of users to set
      */
-    public void setUsers(ArrayList<User> users) {
+    public void setUsers(ArrayList<String> users) {
+        this.users = users;
+    }
+
+    /**
+     * Sets the list of users in the team.
+     *
+     * @param users the list of users to set
+     */
+    public void setUsers(List<String> users) {
         this.users = users;
     }
 
@@ -104,7 +113,7 @@ public class Team {
      * @param user the user to add
      */
     public void addUser(User user) {
-        this.users.add(user);
+        this.users.add(user.getUserID());
     }
 
     /**
@@ -205,7 +214,4 @@ public class Team {
                 ", team_description='" + team_description + '\'' +
                 '}';
     }
-=======
-public class Team {
->>>>>>> model-artifact-project
 }
