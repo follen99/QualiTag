@@ -1,4 +1,4 @@
-package it.unisannio.studenti.qualitag.Model;
+package it.unisannio.studenti.qualitag.model;
 
 public enum DefaultColor {
     PASTEL_GRAY_DARK(new int[]{166, 174, 191}),

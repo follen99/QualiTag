@@ -1,4 +1,4 @@
-package it.unisannio.studenti.qualitag.Model;
+package it.unisannio.studenti.qualitag.model;
 
 import java.util.ArrayList;
 import java.util.Objects;

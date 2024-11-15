@@ -1,6 +1,5 @@
-package it.unisannio.studenti.qualitag;
+package it.unisannio.studenti.qualitag.model;
 
-import it.unisannio.studenti.qualitag.Model.Artifact;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
