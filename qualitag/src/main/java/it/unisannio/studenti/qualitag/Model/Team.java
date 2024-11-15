@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.Model;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
@@ -204,4 +205,7 @@ public class Team {
                 ", team_description='" + team_description + '\'' +
                 '}';
     }
+=======
+public class Team {
+>>>>>>> model-artifact-project
 }
