@@ -14,7 +14,6 @@ public class User {
   private List<String> projectIds;
   private List<String> teamIds;
   private List<String> tagIds;
-  public String userID;
 
   /**
    * Attributes regarding log-in, authentication and roles.
@@ -32,15 +31,16 @@ public class User {
   private String surname;
 
   // ************ CONSTRUCTORS ************
+
   /**
    * Base constructor to create a user.
    *
-   * @param userId The ID of the user, given by the platform.
+   * @param userId   The ID of the user, given by the platform.
    * @param username The username of the user on the platform. Must be unique.
-   * @param email The email of the user on the platform. Must be unique.
+   * @param email    The email of the user on the platform. Must be unique.
    * @param password The password of the user on the platform.
-   * @param name The name of the user on the platform.
-   * @param surname The surname of the user on the platform.
+   * @param name     The name of the user on the platform.
+   * @param surname  The surname of the user on the platform.
    */
   public User(String userId, String username, String password, String email, String name,
       String surname) {
@@ -55,10 +55,10 @@ public class User {
   // ************ METHODS ************
 
   public String getUserID() {
-    return userID;
+    return this.userId;
   }
 
   public void setUserID(String userID) {
-    this.userID = userID;
+    this.userId = userID;
   }
 }
