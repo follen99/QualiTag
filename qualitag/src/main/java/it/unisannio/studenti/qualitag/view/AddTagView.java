@@ -27,11 +27,14 @@ public class AddTagView extends VerticalLayout {
     var title = new H1("Add a new tag");
     var value = new TextField();
     var tag_list = new VerticalLayout();
-    var confirmButton = new Button("Save tag");
-    confirmButton.addClickListener(click -> {
+    var saveButton = new Button("Save tag");
+    saveButton.addClickListener(click -> {
       // Add the tag to the database
       var tag = repo.save(new Tag(value.getValue(), "test_project_id", "test_user_id"));
       tag_list.add(createTagView(tag));
+
+      // clearing the text field
+      value.clear();
     });
 
     var deleteButton = new Button("Delete selected tags");
@@ -46,8 +49,8 @@ public class AddTagView extends VerticalLayout {
     add(
       title,
       new HorizontalLayout(
-          new HorizontalLayout(value, confirmButton),
-          new VerticalLayout(new H2("Here we will show the tags"))
+          new HorizontalLayout(value, saveButton, deleteButton),
+          new VerticalLayout(tag_list)
 
       )
     );
