@@ -1,19 +1,19 @@
 package it.unisannio.studenti.qualitag.model;
 
 public enum DefaultColor {
-  PASTEL_GRAY_DARK(new int[]{166, 174, 191}),
-  PASTEL_GRAY_LIGHT(new int[]{197, 211, 232}),
-  PASTEL_GREEN(new int[]{208, 232, 197}),
-  PASTEL_YELLOW_LIGHT(new int[]{255, 248, 222}),
-  PASTEL_BLUE_NAVY(new int[]{41, 95, 152});
+  PASTEL_GRAY_DARK("#a6aebf"),
+  PASTEL_GRAY_LIGHT("#c5d3e8"),
+  PASTEL_GREEN("#d0e8c5"),
+  PASTEL_YELLOW_LIGHT("#fff8de"),
+  PASTEL_BLUE_NAVY("#295f98");
 
-  private final int[] rgb;
+  private final String rgb;
 
-  DefaultColor(int[] rgb) {
+  DefaultColor(String rgb) {
     this.rgb = rgb;
   }
 
-  public int[] getRgb() {
+  public String getRgb() {
     return rgb;
   }
 }

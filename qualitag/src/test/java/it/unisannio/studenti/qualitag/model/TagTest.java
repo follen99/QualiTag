@@ -12,7 +12,7 @@ class TagTest {
         assertEquals("1", tag.getTag_id());
         assertEquals("1", tag.getProject_id());
         assertEquals("1", tag.getUser_id());
-        assertEquals("Test", tag.getValue());
+        assertEquals("Test", tag.getTag_value());
         assertArrayEquals(color, tag.getRgbAsIntArr());
     }
 
@@ -22,7 +22,7 @@ class TagTest {
         assertEquals("1", tag.getTag_id());
         assertEquals("1", tag.getProject_id());
         assertEquals("1", tag.getUser_id());
-        assertEquals("Test", tag.getValue());
+        assertEquals("Test", tag.getTag_value());
         assertNotNull(tag.getRgbAsIntArr());
     }
 
@@ -32,14 +32,14 @@ class TagTest {
         tag.setTag_id("2");
         tag.setProject_id("2");
         tag.setUser_id("2");
-        tag.setValue("Updated");
+        tag.setTag_value("Updated");
         int[] newColor = {0, 255, 0};
         tag.setRgb(newColor);
 
         assertEquals("2", tag.getTag_id());
         assertEquals("2", tag.getProject_id());
         assertEquals("2", tag.getUser_id());
-        assertEquals("Updated", tag.getValue());
+        assertEquals("Updated", tag.getTag_value());
         assertArrayEquals(newColor, tag.getRgbAsIntArr());
     }
 
@@ -85,6 +85,6 @@ class TagTest {
     public void testGetRgbAsHexString() {
         Tag tag = new Tag("1", "1", "1", "Test", new int[]{0, 128, 255});
         String expectedHex = "#0080ff";
-        assertEquals(expectedHex, tag.getRgbAsHexString());
+        assertEquals(expectedHex, tag.getColorAsHex());
     }
 }

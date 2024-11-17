@@ -1,46 +1,54 @@
 package it.unisannio.studenti.qualitag.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import java.util.Arrays;
 import java.util.Objects;
 
+@Entity
 public class Tag {
 
-  private String tag_id;
+  @Id
+  @GeneratedValue
+  private Long tag_id;
   private String project_id;
   private String user_id;
-  private String value;
-  private int[] rgb = new int[3]; // Array to represent RGB values
+  private String tag_value;
+  private String color_hex; // Array to represent RGB values
+
+  /**
+   * Constructor with default tag color choosen randomly.
+   *
+   * @param tag_value  the value of the tag
+   * @param project_id the ID of the project
+   * @param user_id    the ID of the user
+   */
+  public Tag(String tag_value, String project_id, String user_id) {
+    this.tag_value = tag_value;
+    this.project_id = project_id;
+    this.user_id = user_id;
+    this.color_hex = this.chooseColor();  // Choose a random color from the default colors
+  }
+
+  public Tag(String tag_value, String project_id, String user_id, String tag_color_hex) {
+    this.tag_value = tag_value;
+    this.project_id = project_id;
+    this.user_id = user_id;
+    this.color_hex = tag_color_hex;
+  }
 
   /**
    * Default constructor for Tag.
    */
-  public Tag(String tag_id, String project_id, String user_id, String value, int[] tag_color) {
-    this.tag_id = tag_id;           // Set the tag ID
-    this.project_id = project_id;   // Set the project ID
-    this.user_id = user_id;         // Set the user ID
-    this.value = value;             // Set the value
-    this.rgb = tag_color;           // Set the color
+  public Tag() {
+
   }
 
-  /**
-   * Constructor with default tag color.
-   *
-   * @param tag_id     the ID of the tag
-   * @param project_id the ID of the project
-   * @param user_id    the ID of the user
-   * @param value      the value of the tag
-   */
-  public Tag(String tag_id, String project_id, String user_id, String value) {
-    this.tag_id = tag_id;           // Set the tag ID
-    this.project_id = project_id;   // Set the project ID
-    this.user_id = user_id;         // Set the user ID
-    this.value = value;             // Set the value
-    this.rgb = this.chooseColor();  // Choose a random color from the default colors
-  }
-
-  private int[] chooseColor() {
-    int random = (int) (Math.random() * DefaultColor.values().length);
-    return DefaultColor.values()[random].getRgb();
+  private String chooseColor() {
+    DefaultColor[] colors = DefaultColor.values();
+    int randomIndex = (int) (Math.random() * colors.length);
+    return colors[randomIndex].getRgb();
   }
 
   // GETTERS AND SETTERS
@@ -50,7 +58,7 @@ public class Tag {
    *
    * @return the tag ID
    */
-  public String getTag_id() {
+  public Long getTag_id() {
     return tag_id;
   }
 
@@ -59,7 +67,7 @@ public class Tag {
    *
    * @param tag_id the tag ID to set
    */
-  public void setTag_id(String tag_id) {
+  public void setTag_id(Long tag_id) {
     this.tag_id = tag_id;
   }
 
@@ -104,8 +112,8 @@ public class Tag {
    *
    * @return the value of the tag
    */
-  public String getValue() {
-    return value;
+  public String getTag_value() {
+    return tag_value;
   }
 
   /**
@@ -113,17 +121,8 @@ public class Tag {
    *
    * @param value the value to set
    */
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  /**
-   * Gets the RGB color of the tag.
-   *
-   * @return the RGB color
-   */
-  public int[] getRgbAsIntArr() {
-    return rgb;
+  public void setTag_value(String value) {
+    this.tag_value = value;
   }
 
   /**
@@ -131,8 +130,21 @@ public class Tag {
    *
    * @return the RGB color as a string
    */
-  public String getRgbAsHexString() {
-    return String.format("#%02x%02x%02x", rgb[0], rgb[1], rgb[2]);
+  public String getColorAsHex() {
+    return this.color_hex;
+  }
+
+  /**
+   * Gets the RGB color of the tag.
+   *
+   * @return the RGB color
+   */
+  public int[] getRgb() {
+    int[] rgb = new int[3];
+    rgb[0] = Integer.parseInt(color_hex.substring(1, 3), 16);
+    rgb[1] = Integer.parseInt(color_hex.substring(3, 5), 16);
+    rgb[2] = Integer.parseInt(color_hex.substring(5, 7), 16);
+    return rgb;
   }
 
   /**
@@ -141,7 +153,7 @@ public class Tag {
    * @param rgb the RGB color to set
    */
   public void setRgb(int[] rgb) {
-    this.rgb = rgb;
+    this.color_hex = String.format("#%02x%02x%02x", rgb[0], rgb[1], rgb[2]);
   }
 
   /**
@@ -152,29 +164,11 @@ public class Tag {
    * @param b the blue value
    */
   public void setRgb(int r, int g, int b) {
-    this.rgb[0] = r;
-    this.rgb[1] = g;
-    this.rgb[2] = b;
-  }
-
-  /**
-   * Sets the RGB color of the tag.
-   *
-   * @param hex the hexadecimal color
-   */
-  public void setRgb(String hex) {
-    this.rgb[0] = Integer.parseInt(hex.substring(1, 3), 16);
-    this.rgb[1] = Integer.parseInt(hex.substring(3, 5), 16);
-    this.rgb[2] = Integer.parseInt(hex.substring(5, 7), 16);
+    this.color_hex = String.format("#%02x%02x%02x", r, g, b);
   }
 
   // EQUALS AND HASHCODE
 
-  /**
-   * Gets the tag as a string.
-   *
-   * @return the tag as a string
-   */
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -184,20 +178,15 @@ public class Tag {
       return false;
     }
     Tag tag = (Tag) o;
-    return Objects.equals(getTag_id(), tag.getTag_id()) && Objects.equals(getProject_id(),
-        tag.getProject_id()) && Objects.equals(getUser_id(), tag.getUser_id()) && Objects.equals(
-        getValue(), tag.getValue()) && Objects.deepEquals(getRgbAsIntArr(), tag.getRgbAsIntArr());
+    return Objects.equals(getTag_id(), tag.getTag_id()) && Objects.equals(
+        getProject_id(), tag.getProject_id()) && Objects.equals(getUser_id(),
+        tag.getUser_id()) && Objects.equals(getTag_value(), tag.getTag_value())
+        && Objects.equals(color_hex, tag.color_hex);
   }
 
-  /**
-   * Gets the hash code of the tag.
-   *
-   * @return the hash code of the tag
-   */
   @Override
   public int hashCode() {
-    return Objects.hash(getTag_id(), getProject_id(), getUser_id(), getValue(),
-        Arrays.hashCode(getRgbAsIntArr()));
+    return Objects.hash(getTag_id(), getProject_id(), getUser_id(), getTag_value(), color_hex);
   }
 
   // TO STRING
@@ -213,8 +202,9 @@ public class Tag {
         "tag_id='" + tag_id + '\'' +
         ", project_id='" + project_id + '\'' +
         ", user_id='" + user_id + '\'' +
-        ", value='" + value + '\'' +
-        ", rgb=" + Arrays.toString(rgb) +
+        ", value='" + tag_value + '\'' +
+        ", rgb=" + Arrays.toString(this.getRgb()) +
+        ", color_hex='" + color_hex + '\'' +
         '}';
   }
 }
