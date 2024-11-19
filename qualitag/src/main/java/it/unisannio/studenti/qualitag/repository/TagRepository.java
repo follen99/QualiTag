@@ -1,8 +1,8 @@
 package it.unisannio.studenti.qualitag.repository;
 
 import it.unisannio.studenti.qualitag.model.Tag;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface TagRepository extends JpaRepository<Tag, String> {
+public interface TagRepository extends MongoRepository<Tag, String> {
 
 }

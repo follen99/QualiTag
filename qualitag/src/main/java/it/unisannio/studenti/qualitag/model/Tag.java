@@ -1,17 +1,19 @@
 package it.unisannio.studenti.qualitag.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Arrays;
 import java.util.Objects;
 
-@Entity
+@Document(collection = "tags")
 public class Tag {
 
   @Id
-  @GeneratedValue
-  private Long tag_id;
+//  @SequenceGenerator(name = "TAG_SEQUENCE", sequenceName = "TAG_SEQUENCE_ID", initialValue = 1, allocationSize = 1)
+//  @GeneratedValue(strategy = GenerationType.AUTO, generator = "TAG_SEQUENCE")
+  private String tag_id;
   private String project_id;
   private String user_id;
   private String tag_value;
@@ -58,7 +60,7 @@ public class Tag {
    *
    * @return the tag ID
    */
-  public Long getTag_id() {
+  public String getTag_id() {
     return tag_id;
   }
 
@@ -67,7 +69,7 @@ public class Tag {
    *
    * @param tag_id the tag ID to set
    */
-  public void setTag_id(Long tag_id) {
+  public void setTag_id(String tag_id) {
     this.tag_id = tag_id;
   }
 

@@ -3,6 +3,8 @@ plugins {
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'com.vaadin' version '24.5.4'
+	// per installare automaticamente node
+	id 'com.github.node-gradle.node' version '3.5.1'
 }
 
 group = 'it.unisannio.studenti'
@@ -13,6 +15,17 @@ java {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
+
+node {
+	version = '16.13.0' // Specifica la versione di Node.js da installare
+	download = true // Scarica Node.js se non è già installato
+}
+
+task installNodeModules(type: NpmTask) {
+	args = ['install']
+}
+
+installNodeModules.dependsOn(nodeSetup)
 
 repositories {
 	mavenCentral()
@@ -29,9 +42,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// PERSISTENCE
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	runtimeOnly 'com.h2database:h2'
+	// PERSISTENCE h2
+	/*implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.h2database:h2'*/
+
+	// PERSISTENCE mongodb
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 }
 
 dependencyManagement {
