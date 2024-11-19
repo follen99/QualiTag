@@ -13,58 +13,57 @@ import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.web.client.RestTemplate;
 
 @Route("")
 public class AddTagView extends VerticalLayout {
 
   private final TagRepository repo;
-  private Set<Tag> selectedTags;
+  private VerticalLayout tag_list;
 
   public AddTagView(TagRepository repo) {
     this.repo = repo;
-    this.selectedTags = new HashSet<>();
-
+//    this.selectedTags = new HashSet<>();
     var title = new H1("Add a new tag");
     var value = new TextField();
-    var tag_list = new VerticalLayout();
+    this.tag_list = new VerticalLayout();
+
+
     var saveButton = new Button("Save tag");
     saveButton.addClickListener(click -> {
       // Add the tag to the database
-      var tag = repo.save(new Tag(value.getValue(), "test_project_id", "test_user_id"));
-      tag_list.add(createTagView(tag));
+      var tag = this.repo.save(new Tag(value.getValue(), "test_project_id", "test_user_id"));
+      this.updateTagList();
+//      tag_list.add(createTagView(tag));
 
       // clearing the text field
       value.clear();
     });
 
-    var deleteButton = new Button("Delete selected tags");
-    deleteButton.addClickListener(click -> {
-      // Delete the selected tags from the database
-      repo.deleteAll(selectedTags);
-      selectedTags.clear();
-      tag_list.removeAll();
-      repo.findAll().forEach(tag -> tag_list.add(createTagView(tag)));
-    });
-
     add(
       title,
       new HorizontalLayout(
-          new HorizontalLayout(value, saveButton, deleteButton),
+          new HorizontalLayout(value, saveButton/*, deleteButton*/),
           new VerticalLayout(tag_list)
 
       )
     );
+
+    this.updateTagList();
+  }
+
+  private void updateTagList() {
+    var tags_from_db = this.repo.findAll();
+    this.tag_list.removeAll();
+    tags_from_db.forEach(tag -> {
+      this.tag_list.add(createTagView(tag));
+    });
+
+    System.out.println(this.repo.findAll());
   }
 
   private Component createTagView(Tag tag) {
     Checkbox checkbox = new Checkbox(tag.getTag_value());
-    checkbox.addValueChangeListener(event -> {
-      if (event.getValue()) {
-        selectedTags.add(tag);
-      } else {
-        selectedTags.remove(tag);
-      }
-    });
     return checkbox;
   }
 

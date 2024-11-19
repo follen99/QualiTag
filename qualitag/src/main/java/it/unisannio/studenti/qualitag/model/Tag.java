@@ -14,7 +14,7 @@ public class Tag {
   private String project_id;
   private String user_id;
   private String tag_value;
-  private String color_hex; // Array to represent RGB values
+  private String color_hex;
 
   /**
    * Default constructor.
@@ -133,18 +133,18 @@ public class Tag {
   }
 
   /**
-   * Gets the RGB color of the tag as a string.
+   * Gets the Hex color of the tag as a string.
    *
-   * @return the RGB color as a string
+   * @return the hex color as a string
    */
-  public String getColorAsHex() {
+  public String getColor_hex() {
     return this.color_hex;
   }
 
   /**
    * Gets the RGB color of the tag.
    *
-   * @return the RGB color
+   * @return the RGB color as an array
    */
   public int[] getRgb() {
     int[] rgb = new int[3];
@@ -157,9 +157,9 @@ public class Tag {
   /**
    * Sets the RGB color of the tag.
    *
-   * @param rgb the RGB color to set
+   * @param rgb the RGB color to set as an array
    */
-  public void setRgb(int[] rgb) {
+  public void setColor_hex(int[] rgb) {
     this.color_hex = String.format("#%02x%02x%02x", rgb[0], rgb[1], rgb[2]);
   }
 
@@ -170,8 +170,17 @@ public class Tag {
    * @param g the green value
    * @param b the blue value
    */
-  public void setRgb(int r, int g, int b) {
+  public void setColor_hex(int r, int g, int b) {
     this.color_hex = String.format("#%02x%02x%02x", r, g, b);
+  }
+
+  /**
+   * Sets the Hex color of the tag.
+   *
+   * @param color_hex the Hex color to set
+   */
+  private void setColor_hex(String color_hex) {
+    this.color_hex = color_hex;
   }
 
   // EQUALS AND HASHCODE
