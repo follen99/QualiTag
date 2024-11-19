@@ -1,13 +1,10 @@
 package it.unisannio.studenti.qualitag.model;
 
-
+import java.util.Objects;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Arrays;
-import java.util.Objects;
-
-@Document(collection = "tags")
+@Document
 public class Tag {
 
   @Id
@@ -18,6 +15,13 @@ public class Tag {
   private String user_id;
   private String tag_value;
   private String color_hex; // Array to represent RGB values
+
+  /**
+   * Default constructor.
+   */
+  public Tag() {
+  }
+
 
   /**
    * Constructor with default tag color choosen randomly.
@@ -33,18 +37,19 @@ public class Tag {
     this.color_hex = this.chooseColor();  // Choose a random color from the default colors
   }
 
+  /**
+   * Constructor with a specific tag color (hex).
+   *
+   * @param tag_value     the value of the tag
+   * @param project_id    the ID of the project
+   * @param user_id       the ID of the user
+   * @param tag_color_hex the color of the tag
+   */
   public Tag(String tag_value, String project_id, String user_id, String tag_color_hex) {
     this.tag_value = tag_value;
     this.project_id = project_id;
     this.user_id = user_id;
     this.color_hex = tag_color_hex;
-  }
-
-  /**
-   * Default constructor for Tag.
-   */
-  public Tag() {
-
   }
 
   private String chooseColor() {
@@ -193,19 +198,14 @@ public class Tag {
 
   // TO STRING
 
-  /**
-   * Gets the tag as a string.
-   *
-   * @return the tag as a string
-   */
+
   @Override
   public String toString() {
     return "Tag{" +
         "tag_id='" + tag_id + '\'' +
         ", project_id='" + project_id + '\'' +
         ", user_id='" + user_id + '\'' +
-        ", value='" + tag_value + '\'' +
-        ", rgb=" + Arrays.toString(this.getRgb()) +
+        ", tag_value='" + tag_value + '\'' +
         ", color_hex='" + color_hex + '\'' +
         '}';
   }
