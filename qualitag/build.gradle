@@ -4,6 +4,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'com.vaadin' version '24.5.4'
 	id 'com.github.node-gradle.node' version '3.5.1'		// Automatically installs Node.js
+	id 'checkstyle'
 }
 
 group = 'it.unisannio.studenti'
@@ -20,7 +21,7 @@ node {
 	download = true 	// Automatically download Node.js
 }
 
-task installNodeModules(type: NpmTask) {
+tasks.register('installNodeModules', NpmTask) {
 	args = ['install']
 }
 
@@ -47,6 +48,10 @@ dependencyManagement {
 	imports {
 		mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
 	}
+}
+
+checkstyle {
+	configFile = rootProject.file('qualitag/config/intellij-java-google-style.xml')
 }
 
 tasks.named('test') {

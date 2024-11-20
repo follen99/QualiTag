@@ -114,8 +114,8 @@ public class Team {
    * @param user the user to add
    */
   public void addUser(User user) {
-    String userID = user.getUserID();
-    this.users.add(userID);
+    String userId = user.getUserId();
+    this.users.add(userId);
   }
 
   /**
