@@ -4,16 +4,12 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
-import java.util.HashSet;
-import java.util.Set;
-import org.springframework.web.client.RestTemplate;
 
 @Route("")
 public class AddTagView extends VerticalLayout {
@@ -63,7 +59,7 @@ public class AddTagView extends VerticalLayout {
   }
 
   private Component createTagView(Tag tag) {
-    Checkbox checkbox = new Checkbox(tag.getTag_value());
+    Checkbox checkbox = new Checkbox(tag.getTagValue());
     return checkbox;
   }
 

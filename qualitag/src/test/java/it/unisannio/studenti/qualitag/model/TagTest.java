@@ -9,37 +9,37 @@ class TagTest {
     public void testTagConstructorWithColor() {
         int[] color = {255, 0, 0};
         Tag tag = new Tag("1", "1", "1", "Test", color);
-        assertEquals("1", tag.getTag_id());
-        assertEquals("1", tag.getProject_id());
-        assertEquals("1", tag.getUser_id());
-        assertEquals("Test", tag.getTag_value());
+        assertEquals("1", tag.getTagId());
+        assertEquals("1", tag.getProjectId());
+        assertEquals("1", tag.getUserId());
+        assertEquals("Test", tag.getTagValue());
         assertArrayEquals(color, tag.getRgbAsIntArr());
     }
 
     @Test
     public void testTagConstructorWithDefaultColor() {
         Tag tag = new Tag("1", "1", "1", "Test");
-        assertEquals("1", tag.getTag_id());
-        assertEquals("1", tag.getProject_id());
-        assertEquals("1", tag.getUser_id());
-        assertEquals("Test", tag.getTag_value());
+        assertEquals("1", tag.getTagId());
+        assertEquals("1", tag.getProjectId());
+        assertEquals("1", tag.getUserId());
+        assertEquals("Test", tag.getTagValue());
         assertNotNull(tag.getRgbAsIntArr());
     }
 
     @Test
     public void testSettersAndGetters() {
         Tag tag = new Tag("1", "1", "1", "Test");
-        tag.setTag_id("2");
-        tag.setProject_id("2");
-        tag.setUser_id("2");
-        tag.setTag_value("Updated");
+        tag.setTagId("2");
+        tag.setProjectId("2");
+        tag.setUserId("2");
+        tag.setTagValue("Updated");
         int[] newColor = {0, 255, 0};
         tag.setRgb(newColor);
 
-        assertEquals("2", tag.getTag_id());
-        assertEquals("2", tag.getProject_id());
-        assertEquals("2", tag.getUser_id());
-        assertEquals("Updated", tag.getTag_value());
+        assertEquals("2", tag.getTagId());
+        assertEquals("2", tag.getProjectId());
+        assertEquals("2", tag.getUserId());
+        assertEquals("Updated", tag.getTagValue());
         assertArrayEquals(newColor, tag.getRgbAsIntArr());
     }
 
