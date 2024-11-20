@@ -3,8 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'com.vaadin' version '24.5.4'
-	// per installare automaticamente node
-	id 'com.github.node-gradle.node' version '3.5.1'
+	id 'com.github.node-gradle.node' version '3.5.1'		// Automatically installs Node.js
 }
 
 group = 'it.unisannio.studenti'
@@ -17,8 +16,8 @@ java {
 }
 
 node {
-	version = '16.13.0' // Specifica la versione di Node.js da installare
-	download = true // Scarica Node.js se non è già installato
+	version = '16.13.0' // Specific Node.js version
+	download = true 	// Automatically download Node.js
 }
 
 task installNodeModules(type: NpmTask) {
@@ -38,13 +37,10 @@ ext {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.vaadin:vaadin-spring-boot-starter'
-	implementation 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	// PERSISTENCE mongodb
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'	// MongoDB
 }
 
 dependencyManagement {
