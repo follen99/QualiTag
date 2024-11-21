@@ -9,28 +9,28 @@ public class ArtifactTest {
     @Test
     public void testArtifactDefaultConstructor() {
         Artifact artifact = new Artifact();
-        artifact.setArtifact_id("default_id");
-        artifact.setContent("default_content");
+        artifact.setArtifactId("defaultId");
+        artifact.setContent("defaultContent");
 
-        assertEquals("default_id", artifact.getArtifact_id());
-        assertEquals("default_content", artifact.getContent());
+        assertEquals("defaultId", artifact.getArtifactId());
+        assertEquals("defaultContent", artifact.getContent());
     }
 
     @Test
     public void testArtifactConstructor() {
         Artifact artifact = new Artifact("1", "Content");
 
-        assertEquals("1", artifact.getArtifact_id());
+        assertEquals("1", artifact.getArtifactId());
         assertEquals("Content", artifact.getContent());
     }
 
     @Test
     public void testSettersAndGetters() {
         Artifact artifact = new Artifact("1", "Content");
-        artifact.setArtifact_id("2");
+        artifact.setArtifactId("2");
         artifact.setContent("Content2");
 
-        assertEquals("2", artifact.getArtifact_id());
+        assertEquals("2", artifact.getArtifactId());
         assertEquals("Content2", artifact.getContent());
     }
 
@@ -50,6 +50,6 @@ public class ArtifactTest {
     public void testToString() {
         Artifact artifact = new Artifact("1", "Content");
 
-        assertEquals("Artifact{artifact_id='1', tags=[], content='Content'}", artifact.toString());
+        assertEquals("Artifact{artifactId='1', tags=[], content='Content'}", artifact.toString());
     }
 }

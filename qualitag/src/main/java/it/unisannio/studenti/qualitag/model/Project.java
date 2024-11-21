@@ -9,16 +9,31 @@ package it.unisannio.studenti.qualitag.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+import org.springframework.data.mongodb.core.mapping.*;
 
 public class Project {
 
-  private String project_id;
-  private String project_name;
+  @MongoId
+  @Field(targetType = FieldType.OBJECT_ID)
+  private String projectId;
+
+  @Field(name="projectName")
+  private String projectName;
+
+  @Field(name="projectUsers")
   private ArrayList<User> users;
+
+  @Field(name="projectTeams")
   private ArrayList<Team> teams;
-  private Date project_deadline;
-  private Date project_creation_date;
-  private String project_description;
+
+  @Field(name="projectDeadline")
+  private Date projectDeadline;
+
+  @Field(name="projectCreationDate")
+  private Date projectCreationDate;
+
+  @Field(name="projectDescription")
+  private String projectDescription;
 
 
   /**
@@ -33,41 +48,41 @@ public class Project {
   /**
    * Constructor for Project with Parameters
    *
-   * @param project_id The project's id
-   * @param project_name The project's name
-   * @param project_deadline The project's deadline
-   * @param project_description The project's description
+   * @param projectId The project's id
+   * @param projectName The project's name
+   * @param projectDeadline The project's deadline
+   * @param projectDescription The project's description
    */
-  public Project(String project_id, String project_name, Date project_deadline,
-      String project_description) {
-    this.project_id = project_id;
-    this.project_name = project_name;
+  public Project(String projectId, String projectName, Date projectDeadline,
+      String projectDescription) {
+    this.projectId = projectId;
+    this.projectName = projectName;
     this.users = new ArrayList<User>();
     this.teams = new ArrayList<Team>();
-    this.project_deadline = project_deadline;
-    this.project_creation_date = new Date();
-    this.project_description = project_description;
+    this.projectDeadline = projectDeadline;
+    this.projectCreationDate = new Date();
+    this.projectDescription = projectDescription;
   }
 
   /**
    * Constructor for Project with one user
    *
-   * @param project_id The project's id
-   * @param project_name The project's name
+   * @param projectId The project's id
+   * @param projectName The project's name
    * @param user The user that is part of the project
-   * @param project_deadline The project's deadline
-   * @param project_description The project's description
+   * @param projectDeadline The project's deadline
+   * @param projectDescription The project's description
    */
-  public Project(String project_id, String project_name, User user, Date project_deadline,
-      String project_description) {
-    this.project_id = project_id;
-    this.project_name = project_name;
+  public Project(String projectId, String projectName, User user, Date projectDeadline,
+      String projectDescription) {
+    this.projectId = projectId;
+    this.projectName = projectName;
     this.users = new ArrayList<User>();
     users.add(user);
     this.teams = new ArrayList<Team>();
-    this.project_deadline = project_deadline;
-    this.project_creation_date = new Date();
-    this.project_description = project_description;
+    this.projectDeadline = projectDeadline;
+    this.projectCreationDate = new Date();
+    this.projectDescription = projectDescription;
   }
 
   /**
@@ -133,17 +148,17 @@ public class Project {
    *
    * @return project_name The project's name
    */
-  public String getProject_id() {
-    return project_id;
+  public String getProjectId() {
+    return projectId;
   }
 
   /**
    * Sets the project_id
    *
-   * @param project_id The project's id
+   * @param projectId The project's id
    */
-  public void setProject_id(String project_id) {
-    this.project_id = project_id;
+  public void setProjectId(String projectId) {
+    this.projectId = projectId;
   }
 
   /**
@@ -151,17 +166,17 @@ public class Project {
    *
    * @return project_name The project's name
    */
-  public String getProject_name() {
-    return project_name;
+  public String getProjectName() {
+    return projectName;
   }
 
   /**
    * Sets the project_name
    *
-   * @param project_name The project's name
+   * @param projectName The project's name
    */
-  public void setProject_name(String project_name) {
-    this.project_name = project_name;
+  public void setProjectName(String projectName) {
+    this.projectName = projectName;
   }
 
   /**
@@ -205,17 +220,17 @@ public class Project {
    *
    * @return project_deadline The project's deadline
    */
-  public Date getProject_deadline() {
-    return project_deadline;
+  public Date getProjectDeadline() {
+    return projectDeadline;
   }
 
   /**
    * Sets the project_deadline
    *
-   * @param project_deadline The project's deadline
+   * @param projectDeadline The project's deadline
    */
-  public void setProject_deadline(Date project_deadline) {
-    this.project_deadline = project_deadline;
+  public void setProjectDeadline(Date projectDeadline) {
+    this.projectDeadline = projectDeadline;
   }
 
   /**
@@ -223,17 +238,17 @@ public class Project {
    *
    * @return project_creation_date The project's creation date
    */
-  public Date getProject_creation_date() {
-    return project_creation_date;
+  public Date getProjectCreationDate() {
+    return projectCreationDate;
   }
 
   /**
    * Sets the project_creation_date
    *
-   * @param project_creation_date The project's creation date
+   * @param projectCreationDate The project's creation date
    */
-  public void setProject_creation_date(Date project_creation_date) {
-    this.project_creation_date = project_creation_date;
+  public void setProjectCreationDate(Date projectCreationDate) {
+    this.projectCreationDate = projectCreationDate;
   } //is this really necessary?
 
   /**
@@ -241,17 +256,17 @@ public class Project {
    *
    * @return project_description The project's description
    */
-  public String getProject_description() {
-    return project_description;
+  public String getProjectDescription() {
+    return projectDescription;
   }
 
   /**
    * Sets the project_description
    *
-   * @param project_description The project's description
+   * @param projectDescription The project's description
    */
-  public void setProject_description(String project_description) {
-    this.project_description = project_description;
+  public void setProjectDescription(String projectDescription) {
+    this.projectDescription = projectDescription;
   }
 
   //EQUALS AND HASHCODE
@@ -271,8 +286,8 @@ public class Project {
           return false;
       }
     Project project = (Project) o;
-    return Objects.equals(getProject_id(), project.getProject_id()) &&
-        Objects.equals(getProject_name(), project.getProject_name()) &&
+    return Objects.equals(getProjectId(), project.getProjectId()) &&
+        Objects.equals(getProjectName(), project.getProjectName()) &&
         Objects.equals(getUsers(), project.getUsers()) &&
         Objects.equals(getTeams(), project.getTeams());
   }
@@ -284,8 +299,8 @@ public class Project {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(getProject_id(), getProject_name(), getUsers(), getTeams(),
-        getProject_deadline(), getProject_creation_date(), getProject_description());
+    return Objects.hash(getProjectId(), getProjectName(), getUsers(), getTeams(),
+        getProjectDeadline(), getProjectCreationDate(), getProjectDescription());
   }
 
   //TO STRING
@@ -298,13 +313,13 @@ public class Project {
   @Override
   public String toString() {
     return "Project{" +
-        "project_id='" + project_id + '\'' +
-        ", project_name='" + project_name + '\'' +
+        "projectId='" + projectId + '\'' +
+        ", projectName='" + projectName + '\'' +
         ", users=" + users +
         ", teams=" + teams +
-        ", project_deadline=" + project_deadline +
-        ", project_creation_date=" + project_creation_date +
-        ", project_description='" + project_description + '\'' +
+        ", projectDeadline=" + projectDeadline +
+        ", projectCreation_date=" + projectCreationDate +
+        ", projectDescription='" + projectDescription + '\'' +
         '}';
   }
 }

@@ -12,19 +12,19 @@ public class ProjectTest {
     public void testProjectDefaultConstructor() {
         Project project = new Project();
 
-        project.setProject_id("default_id");
-        project.setProject_name("default_name");
-        Date creation_date = new Date();
-        project.setProject_creation_date(creation_date);
-        Date deadline_date = new Date();
-        project.setProject_deadline(deadline_date);
-        project.setProject_description("default_description");
+        project.setProjectId("defaultId");
+        project.setProjectName("defaultName");
+        Date creationDate = new Date();
+        project.setProjectCreationDate(creationDate);
+        Date deadlineDate = new Date();
+        project.setProjectDeadline(deadlineDate);
+        project.setProjectDescription("defaultDescription");
 
-        assertEquals("default_id", project.getProject_id());
-        assertEquals("default_name", project.getProject_name());
-        assertEquals(creation_date, project.getProject_creation_date());
-        assertEquals(deadline_date, project.getProject_deadline());
-        assertEquals("default_description", project.getProject_description());
+        assertEquals("defaultId", project.getProjectId());
+        assertEquals("defaultName", project.getProjectName());
+        assertEquals(creationDate, project.getProjectCreationDate());
+        assertEquals(deadlineDate, project.getProjectDeadline());
+        assertEquals("defaultDescription", project.getProjectDescription());
     }
 
     @Test
@@ -32,26 +32,26 @@ public class ProjectTest {
         Date date = new Date();
         Project project = new Project("1", "Project", date, "Description");
 
-        assertEquals("1", project.getProject_id());
-        assertEquals("Project", project.getProject_name());
-        assertEquals(date, project.getProject_deadline());
-        assertEquals("Description", project.getProject_description());
+        assertEquals("1", project.getProjectId());
+        assertEquals("Project", project.getProjectName());
+        assertEquals(date, project.getProjectDeadline());
+        assertEquals("Description", project.getProjectDescription());
     }
 
     @Test
     public void testSettersAndGetters() {
         Date date = new Date();
         Project project = new Project("1", "Project", date, "Description");
-        project.setProject_id("2");
-        project.setProject_name("Project2");
+        project.setProjectId("2");
+        project.setProjectName("Project2");
         Date date2 = new Date();
-        project.setProject_deadline(date2);
-        project.setProject_description("Description2");
+        project.setProjectDeadline(date2);
+        project.setProjectDescription("Description2");
 
-        assertEquals("2", project.getProject_id());
-        assertEquals("Project2", project.getProject_name());
-        assertEquals(date2, project.getProject_deadline());
-        assertEquals("Description2", project.getProject_description());
+        assertEquals("2", project.getProjectId());
+        assertEquals("Project2", project.getProjectName());
+        assertEquals(date2, project.getProjectDeadline());
+        assertEquals("Description2", project.getProjectDescription());
     }
 
     @Test
@@ -59,23 +59,23 @@ public class ProjectTest {
         Date date = new Date();
 
         Project project = new Project("1", "Project", date, "Description");
-        Project same_project = new Project("1", "Project", date, "Description");
-        Project different_project = new Project("2", "Different Project", date, "Different Description");
+        Project sameProject = new Project("1", "Project", date, "Description");
+        Project differentProject = new Project("2", "Different Project", date, "Different Description");
 
-        assertEquals(project, same_project);
-        assertEquals(project.hashCode(), same_project.hashCode());
+        assertEquals(project, sameProject);
+        assertEquals(project.hashCode(), sameProject.hashCode());
 
-        assertNotEquals(project, different_project);
-        assertNotEquals(project.hashCode(), different_project.hashCode());
+        assertNotEquals(project, differentProject);
+        assertNotEquals(project.hashCode(), differentProject.hashCode());
     }
 
     @Test
     public void testToString(){
         Date date = new Date();
         Project project = new Project("1", "Project", date, "Description");
-        assertEquals("Project{project_id='1', project_name='Project', users=[], teams=[], project_deadline=" +
-                date + ", project_creation_date=" + project.getProject_creation_date() +
-                ", project_description='Description'}", project.toString());
+        assertEquals("Project{projectId='1', projectName='Project', users=[], teams=[], projectDeadline=" +
+                date + ", projectCreationDate=" + project.getProjectCreationDate() +
+                ", projectDescription='Description'}", project.toString());
     }
 
 }

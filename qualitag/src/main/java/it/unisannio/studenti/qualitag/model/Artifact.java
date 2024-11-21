@@ -2,11 +2,18 @@ package it.unisannio.studenti.qualitag.model;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import org.springframework.data.mongodb.core.mapping.*;
 
 public class Artifact {
 
-  private String artifact_id;
+  @MongoId
+  @Field(targetType = FieldType.OBJECT_ID)
+  private String artifactId;
+
+  @Field(name="artifactTags")
   private ArrayList<Tag> tags;
+
+  @Field(name="ArtifactContent")
   private String content;
 
   /**
@@ -19,12 +26,12 @@ public class Artifact {
   /**
    * Constructor for Artifact
    *
-   * @param artifact_id the id of the artifact
+   * @param artifactId the id of the artifact
    * @param content     the content of the artifact
    */
 
-  public Artifact(String artifact_id, String content) {
-    this.artifact_id = artifact_id;
+  public Artifact(String artifactId, String content) {
+    this.artifactId = artifactId;
     this.tags = new ArrayList<Tag>();
     this.content = content;
   }
@@ -64,17 +71,17 @@ public class Artifact {
    *
    * @return the id of the artifact
    */
-  public String getArtifact_id() {
-    return artifact_id;
+  public String getArtifactId() {
+    return artifactId;
   }
 
   /**
    * Sets the id of the artifact
    *
-   * @param artifact_id the id of the artifact
+   * @param artifactId the id of the artifact
    */
-  public void setArtifact_id(String artifact_id) {
-    this.artifact_id = artifact_id;
+  public void setArtifactId(String artifactId) {
+    this.artifactId = artifactId;
   }
 
   /**
@@ -130,7 +137,7 @@ public class Artifact {
           return false;
       }
     Artifact artifact = (Artifact) o;
-    return Objects.equals(artifact_id, artifact.getArtifact_id()) &&
+    return Objects.equals(artifactId, artifact.getArtifactId()) &&
         Objects.equals(tags, artifact.getTags()) &&
         Objects.equals(content, artifact.getContent());
   }
@@ -142,7 +149,7 @@ public class Artifact {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(getArtifact_id(), getTags(), getContent());
+    return Objects.hash(getArtifactId(), getTags(), getContent());
   }
 
   //TO STRING
@@ -154,7 +161,7 @@ public class Artifact {
    */
   public String toString() {
     return "Artifact{" +
-        "artifact_id='" + artifact_id + '\'' +
+        "artifact_id='" + artifactId + '\'' +
         ", tags=" + tags +
         ", content='" + content + '\'' +
         '}';
