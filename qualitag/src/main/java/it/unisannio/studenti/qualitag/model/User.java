@@ -1,58 +1,80 @@
 package it.unisannio.studenti.qualitag.model;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 /**
  * Represents the User in the system.
  */
+@Document(collection = "user")
 public class User {
-
-  // ************ ATTRIBUTES ************
+  // Attributes
+  @MongoId
+  @Field(targetType = FieldType.OBJECT_ID)
   private final String userId;
-  private final String username;
-  private final String email;
+
+  @Field(name = "username")
+  @Indexed(unique = true)
+  private String username;
+
+  @Field(name = "email")
+  @Indexed(unique = true)
+  private String email;
+
+  @Field(name = "passwordHash")
   private String passwordHash;
-  private final String name;
-  private final String surname;
+
+  @Field(name = "name")
+  private String name;
+
+  @Field(name = "surname")
+  private String surname;
+
+  @Field(name = "projectIds")
   private final List<String> projectIds;
+
+  @Field(name = "teamIds")
   private final List<String> teamIds;
+
+  @Field(name = "tagIds")
   private final List<String> tagIds;
+
+  @Field(name = "roles")
   private List<String> roles;
 
-  // ************ CONSTRUCTORS ************
-
+  // Constructors
   /**
    * Constructs a new User.
    *
-   * @param userId the user ID
-   * @param username the username
-   * @param email the email address
-   * @param password the password
-   * @param name the first name
-   * @param surname the last name
+   * @param userId The unique identifier for the user
+   * @param username The username of the user
+   * @param email The email address of the user
+   * @param passwordHash The hashed password of the user
+   * @param name The first name of the user
+   * @param surname The last name of the user
    */
-  public User(String userId, String username, String email, String password, String name,
+  public User(String userId, String username, String email, String passwordHash, String name,
       String surname) {
     this.userId = userId;
     this.username = username;
     this.email = email;
-    this.passwordHash = hashPassword(password);
+    this.passwordHash = passwordHash;
     this.name = name;
     this.surname = surname;
+
     this.projectIds = new ArrayList<>();
     this.teamIds = new ArrayList<>();
     this.tagIds = new ArrayList<>();
   }
 
-  // ************ METHODS ************
-
+  // Methods
   public String getUserId() {
     return userId;
   }
@@ -61,16 +83,40 @@ public class User {
     return username;
   }
 
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
   public String getEmail() {
     return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPasswordHash() {
+    return passwordHash;
+  }
+
+  public void setPasswordHash(String passwordHash) {
+    this.passwordHash = passwordHash;
   }
 
   public String getName() {
     return name;
   }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
   public String getSurname() {
     return surname;
+  }
+
+  public void setSurname(String surname) {
+    this.surname = surname;
   }
 
   public List<String> getProjectIds() {
@@ -145,28 +191,6 @@ public class User {
 
   public void setRoles(List<String> roles) {
     this.roles = roles;
-  }
-
-  public void setPassword(String password) {
-    this.passwordHash = hashPassword(password);
-  }
-
-  public String getPasswordHash() {
-    return passwordHash;
-  }
-
-  private String hashPassword(String password) {
-    try {
-      MessageDigest md = MessageDigest.getInstance("SHA-256");
-      byte[] salt = new byte[16];
-      SecureRandom sr = new SecureRandom();
-      sr.nextBytes(salt);
-      md.update(salt);
-      byte[] hashedPassword = md.digest(password.getBytes());
-      return Base64.getEncoder().encodeToString(hashedPassword);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Error hashing password", e);
-    }
   }
 
   @Override
