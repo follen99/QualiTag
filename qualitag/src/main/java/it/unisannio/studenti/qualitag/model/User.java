@@ -15,10 +15,11 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
  */
 @Document(collection = "user")
 public class User {
+
   // Attributes
   @MongoId
   @Field(targetType = FieldType.OBJECT_ID)
-  private final String userId;
+  private String userId;
 
   @Field(name = "username")
   @Indexed(unique = true)
@@ -38,31 +39,30 @@ public class User {
   private String surname;
 
   @Field(name = "projectIds")
-  private final List<String> projectIds;
+  private List<String> projectIds;
 
   @Field(name = "teamIds")
-  private final List<String> teamIds;
+  private List<String> teamIds;
 
   @Field(name = "tagIds")
-  private final List<String> tagIds;
+  private List<String> tagIds;
 
   @Field(name = "roles")
   private List<String> roles;
 
   // Constructors
+
   /**
    * Constructs a new User.
    *
-   * @param userId The unique identifier for the user
-   * @param username The username of the user
-   * @param email The email address of the user
+   * @param username     The username of the user
+   * @param email        The email address of the user
    * @param passwordHash The hashed password of the user
-   * @param name The first name of the user
-   * @param surname The last name of the user
+   * @param name         The first name of the user
+   * @param surname      The last name of the user
    */
-  public User(String userId, String username, String email, String passwordHash, String name,
+  public User(String username, String email, String passwordHash, String name,
       String surname) {
-    this.userId = userId;
     this.username = username;
     this.email = email;
     this.passwordHash = passwordHash;
@@ -123,6 +123,10 @@ public class User {
     return Collections.unmodifiableList(projectIds);
   }
 
+  public void setProjectIds(List<String> projectIds) {
+    this.projectIds = projectIds;
+  }
+
   /**
    * Adds a project ID to the user.
    *
@@ -145,6 +149,10 @@ public class User {
     return Collections.unmodifiableList(teamIds);
   }
 
+  public void setTeamIds(List<String> teamIds) {
+    this.teamIds = teamIds;
+  }
+
   /**
    * Adds a team ID to the user.
    *
@@ -165,6 +173,10 @@ public class User {
 
   public List<String> getTagIds() {
     return Collections.unmodifiableList(tagIds);
+  }
+
+  public void setTagIds(List<String> tagIds) {
+    this.tagIds = tagIds;
   }
 
   /**

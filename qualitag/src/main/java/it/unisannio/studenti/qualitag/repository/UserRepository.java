@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  * Repository for the User entity.
  */
 public interface UserRepository extends MongoRepository<User, String> {
+
   /**
    * Checks if a user with the given username exists.
    *

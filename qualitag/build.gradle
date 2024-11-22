@@ -36,12 +36,14 @@ ext {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'com.vaadin:vaadin-spring-boot-starter'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-web'	// Spring Web
+	implementation 'com.vaadin:vaadin-spring-boot-starter'	// Vaadin
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'	// Spring Boot DevTools
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'	// Spring Boot Test
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'	// JUnit 5
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'	// MongoDB
+	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'	// Jakarta Bean Validation API
+	implementation 'org.hibernate.validator:hibernate-validator:7.0.1.Final'	// Hibernate Validator
 }
 
 dependencyManagement {
