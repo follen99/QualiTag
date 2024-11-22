@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.service;
 
+import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
@@ -104,6 +105,19 @@ public class UserService {
   }
 
   /**
+   * Validates the user login data.
+   *
+   * @param userLoginDto The user login data to validate.
+   * @return true if the user login data is valid, false otherwise.
+   */
+  public boolean isValidUserLogin(UserLoginDto userLoginDto) {
+    Set<ConstraintViolation<UserLoginDto>> violations = validator.validate(
+        userLoginDto);
+
+    return violations.isEmpty();
+  }
+
+  /**
    * Registers a new user.
    *
    * @param userRegistrationDto The user registration data.
@@ -142,6 +156,33 @@ public class UserService {
     userRepository.save(user);
 
     return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
+  }
+
+  /**
+   * Logs in a user.
+   *
+   * @param userLoginDto The user login data.
+   * @return A response entity with the result of the login.
+   */
+  public ResponseEntity<?> loginUser(UserLoginDto userLoginDto) {
+    // DTO validation
+    if (!isValidUserLogin(userLoginDto)) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
+    }
+
+    // Check if the user exists
+    User user = userRepository.findByUsernameOrEmail(userLoginDto.usernameOrEmail(),
+        userLoginDto.usernameOrEmail());
+    if (user == null) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
+    }
+
+    // Check if the password is correct
+    if (!checkPassword(userLoginDto.password(), user.getPasswordHash())) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect password.");
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body("User logged in successfully.");
   }
 
   /**

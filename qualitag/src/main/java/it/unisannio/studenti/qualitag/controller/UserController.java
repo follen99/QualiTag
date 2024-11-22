@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,22 @@ public class UserController {
     return userService.registerUser(userRegistrationDto);
   }
 
+  /**
+   * Logs in a user.
+   *
+   * @param userLoginDto The user login DTO.
+   * @return The response entity.
+   */
+  @PostMapping("/login")
+  public ResponseEntity<?> loginUser(@RequestBody UserLoginDto userLoginDto) {
+    return userService.loginUser(userLoginDto);
+  }
+
+  /**
+   * Gets all users.
+   *
+   * @return The response entity.
+   */
   @GetMapping("/admin/users")
   public ResponseEntity<?> getAllUsers() {
     return userService.getAllUsers();
