@@ -53,6 +53,15 @@ public class User {
   // Constructors
 
   /**
+   * Constructs a new User with no parameters.
+   */
+  public User() {
+    this.projectIds = new ArrayList<>();
+    this.teamIds = new ArrayList<>();
+    this.tagIds = new ArrayList<>();
+  }
+
+  /**
    * Constructs a new User.
    *
    * @param username     The username of the user

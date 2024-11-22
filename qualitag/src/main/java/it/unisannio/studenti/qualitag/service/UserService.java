@@ -74,9 +74,12 @@ public class UserService {
   }
 
   /**
-   * Checks if the password is valid. Minimum requirements: - At least one uppercase letter - At
-   * least one lowercase letter - At least one digit - At least one special character - Minimum
-   * length of 8 characters
+   * Checks if the password is valid. Minimum requirements:
+   * - At least one uppercase letter
+   * - At least one lowercase letter
+   * - At least one digit
+   * - At least one special character
+   * - Minimum length of 8 characters
    *
    * @param password The password to check.
    * @return true if the password is valid, false otherwise.
