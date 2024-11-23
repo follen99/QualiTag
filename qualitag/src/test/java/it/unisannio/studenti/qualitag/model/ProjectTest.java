@@ -1,5 +1,8 @@
 package it.unisannio.studenti.qualitag.model;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -8,74 +11,94 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ProjectTest {
 
-    @Test
-    public void testProjectDefaultConstructor() {
-        Project project = new Project();
+    private Project project;
 
-        project.setProjectId("defaultId");
-        project.setProjectName("defaultName");
-        Date creationDate = new Date();
-        project.setProjectCreationDate(creationDate);
-        Date deadlineDate = new Date();
-        project.setProjectDeadline(deadlineDate);
-        project.setProjectDescription("defaultDescription");
-
-        assertEquals("defaultId", project.getProjectId());
-        assertEquals("defaultName", project.getProjectName());
-        assertEquals(creationDate, project.getProjectCreationDate());
-        assertEquals(deadlineDate, project.getProjectDeadline());
-        assertEquals("defaultDescription", project.getProjectDescription());
+    @BeforeEach
+    public void setUp() {
+        LocalDate localDate = LocalDate.of(2025, 12, 31);
+        Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        project = new Project("ProjectName", "ProjectDescription", projectDeadline);
     }
 
     @Test
-    public void testProjectConstructor() {
-        Date date = new Date();
-        Project project = new Project("1", "Project", date, "Description");
-
-        assertEquals("1", project.getProjectId());
-        assertEquals("Project", project.getProjectName());
-        assertEquals(date, project.getProjectDeadline());
-        assertEquals("Description", project.getProjectDescription());
+    public void testGetProjectId() {
+        assertNull(project.getProjectId()); //Initially, projectId should be null
     }
 
     @Test
-    public void testSettersAndGetters() {
-        Date date = new Date();
-        Project project = new Project("1", "Project", date, "Description");
-        project.setProjectId("2");
-        project.setProjectName("Project2");
-        Date date2 = new Date();
-        project.setProjectDeadline(date2);
-        project.setProjectDescription("Description2");
-
-        assertEquals("2", project.getProjectId());
-        assertEquals("Project2", project.getProjectName());
-        assertEquals(date2, project.getProjectDeadline());
-        assertEquals("Description2", project.getProjectDescription());
+    public void testGetProjectName() {
+        assertEquals("ProjectName", project.getProjectName());
     }
 
     @Test
-    public void testEqualsAndHashCode(){
-        Date date = new Date();
-
-        Project project = new Project("1", "Project", date, "Description");
-        Project sameProject = new Project("1", "Project", date, "Description");
-        Project differentProject = new Project("2", "Different Project", date, "Different Description");
-
-        assertEquals(project, sameProject);
-        assertEquals(project.hashCode(), sameProject.hashCode());
-
-        assertNotEquals(project, differentProject);
-        assertNotEquals(project.hashCode(), differentProject.hashCode());
+    public void testSetProjectName() {
+        project.setProjectName("NewProjectName");
+        assertEquals("NewProjectName", project.getProjectName());
     }
 
     @Test
-    public void testToString(){
-        Date date = new Date();
-        Project project = new Project("1", "Project", date, "Description");
-        assertEquals("Project{projectId='1', projectName='Project', users=[], teams=[], projectDeadline=" +
-                date + ", projectCreationDate=" + project.getProjectCreationDate() +
-                ", projectDescription='Description'}", project.toString());
+    public void testGetProjectDescription() {
+        assertEquals("ProjectDescription", project.getProjectDescription());
     }
 
+    @Test
+    public void testSetProjectDescription() {
+        project.setProjectDescription("NewProjectDescription");
+        assertEquals("NewProjectDescription", project.getProjectDescription());
+    }
+
+    @Test
+    public void testGetProjectCreationDate() {
+        assertNotNull(project.getProjectCreationDate());
+    }
+
+    @Test
+    public void testGetProjectDeadline() {
+        LocalDate localDate = LocalDate.of(2025, 12, 31);
+        Date projectDeadline= Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        assertEquals(projectDeadline, project.getProjectDeadline());
+    }
+
+    @Test
+    public void testSetProjectDeadline() {
+        LocalDate localDate = LocalDate.of(2026, 12, 31);
+        Date projectDeadline= Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        project.setProjectDeadline(projectDeadline);
+        assertEquals(projectDeadline, project.getProjectDeadline());
+    }
+
+    @Test
+    public void testAddAndRemoveUserId() {
+        project.addUserId("userId");
+        assertTrue(project.getUserIds().contains("userId"));
+        project.removeUserId("userId");
+        assertFalse(project.getUserIds().contains("userId"));
+    }
+
+    @Test
+    public void testAddAndRemoveTeamId() {
+        project.addTeamId("teamId");
+        assertTrue(project.getTeamIds().contains("teamId"));
+        project.removeTeamId("teamId");
+        assertFalse(project.getTeamIds().contains("teamId"));
+    }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        LocalDate localDate = LocalDate.of(2025, 12, 31);
+        Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Project anotherProject = new Project("ProjectName", "ProjectDescription",
+            projectDeadline);
+        assertEquals(project, anotherProject);
+        assertEquals(project.hashCode(), anotherProject.hashCode());
+    }
+
+    @Test
+    public void testToString() {
+        String expected =
+            "Project{projectId='null', projectName='ProjectName', projectDescription='ProjectDescription', projectCreationDate="
+                + project.getProjectCreationDate()
+                + ", projectDeadline=Wed Dec 31 00:00:00 CET 2025, usersIds=[], teamsIds=[]}";
+        assertEquals(expected, project.toString());
+    }
 }

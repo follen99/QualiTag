@@ -1,61 +1,47 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import it.unisannio.studenti.qualitag.dto.user.ArtifactCreationDto;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
+import it.unisannio.studenti.qualitag.service.ArtifactService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 public class ArtifactController {
+  private final ArtifactService artifactService;
+
+  /**
+   * Constructs a new ArtifactController
+   *
+   * @param artifactService the artifact service
+   */
   @Autowired
-  ArtifactRepository artifactRepository;
+  public ArtifactController(ArtifactService artifactService) {
+    this.artifactService = artifactService;
+  }
 
   /**
    * Adds an artifact to the repository
-   * @param artifact the artifact to add
+   * @param artifactCreationDto the artifact to add to the repository
+   *
    */
-  @PostMapping("/addArtifact")
-  public void addArtifact(@RequestBody Artifact artifact) {
-    System.out.println(artifact.toString());
-    artifactRepository.save(artifact);
+  @PostMapping("/createNewArtifact")
+  public ResponseEntity<?> createArtifact(@RequestBody ArtifactCreationDto artifactCreationDto) {
+    return artifactService.createArtifact(artifactCreationDto);
   }
 
   /**
-   * returns all the artifact in the repository
+   * Gets all the artifacts
+   * @return the response entity
    */
-  @GetMapping("/getAllArtifacts")
-  public void getAllArtifacts() {
-    artifactRepository.findAll();
+  @GetMapping("/admin/artifacts")
+  public ResponseEntity<?> getAllArtifacts() {
+    return artifactService.getAllArtifacts();
   }
 
-  /**
-   * Returns an artifact with a specific id
-   * @param id the id of the artifact to find
-   * @return the artifact with the given id
-   */
-  @GetMapping("/getArtifactById/{id}")
-  public Artifact getArtifactById(@PathVariable String id) {
-    return artifactRepository.findArtifactByArtifactId(id);
-  }
-
-  /**
-   * Deletes an artifact with a specific id from the repository
-   * @param id the id of the artifact to delete
-   */
-  @DeleteMapping("/deleteArtifact/{id}")
-  public void deleteArtifact(@PathVariable String id) {
-    artifactRepository.deleteById(id);
-  }
-
-  /**
-   * Deletes multiple artifacts from the repository
-   * @param ids a list of the ids of the artifacts to delete
-   */
-  @DeleteMapping("/deleteArtifacts")
-  public void deleteArtifacts(@RequestBody List<String> ids) {
-    ids.forEach(id -> artifactRepository.deleteById(id));
-  }
 
 }
