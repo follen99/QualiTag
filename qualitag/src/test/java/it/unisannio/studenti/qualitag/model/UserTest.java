@@ -13,12 +13,12 @@ public class UserTest {
 
   @BeforeEach
   public void setUp() {
-    user = new User("1", "username", "user@example.com", "password123", "John", "Doe");
+    user = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
   }
 
   @Test
   public void testGetUserId() {
-    assertEquals("1", user.getUserId());
+    assertNull(user.getUserId()); // Initially, userId should be null
   }
 
   @Test
@@ -27,8 +27,31 @@ public class UserTest {
   }
 
   @Test
+  public void testSetUsername() {
+    user.setUsername("newUsername");
+    assertEquals("newUsername", user.getUsername());
+  }
+
+  @Test
   public void testGetEmail() {
     assertEquals("user@example.com", user.getEmail());
+  }
+
+  @Test
+  public void testSetEmail() {
+    user.setEmail("new@example.com");
+    assertEquals("new@example.com", user.getEmail());
+  }
+
+  @Test
+  public void testGetPasswordHash() {
+    assertEquals("hashedPassword123", user.getPasswordHash());
+  }
+
+  @Test
+  public void testSetPasswordHash() {
+    user.setPasswordHash("newHashedPassword");
+    assertEquals("newHashedPassword", user.getPasswordHash());
   }
 
   @Test
@@ -37,8 +60,20 @@ public class UserTest {
   }
 
   @Test
+  public void testSetName() {
+    user.setName("Jane");
+    assertEquals("Jane", user.getName());
+  }
+
+  @Test
   public void testGetSurname() {
     assertEquals("Doe", user.getSurname());
+  }
+
+  @Test
+  public void testSetSurname() {
+    user.setSurname("Smith");
+    assertEquals("Smith", user.getSurname());
   }
 
   @Test
@@ -72,21 +107,15 @@ public class UserTest {
   }
 
   @Test
-  public void testSetPassword() {
-    user.setPassword("newPassword123");
-    assertNotNull(user.getPasswordHash());
-  }
-
-  @Test
   public void testEqualsAndHashCode() {
-    User anotherUser = new User("1", "username", "user@example.com", "password123", "John", "Doe");
+    User anotherUser = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
     assertEquals(user, anotherUser);
     assertEquals(user.hashCode(), anotherUser.hashCode());
   }
 
   @Test
   public void testToString() {
-    String expected = "User{userId='1', username='username', email='user@example.com', name='John', surname='Doe', projectIds=[], teamIds=[], tagIds=[], roles=null}";
+    String expected = "User{userId='null', username='username', email='user@example.com', name='John', surname='Doe', projectIds=[], teamIds=[], tagIds=[], roles=null}";
     assertEquals(expected, user.toString());
   }
 }
