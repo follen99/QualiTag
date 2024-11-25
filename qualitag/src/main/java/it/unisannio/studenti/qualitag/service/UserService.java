@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
+import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
@@ -121,6 +122,19 @@ public class UserService {
   }
 
   /**
+   * Validates the user modification data.
+   *
+   * @param userModifyDto The user modification data to validate.
+   * @return true if the user modification data is valid, false otherwise.
+   */
+  public boolean isValidUserModification(UserModifyDto userModifyDto) {
+    Set<ConstraintViolation<UserModifyDto>> violations = validator.validate(
+        userModifyDto);
+
+    return violations.isEmpty();
+  }
+
+  /**
    * Registers a new user.
    *
    * @param userRegistrationDto The user registration data.
@@ -186,6 +200,65 @@ public class UserService {
     }
 
     return ResponseEntity.status(HttpStatus.OK).body("User logged in successfully.");
+  }
+
+  /**
+   * Modifies a user.
+   *
+   * @param userModifyDto The user modification data.
+   * @param username      The username of the user to modify.
+   * @return A response entity with the result of the modification.
+   */
+  public ResponseEntity<?> modifyUser(UserModifyDto userModifyDto, String username) {
+    // DTO validation
+    if (!isValidUserModification(userModifyDto)) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
+    }
+
+    // Email validation
+    if (!isValidEmail(userModifyDto.email())) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email address.");
+    }
+
+    // Retrieve the existing user
+    User existingUser = userRepository.findByUserId(username);
+    if (existingUser == null) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
+    }
+
+    // Check if the username is already taken
+    if (!existingUser.getUsername().equals(userModifyDto.username())
+        && userRepository.existsByUsername(userModifyDto.username())) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken.");
+    }
+
+    // Check if the email is already taken
+    if (!existingUser.getEmail().equals(userModifyDto.email())
+        && userRepository.existsByEmail(userModifyDto.email())) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already taken.");
+    }
+
+    // Update the user
+    existingUser.setUsername(userModifyDto.username());
+    existingUser.setEmail(userModifyDto.email());
+    existingUser.setName(userModifyDto.name());
+    existingUser.setSurname(userModifyDto.surname());
+
+    // Save the updated user
+    userRepository.save(existingUser);
+
+    return ResponseEntity.status(HttpStatus.OK).body("User modified successfully.");
+  }
+
+  /**
+   * Deletes a user.
+   *
+   * @param username The username of the user to delete.
+   * @return A response entity with the result of the deletion.
+   */
+  public ResponseEntity<?> deleteUser(String username) {
+    userRepository.deleteByUsername(username);
+    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
   }
 
   /**
