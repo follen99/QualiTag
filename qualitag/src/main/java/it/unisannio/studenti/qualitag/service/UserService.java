@@ -167,9 +167,9 @@ public class UserService {
     }
 
     // Register the user
-    assert userMapper != null;
     User user = userMapper.toEntity(userRegistrationDto);
 
+    // Save the user
     userRepository.save(user);
 
     return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
