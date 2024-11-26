@@ -29,6 +29,11 @@ public class TagController {
         return this.tagService.getAllTags();
     }
 
+    @DeleteMapping("/deleteTag/{id}")
+    public ResponseEntity<?> deleteTag(@PathVariable String id) {
+        return this.tagService.deleteTag(id);
+    }
+
     /*@GetMapping("/getAllTags")
     public Iterable<Tag> getAllTags() {
         return tagRepository.findAll();
