@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.controller;
 
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
+import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.service.TagService;
@@ -69,9 +70,9 @@ public class TagController {
      * #######################################################################
      */
 
-    @PutMapping("/updateTag/{id}/{colorHex}")
-    public ResponseEntity<?> updateTagColorHex(@PathVariable String id, @PathVariable String colorHex) {
-        return this.tagService.updateTagColorById(id, colorHex);
+    @PutMapping("/updateTag/{id}")
+    public ResponseEntity<?> updateTag(@RequestBody TagCreateDto tagCreateDto, @PathVariable String id){
+        return this.tagService.updateTag(tagCreateDto, id);
     }
 
     /**

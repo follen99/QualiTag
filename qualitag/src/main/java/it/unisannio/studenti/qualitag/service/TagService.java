@@ -100,22 +100,32 @@ public class TagService {
         return ResponseEntity.status(HttpStatus.OK).body(tags);
     }
 
-    public ResponseEntity<?> updateTagColorById(String id, String colorHex) {
+    /**
+     * #######################################################################
+     *                              UPDATE
+     * #######################################################################
+     */
+
+    public ResponseEntity<?> updateTag(TagCreateDto tagModifyDto, String id){
+        if (tagModifyDto == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("TagModifyDto is null");
+        }
+        if (tagModifyDto.tagValue() == null || tagModifyDto.tagValue().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag name is null");
+        }
         if (id == null || id.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null");
         }
 
-        if (colorHex == null || colorHex.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Color hex is null or empty");
-        }
-
-        if (!tagRepository.existsById(id)) {
+        Tag tag = tagRepository.findById(id).orElse(null);
+        if (tag == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found");
         }
 
-        Tag tag = tagRepository.findById(id).get();
-        tag.setColorHex(colorHex);
-        tagRepository.save(tag);
-        return ResponseEntity.status(HttpStatus.OK).body("Tag color updated");
+        tag.setTagValue(tagModifyDto.tagValue());
+        tag.setColorHex(tagModifyDto.colorHex());
+        tag.setCreatedBy(tagModifyDto.createdBy());
+
+        return ResponseEntity.status(HttpStatus.OK).body("Tag updated successfully");
     }
 }
