@@ -7,4 +7,9 @@ import java.util.List;
 
 public interface TagRepository extends MongoRepository<Tag, String> {
     List<Tag> findTagsByCreatedBy(String createdBy);
+
+    List<Tag> findByCreatedBy(String createdBy);
+
+    List<Tag> findByTagValueContaining(String value);
+
 }

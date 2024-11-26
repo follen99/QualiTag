@@ -73,4 +73,49 @@ public class TagService {
         tagRepository.deleteById(id);
         return null;
     }
+
+    public ResponseEntity<?> getTagsByCreatedBy(String createdBy) {
+        if (createdBy == null || createdBy.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User information is null or empty");
+        }
+
+        List<Tag> tags = tagRepository.findByCreatedBy(createdBy);
+        if (tags.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tags found for the given creator");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(tags);
+    }
+
+    public ResponseEntity<?> getTagsByValue(String value) {
+        if (value == null || value.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag value is null or empty");
+        }
+
+        List<Tag> tags = tagRepository.findByTagValueContaining(value);
+        if (tags.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tags found for the given value");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(tags);
+    }
+
+    public ResponseEntity<?> updateTagColorById(String id, String colorHex) {
+        if (id == null || id.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
+        }
+
+        if (colorHex == null || colorHex.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Color hex is null or empty");
+        }
+
+        if (!tagRepository.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found");
+        }
+
+        Tag tag = tagRepository.findById(id).get();
+        tag.setColorHex(colorHex);
+        tagRepository.save(tag);
+        return ResponseEntity.status(HttpStatus.OK).body("Tag color updated");
+    }
 }
