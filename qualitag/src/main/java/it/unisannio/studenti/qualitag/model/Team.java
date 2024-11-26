@@ -4,18 +4,25 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 /**
  * Represents a team in the system.
  */
+@Document
 public class Team {
 
-  private String team_id;
-  private String project_id;
+  @MongoId
+  @Field(targetType = FieldType.OBJECT_ID)
+  private String teamId;
+  private String projectId;
   private List<String> users;
-  private String team_name;
-  private Date creation_date;
-  private String team_description;
+  private String teamName;
+  private Long creationTimeStamp;
+  private String teamDescription;
 
   /**
    * Default constructor for Team.
@@ -27,20 +34,21 @@ public class Team {
   /**
    * Constructs a Team with the specified details.
    *
-   * @param team_id          the ID of the team
-   * @param project_id       the ID of the project
-   * @param team_name        the name of the team
-   * @param creation_date    the creation date of the team
-   * @param team_description the description of the team
+   * @param projectId       the ID of the project
+   * @param teamName        the name of the team
+   * @param creationTimeStamp    the creation date of the team
+   * @param teamDescription the description of the team
    */
-  public Team(String team_id, String project_id, String team_name, Date creation_date,
-      String team_description) {
-    this.team_id = team_id;
-    this.project_id = project_id;
-    this.team_name = team_name;
-    this.creation_date = creation_date;
-    this.team_description = team_description;
-    this.users = new ArrayList<>();
+  public Team(String projectId,
+      String teamName,
+      Long creationTimeStamp,
+      String teamDescription,
+      List<String> users) {
+    this.projectId = projectId;
+    this.teamName = teamName;
+    this.creationTimeStamp = creationTimeStamp;
+    this.teamDescription = teamDescription;
+    this.users = users;
   }
 
   // GETTERS AND SETTERS
@@ -50,17 +58,17 @@ public class Team {
    *
    * @return the team ID
    */
-  public String getTeam_id() {
-    return team_id;
+  public String getTeamId() {
+    return teamId;
   }
 
   /**
    * Sets the team ID.
    *
-   * @param team_id the team ID to set
+   * @param teamId the team ID to set
    */
-  public void setTeam_id(String team_id) {
-    this.team_id = team_id;
+  public void setTeamId(String teamId) {
+    this.teamId = teamId;
   }
 
   /**
@@ -68,17 +76,17 @@ public class Team {
    *
    * @return the project ID
    */
-  public String getProject_id() {
-    return project_id;
+  public String getProjectId() {
+    return projectId;
   }
 
   /**
    * Sets the project ID.
    *
-   * @param project_id the project ID to set
+   * @param projectId the project ID to set
    */
-  public void setProject_id(String project_id) {
-    this.project_id = project_id;
+  public void setProjectId(String projectId) {
+    this.projectId = projectId;
   }
 
   /**
@@ -123,17 +131,17 @@ public class Team {
    *
    * @return the team name
    */
-  public String getTeam_name() {
-    return team_name;
+  public String getTeamName() {
+    return teamName;
   }
 
   /**
    * Sets the team name.
    *
-   * @param team_name the team name to set
+   * @param teamName the team name to set
    */
-  public void setTeam_name(String team_name) {
-    this.team_name = team_name;
+  public void setTeamName(String teamName) {
+    this.teamName = teamName;
   }
 
   /**
@@ -141,17 +149,17 @@ public class Team {
    *
    * @return the creation date
    */
-  public Date getCreation_date() {
-    return creation_date;
+  public Long getCreationTimeStamp() {
+    return creationTimeStamp;
   }
 
   /**
    * Sets the creation date of the team.
    *
-   * @param creation_date the creation date to set
+   * @param creationTimeStamp the creation date to set
    */
-  public void setCreation_date(Date creation_date) {
-    this.creation_date = creation_date;
+  public void setCreationTimeStamp(Long creationTimeStamp) {
+    this.creationTimeStamp = creationTimeStamp;
   }
 
   /**
@@ -159,17 +167,17 @@ public class Team {
    *
    * @return the team description
    */
-  public String getTeam_description() {
-    return team_description;
+  public String getTeamDescription() {
+    return teamDescription;
   }
 
   /**
    * Sets the team description.
    *
-   * @param team_description the team description to set
+   * @param teamDescription the team description to set
    */
-  public void setTeam_description(String team_description) {
-    this.team_description = team_description;
+  public void setTeamDescription(String teamDescription) {
+    this.teamDescription = teamDescription;
   }
 
   // EQUALS AND HASHCODE
@@ -189,11 +197,11 @@ public class Team {
           return false;
       }
     Team team = (Team) o;
-    return Objects.equals(getTeam_id(), team.getTeam_id()) && Objects.equals(getProject_id(),
-        team.getProject_id()) && Objects.equals(getUsers(), team.getUsers()) && Objects.equals(
-        getTeam_name(), team.getTeam_name()) && Objects.equals(getCreation_date(),
-        team.getCreation_date()) && Objects.equals(getTeam_description(),
-        team.getTeam_description());
+    return Objects.equals(getTeamId(), team.getTeamId()) && Objects.equals(getProjectId(),
+        team.getProjectId()) && Objects.equals(getUsers(), team.getUsers()) && Objects.equals(
+        getTeamName(), team.getTeamName()) && Objects.equals(getCreationTimeStamp(),
+        team.getCreationTimeStamp()) && Objects.equals(getTeamDescription(),
+        team.getTeamDescription());
   }
 
   /**
@@ -203,8 +211,8 @@ public class Team {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(getTeam_id(), getProject_id(), getUsers(), getTeam_name(),
-        getCreation_date(), getTeam_description());
+    return Objects.hash(getTeamId(), getProjectId(), getUsers(), getTeamName(),
+        getCreationTimeStamp(), getTeamDescription());
   }
 
   // TO STRING
@@ -217,12 +225,12 @@ public class Team {
   @Override
   public String toString() {
     return "Team{" +
-        "team_id='" + team_id + '\'' +
-        ", project_id='" + project_id + '\'' +
+        "team_id='" + teamId + '\'' +
+        ", project_id='" + projectId + '\'' +
         ", users=" + users +
-        ", team_name='" + team_name + '\'' +
-        ", creation_date=" + creation_date +
-        ", team_description='" + team_description + '\'' +
+        ", team_name='" + teamName + '\'' +
+        ", creation_date=" + creationTimeStamp +
+        ", team_description='" + teamDescription + '\'' +
         '}';
   }
 }

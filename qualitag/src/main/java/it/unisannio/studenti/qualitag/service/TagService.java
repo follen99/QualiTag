@@ -171,6 +171,7 @@ public class TagService {
         }
 
         // tag color validation
+        // TODO color can be null or empty, just choose randomly, get from the TagMapper
         if (tagColor == null || tagColor.isEmpty()) {
             throw new TagValidationException("Tag color cannot be null or empty");
         }
