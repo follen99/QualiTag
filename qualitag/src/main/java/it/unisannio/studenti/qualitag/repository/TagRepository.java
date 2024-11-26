@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface TagRepository extends MongoRepository<Tag, String> {
-    List<Tag> findTagsByUserId(String userId);
+    List<Tag> findTagsByCreatedBy(String createdBy);
 }

@@ -1,27 +1,30 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
+import it.unisannio.studenti.qualitag.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // This means that this class is a Controller
+@RestController                 // This means that this class is a Controller
+@RequestMapping("/api/v1")   // This means URL's start with /api/v1 (after Application path)
 public class TagController {
-    @Autowired
-    TagRepository tagRepository;
+    private final TagService tagService;
 
-    @PostMapping("/addTag")
-    public void addTag(@RequestBody Tag tag) {
-        if (tag.getColorHex() == null || tag.getColorHex().isEmpty()) {
-            tag.setTagValue("");
-        }
-        System.out.println(tag);
-        tagRepository.save(tag);
+    public TagController(TagService service) {
+        this.tagService = service;
     }
 
-    @GetMapping("/getAllTags")
+    @PostMapping("/addTag")
+    public ResponseEntity<?> addTag(@RequestBody TagCreateDto tagCreateDto) {
+        return this.tagService.addTag(tagCreateDto);
+    }
+
+    /*@GetMapping("/getAllTags")
     public Iterable<Tag> getAllTags() {
         return tagRepository.findAll();
     }
@@ -38,7 +41,7 @@ public class TagController {
 
     @GetMapping("/getTagsByUserId/{userId}")
     public List<Tag> getTagsByUserId(@PathVariable String userId) {
-        return tagRepository.findTagsByUserId(userId);
-    }
+        return tagRepository.findTagsByCreatedBy(userId);
+    }*/
 
 }
