@@ -31,6 +31,17 @@ public class TagMapper {
         );
     }
 
+    public TagCreateDto toDto(Tag entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new TagCreateDto(
+            entity.getTagValue(),
+            entity.getCreatedBy(),
+            entity.getColorHex()
+        );
+    }
+
     /**
      * Chooses a color randomly from the default colors.
      *

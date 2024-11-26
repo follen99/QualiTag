@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TagService {
     private final TagRepository tagRepository;
@@ -30,4 +32,10 @@ public class TagService {
         this.tagRepository.save(tag);
         return null;
     }
+
+    public ResponseEntity<?> getAllTags() {
+        List<Tag> tags = tagRepository.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(tags);
+    }
+
 }

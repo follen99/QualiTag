@@ -24,6 +24,11 @@ public class TagController {
         return this.tagService.addTag(tagCreateDto);
     }
 
+    @GetMapping("/getAllTags")
+    public ResponseEntity<?> getAllTags() {
+        return this.tagService.getAllTags();
+    }
+
     /*@GetMapping("/getAllTags")
     public Iterable<Tag> getAllTags() {
         return tagRepository.findAll();
