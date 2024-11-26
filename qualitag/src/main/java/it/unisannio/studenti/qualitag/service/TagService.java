@@ -1,6 +1,8 @@
 package it.unisannio.studenti.qualitag.service;
 
+import it.unisannio.studenti.qualitag.constants.TagConstants;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
+import it.unisannio.studenti.qualitag.exception.TagValidationException;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
@@ -33,16 +35,16 @@ public class TagService {
      * @return The response entity.
      */
     public ResponseEntity<?> addTag(TagCreateDto tagCreateDto) {
-        if (tagCreateDto == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("TagCreateDto is null");
-        }
-        if (tagCreateDto.tagValue() == null || tagCreateDto.tagValue().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag name is null");
-        }
+        // tag validation
+        try {
+            TagCreateDto correctTagDto = validateTag(tagCreateDto);
 
-        Tag tag = tagMapper.toEntity(tagCreateDto);
-        this.tagRepository.save(tag);
-        return null;
+            Tag tag = tagMapper.toEntity(correctTagDto);
+            this.tagRepository.save(tag);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Tag added successfully");
+        } catch (TagValidationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     /**
@@ -107,25 +109,91 @@ public class TagService {
      */
 
     public ResponseEntity<?> updateTag(TagCreateDto tagModifyDto, String id){
-        if (tagModifyDto == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("TagModifyDto is null");
-        }
-        if (tagModifyDto.tagValue() == null || tagModifyDto.tagValue().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag name is null");
-        }
+        // id check
         if (id == null || id.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
         }
 
-        Tag tag = tagRepository.findById(id).orElse(null);
-        if (tag == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found");
+        // tag validation
+        try {
+            TagCreateDto correctDto = validateTag(tagModifyDto);
+
+            Tag tag = tagRepository.findById(id).orElse(null);
+            if (tag == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found");
+            }
+
+            tag.setTagValue(correctDto.tagValue());
+            tag.setColorHex(correctDto.colorHex());
+            tag.setCreatedBy(correctDto.createdBy());
+
+            tagRepository.save(tag);
+
+            return ResponseEntity.status(HttpStatus.OK).body("Tag updated successfully");
+
+        } catch (TagValidationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+
+    /**
+     * Validates a tag and corrects it if necessary.
+     *
+     * @param tagDto The tag to validate.
+     * @return The corrected tag.
+     */
+    private TagCreateDto validateTag(TagCreateDto tagDto) {
+        if (tagDto == null) {
+            throw new TagValidationException("TagCreateDto is null");
+        }
+        String tagValue = tagDto.tagValue();
+        String tagColor = tagDto.colorHex();
+        String createdBy = tagDto.createdBy();
+
+        if (tagDto.tagValue() == null || tagDto.tagValue().isEmpty()) {
+            throw new TagValidationException("Tag name is null");
         }
 
-        tag.setTagValue(tagModifyDto.tagValue());
-        tag.setColorHex(tagModifyDto.colorHex());
-        tag.setCreatedBy(tagModifyDto.createdBy());
+        // tag value valiation
+        if (!tagValue.matches("\\w+")) {
+            throw new TagValidationException("Tag value must be a single word");
+        }
+        if (tagValue.length() > TagConstants.MAX_TAG_VALUE_LENGTH) {
+            throw new TagValidationException("Tag value cannot be longer than "
+                + TagConstants.MAX_TAG_VALUE_LENGTH
+                + " characters");
+        }
+        if (tagValue.length() < TagConstants.MIN_TAG_VALUE_LENGTH) {
+            throw new TagValidationException("Tag value must be at least "
+                + TagConstants.MIN_TAG_VALUE_LENGTH
+                + " characters long");
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).body("Tag updated successfully");
+        // tag color validation
+        if (tagColor == null || tagColor.isEmpty()) {
+            throw new TagValidationException("Tag color cannot be null or empty");
+        }
+
+        int dynamicTagColorLength = TagConstants.TAG_COLOR_LENGTH;
+        if (tagColor.startsWith("#")){
+            dynamicTagColorLength++;
+        }else {
+            tagColor = "#" + tagColor;
+        }
+
+        tagColor = tagColor.toUpperCase();      // tag colors are always uppercase
+        tagColor = tagColor.replaceAll("\\s+", ""); // remove whitespaces
+        System.out.println(tagColor);
+
+        if (tagColor.length() != dynamicTagColorLength) {
+            throw new TagValidationException("Tag color cannot be longer than "
+                + dynamicTagColorLength
+                + " characters including '#' symbol.");
+        }
+        if (!tagColor.matches("^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")) {
+            throw new TagValidationException("Tag color must be a hexadecimal value");
+        }
+        return new TagCreateDto(tagValue, createdBy, tagColor);
     }
 }

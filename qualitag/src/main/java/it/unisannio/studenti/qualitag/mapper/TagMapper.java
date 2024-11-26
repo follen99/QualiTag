@@ -25,7 +25,7 @@ public class TagMapper {
             colorHex = this.chooseColorRandomlyFromDefaults();
         }
         return new Tag(
-            dto.tagValue(),
+            dto.tagValue().toUpperCase(),
             dto.createdBy(),
             colorHex
         );
