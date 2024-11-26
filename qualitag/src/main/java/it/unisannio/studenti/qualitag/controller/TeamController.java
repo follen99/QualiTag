@@ -3,6 +3,9 @@ package it.unisannio.studenti.qualitag.controller;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.service.TeamService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +20,49 @@ public class TeamController {
     this.teamService = teamService;
   }
 
+  /**
+   * #######################################################################
+   *                              POST MAPPING
+   * #######################################################################
+   */
+
   @PostMapping("/team/add")
   public ResponseEntity<?> addTeam(@RequestBody TeamCreateDto teamCreateDto) {
     return this.teamService.addTeam(teamCreateDto);
   }
+
+  /**
+   * #######################################################################
+   *                              GET MAPPING
+   * #######################################################################
+   */
+
+  @GetMapping("/team/get/all")
+  public ResponseEntity<?> getAllTeams() {
+    return this.teamService.getAllTeams();
+  }
+
+  @GetMapping("/team/get/byproject/{projectId}")
+  public ResponseEntity<?> getTeamsByProjectId(@PathVariable String projectId) {
+    return this.teamService.getTeamsByProject(projectId);
+  }
+
+  @GetMapping("/team/get/byuser/{userId}")
+  public ResponseEntity<?> getTeamsByUserId(@PathVariable String userId) {
+    return this.teamService.getTeamsByUser(userId);
+  }
+
+
+  /**
+   * #######################################################################
+   *                              DELETE MAPPING
+   * #######################################################################
+   */
+
+  @DeleteMapping("/team/delete/{teamId}")
+  public ResponseEntity<?> deleteTeam(@PathVariable String teamId) {
+    return this.teamService.deleteTeam(teamId);
+  }
+
+
 }
