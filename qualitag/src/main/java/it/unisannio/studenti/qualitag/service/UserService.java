@@ -209,7 +209,7 @@ public class UserService {
    * @param username      The username of the user to modify.
    * @return A response entity with the result of the modification.
    */
-  public ResponseEntity<?> modifyUser(UserModifyDto userModifyDto, String username) {
+  public ResponseEntity<?> updateUser(UserModifyDto userModifyDto, String username) {
     // DTO validation
     if (!isValidUserModification(userModifyDto)) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
@@ -221,7 +221,7 @@ public class UserService {
     }
 
     // Retrieve the existing user
-    User existingUser = userRepository.findByUserId(username);
+    User existingUser = userRepository.findByUsername(username);
     if (existingUser == null) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
     }
