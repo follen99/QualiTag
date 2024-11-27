@@ -13,7 +13,7 @@ import java.util.List;
 //TODO change mappings to lowercase and mattia's style
 
 @RestController                 // This means that this class is a Controller
-@RequestMapping("/api/v1")   // This means URL's start with /api/v1 (after Application path)
+@RequestMapping("/api/v1/tag")   // This means URL's start with /api/v1 (after Application path)
 public class TagController {
     private final TagService tagService;
 
@@ -33,7 +33,7 @@ public class TagController {
      * @param tagCreateDto The tag to add.
      * @return The response entity.
      */
-    @PostMapping("/addTag")
+    @PostMapping("/add")
     public ResponseEntity<?> addTag(@RequestBody TagCreateDto tagCreateDto) {
         return this.tagService.addTag(tagCreateDto);
     }
@@ -49,17 +49,17 @@ public class TagController {
      *
      * @return The response entity.
      */
-    @GetMapping("/getAllTags")
+    @GetMapping("/get")
     public ResponseEntity<?> getAllTags() {
         return this.tagService.getAllTags();
     }
 
-    @GetMapping("/getTagsCreatedBy/{createdBy}")
+    @GetMapping("/get/createdby/{createdBy}")
     public ResponseEntity<?> getTagsByCreatedBy(@PathVariable String createdBy) {
         return this.tagService.getTagsByCreatedBy(createdBy);
     }
 
-    @GetMapping("/getTagsByValue/{value}")
+    @GetMapping("/get/value/{value}")
     public ResponseEntity<?> getTagsByValue(@PathVariable String value) {
         return this.tagService.getTagsByValue(value);
     }
@@ -70,7 +70,7 @@ public class TagController {
      * #######################################################################
      */
 
-    @PutMapping("/updateTag/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<?> updateTag(@RequestBody TagCreateDto tagCreateDto, @PathVariable String id){
         return this.tagService.updateTag(tagCreateDto, id);
     }
@@ -87,7 +87,7 @@ public class TagController {
      * @param id The id of the tag to delete.
      * @return The response entity.
      */
-    @DeleteMapping("/deleteTag/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteTag(@PathVariable String id) {
         return this.tagService.deleteTag(id);
     }
