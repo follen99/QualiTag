@@ -73,7 +73,10 @@ public class TagService {
         }
 
         tagRepository.deleteById(id);
-        return null;
+        if (!tagRepository.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Tag not deleted");
     }
 
     public ResponseEntity<?> getTagsByCreatedBy(String createdBy) {
@@ -185,7 +188,6 @@ public class TagService {
 
         tagColor = tagColor.toUpperCase();      // tag colors are always uppercase
         tagColor = tagColor.replaceAll("\\s+", ""); // remove whitespaces
-        System.out.println(tagColor);
 
         if (tagColor.length() != dynamicTagColorLength) {
             throw new TagValidationException("Tag color cannot be longer than "

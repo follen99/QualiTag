@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/team")
 public class TeamController {
   private final TeamService teamService;
 
@@ -26,7 +26,7 @@ public class TeamController {
    * #######################################################################
    */
 
-  @PostMapping("/team/add")
+  @PostMapping("/add")
   public ResponseEntity<?> addTeam(@RequestBody TeamCreateDto teamCreateDto) {
     return this.teamService.addTeam(teamCreateDto);
   }
@@ -37,17 +37,17 @@ public class TeamController {
    * #######################################################################
    */
 
-  @GetMapping("/team/get/all")
+  @GetMapping("/get/all")
   public ResponseEntity<?> getAllTeams() {
     return this.teamService.getAllTeams();
   }
 
-  @GetMapping("/team/get/byproject/{projectId}")
+  @GetMapping("/get/byproject/{projectId}")
   public ResponseEntity<?> getTeamsByProjectId(@PathVariable String projectId) {
     return this.teamService.getTeamsByProject(projectId);
   }
 
-  @GetMapping("/team/get/byuser/{userId}")
+  @GetMapping("/get/byuser/{userId}")
   public ResponseEntity<?> getTeamsByUserId(@PathVariable String userId) {
     return this.teamService.getTeamsByUser(userId);
   }
@@ -59,7 +59,7 @@ public class TeamController {
    * #######################################################################
    */
 
-  @DeleteMapping("/team/delete/{teamId}")
+  @DeleteMapping("/delete/{teamId}")
   public ResponseEntity<?> deleteTeam(@PathVariable String teamId) {
     return this.teamService.deleteTeam(teamId);
   }

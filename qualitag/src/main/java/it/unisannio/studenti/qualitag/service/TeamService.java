@@ -179,6 +179,9 @@ public class TeamService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Team not found");
     }
     teamRepository.deleteById(teamId);
+    if (teamRepository.existsById(teamId)) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Team not deleted");
+    }
     return ResponseEntity.status(HttpStatus.OK).body("Team deleted successfully.");
   }
 
