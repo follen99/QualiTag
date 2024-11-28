@@ -1,6 +1,6 @@
 package it.unisannio.studenti.qualitag.mapper;
 
-import it.unisannio.studenti.qualitag.dto.user.ArtifactCreationDto;
+import it.unisannio.studenti.qualitag.dto.ArtifactCreationDto;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
 
@@ -32,6 +32,7 @@ public class ArtifactMapper {
       return null;
     }
     return new Artifact(
+        dto.artifactName(),
         dto.content()
     );
   }
@@ -47,6 +48,7 @@ public class ArtifactMapper {
       return null;
     }
     return new ArtifactCreationDto(
+        entity.getArtifactName(),
         entity.getContent()
     );
   }

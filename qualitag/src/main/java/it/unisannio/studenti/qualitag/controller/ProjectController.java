@@ -1,7 +1,6 @@
 package it.unisannio.studenti.qualitag.controller;
 
-import it.unisannio.studenti.qualitag.dto.user.ProjectCreationDto;
-import it.unisannio.studenti.qualitag.repository.ProjectRepository;
+import it.unisannio.studenti.qualitag.dto.ProjectCreationDto;
 import it.unisannio.studenti.qualitag.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 
 
 @RestController
+@RequestMapping("/api/v1/projects")
 public class ProjectController {
   private final ProjectService projectService;
 
@@ -36,7 +36,7 @@ public class ProjectController {
    * Gets all the projects
    * @return the response entity
    */
-  @GetMapping("/admin/projects")
+  @GetMapping("/get")
   public ResponseEntity<?> getAllProjects() {
     return projectService.getAllProjects();
   }

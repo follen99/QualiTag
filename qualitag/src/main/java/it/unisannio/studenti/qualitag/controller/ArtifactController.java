@@ -1,16 +1,13 @@
 package it.unisannio.studenti.qualitag.controller;
 
-import it.unisannio.studenti.qualitag.dto.user.ArtifactCreationDto;
-import it.unisannio.studenti.qualitag.model.Artifact;
-import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
+import it.unisannio.studenti.qualitag.dto.ArtifactCreationDto;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
+@RequestMapping("/api/v1/artifacts")
 public class ArtifactController {
   private final ArtifactService artifactService;
 
@@ -38,7 +35,7 @@ public class ArtifactController {
    * Gets all the artifacts
    * @return the response entity
    */
-  @GetMapping("/admin/artifacts")
+  @GetMapping("/get")
   public ResponseEntity<?> getAllArtifacts() {
     return artifactService.getAllArtifacts();
   }

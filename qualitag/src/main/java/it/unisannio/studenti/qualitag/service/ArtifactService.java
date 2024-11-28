@@ -1,6 +1,6 @@
 package it.unisannio.studenti.qualitag.service;
 
-import it.unisannio.studenti.qualitag.dto.user.ArtifactCreationDto;
+import it.unisannio.studenti.qualitag.dto.ArtifactCreationDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import jakarta.validation.ConstraintViolation;

@@ -1,4 +1,4 @@
-package it.unisannio.studenti.qualitag.dto.user;
+package it.unisannio.studenti.qualitag.dto;
 
 import java.util.regex.Pattern;
 

@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.dto.user;
 
+import it.unisannio.studenti.qualitag.dto.UserRegistrationDto;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

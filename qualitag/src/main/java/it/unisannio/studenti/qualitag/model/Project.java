@@ -37,6 +37,12 @@ public class Project {
   @Field(name="projectTeams")
   private List<String> teamIds;
 
+  @Field(name="projectArtifacts")
+  private List<String> artifactIds;
+
+  @Field(name="projectOwner")
+  private String ownerId;
+
   /**
    * Default constructor for Project
    *
@@ -44,6 +50,7 @@ public class Project {
   public Project() {
     this.userIds = new ArrayList<>();
     this.teamIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
@@ -62,6 +69,7 @@ public class Project {
 
     this.userIds = new ArrayList<>();
     this.teamIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
@@ -82,6 +90,7 @@ public class Project {
     this.userIds = new ArrayList<>();
     userIds.add(userId);
     this.teamIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
@@ -138,6 +147,31 @@ public class Project {
    */
   public void removeTeamId(String teamId) {
     teamIds.remove(teamId);
+  }
+
+  /**
+   * Adds one artifact to the project
+   * @param artifactId the id of the artifact to add to the project
+   */
+  public void addArtifactId(String artifactId) {
+    artifactIds.add(artifactId);
+  }
+
+  /**
+   * Checks if a artifact is in the project
+   * @param artifactId the id of the artifact to check
+   * @return true if the artifact is in the project, false otherwise
+   */
+  public boolean isArtifactIdInProject(String artifactId) {
+    return artifactIds.contains(artifactId);
+  }
+
+  /**
+   * Removes one artifact from the project
+   * @param artifactId the id of the artifact to remove from the project
+   */
+  public void removeArtifactId(String artifactId) {
+    artifactIds.remove(artifactId);
   }
 
 
@@ -260,6 +294,38 @@ public class Project {
     this.teamIds = teamIds;
   }
 
+  /**
+   * Gets the artifacts
+   * @return artifactIds The ids of the artifact in the project
+   */
+  public List<String> getArtifactIds() {
+    return Collections.unmodifiableList(artifactIds);
+  }
+
+  /**
+   * Sets the artifacts
+   * @param artifactIds The ids of the artifacts in the project
+   */
+  public void setArtifactIds(List<String> artifactIds) {
+    this.artifactIds = artifactIds;
+  }
+
+  /**
+   * Gets the owner
+   * @return ownerId The id of the owner of the project
+   */
+  public String getOwnerId() {
+    return ownerId;
+  }
+
+  /**
+   * Sets the owner
+   * @param ownerId The id of the owner of the project
+   */
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
+  }
+
   //EQUALS AND HASHCODE
 
   /**
@@ -307,6 +373,8 @@ public class Project {
         + ", projectDeadline=" + projectDeadline
         + ", usersIds=" + userIds
         + ", teamsIds=" + teamIds
+        + ", artifactsIds=" + artifactIds
+        + ", ownerId=" + ownerId
         + '}';
   }
 }

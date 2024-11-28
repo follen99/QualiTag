@@ -1,6 +1,6 @@
 package it.unisannio.studenti.qualitag.mapper;
 
-import it.unisannio.studenti.qualitag.dto.user.ProjectCreationDto;
+import it.unisannio.studenti.qualitag.dto.ProjectCreationDto;
 import it.unisannio.studenti.qualitag.service.ProjectService;
 import it.unisannio.studenti.qualitag.model.Project;
 

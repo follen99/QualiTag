@@ -12,6 +12,9 @@ public class Artifact {
   @Field(targetType = FieldType.OBJECT_ID)
   private String artifactId;
 
+  @Field (name = "ArtifactName")
+  private String artifactName;
+
   @Field(name="ArtifactContent")
   private String content;
 
@@ -28,10 +31,12 @@ public class Artifact {
   /**
    * Constructor for Artifact
    *
+   * @param artifactName the name of the artifact
    * @param content     the content of the artifact
    */
 
-  public Artifact(String content) {
+  public Artifact(String artifactName, String content) {
+    this.artifactName = artifactName;
     this.content = content;
     this.tagIds = new ArrayList<>();
   }
@@ -73,6 +78,24 @@ public class Artifact {
    */
   public String getArtifactId() {
     return artifactId;
+  }
+
+  /**
+   * Gets the name of the artifact
+   *
+   * @return the name of the artifact
+   */
+  public String getArtifactName() {
+    return artifactName;
+  }
+
+  /**
+   * Sets the name of the artifact
+   *
+   * @param artifactName the name of the artifact
+   */
+  public void setArtifactName(String artifactName) {
+    this.artifactName = artifactName;
   }
 
   /**
@@ -151,6 +174,7 @@ public class Artifact {
   public String toString() {
    return "Artifact{" +
        "artifactId='" + artifactId + '\'' +
+       ", artifactName='" + artifactName + '\'' +
        ", content='" + content + '\'' +
        ", tagIds=" + tagIds +
        '}';
