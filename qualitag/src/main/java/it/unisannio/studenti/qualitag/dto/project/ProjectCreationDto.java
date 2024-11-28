@@ -1,4 +1,4 @@
-package it.unisannio.studenti.qualitag.dto;
+package it.unisannio.studenti.qualitag.dto.project;
 
 import jakarta.validation.constraints.NotBlank;
 import java.util.Date;

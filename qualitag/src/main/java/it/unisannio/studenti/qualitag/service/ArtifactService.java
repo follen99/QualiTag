@@ -1,6 +1,6 @@
 package it.unisannio.studenti.qualitag.service;
 
-import it.unisannio.studenti.qualitag.dto.ArtifactCreationDto;
+import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreationDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import jakarta.validation.ConstraintViolation;
@@ -52,6 +52,7 @@ public class ArtifactService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid artifact data");
     }
 
+    // TODO: Add the artifact to the repository
     return ResponseEntity.status(HttpStatus.OK).body("Artifact created successfully");
   }
 

@@ -1,6 +1,6 @@
 package it.unisannio.studenti.qualitag.mapper;
 
-import it.unisannio.studenti.qualitag.dto.ArtifactCreationDto;
+import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreationDto;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
 

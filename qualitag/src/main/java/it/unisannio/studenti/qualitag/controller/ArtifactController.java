@@ -1,6 +1,6 @@
 package it.unisannio.studenti.qualitag.controller;
 
-import it.unisannio.studenti.qualitag.dto.ArtifactCreationDto;
+import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreationDto;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
