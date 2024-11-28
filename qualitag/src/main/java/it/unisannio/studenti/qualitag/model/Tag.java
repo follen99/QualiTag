@@ -2,18 +2,18 @@ package it.unisannio.studenti.qualitag.model;
 
 import java.util.Objects;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Document
 public class Tag {
 
-  @Id
-//  @SequenceGenerator(name = "TAG_SEQUENCE", sequenceName = "TAG_SEQUENCE_ID", initialValue = 1, allocationSize = 1)
-//  @GeneratedValue(strategy = GenerationType.AUTO, generator = "TAG_SEQUENCE")
+  @MongoId
+  @Field(targetType = FieldType.OBJECT_ID)
   private String tagId;
-  private String projectId;
-  private String userId;
+  private String createdBy;
   private String tagValue;
   private String colorHex;
 
@@ -25,38 +25,16 @@ public class Tag {
 
 
   /**
-   * Constructor with default tag color choosen randomly.
-   *
-   * @param tagValue  the value of the tag
-   * @param projectId the ID of the project
-   * @param userId    the ID of the user
-   */
-  public Tag(String tagValue, String projectId, String userId) {
-    this.tagValue = tagValue;
-    this.projectId = projectId;
-    this.userId = userId;
-    this.colorHex = this.chooseColor();  // Choose a random color from the default colors
-  }
-
-  /**
    * Constructor with a specific tag color (hex).
    *
    * @param tagValue     the value of the tag
-   * @param projectId    the ID of the project
-   * @param userId       the ID of the user
+   * @param createdBy       the ID of the user
    * @param tag_color_hex the color of the tag
    */
-  public Tag(String tagValue, String projectId, String userId, String tag_color_hex) {
-    this.tagValue = tagValue;
-    this.projectId = projectId;
-    this.userId = userId;
+  public Tag(String tagValue, String createdBy, String tag_color_hex) {
+    this.tagValue = tagValue.toUpperCase();   // tag values are always uppercase
+    this.createdBy = createdBy;
     this.colorHex = tag_color_hex;
-  }
-
-  private String chooseColor() {
-    DefaultColor[] colors = DefaultColor.values();
-    int randomIndex = (int) (Math.random() * colors.length);
-    return colors[randomIndex].getRgb();
   }
 
   // GETTERS AND SETTERS
@@ -69,20 +47,12 @@ public class Tag {
     this.tagId = tagId;
   }
 
-  public String getProjectId() {
-    return projectId;
+  public String getCreatedBy() {
+    return createdBy;
   }
 
-  public void setProjectId(String projectId) {
-    this.projectId = projectId;
-  }
-
-  public String getUserId() {
-    return userId;
-  }
-
-  public void setUserId(String userId) {
-    this.userId = userId;
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
   }
 
   public String getTagValue() {
@@ -90,7 +60,7 @@ public class Tag {
   }
 
   public void setTagValue(String tagValue) {
-    this.tagValue = tagValue;
+    this.tagValue = tagValue.toUpperCase();
   }
 
   public String getColorHex() {
@@ -104,37 +74,40 @@ public class Tag {
 
   // EQUALS AND HASHCODE
 
+  /**
+   * Compares this tag to another object.
+   * Ignores tagValue case.
+   * <p>
+   * Example:
+   * equals(new Tag("tag1", "user1", "color1"), new Tag("TAG1", "user1", "color1")) returns true.
+   *
+   * @param o The object to compare to.
+   * @return True if the objects are equal, false otherwise.
+   */
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+    if (o == null || getClass() != o.getClass()) return false;
     Tag tag = (Tag) o;
-    return Objects.equals(getTagId(), tag.getTagId()) && Objects.equals(
-        getProjectId(), tag.getProjectId()) && Objects.equals(getUserId(),
-        tag.getUserId()) && Objects.equals(getTagValue(), tag.getTagValue())
-        && Objects.equals(colorHex, tag.colorHex);
+    return Objects.equals(tagId, tag.tagId) &&
+        Objects.equals(createdBy, tag.createdBy) &&
+        Objects.equals(tagValue.toUpperCase(), tag.tagValue.toUpperCase()) &&
+        Objects.equals(colorHex, tag.colorHex);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getTagId(), getProjectId(), getUserId(), getTagValue(), colorHex);
+    return Objects.hash(tagId, createdBy, tagValue, colorHex);
   }
 
+
   // TO STRING
-
-
   @Override
   public String toString() {
     return "Tag{" +
-        "tag_id='" + tagId + '\'' +
-        ", project_id='" + projectId + '\'' +
-        ", user_id='" + userId + '\'' +
-        ", tag_value='" + tagValue + '\'' +
-        ", color_hex='" + colorHex + '\'' +
-        '}';
+            "tagId='" + tagId + '\'' +
+            ", createdBy='" + createdBy + '\'' +
+            ", tagValue='" + tagValue.toUpperCase() + '\'' +
+            ", colorHex='" + colorHex + '\'' +
+            '}';
   }
 }

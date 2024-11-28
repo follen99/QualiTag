@@ -34,12 +34,12 @@ public interface UserRepository extends MongoRepository<User, String> {
   User findByUsernameOrEmail(String username, String email);
 
   /**
-   * Finds a user by its id.
+   * Finds a user by its username.
    *
-   * @param userId The id of the user to find.
+   * @param username The username of the user to find.
    * @return User with the given username.
    */
-  User findByUserId(String userId);
+  User findByUsername(String username);
 
   /**
    * Deletes a user by its id.

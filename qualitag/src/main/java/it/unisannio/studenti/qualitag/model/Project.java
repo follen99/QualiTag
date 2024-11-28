@@ -7,143 +7,182 @@ package it.unisannio.studenti.qualitag.model;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Date;
 import java.util.Objects;
+import org.springframework.data.mongodb.core.mapping.*;
 
 public class Project {
 
-  private String project_id;
-  private String project_name;
-  private ArrayList<User> users;
-  private ArrayList<Team> teams;
-  private Date project_deadline;
-  private Date project_creation_date;
-  private String project_description;
+  @MongoId
+  @Field(targetType = FieldType.OBJECT_ID)
+  private String projectId;
 
+  @Field(name="projectName")
+  private String projectName;
+
+  @Field(name="projectDescription")
+  private String projectDescription;
+
+  @Field(name="projectDeadline")
+  private Date projectDeadline;
+
+  @Field(name="projectCreationDate")
+  private Date projectCreationDate;
+
+  @Field(name="projectUsers")
+  private List<String> userIds;
+
+  @Field(name="projectTeams")
+  private List<String> teamIds;
+
+  @Field(name="projectArtifacts")
+  private List<String> artifactIds;
+
+  @Field(name="projectOwner")
+  private String ownerId;
 
   /**
    * Default constructor for Project
    *
    */
   public Project() {
-    this.users = new ArrayList<User>();
-    this.teams = new ArrayList<Team>();
+    this.userIds = new ArrayList<>();
+    this.teamIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
    * Constructor for Project with Parameters
    *
-   * @param project_id The project's id
-   * @param project_name The project's name
-   * @param project_deadline The project's deadline
-   * @param project_description The project's description
+   * @param projectName The project's name
+   * @param projectDescription The project's description
+   * @param projectDeadline The project's deadline
    */
-  public Project(String project_id, String project_name, Date project_deadline,
-      String project_description) {
-    this.project_id = project_id;
-    this.project_name = project_name;
-    this.users = new ArrayList<User>();
-    this.teams = new ArrayList<Team>();
-    this.project_deadline = project_deadline;
-    this.project_creation_date = new Date();
-    this.project_description = project_description;
+  public Project(String projectName, String projectDescription,
+      Date projectDeadline) {
+    this.projectName = projectName;
+    this.projectDeadline = projectDeadline;
+    this.projectCreationDate = new Date();
+    this.projectDescription = projectDescription;
+
+    this.userIds = new ArrayList<>();
+    this.teamIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
    * Constructor for Project with one user
    *
-   * @param project_id The project's id
-   * @param project_name The project's name
-   * @param user The user that is part of the project
-   * @param project_deadline The project's deadline
-   * @param project_description The project's description
+   * @param projectName The project's name
+   * @param projectDeadline The project's deadline
+   * @param projectDescription The project's description
+   * @param userId The userId of the user that is part of the project
    */
-  public Project(String project_id, String project_name, User user, Date project_deadline,
-      String project_description) {
-    this.project_id = project_id;
-    this.project_name = project_name;
-    this.users = new ArrayList<User>();
-    users.add(user);
-    this.teams = new ArrayList<Team>();
-    this.project_deadline = project_deadline;
-    this.project_creation_date = new Date();
-    this.project_description = project_description;
+  public Project(String projectName, String projectDescription,
+      Date projectDeadline, String userId) {
+    this.projectName = projectName;
+    this.projectDescription = projectDescription;
+    this.projectCreationDate = new Date();
+    this.projectDeadline = projectDeadline;
+
+    this.userIds = new ArrayList<>();
+    userIds.add(userId);
+    this.teamIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
    * Adds one user to the project
    *
-   * @param user The user to add to the project
+   * @param userId The id of the user to add to the project
    */
-  public void addUser(User user) {
-    users.add(user);
+  public void addUserId(String userId) {
+    userIds.add(userId);
   }
 
   /**
    * Checks if a user is in the project
    *
-   * @param user The user to check
+   * @param userId the id of the user to check
    * @return true if the user is in the project, false otherwise
    */
-  public boolean isUserInProject(User user) {
-    return users.contains(user);
+  public boolean isUserIdInProject(String userId) {
+    return userIds.contains(userId);
   }
 
   /**
    * Removes one user from the project
    *
-   * @param user The user to remove from the project
+   * @param userId the id of the user to remove from the project
    */
-  public void removeUser(User user) {
-    users.remove(user);
+  public void removeUserId(String userId) {
+    userIds.remove(userId);
   }
 
   /**
    * Adds one team to the project
    *
-   * @param team The team to add to the project
+   * @param teamId The id of the team to add to the project
    */
-  public void addTeam(Team team) {
-    teams.add(team);
+  public void addTeamId(String teamId) {
+    teamIds.add(teamId);
   }
 
   /**
    * Checks if a team is in the project
    *
-   * @param team The team to check
+   * @param teamId The id of the team to check
    * @return true if the team is in the project, false otherwise
    */
-  public boolean isTeamInProject(Team team) {
-    return teams.contains(team);
+  public boolean isTeamIDInProject(String teamId) {
+    return teamIds.contains(teamId);
   }
 
   /**
    * Removes one team from the project
    *
-   * @param team The team to remove from the project
+   * @param teamId The id of the team to remove from the project
    */
-  public void removeTeam(Team team) {
-    teams.remove(team);
+  public void removeTeamId(String teamId) {
+    teamIds.remove(teamId);
   }
+
+  /**
+   * Adds one artifact to the project
+   * @param artifactId the id of the artifact to add to the project
+   */
+  public void addArtifactId(String artifactId) {
+    artifactIds.add(artifactId);
+  }
+
+  /**
+   * Checks if a artifact is in the project
+   * @param artifactId the id of the artifact to check
+   * @return true if the artifact is in the project, false otherwise
+   */
+  public boolean isArtifactIdInProject(String artifactId) {
+    return artifactIds.contains(artifactId);
+  }
+
+  /**
+   * Removes one artifact from the project
+   * @param artifactId the id of the artifact to remove from the project
+   */
+  public void removeArtifactId(String artifactId) {
+    artifactIds.remove(artifactId);
+  }
+
 
   //GETTERS AND SETTERS
-
   /**
    * Gets the project_name
    *
    * @return project_name The project's name
    */
-  public String getProject_id() {
-    return project_id;
-  }
-
-  /**
-   * Sets the project_id
-   *
-   * @param project_id The project's id
-   */
-  public void setProject_id(String project_id) {
-    this.project_id = project_id;
+  public String getProjectId() {
+    return projectId;
   }
 
   /**
@@ -151,53 +190,35 @@ public class Project {
    *
    * @return project_name The project's name
    */
-  public String getProject_name() {
-    return project_name;
+  public String getProjectName() {
+    return projectName;
   }
 
   /**
    * Sets the project_name
    *
-   * @param project_name The project's name
+   * @param projectName The project's name
    */
-  public void setProject_name(String project_name) {
-    this.project_name = project_name;
+  public void setProjectName(String projectName) {
+    this.projectName = projectName;
   }
 
   /**
-   * Gets the users
+   * Gets the project_description
    *
-   * @return users The users in the project
+   * @return project_description The project's description
    */
-  public ArrayList<User> getUsers() {
-    return users;
+  public String getProjectDescription() {
+    return projectDescription;
   }
 
   /**
-   * Sets the users
+   * Sets the project_description
    *
-   * @param users The users in the project
+   * @param projectDescription The project's description
    */
-  public void setUsers(ArrayList<User> users) {
-    this.users = users;
-  }
-
-  /**
-   * Gets the teams
-   *
-   * @return teams The teams in the project
-   */
-  public ArrayList<Team> getTeams() {
-    return teams;
-  }
-
-  /**
-   * Sets the teams
-   *
-   * @param teams The teams in the project
-   */
-  public void setTeams(ArrayList<Team> teams) {
-    this.teams = teams;
+  public void setProjectDescription(String projectDescription) {
+    this.projectDescription = projectDescription;
   }
 
   /**
@@ -205,17 +226,17 @@ public class Project {
    *
    * @return project_deadline The project's deadline
    */
-  public Date getProject_deadline() {
-    return project_deadline;
+  public Date getProjectDeadline() {
+    return projectDeadline;
   }
 
   /**
    * Sets the project_deadline
    *
-   * @param project_deadline The project's deadline
+   * @param projectDeadline The project's deadline
    */
-  public void setProject_deadline(Date project_deadline) {
-    this.project_deadline = project_deadline;
+  public void setProjectDeadline(Date projectDeadline) {
+    this.projectDeadline = projectDeadline;
   }
 
   /**
@@ -223,35 +244,86 @@ public class Project {
    *
    * @return project_creation_date The project's creation date
    */
-  public Date getProject_creation_date() {
-    return project_creation_date;
+  public Date getProjectCreationDate() {
+    return projectCreationDate;
   }
 
   /**
    * Sets the project_creation_date
    *
-   * @param project_creation_date The project's creation date
+   * @param projectCreationDate The project's creation date
    */
-  public void setProject_creation_date(Date project_creation_date) {
-    this.project_creation_date = project_creation_date;
+  public void setProjectCreationDate(Date projectCreationDate) {
+    this.projectCreationDate = projectCreationDate;
   } //is this really necessary?
 
+
   /**
-   * Gets the project_description
+   * Gets the users
    *
-   * @return project_description The project's description
+   * @return userIds The id of the users in the project
    */
-  public String getProject_description() {
-    return project_description;
+  public List<String> getUserIds() {
+    return Collections.unmodifiableList(userIds);
   }
 
   /**
-   * Sets the project_description
+   * Sets the users
    *
-   * @param project_description The project's description
+   * @param userIds The ids of the users in the project
    */
-  public void setProject_description(String project_description) {
-    this.project_description = project_description;
+  public void setUserIds(List<String> userIds) {
+    this.userIds = userIds;
+  }
+
+  /**
+   * Gets the teams
+   *
+   * @return teams The ids of the teams in the project
+   */
+  public List<String> getTeamIds() {
+    return Collections.unmodifiableList(teamIds);
+  }
+
+  /**
+   * Sets the teams
+   *
+   * @param teamIds The ids of the teams in the project
+   */
+  public void setTeamIds(List<String> teamIds) {
+    this.teamIds = teamIds;
+  }
+
+  /**
+   * Gets the artifacts
+   * @return artifactIds The ids of the artifact in the project
+   */
+  public List<String> getArtifactIds() {
+    return Collections.unmodifiableList(artifactIds);
+  }
+
+  /**
+   * Sets the artifacts
+   * @param artifactIds The ids of the artifacts in the project
+   */
+  public void setArtifactIds(List<String> artifactIds) {
+    this.artifactIds = artifactIds;
+  }
+
+  /**
+   * Gets the owner
+   * @return ownerId The id of the owner of the project
+   */
+  public String getOwnerId() {
+    return ownerId;
+  }
+
+  /**
+   * Sets the owner
+   * @param ownerId The id of the owner of the project
+   */
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
   }
 
   //EQUALS AND HASHCODE
@@ -271,10 +343,7 @@ public class Project {
           return false;
       }
     Project project = (Project) o;
-    return Objects.equals(getProject_id(), project.getProject_id()) &&
-        Objects.equals(getProject_name(), project.getProject_name()) &&
-        Objects.equals(getUsers(), project.getUsers()) &&
-        Objects.equals(getTeams(), project.getTeams());
+    return Objects.equals(getProjectId(), project.getProjectId());
   }
 
   /**
@@ -284,8 +353,7 @@ public class Project {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(getProject_id(), getProject_name(), getUsers(), getTeams(),
-        getProject_deadline(), getProject_creation_date(), getProject_description());
+    return Objects.hash(getProjectId());
   }
 
   //TO STRING
@@ -297,14 +365,16 @@ public class Project {
    */
   @Override
   public String toString() {
-    return "Project{" +
-        "project_id='" + project_id + '\'' +
-        ", project_name='" + project_name + '\'' +
-        ", users=" + users +
-        ", teams=" + teams +
-        ", project_deadline=" + project_deadline +
-        ", project_creation_date=" + project_creation_date +
-        ", project_description='" + project_description + '\'' +
-        '}';
+    return "Project{"
+        + "projectId='" + projectId + '\''
+        + ", projectName='" + projectName + '\''
+        + ", projectDescription='" + projectDescription + '\''
+        + ", projectCreationDate=" + projectCreationDate
+        + ", projectDeadline=" + projectDeadline
+        + ", usersIds=" + userIds
+        + ", teamsIds=" + teamIds
+        + ", artifactsIds=" + artifactIds
+        + ", ownerId=" + ownerId
+        + '}';
   }
 }
