@@ -10,27 +10,27 @@ class TeamTest {
     @Test
     public void testTeamConstructor() {
         Team team = new Team("1", "1", "Test", null, "Test");
-        assertEquals("1", team.getTeam_id());
-        assertEquals("1", team.getProject_id());
-        assertEquals("Test", team.getTeam_name());
-        assertNull(team.getCreation_date());
-        assertEquals("Test", team.getTeam_description());
+        assertEquals("1", team.getTeamId());
+        assertEquals("1", team.getProjectId());
+        assertEquals("Test", team.getTeamName());
+        assertNull(team.getCreationTimeStamp());
+        assertEquals("Test", team.getTeamDescription());
     }
 
     @Test
     public void testSettersAndGetters() {
         Team team = new Team("1", "1", "Test", null, "Test");
-        team.setTeam_id("2");
-        team.setProject_id("2");
-        team.setTeam_name("Updated");
-        team.setCreation_date(null);
-        team.setTeam_description("Updated");
+        team.setTeamId("2");
+        team.setProjectId("2");
+        team.setTeamName("Updated");
+        team.setCreationTimeStamp(null);
+        team.setTeamDescription("Updated");
 
-        assertEquals("2", team.getTeam_id());
-        assertEquals("2", team.getProject_id());
-        assertEquals("Updated", team.getTeam_name());
-        assertNull(team.getCreation_date());
-        assertEquals("Updated", team.getTeam_description());
+        assertEquals("2", team.getTeamId());
+        assertEquals("2", team.getProjectId());
+        assertEquals("Updated", team.getTeamName());
+        assertNull(team.getCreationTimeStamp());
+        assertEquals("Updated", team.getTeamDescription());
     }
 
     @Test
@@ -55,16 +55,16 @@ class TeamTest {
     @Test
     public void testDefaultConstructor() {
         Team team = new Team();
-        team.setTeam_id("default_id");
-        team.setProject_id("default_project");
-        team.setTeam_name("Default Team");
-        team.setCreation_date(new Date());
-        team.setTeam_description("Default Description");
+        team.setTeamId("default_id");
+        team.setProjectId("default_project");
+        team.setTeamName("Default Team");
+        team.setCreationTimeStamp(new Date());
+        team.setTeamDescription("Default Description");
 
-        assertEquals("default_id", team.getTeam_id());
-        assertEquals("default_project", team.getProject_id());
-        assertEquals("Default Team", team.getTeam_name());
-        assertNotNull(team.getCreation_date());
-        assertEquals("Default Description", team.getTeam_description());
+        assertEquals("default_id", team.getTeamId());
+        assertEquals("default_project", team.getProjectId());
+        assertEquals("Default Team", team.getTeamName());
+        assertNotNull(team.getCreationTimeStamp());
+        assertEquals("Default Description", team.getTeamDescription());
     }
 }
