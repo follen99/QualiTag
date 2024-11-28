@@ -2,23 +2,20 @@ package it.unisannio.studenti.qualitag.mapper;
 
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.model.User;
-import it.unisannio.studenti.qualitag.service.UserService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 /**
  * The UserMapper class provides methods to convert between User entities and User DTOs.
  */
+@Slf4j
+@Component
+@RequiredArgsConstructor
 public class UserMapper {
 
-  private final UserService userService;
-
-  /**
-   * Constructs a new UserMapper.
-   *
-   * @param userService The user service.
-   */
-  public UserMapper(UserService userService) {
-    this.userService = userService;
-  }
+  private final PasswordEncoder passwordEncoder;
 
   /**
    * Converts a UserRegistrationDto to a User entity.
@@ -33,7 +30,7 @@ public class UserMapper {
     return new User(
         dto.username(),
         dto.email(),
-        userService.hashPassword(dto.password()),
+        passwordEncoder.encode(dto.password()),
         dto.name(),
         dto.surname()
     );

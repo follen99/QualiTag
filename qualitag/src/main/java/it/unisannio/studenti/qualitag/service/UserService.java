@@ -26,7 +26,7 @@ public class UserService {
   private static final int LOG_ROUNDS = 12; // Adjust this value as needed
 
   private final UserRepository userRepository;
-  private final UserMapper userMapper;
+  // private final UserMapper userMapper;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -38,29 +38,29 @@ public class UserService {
    */
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
-    this.userMapper = new UserMapper(this);
+    // this.userMapper = new UserMapper(this);
   }
 
-  /**
-   * Hashes a password using BCrypt.
-   *
-   * @param password The password to hash.
-   * @return The hashed password.
-   */
-  public String hashPassword(String password) {
-    return BCrypt.hashpw(password, BCrypt.gensalt(LOG_ROUNDS));
-  }
-
-  /**
-   * Checks if a password matches a hashed password.
-   *
-   * @param password The password to check.
-   * @param hashed   The hashed password to compare against.
-   * @return True if the password matches the hashed password, false otherwise.
-   */
-  public boolean checkPassword(String password, String hashed) {
-    return BCrypt.checkpw(password, hashed);
-  }
+//  /**
+//   * Hashes a password using BCrypt.
+//   *
+//   * @param password The password to hash.
+//   * @return The hashed password.
+//   */
+//  public String hashPassword(String password) {
+//    return BCrypt.hashpw(password, BCrypt.gensalt(LOG_ROUNDS));
+//  }
+//
+//  /**
+//   * Checks if a password matches a hashed password.
+//   *
+//   * @param password The password to check.
+//   * @param hashed   The hashed password to compare against.
+//   * @return True if the password matches the hashed password, false otherwise.
+//   */
+//  public boolean checkPassword(String password, String hashed) {
+//    return BCrypt.checkpw(password, hashed);
+//  }
 
   /**
    * Checks if the email is valid.
@@ -134,140 +134,139 @@ public class UserService {
     return violations.isEmpty();
   }
 
-  /**
-   * Registers a new user.
-   *
-   * @param userRegistrationDto The user registration data.
-   * @return A response entity with the result of the registration.
-   */
-  public ResponseEntity<?> registerUser(UserRegistrationDto userRegistrationDto) {
-    // DTO validation
-    if (!isValidUserRegistration(userRegistrationDto)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
-    }
+//  /**
+//   * Registers a new user.
+//   *
+//   * @param userRegistrationDto The user registration data.
+//   * @return A response entity with the result of the registration.
+//   */
+//  public ResponseEntity<?> registerUser(UserRegistrationDto userRegistrationDto) {
+//    // DTO validation
+//    if (!isValidUserRegistration(userRegistrationDto)) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
+//    }
+//
+//    // Email validation
+//    if (!isValidEmail(userRegistrationDto.email())) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email address.");
+//    }
+//
+//    // Password validation
+//    if (!isValidPassword(userRegistrationDto.password())) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid password.");
+//    }
+//
+//    // Check if the username is already taken
+//    if (userRepository.existsByUsername(userRegistrationDto.username())) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken.");
+//    }
+//
+//    // Check if the email is already taken
+//    if (userRepository.existsByEmail(userRegistrationDto.email())) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already taken.");
+//    }
+//
+//    // Register the user
+//    User user = userMapper.toEntity(userRegistrationDto);
+//
+//    // Save the user
+//    userRepository.save(user);
+//
+//    return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
+//  }
 
-    // Email validation
-    if (!isValidEmail(userRegistrationDto.email())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email address.");
-    }
+//  /**
+//   * Logs in a user.
+//   *
+//   * @param userLoginDto The user login data.
+//   * @return A response entity with the result of the login.
+//   */
+//  public ResponseEntity<?> loginUser(UserLoginDto userLoginDto) {
+//    // DTO validation
+//    if (!isValidUserLogin(userLoginDto)) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
+//    }
+//
+//    // Check if the user exists
+//    User user = userRepository.findByUsernameOrEmail(userLoginDto.usernameOrEmail(),
+//        userLoginDto.usernameOrEmail());
+//    if (user == null) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
+//    }
+//
+//    // Check if the password is correct
+//    if (!checkPassword(userLoginDto.password(), user.getPasswordHash())) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect password.");
+//    }
+//
+//    return ResponseEntity.status(HttpStatus.OK).body("User logged in successfully.");
+//  }
 
-    // Password validation
-    if (!isValidPassword(userRegistrationDto.password())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid password.");
-    }
+//  /**
+//   * Modifies a user.
+//   *
+//   * @param userModifyDto The user modification data.
+//   * @param username      The username of the user to modify.
+//   * @return A response entity with the result of the modification.
+//   */
+//  public ResponseEntity<?> updateUser(UserModifyDto userModifyDto, String username) {
+//    // DTO validation
+//    if (!isValidUserModification(userModifyDto)) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
+//    }
+//
+//    // Email validation
+//    if (!isValidEmail(userModifyDto.email())) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email address.");
+//    }
+//
+//    // Retrieve the existing user
+//    User existingUser = userRepository.findByUsername(username);
+//    if (existingUser == null) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
+//    }
+//
+//    // Check if the username is already taken
+//    if (!existingUser.getUsername().equals(userModifyDto.username())
+//        && userRepository.existsByUsername(userModifyDto.username())) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken.");
+//    }
+//
+//    // Check if the email is already taken
+//    if (!existingUser.getEmail().equals(userModifyDto.email())
+//        && userRepository.existsByEmail(userModifyDto.email())) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already taken.");
+//    }
+//
+//    // Update the user
+//    existingUser.setUsername(userModifyDto.username());
+//    existingUser.setEmail(userModifyDto.email());
+//    existingUser.setName(userModifyDto.name());
+//    existingUser.setSurname(userModifyDto.surname());
+//
+//    // Save the updated user
+//    userRepository.save(existingUser);
+//
+//    return ResponseEntity.status(HttpStatus.OK).body("User modified successfully.");
+//  }
 
-    // Check if the username is already taken
-    if (userRepository.existsByUsername(userRegistrationDto.username())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken.");
-    }
+//  /**
+//   * Deletes a user.
+//   *
+//   * @param username The username of the user to delete.
+//   * @return A response entity with the result of the deletion.
+//   */
+//  public ResponseEntity<?> deleteUser(String username) {
+//    userRepository.deleteByUsername(username);
+//    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
+//  }
 
-    // Check if the email is already taken
-    if (userRepository.existsByEmail(userRegistrationDto.email())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already taken.");
-    }
-
-    // Register the user
-    User user = userMapper.toEntity(userRegistrationDto);
-
-    // Save the user
-    userRepository.save(user);
-
-    return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
-  }
-
-  /**
-   * Logs in a user.
-   *
-   * @param userLoginDto The user login data.
-   * @return A response entity with the result of the login.
-   */
-  public ResponseEntity<?> loginUser(UserLoginDto userLoginDto) {
-    // DTO validation
-    if (!isValidUserLogin(userLoginDto)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
-    }
-
-    // Check if the user exists
-    User user = userRepository.findByUsernameOrEmail(userLoginDto.usernameOrEmail(),
-        userLoginDto.usernameOrEmail());
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
-    }
-
-    // Check if the password is correct
-    if (!checkPassword(userLoginDto.password(), user.getPasswordHash())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect password.");
-    }
-
-    return ResponseEntity.status(HttpStatus.OK).body("User logged in successfully.");
-  }
-
-  /**
-   * Modifies a user.
-   *
-   * @param userModifyDto The user modification data.
-   * @param username      The username of the user to modify.
-   * @return A response entity with the result of the modification.
-   */
-  public ResponseEntity<?> updateUser(UserModifyDto userModifyDto, String username) {
-    // DTO validation
-    if (!isValidUserModification(userModifyDto)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
-    }
-
-    // Email validation
-    if (!isValidEmail(userModifyDto.email())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email address.");
-    }
-
-    // Retrieve the existing user
-    User existingUser = userRepository.findByUsername(username);
-    if (existingUser == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
-    }
-
-    // Check if the username is already taken
-    if (!existingUser.getUsername().equals(userModifyDto.username())
-        && userRepository.existsByUsername(userModifyDto.username())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken.");
-    }
-
-    // Check if the email is already taken
-    if (!existingUser.getEmail().equals(userModifyDto.email())
-        && userRepository.existsByEmail(userModifyDto.email())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already taken.");
-    }
-
-    // Update the user
-    existingUser.setUsername(userModifyDto.username());
-    existingUser.setEmail(userModifyDto.email());
-    existingUser.setName(userModifyDto.name());
-    existingUser.setSurname(userModifyDto.surname());
-
-    // Save the updated user
-    userRepository.save(existingUser);
-
-    return ResponseEntity.status(HttpStatus.OK).body("User modified successfully.");
-  }
-
-  /**
-   * Deletes a user.
-   *
-   * @param username The username of the user to delete.
-   * @return A response entity with the result of the deletion.
-   */
-  public ResponseEntity<?> deleteUser(String username) {
-    userRepository.deleteByUsername(username);
-    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
-  }
-
-  /**
-   * Gets all users.
-   *
-   * @return A response entity with all users.
-   */
-  public ResponseEntity<?> getAllUsers() {
-    return ResponseEntity.status(HttpStatus.OK).body(userRepository.findAll());
-  }
-
+//  /**
+//   * Gets all users.
+//   *
+//   * @return A response entity with all users.
+//   */
+//  public ResponseEntity<?> getAllUsers() {
+//    return ResponseEntity.status(HttpStatus.OK).body(userRepository.findAll());
+//  }
 }

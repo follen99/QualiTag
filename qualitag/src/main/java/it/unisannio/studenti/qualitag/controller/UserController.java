@@ -33,57 +33,57 @@ public class UserController {
     this.userService = userService;
   }
 
-  /**
-   * Registers a new user.
-   *
-   * @param userRegistrationDto The user registration DTO.
-   * @return The response entity.
-   */
-  @PostMapping("/register")
-  public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto userRegistrationDto) {
-    return userService.registerUser(userRegistrationDto);
-  }
+//  /**
+//   * Registers a new user.
+//   *
+//   * @param userRegistrationDto The user registration DTO.
+//   * @return The response entity.
+//   */
+//  @PostMapping("/register")
+//  public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto userRegistrationDto) {
+//    return userService.registerUser(userRegistrationDto);
+//  }
+//
+//  /**
+//   * Logs in a user.
+//   *
+//   * @param userLoginDto The user login DTO.
+//   * @return The response entity.
+//   */
+//  @PostMapping("/login")
+//  public ResponseEntity<?> loginUser(@RequestBody UserLoginDto userLoginDto) {
+//    return userService.loginUser(userLoginDto);
+//  }
 
-  /**
-   * Logs in a user.
-   *
-   * @param userLoginDto The user login DTO.
-   * @return The response entity.
-   */
-  @PostMapping("/login")
-  public ResponseEntity<?> loginUser(@RequestBody UserLoginDto userLoginDto) {
-    return userService.loginUser(userLoginDto);
-  }
+//  /**
+//   * Gets all users.
+//   *
+//   * @return The response entity.
+//   */
+//  @GetMapping("/admin/users")
+//  public ResponseEntity<?> getAllUsers() {
+//    return userService.getAllUsers();
+//  }
 
-  /**
-   * Gets all users.
-   *
-   * @return The response entity.
-   */
-  @GetMapping("/admin/users")
-  public ResponseEntity<?> getAllUsers() {
-    return userService.getAllUsers();
-  }
-
-  /**
-   * Gets a user by its username.
-   *
-   * @param username The username of the user to get.
-   * @return The response entity.
-   */
-  @PutMapping("/user/{username}")
-  public ResponseEntity<?> updateUser(@RequestBody UserModifyDto userModifyDto, @PathVariable String username) {
-    return userService.updateUser(userModifyDto, username);
-  }
-
-  /**
-   * Deletes a user by its username.
-   *
-   * @param username The username of the user to delete.
-   * @return The response entity.
-   */
-  @DeleteMapping("/user/{username}")
-  public ResponseEntity<?> deleteUser(@PathVariable String username) {
-    return userService.deleteUser(username);
-  }
+//  /**
+//   * Gets a user by its username.
+//   *
+//   * @param username The username of the user to get.
+//   * @return The response entity.
+//   */
+//  @PutMapping("/user/{username}")
+//  public ResponseEntity<?> updateUser(@RequestBody UserModifyDto userModifyDto, @PathVariable String username) {
+//    return userService.updateUser(userModifyDto, username);
+//  }
+//
+//  /**
+//   * Deletes a user by its username.
+//   *
+//   * @param username The username of the user to delete.
+//   * @return The response entity.
+//   */
+//  @DeleteMapping("/user/{username}")
+//  public ResponseEntity<?> deleteUser(@PathVariable String username) {
+//    return userService.deleteUser(username);
+//  }
 }

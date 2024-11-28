@@ -1,18 +1,24 @@
 package it.unisannio.studenti.qualitag.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * Represents the User in the system.
  */
+@Data
 @Document(collection = "user")
 public class User {
 
@@ -48,7 +54,7 @@ public class User {
   private List<String> tagIds;
 
   @Field(name = "roles")
-  private List<String> roles;
+  private Map<String, Role> projectRoles;
 
   // Constructors
 
@@ -84,136 +90,6 @@ public class User {
   }
 
   // Methods
-  public String getUserId() {
-    return userId;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public String getPasswordHash() {
-    return passwordHash;
-  }
-
-  public void setPasswordHash(String passwordHash) {
-    this.passwordHash = passwordHash;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getSurname() {
-    return surname;
-  }
-
-  public void setSurname(String surname) {
-    this.surname = surname;
-  }
-
-  public List<String> getProjectIds() {
-    return Collections.unmodifiableList(projectIds);
-  }
-
-  public void setProjectIds(List<String> projectIds) {
-    this.projectIds = projectIds;
-  }
-
-  /**
-   * Adds a project ID to the user.
-   *
-   * @param projectId the project ID
-   */
-  public void addProjectId(String projectId) {
-    projectIds.add(projectId);
-  }
-
-  /**
-   * Removes a project ID from the user.
-   *
-   * @param projectId the project ID
-   */
-  public void removeProjectId(String projectId) {
-    projectIds.remove(projectId);
-  }
-
-  public List<String> getTeamIds() {
-    return Collections.unmodifiableList(teamIds);
-  }
-
-  public void setTeamIds(List<String> teamIds) {
-    this.teamIds = teamIds;
-  }
-
-  /**
-   * Adds a team ID to the user.
-   *
-   * @param teamId the team ID
-   */
-  public void addTeamId(String teamId) {
-    teamIds.add(teamId);
-  }
-
-  /**
-   * Removes a team ID from the user.
-   *
-   * @param teamId the team ID
-   */
-  public void removeTeamId(String teamId) {
-    teamIds.remove(teamId);
-  }
-
-  public List<String> getTagIds() {
-    return Collections.unmodifiableList(tagIds);
-  }
-
-  public void setTagIds(List<String> tagIds) {
-    this.tagIds = tagIds;
-  }
-
-  /**
-   * Adds a tag ID to the user.
-   *
-   * @param tagId the tag ID
-   */
-  public void addTagId(String tagId) {
-    tagIds.add(tagId);
-  }
-
-  /**
-   * Removes a tag ID from the user.
-   *
-   * @param tagId the tag ID
-   */
-  public void removeTagId(String tagId) {
-    tagIds.remove(tagId);
-  }
-
-  public List<String> getRoles() {
-    return roles;
-  }
-
-  public void setRoles(List<String> roles) {
-    this.roles = roles;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -242,7 +118,20 @@ public class User {
         + ", projectIds=" + projectIds
         + ", teamIds=" + teamIds
         + ", tagIds=" + tagIds
-        + ", roles=" + roles
+        + ", roles=" + projectRoles
         + '}';
+  }
+
+  /**
+   * Converts the user's project roles to Spring Security GrantedAuthority. Each role is prefixed
+   * with the project ID to make it unique. Example: "project-1234_OWNER"
+   *
+   * @return Collection of GrantedAuthority representing the user's roles.
+   */
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return projectRoles.entrySet().stream()
+        .map(entry -> new SimpleGrantedAuthority(
+            entry.getKey() + ":" + entry.getValue()))
+        .collect(Collectors.toList());
   }
 }

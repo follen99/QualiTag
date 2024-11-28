@@ -2,8 +2,15 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
-    id 'com.github.node-gradle.node' version '3.5.1' // Automatically installs Node.js
+
+    // Automatically installs Node.js
+    id 'com.github.node-gradle.node' version '3.5.1'
+
+    // Checkstyle plugin
     id 'checkstyle'
+
+    // Lombok plugin
+    id("io.freefair.lombok") version "8.11"
 }
 
 group = 'it.unisannio.studenti'
@@ -63,6 +70,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Checkstyle configuration for Google Java Style
 checkstyle {
     configFile = rootProject.file('qualitag/config/intellij-java-google-style.xml')
 }
