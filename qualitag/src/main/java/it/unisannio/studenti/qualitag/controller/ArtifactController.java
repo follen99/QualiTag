@@ -1,6 +1,6 @@
 package it.unisannio.studenti.qualitag.controller;
 
-import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreationDto;
+import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/artifacts")
 public class ArtifactController {
+
   private final ArtifactService artifactService;
 
   /**
@@ -21,18 +22,22 @@ public class ArtifactController {
     this.artifactService = artifactService;
   }
 
+
+//POST
   /**
    * Adds an artifact to the repository
-   * @param artifactCreationDto the artifact to add to the repository
    *
+   * @param artifactCreateDto the artifact to add to the repository
    */
-  @PostMapping("/createNewArtifact")
-  public ResponseEntity<?> createArtifact(@RequestBody ArtifactCreationDto artifactCreationDto) {
-    return artifactService.createArtifact(artifactCreationDto);
+  @PostMapping("/add")
+  public ResponseEntity<?> createArtifact(@RequestBody ArtifactCreateDto artifactCreateDto) {
+    return this.artifactService.addArtifact(artifactCreateDto);
   }
 
+//GET
   /**
    * Gets all the artifacts
+   *
    * @return the response entity
    */
   @GetMapping("/get")
@@ -40,5 +45,17 @@ public class ArtifactController {
     return artifactService.getAllArtifacts();
   }
 
+  //TODO see other ways to get the artifacts
+
+//DELETE
+  /**
+   * Deletes an artifact from the repository
+   *
+   * @param artifactId the id of the artifact to delete
+   */
+  @DeleteMapping("/delete/{artifactId}")
+  public ResponseEntity<?> deleteArtifact(@PathVariable String artifactId) {
+    return this.artifactService.deleteArtifact(artifactId);
+  }
 
 }

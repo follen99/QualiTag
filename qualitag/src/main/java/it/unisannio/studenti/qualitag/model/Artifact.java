@@ -42,6 +42,19 @@ public class Artifact {
   }
 
   /**
+   * Constructor for Artifact with tags
+   *
+   * @param artifactName the name of the artifact
+   * @param content     the content of the artifact
+   * @param tagIds      the tags of the artifact
+   */
+  public Artifact(String artifactName, String content, List<String> tagIds) {
+    this.artifactName = artifactName;
+    this.content = content;
+    this.tagIds = tagIds;
+  }
+
+  /**
    * Adds a tag to the artifact
    *
    * @param tagId the id of the tag to add

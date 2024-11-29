@@ -94,6 +94,32 @@ public class Project {
   }
 
   /**
+   * Constructor for Project with a list of users, teams and artifacts as well as the ownerId
+   *
+   * @param projectName The project's name
+   * @param projectDescription The project's description
+   * @param projectDeadline The project's deadline
+   * @param userIds The ids of the users in the project
+   * @param teamIds The ids of the teams in the project
+   * @param artifactIds The ids of the artifacts in the project
+   * @param ownerId The id of the owner of the project
+   */
+  public Project (String projectName, String projectDescription,
+      Date projectDeadline,List<String> userIds,
+      List<String> teamIds, List<String> artifactIds
+      , String ownerId){
+    this.projectName = projectName;
+    this.projectDescription = projectDescription;
+    this.projectCreationDate = new Date();
+    this.projectDeadline = projectDeadline;
+
+    this.userIds = userIds;
+    this.teamIds = teamIds;
+    this.artifactIds = artifactIds;
+    this.ownerId = ownerId;
+  }
+
+  /**
    * Adds one user to the project
    *
    * @param userId The id of the user to add to the project
@@ -158,7 +184,7 @@ public class Project {
   }
 
   /**
-   * Checks if a artifact is in the project
+   * Checks if an artifact is in the project
    * @param artifactId the id of the artifact to check
    * @return true if the artifact is in the project, false otherwise
    */
