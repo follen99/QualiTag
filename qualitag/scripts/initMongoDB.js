@@ -1,49 +1,147 @@
-// initMongoDB.js
+// Connect to the MongoDB server
+const db = connect("mongodb://localhost:27017/qualitag");
 
-// Connect to MongoDB
-db = connect("mongodb://localhost:27017/tuo_database");
+// Collections
+const usersCollection = db.getCollection("user");
+const tagsCollection = db.getCollection("tag");
+const teamsCollection = db.getCollection("team");
+const projectsCollection = db.getCollection("project");
 
-// Default Users
+// Clear existing data
+usersCollection.deleteMany({});
+tagsCollection.deleteMany({});
+teamsCollection.deleteMany({});
+projectsCollection.deleteMany({});
+
+// Insert Users
 const users = [
-    { _id: ObjectId(), userId: "user1_id", userName: "user1_name", userEmail: "user1_email" },
-    { _id: ObjectId(), userId: "user2_id", userName: "user2_name", userEmail: "user2_email" },
-    { _id: ObjectId(), userId: "user3_id", userName: "user3_name", userEmail: "user3_email" }
+    {
+        _id: ObjectId("67497aa9c6d53e225d939d27"),
+        username: "user1",
+        email: "email1@example.com",
+        passwordHash: "$2a$12$w7E3/2bLkNSEmiV2QDCT/OSnHfnuFajr6Wufz302h832QFyQ.lbVi",
+        name: "John",
+        surname: "Doe",
+        projectIds: [],
+        teamIds: [],
+        tagIds: [],
+        _class: "it.unisannio.studenti.qualitag.model.User"
+    },
+    {
+        _id: ObjectId("67497bc0c6d53e225d939d29"),
+        username: "user2",
+        email: "email2@example.com",
+        passwordHash: "$2a$12$u3E4/3cLkOSEjiZ3PFET/OQnHfkuFajr7Xufd313h833RFxR.mdTx",
+        name: "Jane",
+        surname: "Smith",
+        projectIds: [],
+        teamIds: [],
+        tagIds: [],
+        _class: "it.unisannio.studenti.qualitag.model.User"
+    },
+    {
+        _id: ObjectId("67497bc1c6d53e225d939d30"),
+        username: "user3",
+        email: "email3@example.com",
+        passwordHash: "$2a$12$z3E4/4dLkTSEjiY4PFET/OPoHfouFajr8Xufd414h833RFxR.ndTy",
+        name: "Alice",
+        surname: "Brown",
+        projectIds: [],
+        teamIds: [],
+        tagIds: [],
+        _class: "it.unisannio.studenti.qualitag.model.User"
+    }
 ];
 
-// Default Teams
-const teams = [
-    { _id: ObjectId(), teamId: "team1_id", projectId: "project1_id", teamName: "team1_name", creationTimeStamp: Date.now(), teamDescription: "team1_description", users: [users[0]._id] },
-    { _id: ObjectId(), teamId: "team2_id", projectId: "project1_id", teamName: "team2_name", creationTimeStamp: Date.now(), teamDescription: "team2_description", users: [users[1]._id] },
-    { _id: ObjectId(), teamId: "team3_id", projectId: "project1_id", teamName: "team3_name", creationTimeStamp: Date.now(), teamDescription: "team3_description", users: [users[2]._id] }
-];
+usersCollection.insertMany(users);
 
-// Default Project
-const project = {
-    _id: ObjectId(),
-    projectId: "project1_id",
-    projectName: "project1_name",
-    projectCreationDate: new Date(),
-    projectDescription: "project1_description",
-    teams: teams.map(team => team._id)
-};
-
-// Default Tags
+// Insert Tags
 const tags = [
-    { tagValue: "example1", colorHex: "#FF5733", createdBy: users[0].userId },
-    { tagValue: "example2", colorHex: "#33FF57", createdBy: users[1].userId },
-    { tagValue: "example3", colorHex: "#3357FF", createdBy: users[2].userId }
+    {
+        _id: ObjectId("67497b34c6d53e225d939d28"),
+        createdBy: users[0]._id,
+        tagValue: "URGENT",
+        colorHex: "#FF0000",
+        _class: "it.unisannio.studenti.qualitag.model.Tag"
+    },
+    {
+        _id: ObjectId("67497b34c6d53e225d939d29"),
+        createdBy: users[1]._id,
+        tagValue: "LOW",
+        colorHex: "#00FF00",
+        _class: "it.unisannio.studenti.qualitag.model.Tag"
+    },
+    {
+        _id: ObjectId("67497b34c6d53e225d939d30"),
+        createdBy: users[2]._id,
+        tagValue: "BUG",
+        colorHex: "#0000FF",
+        _class: "it.unisannio.studenti.qualitag.model.Tag"
+    }
 ];
 
-// Clean existing collections
-db.users.drop();
-db.teams.drop();
-db.projects.drop();
-db.tags.drop();
+tagsCollection.insertMany(tags);
 
-// Insert default data
-db.users.insertMany(users);
-db.teams.insertMany(teams);
-db.projects.insertOne(project);
-db.tags.insertMany(tags);
+// Associate tags with users
+usersCollection.updateOne({ _id: users[0]._id }, { $push: { tagIds: tags[0]._id } });
+usersCollection.updateOne({ _id: users[1]._id }, { $push: { tagIds: tags[1]._id } });
+usersCollection.updateOne({ _id: users[2]._id }, { $push: { tagIds: tags[2]._id } });
 
-print("Database populated with default values.");
+// Insert Teams
+const teams = [
+    {
+        _id: ObjectId("67497bd8c6d53e225d939d2a"),
+        users: [users[0]._id, users[1]._id],
+        teamName: "Team Alpha",
+        creationTimeStamp: NumberLong("1697040000000"),
+        teamDescription: "Team working on a top-priority project.",
+        _class: "it.unisannio.studenti.qualitag.model.Team"
+    },
+    {
+        _id: ObjectId("67497bd8c6d53e225d939d2b"),
+        users: [users[1]._id, users[2]._id],
+        teamName: "Team Beta",
+        creationTimeStamp: NumberLong("1697140000000"),
+        teamDescription: "Team responsible for testing and debugging.",
+        _class: "it.unisannio.studenti.qualitag.model.Team"
+    }
+];
+
+teamsCollection.insertMany(teams);
+
+// Associate teams with users
+usersCollection.updateOne({ _id: users[0]._id }, { $push: { teamIds: teams[0]._id } });
+usersCollection.updateOne({ _id: users[1]._id }, { $push: { teamIds: teams[0]._id, teamIds: teams[1]._id } });
+usersCollection.updateOne({ _id: users[2]._id }, { $push: { teamIds: teams[1]._id } });
+
+// Insert Projects
+const projects = [
+    {
+        _id: ObjectId("67497c00c6d53e225d939d2b"),
+        projectName: "Project X",
+        description: "A groundbreaking project for innovation.",
+        ownerId: users[0]._id,
+        teamId: teams[0]._id,
+        tags: [tags[0]._id],
+        _class: "it.unisannio.studenti.qualitag.model.Project"
+    },
+    {
+        _id: ObjectId("67497c00c6d53e225d939d2c"),
+        projectName: "Project Y",
+        description: "A support project for existing applications.",
+        ownerId: users[1]._id,
+        teamId: teams[1]._id,
+        tags: [tags[1]._id, tags[2]._id],
+        _class: "it.unisannio.studenti.qualitag.model.Project"
+    }
+];
+
+projectsCollection.insertMany(projects);
+
+// Associate projects with users and teams
+usersCollection.updateOne({ _id: users[0]._id }, { $push: { projectIds: projects[0]._id } });
+usersCollection.updateOne({ _id: users[1]._id }, { $push: { projectIds: projects[1]._id } });
+teamsCollection.updateOne({ _id: teams[0]._id }, { $push: { projectIds: projects[0]._id } });
+teamsCollection.updateOne({ _id: teams[1]._id }, { $push: { projectIds: projects[1]._id } });
+
+print("Database populated with multiple entities successfully!");
