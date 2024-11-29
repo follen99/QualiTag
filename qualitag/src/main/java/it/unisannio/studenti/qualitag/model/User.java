@@ -2,6 +2,7 @@ package it.unisannio.studenti.qualitag.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -87,6 +88,8 @@ public class User {
     this.projectIds = new ArrayList<>();
     this.teamIds = new ArrayList<>();
     this.tagIds = new ArrayList<>();
+
+    this.projectRoles = new HashMap<>();
   }
 
   // Methods
