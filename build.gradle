@@ -3,7 +3,6 @@ plugins {
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'com.github.node-gradle.node' version '3.5.1' // Automatically installs Node.js
-	id 'checkstyle' // Checkstyle plugin
 }
 
 group = 'it.unisannio.studenti'
@@ -41,9 +40,6 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-crypto' // Spring Security Crypto
 }
 
-checkstyle {
-	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
-}
 
 
 
