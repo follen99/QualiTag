@@ -1,8 +1,10 @@
 package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
+import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -22,6 +24,8 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final UserMapper userMapper;
+
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
 
@@ -93,6 +97,11 @@ public class UserService {
    * @return A response entity with the result of the modification.
    */
   public ResponseEntity<?> updateUser(UserModifyDto userModifyDto, String username) {
+    // Check if the user is trying to modify another user
+    if (!AuthenticationService.getAuthority(username)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to modify this user.");
+    }
+
     // DTO validation
     if (!isValidUserModification(userModifyDto)) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
@@ -127,10 +136,7 @@ public class UserService {
     }
 
     // Update the user
-    existingUser.setUsername(userModifyDto.username());
-    existingUser.setEmail(userModifyDto.email());
-    existingUser.setName(userModifyDto.name());
-    existingUser.setSurname(userModifyDto.surname());
+    userMapper.updateEntity(userModifyDto, existingUser);
 
     // Save the updated user
     userRepository.save(existingUser);

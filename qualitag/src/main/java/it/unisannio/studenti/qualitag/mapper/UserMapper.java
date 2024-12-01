@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.mapper;
 
+import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.model.User;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,22 @@ public class UserMapper {
         dto.name(),
         dto.surname()
     );
+  }
+
+  /**
+   * Updates a User entity with the data from a UserModifyDto.
+   *
+   * @param dto The UserRegistrationDto with the new data.
+   * @param entity The User entity to update.
+   */
+  public void updateEntity(UserModifyDto dto, User entity) {
+    if (dto == null || entity == null) {
+      return;
+    }
+    entity.setUsername(dto.username());
+    entity.setEmail(dto.email());
+    entity.setName(dto.name());
+    entity.setSurname(dto.surname());
   }
 
   /**

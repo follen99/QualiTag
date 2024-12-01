@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -45,6 +47,15 @@ public class AuthenticationService {
         userRegistrationDto);
 
     return violations.isEmpty();
+  }
+
+  public static boolean getAuthority(String username) {
+    // Get the currently authenticated user
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String authenticatedUsername = authentication.getName();
+
+    // Check if the authenticated user is the same as the logged user
+    return authenticatedUsername.equals(username);
   }
 
   /**

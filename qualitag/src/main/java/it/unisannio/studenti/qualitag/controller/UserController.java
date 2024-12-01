@@ -4,6 +4,7 @@ import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.service.UserService;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * The UserController class is a REST controller that provides endpoints for managing users.
  */
+@Log
 @RestController
 @RequestMapping("/api/v1")
 public class UserController {
@@ -34,28 +36,6 @@ public class UserController {
   }
 
 //  /**
-//   * Registers a new user.
-//   *
-//   * @param userRegistrationDto The user registration DTO.
-//   * @return The response entity.
-//   */
-//  @PostMapping("/register")
-//  public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto userRegistrationDto) {
-//    return userService.registerUser(userRegistrationDto);
-//  }
-//
-//  /**
-//   * Logs in a user.
-//   *
-//   * @param userLoginDto The user login DTO.
-//   * @return The response entity.
-//   */
-//  @PostMapping("/login")
-//  public ResponseEntity<?> loginUser(@RequestBody UserLoginDto userLoginDto) {
-//    return userService.loginUser(userLoginDto);
-//  }
-
-//  /**
 //   * Gets all users.
 //   *
 //   * @return The response entity.
@@ -65,17 +45,17 @@ public class UserController {
 //    return userService.getAllUsers();
 //  }
 
-//  /**
-//   * Gets a user by its username.
-//   *
-//   * @param username The username of the user to get.
-//   * @return The response entity.
-//   */
-//  @PutMapping("/user/{username}")
-//  public ResponseEntity<?> updateUser(@RequestBody UserModifyDto userModifyDto, @PathVariable String username) {
-//    return userService.updateUser(userModifyDto, username);
-//  }
-//
+  /**
+   * Modifies the user given the username.
+   *
+   * @param username The username of the user to get.
+   * @return The response entity.
+   */
+  @PutMapping("/user/{username}")
+  public ResponseEntity<?> updateUser(@RequestBody UserModifyDto userModifyDto, @PathVariable String username) {
+    return userService.updateUser(userModifyDto, username);
+  }
+
 //  /**
 //   * Deletes a user by its username.
 //   *
