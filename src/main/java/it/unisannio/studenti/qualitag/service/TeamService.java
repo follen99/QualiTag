@@ -15,19 +15,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TeamService {
+
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
   private final TeamMapper teamMapper;
 
-  public TeamService(TeamRepository teamRepository, UserRepository userRepository, TeamMapper teamMapper) {
+  public TeamService(TeamRepository teamRepository, UserRepository userRepository,
+      TeamMapper teamMapper) {
     this.teamRepository = teamRepository;
     this.userRepository = userRepository;
     this.teamMapper = teamMapper;
   }
 
   /**
-   * #######################################################################
-   *                                  POST
+   * ####################################################################### POST
    * #######################################################################
    */
 
@@ -45,14 +46,12 @@ public class TeamService {
   }
 
   /**
-   * #######################################################################
-   *                                  GET
+   * ####################################################################### GET
    * #######################################################################
    */
   public ResponseEntity<?> getAllTeams() {
     return ResponseEntity.status(HttpStatus.OK).body(teamRepository.findAll());
   }
-
 
   /**
    * #######################################################################
@@ -97,7 +96,6 @@ public class TeamService {
       throw new TeamValidationException("Users list cannot be empty");
     }
 
-
     users = users.stream().distinct().collect(Collectors.toList()); // Remove duplicates
 
     /**
@@ -105,10 +103,14 @@ public class TeamService {
      * If MIN_TEAM_USERS > 1 we need to check if the list has at least MIN_TEAM_USERS elements
      */
     if (users.size() < TeamConstants.MIN_TEAM_USERS) {
-      throw new TeamValidationException("A team must have at least " + TeamConstants.MIN_TEAM_USERS + (TeamConstants.MIN_TEAM_USERS > 1 ? " users" : " user"));
+      throw new TeamValidationException(
+          "A team must have at least " + TeamConstants.MIN_TEAM_USERS + (
+              TeamConstants.MIN_TEAM_USERS > 1 ? " users" : " user"));
     }
     if (users.size() > TeamConstants.MAX_TEAM_USERS) {
-      throw new TeamValidationException("A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + (TeamConstants.MAX_TEAM_USERS > 1 ? " users" : " user"));
+      throw new TeamValidationException(
+          "A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + (
+              TeamConstants.MAX_TEAM_USERS > 1 ? " users" : " user"));
     }
 
     for (String currentUserId : users) {
@@ -121,8 +123,7 @@ public class TeamService {
       }
 
       if (teamRepository.existsByUsersContaining(currentUserId)) {
-        throw new TeamValidationException("User with ID "
-            + currentUserId
+        throw new TeamValidationException("User with ID " + currentUserId
             + " is already in a team. Same user cannot be in multiple teams.");
       }
     }
@@ -135,7 +136,7 @@ public class TeamService {
     // Validate creation date
     if (creationDate == null) {
       creationDate = System.currentTimeMillis();
-    }else {
+    } else {
       if (creationDate <= 0) {
         throw new TeamValidationException("Invalid creation date");
       }
@@ -152,9 +153,9 @@ public class TeamService {
       description = description.trim();
 
       if (description.length() > TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH) {
-        throw new TeamValidationException("Team description is too long. Max is "
-            + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH +
-            " characters including whitespaces.");
+        throw new TeamValidationException(
+            "Team description is too long. Max is " + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH
+                + " characters including whitespaces.");
       }
     }
 
@@ -166,9 +167,11 @@ public class TeamService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project ID is null or empty");
     }
     if (!teamRepository.existsByProjectId(projectId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No teams found for project ID " + projectId);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("No teams found for project ID " + projectId);
     }
-    return ResponseEntity.status(HttpStatus.OK).body(teamRepository.findTeamsByProjectId(projectId));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(teamRepository.findTeamsByProjectId(projectId));
   }
 
   public ResponseEntity<?> deleteTeam(String teamId) {
@@ -190,7 +193,8 @@ public class TeamService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID is null or empty");
     }
     if (!teamRepository.existsByUsersContaining(userId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No teams found for user ID " + userId);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("No teams found for user ID " + userId);
     }
     return ResponseEntity.status(HttpStatus.OK).body(teamRepository.findByUsersContaining(userId));
   }
