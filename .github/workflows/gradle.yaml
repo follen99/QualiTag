@@ -27,6 +27,9 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      - name: Run Checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest
+
       - name: Publish Checkstyle report
         uses: Juuxel/publish-checkstyle-report@v1
         if: ${{ failure() || success() }}

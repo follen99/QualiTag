@@ -5,6 +5,8 @@ plugins {
 	id 'com.github.node-gradle.node' version '3.5.1' // Automatically installs Node.js
 }
 
+apply plugin: 'checkstyle'
+
 group = 'it.unisannio.studenti'
 version = '0.0.1-SNAPSHOT'
 
@@ -40,9 +42,11 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-crypto' // Spring Security Crypto
 }
 
-
-
-
+checkstyle {
+	toolVersion '10.20.2';
+	configFile file('config/checkstyle/checkstyle.xml');
+	//configProperties 'checkstyle.header.file': file('license-header.txt');
+}
 
 tasks.named('test') {
 	useJUnitPlatform()
