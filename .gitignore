@@ -1,31 +1,55 @@
+node_modules
+HELP.md
 .gradle
-**/build/
-!src/**/build/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# Ignore Gradle GUI config
-gradle-app.setting
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
-
-# Avoid ignore Gradle wrappper properties
-!gradle-wrapper.properties
-
-# Cache of project
-.gradletasknamecache
-
-# Eclipse Gradle plugin generated files
-# Eclipse Core
-.project
-# JDT-specific (Eclipse Java Development Tools)
+### STS ###
+.apt_generated
 .classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
-# IntelliJ IDEA files
-.idea/
+### IntelliJ IDEA ###
+.idea
+*.iws
 *.iml
 *.ipr
-*.iws
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
-# OS-specific files
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Vaadin ###
+/.vaadin/
+.flow/
+.flow-build-info.json
+/webpack.generated.js
+
+### OS specific ###
 .DS_Store
 Thumbs.db
+
+### Log files ###
+*.log
+
+### Temporary files ###
+*.tmp
+*.swp
