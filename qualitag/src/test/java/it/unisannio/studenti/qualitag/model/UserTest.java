@@ -74,30 +74,6 @@ public class UserTest {
     assertEquals("Smith", user.getSurname());
   }
 
-//  @Test
-//  public void testAddAndRemoveProjectId() {
-//    user.addProjectId("project1");
-//    assertTrue(user.getProjectIds().contains("project1"));
-//    user.removeProjectId("project1");
-//    assertFalse(user.getProjectIds().contains("project1"));
-//  }
-//
-//  @Test
-//  public void testAddAndRemoveTeamId() {
-//    user.addTeamId("team1");
-//    assertTrue(user.getTeamIds().contains("team1"));
-//    user.removeTeamId("team1");
-//    assertFalse(user.getTeamIds().contains("team1"));
-//  }
-//
-//  @Test
-//  public void testAddAndRemoveTagId() {
-//    user.addTagId("tag1");
-//    assertTrue(user.getTagIds().contains("tag1"));
-//    user.removeTagId("tag1");
-//    assertFalse(user.getTagIds().contains("tag1"));
-//  }
-
   @Test
   public void testEqualsAndHashCode() {
     User anotherUser = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
