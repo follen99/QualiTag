@@ -74,7 +74,11 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(authorize -> authorize
+            // Allow access to static resources
+            .requestMatchers("/index.html", "/auth/**").permitAll()
+            // Permit all authentication-related POST requests
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+            // All other requests require authentication
             .anyRequest().authenticated()
         )
         .authenticationProvider(authenticationProvider())

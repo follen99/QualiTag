@@ -4,11 +4,15 @@ import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
 import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
+import it.unisannio.studenti.qualitag.security.service.JwtService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,7 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final JwtService jwtService;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -93,43 +98,51 @@ public class UserService {
    * @return A response entity with the result of the modification.
    */
   public ResponseEntity<?> updateUser(UserModifyDto userModifyDto, String username) {
+    Map<String, Object> response = new HashMap<>();
+
     // Check if the user is trying to modify another user
     if (!AuthenticationService.getAuthority(username)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN)
-          .body("You are not authorized to modify this user.");
+      response.put("msg", "You are not authorized to modify this user.");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // DTO validation
     if (!isValidUserModification(userModifyDto)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("All fields must be filled.");
+      response.put("msg", "All fields must be filled.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Username validation
     if (!UserService.isValidUsername(userModifyDto.username())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid username.");
+      response.put("msg", "Invalid username.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Email validation
     if (!UserService.isValidEmail(userModifyDto.email())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email address.");
+      response.put("msg", "Invalid email address.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Retrieve the existing user
     User existingUser = userRepository.findByUsername(username);
     if (existingUser == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
+      response.put("msg", "User not found.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Check if the username is already taken
     if (!existingUser.getUsername().equals(userModifyDto.username())
         && userRepository.existsByUsername(userModifyDto.username())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken.");
+      response.put("msg", "Username already taken.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Check if the email is already taken
     if (!existingUser.getEmail().equals(userModifyDto.email())
         && userRepository.existsByEmail(userModifyDto.email())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already taken.");
+      response.put("msg", "Email already taken.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Update the user
@@ -138,7 +151,13 @@ public class UserService {
     // Save the updated user
     userRepository.save(existingUser);
 
-    return ResponseEntity.status(HttpStatus.OK).body("User modified successfully.");
+    // Generate a JWT token
+    String jwt = jwtService.generateToken(new CustomUserDetails(existingUser));
+
+    // Return the OK status and the JWT token
+    response.put("msg", "User registered successfully.");
+    response.put("token", jwt);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   /**
