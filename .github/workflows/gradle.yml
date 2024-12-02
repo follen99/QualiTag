@@ -1,8 +1,8 @@
 name: Build QualiTag Java
 on:
   push:
-    paths:
-      - "qualitag/**"
+#    paths:
+#      - "qualitag/**"
 
 jobs:
   build:
