@@ -1,8 +1,8 @@
 name: Build QualiTag
 on:
   push:
-    paths:
-      - "qualitag/**"
+#    paths:
+#      - "qualitag/**"
 
 jobs:
   build:
@@ -19,4 +19,4 @@ jobs:
           java-version: '21'
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./qualitag/gradlew build
