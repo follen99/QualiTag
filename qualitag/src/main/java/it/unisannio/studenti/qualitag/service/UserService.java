@@ -155,12 +155,12 @@ public class UserService {
 //    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
 //  }
 
-//  /**
-//   * Gets all users.
-//   *
-//   * @return A response entity with all users.
-//   */
-//  public ResponseEntity<?> getAllUsers() {
-//    return ResponseEntity.status(HttpStatus.OK).body(userRepository.findAll());
-//  }
+  /**
+   * Gets all users.
+   *
+   * @return A response entity with all users.
+   */
+  public ResponseEntity<?> getAllUsers() {
+    return ResponseEntity.status(HttpStatus.OK).body(userRepository.findAll());
+  }
 }
