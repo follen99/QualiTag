@@ -72,7 +72,16 @@ dependencies {
 
 // Checkstyle configuration for Google Java Style
 checkstyle {
-    configFile = rootProject.file('qualitag/config/intellij-java-google-style.xml')
+    toolVersion = '10.20.2'
+//    configFile = rootProject.file('config/intellij-java-google-style.xml')
+    configFile = rootProject.file('config/google_checks.xml')
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = false
+        html.required = true
+    }
 }
 
 tasks.named('test') {
