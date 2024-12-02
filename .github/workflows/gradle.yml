@@ -37,6 +37,7 @@ jobs:
 
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest
+        working-directory: qualitag
 
       - name: Publish Checkstyle report
         uses: Juuxel/publish-checkstyle-report@v1
