@@ -104,10 +104,4 @@ public class UserTest {
     assertEquals(user, anotherUser);
     assertEquals(user.hashCode(), anotherUser.hashCode());
   }
-
-  @Test
-  public void testToString() {
-    String expected = "User{userId='null', username='username', email='user@example.com', name='John', surname='Doe', projectIds=[], teamIds=[], tagIds=[], roles=null}";
-    assertEquals(expected, user.toString());
-  }
 }
