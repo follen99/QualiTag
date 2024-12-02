@@ -43,9 +43,8 @@ public class UserService {
   }
 
   /**
-   * Checks if the username is valid. Requirements:
-   * - Only alphanumeric characters and underscores
-   * - Length between 3 and 20 characters
+   * Checks if the username is valid. Requirements: - Only alphanumeric characters and underscores -
+   * Length between 3 and 20 characters
    *
    * @param username The username to check.
    * @return true if the username is valid, false otherwise.
@@ -69,12 +68,9 @@ public class UserService {
   }
 
   /**
-   * Checks if the password is valid. Minimum requirements:
-   * - At least one uppercase letter
-   * - At least one lowercase letter
-   * - At least one digit
-   * - At least one special character
-   * - Minimum length of 8 characters
+   * Checks if the password is valid. Minimum requirements: - At least one uppercase letter - At
+   * least one lowercase letter - At least one digit - At least one special character - Minimum
+   * length of 8 characters
    *
    * @param password The password to check.
    * @return true if the password is valid, false otherwise.
@@ -99,7 +95,8 @@ public class UserService {
   public ResponseEntity<?> updateUser(UserModifyDto userModifyDto, String username) {
     // Check if the user is trying to modify another user
     if (!AuthenticationService.getAuthority(username)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to modify this user.");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+          .body("You are not authorized to modify this user.");
     }
 
     // DTO validation
@@ -144,16 +141,22 @@ public class UserService {
     return ResponseEntity.status(HttpStatus.OK).body("User modified successfully.");
   }
 
-//  /**
-//   * Deletes a user.
-//   *
-//   * @param username The username of the user to delete.
-//   * @return A response entity with the result of the deletion.
-//   */
-//  public ResponseEntity<?> deleteUser(String username) {
-//    userRepository.deleteByUsername(username);
-//    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
-//  }
+  /**
+   * Deletes a user.
+   *
+   * @param username The username of the user to delete.
+   * @return A response entity with the result of the deletion.
+   */
+  public ResponseEntity<?> deleteUser(String username) {
+    // Check if the user is trying to delete another user
+    if (!AuthenticationService.getAuthority(username)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+          .body("You are not authorized to delete this user.");
+    }
+
+    userRepository.deleteByUsername(username);
+    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
+  }
 
   /**
    * Gets all users.
