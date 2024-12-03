@@ -1,8 +1,22 @@
+[![Build QualiTag Java](https://github.com/follen99/QualiTag/actions/workflows/gradle.yml/badge.svg?branch=main&event=push)](https://github.com/follen99/QualiTag/actions/workflows/gradle.yml)
+[![License](https://img.shields.io/github/license/follen99/QualiTag)](https://github.com/follen99/QualiTag/blob/main/LICENSE)
 # QualiTag
 GitHub repository dedicated to SoftwareEngineering project exam
 
 ## System Requirements
+A user can connect to the system *only after logging in*; if they do not have an account, they can register using email:password.
 
-L'`owner` è il *creatore* del progetto. Egli ha la facoltà di *nominare* dei `moderatori`.
+After logging in, the user can perform two operations:
 
-L'`utente base` può visualizzare i documenti ancora da taggare; quando ha finito di taggare uno specifico documento <u>non</u> ha più la possibilità di visualizzarlo. I moderatori hanno la facoltà di visualizzare i documenti con dei *conflitti* e di *risolverli* con l'ausilio di *wordnet*; possono successivamente *chiudere l'issue*. 
+1. Create a new project --> when the project is created, the "*ownerId*" field of the project is assigned to the userId of the user who created it.
+    1. If a user is associated with the project, they see it in the list of available projects, and if they are the owner, they have access to a dashboard that exposes the following functionalities:
+        1. *Terminate* the tagging operation, so that all basic users will no longer see the artifacts.
+        2. *Add artifacts* to be tagged to the project. If the tagging operation is complete, no more artifacts can be added to the project.
+    2. If the user is not the owner of the project, they can view their projects but instead of seeing the dashboard, they see a list of artifacts to be tagged; the name of each artifact is given by the filename.
+        1. Artifacts marked as *tagged* are displayed at the bottom and can no longer be tagged.
+        2. Artifacts to be tagged are displayed at the top.
+        3. The user can click on an artifact, which opens a screen displaying the text of the artifact.
+            1. It is possible to add a new tag associated with the artifact; each tag stores the user who created it: We have a `createdBy` field in the Tag object that stores the user who added it to the artifact.
+            2. Tags created to tag an artifact are not also saved for easy access next time. *too complex for a basic implementation*.
+            3. *Tag deletion*
+                1. The user can *delete* a tag *associated with the artifact* by clicking the x next to the tag content displayed in the list of tags associated with the artifact.
