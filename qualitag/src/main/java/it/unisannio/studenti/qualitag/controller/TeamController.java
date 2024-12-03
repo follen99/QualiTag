@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/team")
 public class TeamController {
+
   private final TeamService teamService;
 
   public TeamController(TeamService teamService) {
@@ -21,8 +22,7 @@ public class TeamController {
   }
 
   /**
-   * #######################################################################
-   *                              POST MAPPING
+   * ####################################################################### POST MAPPING
    * #######################################################################
    */
 
@@ -32,8 +32,7 @@ public class TeamController {
   }
 
   /**
-   * #######################################################################
-   *                              GET MAPPING
+   * ####################################################################### GET MAPPING
    * #######################################################################
    */
 
@@ -54,8 +53,7 @@ public class TeamController {
 
 
   /**
-   * #######################################################################
-   *                              DELETE MAPPING
+   * ####################################################################### DELETE MAPPING
    * #######################################################################
    */
 

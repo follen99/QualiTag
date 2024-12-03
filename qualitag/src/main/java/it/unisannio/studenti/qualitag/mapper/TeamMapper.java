@@ -12,10 +12,7 @@ public class TeamMapper {
       return null;
     }
 
-    return new Team(
-        correctTeamDto.teamName(),
-        correctTeamDto.creationDate(),
-        correctTeamDto.teamDescription(),
-        correctTeamDto.users());
+    return new Team(correctTeamDto.teamName(), correctTeamDto.creationDate(),
+        correctTeamDto.teamDescription(), correctTeamDto.users());
   }
 }
