@@ -6,6 +6,7 @@ import it.unisannio.studenti.qualitag.exception.TagValidationException;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
+import it.unisannio.studenti.qualitag.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.List;
 public class TagService {
     private final TagRepository tagRepository;
     private final TagMapper tagMapper;
+    private final UserRepository userRepository;
 
     /**
      * Constructs a new TagService.
@@ -23,9 +25,11 @@ public class TagService {
      * @param tagRepository The tag repository.
      * @param tagMapper     The tag mapper.
      */
-    public TagService(TagRepository tagRepository, TagMapper tagMapper) {
+    public TagService(TagRepository tagRepository, TagMapper tagMapper,
+        UserRepository userRepository) {
         this.tagRepository = tagRepository;
         this.tagMapper = tagMapper;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -197,6 +201,15 @@ public class TagService {
         if (!tagColor.matches("^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")) {
             throw new TagValidationException("Tag color must be a hexadecimal value");
         }
+
+        // user validation
+        if (createdBy == null || createdBy.isEmpty()) {
+            throw new TagValidationException("User information is null or empty");
+        }
+        if (!userRepository.existsByUsername(createdBy)) {
+            throw new TagValidationException("User does not exist");
+        }
+
         return new TagCreateDto(tagValue, createdBy, tagColor);
     }
 }
