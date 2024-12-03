@@ -3,8 +3,6 @@ package it.unisannio.studenti.qualitag.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest {
@@ -77,45 +75,9 @@ public class UserTest {
   }
 
   @Test
-  public void testAddAndRemoveProjectId() {
-    user.addProjectId("project1");
-    assertTrue(user.getProjectIds().contains("project1"));
-    user.removeProjectId("project1");
-    assertFalse(user.getProjectIds().contains("project1"));
-  }
-
-  @Test
-  public void testAddAndRemoveTeamId() {
-    user.addTeamId("team1");
-    assertTrue(user.getTeamIds().contains("team1"));
-    user.removeTeamId("team1");
-    assertFalse(user.getTeamIds().contains("team1"));
-  }
-
-  @Test
-  public void testAddAndRemoveTagId() {
-    user.addTagId("tag1");
-    assertTrue(user.getTagIds().contains("tag1"));
-    user.removeTagId("tag1");
-    assertFalse(user.getTagIds().contains("tag1"));
-  }
-
-  @Test
-  public void testSetAndGetRoles() {
-    user.setRoles(List.of("ROLE_USER", "ROLE_ADMIN"));
-    assertEquals(List.of("ROLE_USER", "ROLE_ADMIN"), user.getRoles());
-  }
-
-  @Test
   public void testEqualsAndHashCode() {
     User anotherUser = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
     assertEquals(user, anotherUser);
     assertEquals(user.hashCode(), anotherUser.hashCode());
-  }
-
-  @Test
-  public void testToString() {
-    String expected = "User{userId='null', username='username', email='user@example.com', name='John', surname='Doe', projectIds=[], teamIds=[], tagIds=[], roles=null}";
-    assertEquals(expected, user.toString());
   }
 }

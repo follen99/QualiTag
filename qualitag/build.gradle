@@ -1,50 +1,81 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.3.5'
-	id 'io.spring.dependency-management' version '1.1.6'
-	id 'com.github.node-gradle.node' version '3.5.1' // Automatically installs Node.js
-	id 'checkstyle'
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+
+    // Automatically installs Node.js
+    id 'com.github.node-gradle.node' version '3.5.1'
+
+    // Checkstyle plugin
+    id 'checkstyle'
+
+    // Lombok plugin
+    id("io.freefair.lombok") version "8.11"
 }
 
 group = 'it.unisannio.studenti'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 node {
-	version = '16.13.0' // Specific Node.js version
-	download = true // Automatically download Node.js
+    version = '16.13.0' // Specific Node.js version
+    download = true // Automatically download Node.js
 }
 
 tasks.register('installNodeModules', NpmTask) {
-	args = ['install']
+    args = ['install']
 }
 
 installNodeModules.dependsOn(nodeSetup)
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web' // Spring Web
-	developmentOnly 'org.springframework.boot:spring-boot-devtools' // Spring Boot DevTools
-	testImplementation 'org.springframework.boot:spring-boot-starter-test' // Spring Boot Test
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 5
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // MongoDB
-	implementation 'jakarta.validation:jakarta.validation-api:3.0.2' // Jakarta Bean Validation API
-	implementation 'org.hibernate.validator:hibernate-validator:7.0.1.Final' // Hibernate Validator
-	implementation 'org.springframework.security:spring-security-crypto' // Spring Security Crypto
+    // Spring Boot Starter Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Boot Starter Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Spring Security Crypto (for password encoding)
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    // JWT Library for generating and parsing tokens
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // for JSON processing
+
+    // Jakarta Bean Validation API and Hibernate Validator
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    implementation 'org.hibernate.validator:hibernate-validator:7.0.1.Final'
+
+    // Spring Data MongoDB
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // Spring Boot DevTools (for development and hot reload)
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Spring Boot Starter Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // JUnit 5
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Checkstyle configuration for Google Java Style
 checkstyle {
-	configFile = rootProject.file('qualitag/config/intellij-java-google-style.xml')
+    toolVersion = '10.20.2'
+    configFile = rootProject.file('config/google_checks.xml')
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

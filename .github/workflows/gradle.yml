@@ -1,0 +1,49 @@
+name: Build QualiTag Java
+on:
+  push:
+#    paths:
+#      - "qualitag/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x qualitag/gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+        working-directory: qualitag
+
+      - name: Run Checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest
+        working-directory: qualitag
+
+      - name: Publish Checkstyle report
+        uses: Juuxel/publish-checkstyle-report@v1
+        if: ${{ failure() || success() }}
+        with:
+        # required: The glob paths to report XML files as a multiline string
+        # The format below works for the Gradle Checkstyle plugin with default configurations
+          reports: |
+            build/reports/checkstyle/*.xml
