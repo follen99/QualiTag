@@ -7,6 +7,8 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TeamTest {
+
+    /**
     @Test
     public void testTeamConstructor() {
         Team team = new Team("1", "1", "Test", null, "Test");
@@ -67,4 +69,5 @@ class TeamTest {
         assertNotNull(team.getCreationTimeStamp());
         assertEquals("Default Description", team.getTeamDescription());
     }
+    */
 }

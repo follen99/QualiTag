@@ -7,13 +7,13 @@ import java.util.List;
 
 public interface ArtifactRepository extends MongoRepository<Artifact, String> {
 
-     /**
-      *Finds an artifact by its id
-      * @param artifactId the id of the artifact to find
-      * @return the artifact with the given id
-      */
-     Artifact findArtifactByArtifactId(String artifactId);
-
+  /**
+   * Finds an artifact by its id
+   *
+   * @param artifactId the id of the artifact to find
+   * @return the artifact with the given id
+   */
+  Artifact findArtifactByArtifactId(String artifactId);
 
 
 }

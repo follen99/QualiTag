@@ -44,13 +44,24 @@ public class ProjectController {
   }
 
   /**
-   * Gets all the projects created by a user with id ownerId
+   * Gets all the projects created by a user with a given id
+   * @param ownerId the id of the user to find the projects of
    * @return the response entity
    */
 
-  @GetMapping ("/get/{ownerId}")
+  @GetMapping ("/get/{ownerId}/status")
   public ResponseEntity<?> getProjectsByOwnerId(@PathVariable String ownerId) {
-    return projectService.getProjecstByOwner(ownerId);
+    return projectService.getProjectsByOwner(ownerId);
+  }
+
+  /**
+   * Gets a project by its id
+   * @param projectId the id of the project to find
+   * @return the response entity
+   */
+  @GetMapping ("/{projectId}/status")
+  public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
+    return projectService.getProjectById(projectId);
   }
 
   //DELETE

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProjectService {
+
   private static final int LOG_ROUNDS = 12;
 
   private final ProjectRepository projectRepository;
@@ -33,8 +34,9 @@ public class ProjectService {
 
   /**
    * Constructs a new ProjectService
+   *
    * @param projectRepository the project repository
-   * @param userRepository the user repository
+   * @param userRepository    the user repository
    */
   public ProjectService(ProjectRepository projectRepository,
       UserRepository userRepository, TeamRepository teamRepository,
@@ -54,13 +56,13 @@ public class ProjectService {
    */
   public ResponseEntity<?> createProject(ProjectCreateDto projectCreateDto) {
     //Project validation
-    try{
+    try {
       ProjectCreateDto correctProjectDto = validateProject(projectCreateDto);
 
       Project project = projectMapper.toEntity(correctProjectDto);
       this.projectRepository.save(project);
       return ResponseEntity.status(HttpStatus.CREATED).body("Project created successfully");
-    }catch (ProjectValidationException e){
+    } catch (ProjectValidationException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
@@ -71,23 +73,36 @@ public class ProjectService {
   }
 
   //TODO it should probably return a list, assuming a user can create
-  public ResponseEntity<?> getProjecstByOwner(String ownerId){
+  public ResponseEntity<?> getProjectsByOwner(String ownerId) {
     if (ownerId == null || ownerId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Owner ID cannot be null or empty");
     }
     if (!userRepository.existsById(ownerId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Owner not found");
     }
-    if(!projectRepository.existByOwnerId(ownerId)){
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project with owner " + ownerId +" not found");
+    if (!projectRepository.existsByOwnerId(ownerId)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("Project with owner " + ownerId + " not found");
     }
-    return ResponseEntity.status(HttpStatus.OK).body(projectRepository.findProjectsByOwnerId(ownerId));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(projectRepository.findProjectsByOwnerId(ownerId));
+  }
+
+  public ResponseEntity<?> getProjectById(String projectId) {
+    if (projectId == null || projectId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project ID cannot be null or empty");
+    }
+    if (!projectRepository.existsById(projectId)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+    }
+    return ResponseEntity.status(HttpStatus.OK).body(projectRepository.findProjectByProjectId(projectId));
   }
 
   //DELETE
   public ResponseEntity<?> deleteProject(String projectId) {
     if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Project ID cannot be null or empty");
     }
     if (!projectRepository.existsById(projectId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
@@ -126,7 +141,6 @@ public class ProjectService {
 
       this.projectRepository.save(project);
 
-
       return ResponseEntity.status(HttpStatus.OK).body("Project updated successfully");
 
     } catch (ProjectValidationException e) {
@@ -137,6 +151,7 @@ public class ProjectService {
 
   /**
    * Validates a project.
+   *
    * @param projectCreateDto the project to validate
    * @return the validated project
    */
@@ -210,7 +225,7 @@ public class ProjectService {
       throw new ProjectValidationException("Teams cannot be null or empty");
     }
 
-    for(String currentTeamId : teams){
+    for (String currentTeamId : teams) {
       if (currentTeamId == null || currentTeamId.trim().isEmpty()) {
         throw new TeamValidationException("There is an empty team in the list. Remove it.");
       }
@@ -226,13 +241,14 @@ public class ProjectService {
       throw new ProjectValidationException("Artifacts cannot be null or empty");
     }
 
-    for(String currentArtifactId : artifacts){
+    for (String currentArtifactId : artifacts) {
       if (currentArtifactId == null || currentArtifactId.trim().isEmpty()) {
         throw new TeamValidationException("There is an empty artifact in the list. Remove it.");
       }
       currentArtifactId = currentArtifactId.trim(); // Remove leading and trailing whitespaces
       if (!artifactRepository.existsById(currentArtifactId)) {
-        throw new TeamValidationException("Artifact with ID " + currentArtifactId + " does not exist");
+        throw new TeamValidationException(
+            "Artifact with ID " + currentArtifactId + " does not exist");
       }
     }
     //TODO check other constraints with artifacts

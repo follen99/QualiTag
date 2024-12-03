@@ -58,4 +58,15 @@ public class ArtifactController {
     return this.artifactService.deleteArtifact(artifactId);
   }
 
+  /**
+   * Deletes the associated tag
+   * @param artifactId the id of the artifact to delete the tag from
+   * @param tagId the id of the tag to delete
+   * @return the response entity
+   */
+  @DeleteMapping("/{artifactId}/tag/{tagId}")
+  public ResponseEntity<?> deleteTag(@PathVariable String artifactId, @PathVariable String tagId) {
+    return this.artifactService.deleteTag(artifactId, tagId);
+  }
+
 }

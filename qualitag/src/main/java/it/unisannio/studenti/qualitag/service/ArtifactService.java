@@ -6,6 +6,7 @@ import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,8 @@ public class ArtifactService {
     }
   }
 
+  //TODO : aggiungere metodo post per mettere tag ad un artefatto
+
   /**
    * Gets all the artifacts
    *
@@ -84,6 +87,35 @@ public class ArtifactService {
     } else {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Artifact not deleted");
     }
+  }
+
+  public ResponseEntity<?> deleteTag(String artifactId, String tagId) {
+    if (artifactId == null || artifactId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
+    }
+    if (tagId == null || tagId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
+    }
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
+    }
+
+    List<String> tagIds = artifact.getTagIds();
+    if (tagIds == null || tagIds.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact has no tags");
+    }
+
+    if (!tagIds.contains(tagId)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found in artifact");
+    }
+
+    tagIds.remove(tagId);
+    artifact.setTagIds(tagIds);
+    artifactRepository.save(artifact);
+
+    return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
   }
 
   //UPDATE
