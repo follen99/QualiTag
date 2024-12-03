@@ -1,60 +1,85 @@
 package it.unisannio.studenti.qualitag.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import org.springframework.data.mongodb.core.mapping.*;
 
 public class Artifact {
 
-  private String artifact_id;
-  private ArrayList<Tag> tags;
+  @MongoId
+  @Field(targetType = FieldType.OBJECT_ID)
+  private String artifactId;
+
+  @Field (name = "ArtifactName")
+  private String artifactName;
+
+  @Field(name="ArtifactContent")
   private String content;
+
+  @Field(name="artifactTags")
+  private List<String> tagIds;
 
   /**
    * Default constructor for Artifact
    */
   public Artifact() {
-    this.tags = new ArrayList<Tag>();
+    this.tagIds = new ArrayList<>();
   }
 
   /**
    * Constructor for Artifact
    *
-   * @param artifact_id the id of the artifact
+   * @param artifactName the name of the artifact
    * @param content     the content of the artifact
    */
 
-  public Artifact(String artifact_id, String content) {
-    this.artifact_id = artifact_id;
-    this.tags = new ArrayList<Tag>();
+  public Artifact(String artifactName, String content) {
+    this.artifactName = artifactName;
     this.content = content;
+    this.tagIds = new ArrayList<>();
+  }
+
+  /**
+   * Constructor for Artifact with tags
+   *
+   * @param artifactName the name of the artifact
+   * @param content     the content of the artifact
+   * @param tagIds      the tags of the artifact
+   */
+  public Artifact(String artifactName, String content, List<String> tagIds) {
+    this.artifactName = artifactName;
+    this.content = content;
+    this.tagIds = tagIds;
   }
 
   /**
    * Adds a tag to the artifact
    *
-   * @param tag the tag to add
+   * @param tagId the id of the tag to add
    */
-  public void addTag(Tag tag) {
-    this.tags.add(tag);
+  public void addTagId(String tagId) {
+    this.tagIds.add(tagId);
   }
 
   /**
    * Removes a tag from the artifact
    *
-   * @param tag the tag to remove
+   * @param tagId the id of the tag to remove
    */
-  public void removeTag(Tag tag) {
-    this.tags.remove(tag);
+  public void removeTagId(String tagId) {
+    this.tagIds.remove(tagId);
   }
 
   /**
    * Checks if the artifact has a specific tag
    *
-   * @param tag the tag to check
+   * @param tagId the id of the tag to check
    * @return true if the artifact has the tag, false otherwise
    */
-  public boolean isTagInArtifact(Tag tag) {
-    return this.tags.contains(tag);
+  public boolean isTagIdInArtifact(String tagId) {
+    return this.tagIds.contains(tagId);
   }
 
   //GETTERS AND SETTERS
@@ -64,35 +89,26 @@ public class Artifact {
    *
    * @return the id of the artifact
    */
-  public String getArtifact_id() {
-    return artifact_id;
+  public String getArtifactId() {
+    return artifactId;
   }
 
   /**
-   * Sets the id of the artifact
+   * Gets the name of the artifact
    *
-   * @param artifact_id the id of the artifact
+   * @return the name of the artifact
    */
-  public void setArtifact_id(String artifact_id) {
-    this.artifact_id = artifact_id;
+  public String getArtifactName() {
+    return artifactName;
   }
 
   /**
-   * Gets the tags of the artifact
+   * Sets the name of the artifact
    *
-   * @return the tags of the artifact
+   * @param artifactName the name of the artifact
    */
-  public ArrayList<Tag> getTags() {
-    return tags;
-  }
-
-  /**
-   * Sets the tags of the artifact
-   *
-   * @param tags the tags of the artifact
-   */
-  public void setTags(ArrayList<Tag> tags) {
-    this.tags = tags;
+  public void setArtifactName(String artifactName) {
+    this.artifactName = artifactName;
   }
 
   /**
@@ -113,8 +129,26 @@ public class Artifact {
     this.content = content;
   }
 
-  //EQUALS AND HASHCODE
+  /**
+   * Gets the tags of the artifact
+   *
+   * @return the tags of the artifact
+   */
+  public List<String> getTagIds() {
+    return Collections.unmodifiableList(tagIds);
+  }
 
+  /**
+   * Sets the tags of the artifact
+   *
+   * @param tagIds the tags of the artifact
+   */
+  public void setTagIds(List<String> tagIds) {
+    this.tagIds = tagIds;
+  }
+
+
+  //EQUALS AND HASHCODE
   /**
    * Checks if two artifacts are equal
    *
@@ -130,9 +164,7 @@ public class Artifact {
           return false;
       }
     Artifact artifact = (Artifact) o;
-    return Objects.equals(artifact_id, artifact.getArtifact_id()) &&
-        Objects.equals(tags, artifact.getTags()) &&
-        Objects.equals(content, artifact.getContent());
+    return Objects.equals(artifactId, artifact.getArtifactId());
   }
 
   /**
@@ -142,7 +174,7 @@ public class Artifact {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(getArtifact_id(), getTags(), getContent());
+    return Objects.hash(getArtifactId());
   }
 
   //TO STRING
@@ -153,10 +185,11 @@ public class Artifact {
    * @return the string representation of the artifact
    */
   public String toString() {
-    return "Artifact{" +
-        "artifact_id='" + artifact_id + '\'' +
-        ", tags=" + tags +
-        ", content='" + content + '\'' +
-        '}';
+   return "Artifact{" +
+       "artifactId='" + artifactId + '\'' +
+       ", artifactName='" + artifactName + '\'' +
+       ", content='" + content + '\'' +
+       ", tagIds=" + tagIds +
+       '}';
   }
 }
