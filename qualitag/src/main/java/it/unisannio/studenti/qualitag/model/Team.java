@@ -34,13 +34,11 @@ public class Team {
   /**
    * Constructs a Team with the specified details.
    *
-   * @param projectId       the ID of the project
    * @param teamName        the name of the team
    * @param creationTimeStamp    the creation date of the team
    * @param teamDescription the description of the team
    */
-  public Team(String projectId,
-      String teamName,
+  public Team(String teamName,
       Long creationTimeStamp,
       String teamDescription,
       List<String> users) {

@@ -13,7 +13,6 @@ public class TeamMapper {
     }
 
     return new Team(
-        correctTeamDto.projectId(),
         correctTeamDto.teamName(),
         correctTeamDto.creationDate(),
         correctTeamDto.teamDescription(),

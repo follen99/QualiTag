@@ -72,7 +72,6 @@ public class TeamService {
     }
 
     String name = teamCreateDto.teamName();
-    String projectId = teamCreateDto.projectId();
     Long creationDate = teamCreateDto.creationDate();
     String description = teamCreateDto.teamDescription();
     List<String> users = teamCreateDto.users();
@@ -126,11 +125,7 @@ public class TeamService {
             + " is already in a team. Same user cannot be in multiple teams.");
       }
     }
-    // Validate project ID
-    if (projectId == null || projectId.trim().isEmpty()) {
-      throw new TeamValidationException("Project ID cannot be empty");
-    }
-    projectId = projectId.trim(); // Remove leading and trailing whitespaces
+
 
     // Validate creation date
     if (creationDate == null) {
@@ -158,7 +153,7 @@ public class TeamService {
       }
     }
 
-    return new TeamCreateDto(name, projectId, creationDate, description, users);
+    return new TeamCreateDto(name, creationDate, description, users);
   }
 
   public ResponseEntity<?> getTeamsByProject(String projectId) {
