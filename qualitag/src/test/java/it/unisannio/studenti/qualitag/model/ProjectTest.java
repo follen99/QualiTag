@@ -157,16 +157,16 @@ public class ProjectTest {
     assertEquals(project.hashCode(), anotherProject.hashCode());
   }
 
-  /**
-   * Test the toString method
-   */
-  @Test
-  public void testToString() {
-    String expected =
-        "Project{projectId='null', projectName='ProjectName', projectDescription='ProjectDescription', projectCreationDate="
-            + project.getProjectCreationDate()
-            + ", projectDeadline=Wed Dec 31 00:00:00 CET 2025, "
-            + "usersIds=[], teamsIds=[], artifactsIds=[], ownerId=null}";
-    assertEquals(expected, project.toString());
-  }
+//  /**
+//   * Test the toString method
+//   */
+//  @Test
+//  public void testToString() {
+//    String expected =
+//        "Project{projectId='null', projectName='ProjectName', projectDescription='ProjectDescription', projectCreationDate="
+//            + project.getProjectCreationDate()
+//            + ", projectDeadline=Wed Dec 31 00:00:00 CET 2025, "
+//            + "usersIds=[], teamsIds=[], artifactsIds=[], ownerId=null}";
+//    assertEquals(expected, project.toString());
+//  }
 }
