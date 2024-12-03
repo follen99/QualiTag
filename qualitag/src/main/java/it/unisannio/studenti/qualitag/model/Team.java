@@ -1,7 +1,6 @@
 package it.unisannio.studenti.qualitag.model;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -34,14 +33,11 @@ public class Team {
   /**
    * Constructs a Team with the specified details.
    *
-   * @param teamName        the name of the team
-   * @param creationTimeStamp    the creation date of the team
-   * @param teamDescription the description of the team
+   * @param teamName          the name of the team
+   * @param creationTimeStamp the creation date of the team
+   * @param teamDescription   the description of the team
    */
-  public Team(String teamName,
-      Long creationTimeStamp,
-      String teamDescription,
-      List<String> users) {
+  public Team(String teamName, Long creationTimeStamp, String teamDescription, List<String> users) {
     this.projectId = projectId;
     this.teamName = teamName;
     this.creationTimeStamp = creationTimeStamp;
@@ -188,12 +184,12 @@ public class Team {
    */
   @Override
   public boolean equals(Object o) {
-      if (this == o) {
-          return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-          return false;
-      }
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     Team team = (Team) o;
     return Objects.equals(getTeamId(), team.getTeamId()) && Objects.equals(getProjectId(),
         team.getProjectId()) && Objects.equals(getUsers(), team.getUsers()) && Objects.equals(
@@ -222,13 +218,8 @@ public class Team {
    */
   @Override
   public String toString() {
-    return "Team{" +
-        "team_id='" + teamId + '\'' +
-        ", project_id='" + projectId + '\'' +
-        ", users=" + users +
-        ", team_name='" + teamName + '\'' +
-        ", creation_date=" + creationTimeStamp +
-        ", team_description='" + teamDescription + '\'' +
-        '}';
+    return "Team{" + "team_id='" + teamId + '\'' + ", project_id='" + projectId + '\'' + ", users="
+        + users + ", team_name='" + teamName + '\'' + ", creation_date=" + creationTimeStamp
+        + ", team_description='" + teamDescription + '\'' + '}';
   }
 }
