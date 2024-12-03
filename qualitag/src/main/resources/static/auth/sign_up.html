@@ -48,6 +48,7 @@
         // Success: Use the token from the JSON response
         localStorage.setItem('authToken', responseData.token);
         alert(responseData.msg || 'Registration successful');
+        window.location.href = '/index.html'; // Redirect to homepage after registration
       } else {
         // Error: Display the error message from the JSON response
         alert('Registration failed: ' + (responseData.msg || 'Unknown error'));

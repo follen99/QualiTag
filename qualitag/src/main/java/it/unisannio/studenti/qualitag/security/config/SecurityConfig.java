@@ -75,7 +75,7 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests(authorize -> authorize
             // Allow access to static resources
-            .requestMatchers("/index.html", "/auth/**").permitAll()
+            .requestMatchers("/index.html", "/auth/**", "/user/**").permitAll()
             // Permit all authentication-related POST requests
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
             // All other requests require authentication
