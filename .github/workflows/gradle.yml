@@ -47,3 +47,13 @@ jobs:
         # The format below works for the Gradle Checkstyle plugin with default configurations
           reports: |
             build/reports/checkstyle/*.xml
+
+      - name: Run JaCoCo coverage test
+        run: ./gradlew jacocoTestReport
+        working-directory: qualitag
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v2
+        with:
+          name: jacoco-report
+          path: qualitag/build/reports/jacoco/test/html
