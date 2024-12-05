@@ -56,4 +56,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: jacoco-report
-          path: qualitag/build/reports/jacoco/test/html
+          path: qualitag/build/jacoco/test/html/index.html
