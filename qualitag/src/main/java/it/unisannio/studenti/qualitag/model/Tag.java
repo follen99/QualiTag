@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.model;
 
 import java.util.Objects;
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 /**
  * Represents a tag in the system.
  */
+@Data
 @Document
 public class Tag {
 
@@ -25,7 +27,6 @@ public class Tag {
   public Tag() {
   }
 
-
   /**
    * Constructor with a specific tag color (hex).
    *
@@ -39,38 +40,13 @@ public class Tag {
     this.colorHex = tagColorHex;
   }
 
-  // GETTERS AND SETTERS
-
-  public String getTagId() {
-    return tagId;
-  }
-
-  public void setTagId(String tagId) {
-    this.tagId = tagId;
-  }
-
-  public String getCreatedBy() {
-    return createdBy;
-  }
-
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  public String getTagValue() {
-    return tagValue;
-  }
-
+  /**
+   * Constructor with a specific tag color (hex).
+   *
+   * @param tagValue the value of the tag
+   */
   public void setTagValue(String tagValue) {
     this.tagValue = tagValue.toUpperCase();
-  }
-
-  public String getColorHex() {
-    return colorHex;
-  }
-
-  public void setColorHex(String colorHex) {
-    this.colorHex = colorHex;
   }
 
   // EQUALS AND HASHCODE
