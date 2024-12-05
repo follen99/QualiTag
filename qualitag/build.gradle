@@ -11,6 +11,14 @@ plugins {
 
     // Lombok plugin
     id("io.freefair.lombok") version "8.11"
+
+    // Jacoco plugin
+    id 'jacoco'
+}
+
+jacoco {
+    toolVersion = '0.8.9'   // this version supports java 21
+    reportsDirectory = layout.buildDirectory.dir('jacoco')
 }
 
 group = 'it.unisannio.studenti'
@@ -76,6 +84,23 @@ checkstyle {
     configFile = rootProject.file('config/google_checks.xml')
 }
 
-tasks.named('test') {
+/*tasks.named('test') {
     useJUnitPlatform()
+}*/
+
+tasks.named('build') {
+    dependsOn test
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }
