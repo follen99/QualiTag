@@ -56,9 +56,14 @@ public class TagController {
     return this.tagService.getAllTags();
   }
 
-  @GetMapping("/get/createdby/{createdBy}")
-  public ResponseEntity<?> getTagsByCreatedBy(@PathVariable String createdBy) {
-    return this.tagService.getTagsByCreatedBy(createdBy);
+  @GetMapping("/get/createdby/username/{username}")
+  public ResponseEntity<?> getTagsByCreatedByUsername(@PathVariable String username) {
+    return this.tagService.getTagsByCreatedByUsername(username);
+  }
+
+  @GetMapping("/get/createdby/userid/{userid}")
+  public ResponseEntity<?> getTagsByCreatedByUserId(@PathVariable String userid) {
+    return this.tagService.getTagsByCreatedByUserId(userid);
   }
 
   @GetMapping("/get/value/{value}")

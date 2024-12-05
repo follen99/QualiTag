@@ -2,12 +2,16 @@ package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.constants.TagConstants;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.exception.TagValidationException;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Tag;
+import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,13 +44,18 @@ public class TagService {
    */
   public ResponseEntity<?> addTag(TagCreateDto tagCreateDto) {
     // tag validation
+    //Map<String, Object> response = new HashMap<>();
     try {
       TagCreateDto correctTagDto = validateTag(tagCreateDto);
 
       Tag tag = tagMapper.toEntity(correctTagDto);
-      this.tagRepository.save(tag);
+      //this.tagRepository.save(tag);
+      //response.put("msg", "Tag added successfully");
+      //return ResponseEntity.status(HttpStatus.CREATED).body(response);
       return ResponseEntity.status(HttpStatus.CREATED).body("Tag added successfully");
     } catch (TagValidationException e) {
+      //response.put("msg", e.getMessage());
+      //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
@@ -83,13 +92,25 @@ public class TagService {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Tag not deleted");
   }
 
-  public ResponseEntity<?> getTagsByCreatedBy(String createdBy) {
+  /**
+   * Gets a tag by its creator username
+   *
+   * @param createdBy The username of the user that created the tag.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> getTagsByCreatedByUsername(String createdBy) {
     if (createdBy == null || createdBy.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body("User information is null or empty");
     }
 
-    List<Tag> tags = tagRepository.findByCreatedBy(createdBy);
+    if (!userRepository.existsByUsername(createdBy)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
+    }
+
+    List<TagResponseDto> tags = tagMapper.getResponseDtoList(
+        tagRepository.findTagByCreatedBy(createdBy)
+    );
     if (tags.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
           .body("No tags found for the given creator");
@@ -98,17 +119,57 @@ public class TagService {
     return ResponseEntity.status(HttpStatus.OK).body(tags);
   }
 
+  /**
+   * Gets a tag by its creator user id
+   *
+   * @param userId The id of the user that created the tag.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> getTagsByCreatedByUserId(String userId) {
+    if (userId == null || userId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("User information is null or empty");
+    }
+
+    if (!userRepository.existsById(userId)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
+    }
+
+    // find the user by his id
+    User user = userRepository.findById(userId).orElse(null);
+    if (user == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    // find the tags created by the user
+    List<TagResponseDto> tags = tagMapper.getResponseDtoList(
+        tagRepository.findTagByCreatedBy(user.getUsername())
+    );
+    if (tags.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("No tags found for the given creator");
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(tags);
+  }
+
+  /**
+   * Gets tags by their value.
+   *
+   * @param value The value to search for.
+   * @return The response entity.
+   */
   public ResponseEntity<?> getTagsByValue(String value) {
     if (value == null || value.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag value is null or empty");
     }
 
-    List<Tag> tags = tagRepository.findByTagValueContaining(value);
-    if (tags.isEmpty()) {
+    List<TagResponseDto> responseDtos = tagMapper.getResponseDtoList(
+        tagRepository.findByTagValueContaining(value));
+    if (responseDtos.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tags found for the given value");
     }
-
-    return ResponseEntity.status(HttpStatus.OK).body(tags);
+    return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
   }
 
   /**
