@@ -3,6 +3,7 @@ package it.unisannio.studenti.qualitag.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
  * Represents a team in the system.
  */
 @Document
+@Data
 public class Team {
 
   @MongoId
@@ -38,7 +40,6 @@ public class Team {
    * @param teamDescription   the description of the team
    */
   public Team(String teamName, Long creationTimeStamp, String teamDescription, List<String> users) {
-    this.projectId = projectId;
     this.teamName = teamName;
     this.creationTimeStamp = creationTimeStamp;
     this.teamDescription = teamDescription;
@@ -46,70 +47,6 @@ public class Team {
   }
 
   // GETTERS AND SETTERS
-
-  /**
-   * Gets the team ID.
-   *
-   * @return the team ID
-   */
-  public String getTeamId() {
-    return teamId;
-  }
-
-  /**
-   * Sets the team ID.
-   *
-   * @param teamId the team ID to set
-   */
-  public void setTeamId(String teamId) {
-    this.teamId = teamId;
-  }
-
-  /**
-   * Gets the project ID.
-   *
-   * @return the project ID
-   */
-  public String getProjectId() {
-    return projectId;
-  }
-
-  /**
-   * Sets the project ID.
-   *
-   * @param projectId the project ID to set
-   */
-  public void setProjectId(String projectId) {
-    this.projectId = projectId;
-  }
-
-  /**
-   * Gets the list of users in the team.
-   *
-   * @return the list of users
-   */
-  public List<String> getUsers() {
-    return users;
-  }
-
-  /**
-   * Sets the list of users in the team.
-   *
-   * @param users the list of users to set
-   */
-  public void setUsers(ArrayList<String> users) {
-    this.users = users;
-  }
-
-  /**
-   * Sets the list of users in the team.
-   *
-   * @param users the list of users to set
-   */
-  public void setUsers(List<String> users) {
-    this.users = users;
-  }
-
   /**
    * Adds a user to the team.
    *
@@ -118,60 +55,6 @@ public class Team {
   public void addUser(User user) {
     String userId = user.getUserId();
     this.users.add(userId);
-  }
-
-  /**
-   * Gets the team name.
-   *
-   * @return the team name
-   */
-  public String getTeamName() {
-    return teamName;
-  }
-
-  /**
-   * Sets the team name.
-   *
-   * @param teamName the team name to set
-   */
-  public void setTeamName(String teamName) {
-    this.teamName = teamName;
-  }
-
-  /**
-   * Gets the creation date of the team.
-   *
-   * @return the creation date
-   */
-  public Long getCreationTimeStamp() {
-    return creationTimeStamp;
-  }
-
-  /**
-   * Sets the creation date of the team.
-   *
-   * @param creationTimeStamp the creation date to set
-   */
-  public void setCreationTimeStamp(Long creationTimeStamp) {
-    this.creationTimeStamp = creationTimeStamp;
-  }
-
-  /**
-   * Gets the team description.
-   *
-   * @return the team description
-   */
-  public String getTeamDescription() {
-    return teamDescription;
-  }
-
-  /**
-   * Sets the team description.
-   *
-   * @param teamDescription the team description to set
-   */
-  public void setTeamDescription(String teamDescription) {
-    this.teamDescription = teamDescription;
   }
 
   // EQUALS AND HASHCODE

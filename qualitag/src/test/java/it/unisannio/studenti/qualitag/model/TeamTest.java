@@ -63,7 +63,7 @@ class TeamTest {
     user.setUserId("user1");
     team.addUser(user);
     assertEquals(1, team.getUsers().size());
-    assertEquals("user1", team.getUsers().get(0));
+    assertEquals("user1", team.getUsers().getFirst());
   }
 
   @Test

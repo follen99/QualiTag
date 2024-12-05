@@ -98,4 +98,52 @@ class TagTest {
     assertEquals(tag1.hashCode(), tag2.hashCode());
   }
 
+  @Test
+  void testEqualsWithNull() {
+    Tag tag1 = new Tag("value", "user1", "#FFFFFF");
+    tag1.setTagId("1");
+    Tag tag2 = null;
+
+    assertNotEquals(tag1, tag2);
+  }
+
+  @Test
+  void testEqualsWithDifferentClass() {
+    Tag tag1 = new Tag("value", "user1", "#FFFFFF");
+    tag1.setTagId("1");
+    String differentClassObject = "I am a string";
+
+    assertNotEquals(tag1, differentClassObject);
+  }
+
+  @Test
+  void testEqualsWithDifferentTagId() {
+    Tag tag1 = new Tag("value", "user1", "#FFFFFF");
+    tag1.setTagId("1");
+    Tag tag2 = new Tag("value", "user1", "#FFFFFF");
+    tag2.setTagId("2");
+
+    assertNotEquals(tag1, tag2);
+  }
+
+  @Test
+  void testEqualsWithDifferentCreatedBy() {
+    Tag tag1 = new Tag("value", "user1", "#FFFFFF");
+    tag1.setTagId("1");
+    Tag tag2 = new Tag("value", "user2", "#FFFFFF");
+    tag2.setTagId("1");
+
+    assertNotEquals(tag1, tag2);
+  }
+
+  @Test
+  void testEqualsWithDifferentColorHex() {
+    Tag tag1 = new Tag("value", "user1", "#FFFFFF");
+    tag1.setTagId("1");
+    Tag tag2 = new Tag("value", "user1", "#000000");
+    tag2.setTagId("1");
+
+    assertNotEquals(tag1, tag2);
+  }
+
 }
