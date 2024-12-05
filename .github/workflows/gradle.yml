@@ -39,52 +39,18 @@ jobs:
         run: ./gradlew checkstyleMain checkstyleTest
         working-directory: qualitag
 
-      - name: Publish Checkstyle report
-        uses: Juuxel/publish-checkstyle-report@v1
-        if: ${{ failure() || success() }}
-        with:
-        # required: The glob paths to report XML files as a multiline string
-        # The format below works for the Gradle Checkstyle plugin with default configurations
-          reports: |
-            build/reports/checkstyle/*.xml
-
-#      - name: Run JaCoCo coverage test
-#        run: ./gradlew jacocoTestReport
-#        working-directory: qualitag
-#
-#      - name: Upload JaCoCo report
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: jacoco-report
-#          path: qualitag/build/jacoco/test/html
-
-            # generates coverage-report.md and publishes as checkrun
-      - name: JaCoCo Code Coverage Report
-        id: jacoco_reporter
-        uses: PavanMudigonda/jacoco-reporter@v5.0
-        with:
-          coverage_results_path: jacoco-report/test.xml
-          coverage_report_name: Coverage
-          coverage_report_title: JaCoCo
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_check_run: false
-          minimum_coverage: 80
-          fail_below_threshold: false
-          publish_only_summary: false
-
-      # Publish Coverage Job Summary  # Optional
-      - name: Add Jacocoo report to workflow run summary
-        run: |
-          echo "| Outcome | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
-          echo "| Code Coverage % | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| :heavy_check_mark: Number of Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| :x: Number of Lines Missed | ${{ steps.jacoco_reporter.outputs.missed_lines }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Total Number of Lines | ${{ steps.jacoco_reporter.outputs.total_lines }} |" >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload Code Coverage Artifacts
+      - name: Upload Checkstyle report
         uses: actions/upload-artifact@v4
         with:
-          name: code-coverage-report-markdown
-          path: coverage-report.md
-          retention-days: 1
+          name: checkstyle-report
+          path: qualitag/build/reports/checkstyle     # uploading whole folder
+
+      - name: Run JaCoCo coverage test
+        run: ./gradlew jacocoTestReport
+        working-directory: qualitag
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: qualitag/build/jacoco/test/html       # uploading whole folder
