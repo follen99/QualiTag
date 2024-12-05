@@ -61,10 +61,10 @@ public class TagController {
     return this.tagService.getTagsByCreatedByUsername(username);
   }
 
-  @GetMapping("/get/createdby/userid/{userid}")
+  /*@GetMapping("/get/createdby/userid/{userid}")
   public ResponseEntity<?> getTagsByCreatedByUserId(@PathVariable String userid) {
     return this.tagService.getTagsByCreatedByUserId(userid);
-  }
+  }*/
 
   @GetMapping("/get/value/{value}")
   public ResponseEntity<?> getTagsByValue(@PathVariable String value) {

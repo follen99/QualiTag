@@ -6,12 +6,9 @@ import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.exception.TagValidationException;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Tag;
-import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -49,7 +46,7 @@ public class TagService {
       TagCreateDto correctTagDto = validateTag(tagCreateDto);
 
       Tag tag = tagMapper.toEntity(correctTagDto);
-      //this.tagRepository.save(tag);
+      this.tagRepository.save(tag);
       //response.put("msg", "Tag added successfully");
       //return ResponseEntity.status(HttpStatus.CREATED).body(response);
       return ResponseEntity.status(HttpStatus.CREATED).body("Tag added successfully");
@@ -119,39 +116,6 @@ public class TagService {
     return ResponseEntity.status(HttpStatus.OK).body(tags);
   }
 
-  /**
-   * Gets a tag by its creator user id
-   *
-   * @param userId The id of the user that created the tag.
-   * @return The response entity.
-   */
-  public ResponseEntity<?> getTagsByCreatedByUserId(String userId) {
-    if (userId == null || userId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("User information is null or empty");
-    }
-
-    if (!userRepository.existsById(userId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
-    }
-
-    // find the user by his id
-    User user = userRepository.findById(userId).orElse(null);
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-    }
-
-    // find the tags created by the user
-    List<TagResponseDto> tags = tagMapper.getResponseDtoList(
-        tagRepository.findTagByCreatedBy(user.getUsername())
-    );
-    if (tags.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body("No tags found for the given creator");
-    }
-
-    return ResponseEntity.status(HttpStatus.OK).body(tags);
-  }
 
   /**
    * Gets tags by their value.
@@ -165,7 +129,7 @@ public class TagService {
     }
 
     List<TagResponseDto> responseDtos = tagMapper.getResponseDtoList(
-        tagRepository.findByTagValueContaining(value));
+        tagRepository.findByTagValueContaining(value.toUpperCase()));
     if (responseDtos.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tags found for the given value");
     }
