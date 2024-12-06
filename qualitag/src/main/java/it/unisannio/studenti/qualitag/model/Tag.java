@@ -17,7 +17,7 @@ public class Tag {
   @MongoId
   @Field(targetType = FieldType.OBJECT_ID)
   private String tagId;
-  private String createdBy;
+  private String createdBy;   // user username (not user ID)
   private String tagValue;
   private String colorHex;
 

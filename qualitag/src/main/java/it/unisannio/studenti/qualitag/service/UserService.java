@@ -2,6 +2,7 @@ package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
+import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
@@ -12,6 +13,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -185,4 +187,6 @@ public class UserService {
   public ResponseEntity<?> getAllUsers() {
     return ResponseEntity.status(HttpStatus.OK).body(userRepository.findAll());
   }
+
+
 }

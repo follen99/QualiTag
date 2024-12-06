@@ -6,12 +6,14 @@ import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.exception.TagValidationException;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Tag;
+import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TagService {
@@ -39,23 +41,51 @@ public class TagService {
    * @param tagCreateDto The tag to add.
    * @return The response entity.
    */
+  @Transactional
   public ResponseEntity<?> addTag(TagCreateDto tagCreateDto) {
     // tag validation
     //Map<String, Object> response = new HashMap<>();
     try {
       TagCreateDto correctTagDto = validateTag(tagCreateDto);
-
       Tag tag = tagMapper.toEntity(correctTagDto);
+
       this.tagRepository.save(tag);
-      //response.put("msg", "Tag added successfully");
-      //return ResponseEntity.status(HttpStatus.CREATED).body(response);
-      return ResponseEntity.status(HttpStatus.CREATED).body("Tag added successfully");
+      if(this.addTagToUser(tag)) {
+        return ResponseEntity.status(HttpStatus.CREATED).body("Tag added successfully");
+      }
+      this.tagRepository.delete(tag); // rollback
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag already exists");
     } catch (TagValidationException e) {
-      //response.put("msg", e.getMessage());
-      //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
+
+  /**
+   * Adds a tag to a user every time a tag is created.
+   *
+   * @param tag The tag to add.
+   * @return True if the tag was added, false otherwise.
+   */
+  private boolean addTagToUser(Tag tag) {
+    User user = userRepository.findByUsername(tag.getCreatedBy());
+    if (user == null) {
+      return false;                               // user does not exist
+    }
+
+    List<String> userTagIds = user.getTagIds();
+    if (!userTagIds.contains(tag.getTagId())) {
+      userTagIds.add(tag.getTagId());             // add new tag to user
+      user.setTagIds(userTagIds);                 // set new tag list
+
+      // TODO: use a DTO instead of the entity
+      userRepository.save(user);                  // save user
+      return true;
+    }
+
+    return false;                                 // tag already exists
+  }
+
 
   /**
    * Gets all tags.

@@ -13,4 +13,6 @@ public interface TeamRepository extends MongoRepository<Team, String> {
   boolean existsByUsersContaining(String userId);
 
   List<Team> findByUsersContaining(String userId);
+
+  boolean existsByUsersContainingAndTeamIdNot(String userId, String teamId);
 }

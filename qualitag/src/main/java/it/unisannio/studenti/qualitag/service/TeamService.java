@@ -5,8 +5,10 @@ import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.TeamMapper;
 import it.unisannio.studenti.qualitag.model.Team;
+import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,7 @@ public class TeamService {
 
       Team team = teamMapper.toEntity(correctTeamDto);
       this.teamRepository.save(team);
+      this.addTeamToUser(team);
       return ResponseEntity.status(HttpStatus.CREATED).body("Team added successfully");
     } catch (TeamValidationException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -118,6 +121,7 @@ public class TeamService {
       }
       currentUserId = currentUserId.trim(); // Remove leading and trailing whitespaces
       if (!userRepository.existsById(currentUserId)) {
+        System.out.println("testing userid: " + currentUserId);
         throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
       }
 
@@ -154,6 +158,42 @@ public class TeamService {
     }
 
     return new TeamCreateDto(name, creationDate, description, users);
+  }
+
+  private void addTeamToUser(Team team) throws TeamValidationException {
+    if (team == null) {
+      throw new TeamValidationException("Team cannot be null");
+    }
+    List<String> users = team.getUsers();
+    for (String userId : users) {
+      if (userId == null || userId.isEmpty()) {
+        throw new TeamValidationException("User ID is null or empty");
+      }
+      if (!userRepository.existsById(userId)) {
+        throw new TeamValidationException("User with ID " + userId + " does not exist");
+      }
+      /*if (teamRepository.existsByUsersContaining(userId)) {
+        throw new TeamValidationException("User with ID " + userId
+            + " is already in a team. Same user cannot be in multiple teams.");
+      }*/
+      if (teamRepository.existsByUsersContainingAndTeamIdNot(userId, team.getTeamId())) {
+        throw new TeamValidationException("User with ID " + userId
+            + " is already in a team. Same user cannot be in multiple teams.");
+      }
+
+      User currentUser = userRepository.findById(userId).orElse(null);
+      assert currentUser != null;
+      List<String> currentUserTeams = new ArrayList<>(currentUser.getTeamIds());
+
+      if (currentUserTeams.contains(team.getTeamId())) {
+        throw new TeamValidationException("User with ID " + userId + " is already in team "
+            + team.getTeamName() + ". Same user cannot be in multiple teams.");
+      }
+      currentUserTeams.add(team.getTeamId());
+      currentUser.setTeamIds(currentUserTeams);
+
+      userRepository.save(currentUser);
+    }
   }
 
   public ResponseEntity<?> getTeamsByProject(String projectId) {

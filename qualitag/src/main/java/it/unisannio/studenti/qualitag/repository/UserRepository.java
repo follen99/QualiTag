@@ -47,4 +47,6 @@ public interface UserRepository extends MongoRepository<User, String> {
    * @param username The id of the user to delete.
    */
   void deleteByUsername(String username);
+
+
 }
