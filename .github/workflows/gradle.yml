@@ -1,16 +1,23 @@
 name: Build QualiTag Java
 on:
   push:
-#    paths:
-#      - "qualitag/**"
+    paths:
+      - "qualitag/**"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-        matrix:
-            node-version: [20.x, 22.x]
-            mongodb-version: ['6.0', '7.0', '8.0']
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
 
     steps:
       - name: Checkout repository
@@ -21,26 +28,6 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '21'
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install MongoDB ${{ matrix.mongodb-version }}
-        run: sudo apt-get install -y mongodb-org=${{ matrix.mongodb-version }} mongodb-org-server=${{ matrix.mongodb-version }} mongodb-org-shell=${{ matrix.mongodb-version }} mongodb-org-mongos=${{ matrix.mongodb-version }} mongodb-org-tools=${{ matrix.mongodb-version }}
-        shell: bash
-
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.11.0
-        with:
-            mongodb-version: ${{ matrix.mongodb-version }}
-            mongodb-replica-set: test-rs
-            mongodb-port: 27017
-
-      - name: Install node dependencies
-        run: npm install
-        working-directory: qualitag
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
@@ -67,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: checkstyle-report
-          path: qualitag/build/reports/checkstyle     # uploading whole folder
+          path: qualitag/build/reports/checkstyle
 
       - name: Run JaCoCo coverage test
         run: ./gradlew jacocoTestReport
@@ -77,4 +64,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: qualitag/build/jacoco/test/html       # uploading whole folder
+          path: qualitag/build/jacoco/test/html
+
+      - name: Run tests with MongoDB
+        env:
+          MONGO_URI: "mongodb://localhost:27017/qualitag-test-db"
+        run: ./gradlew test
+        working-directory: qualitag
