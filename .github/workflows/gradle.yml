@@ -7,6 +7,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            node-version: [20.x, 22.x]
+            mongodb-version: ['6.0', '7.0', '8.0']
 
     steps:
       - name: Checkout repository
@@ -17,6 +21,26 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '21'
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install MongoDB ${{ matrix.mongodb-version }}
+        run: sudo apt-get install -y mongodb-org=${{ matrix.mongodb-version }} mongodb-org-server=${{ matrix.mongodb-version }} mongodb-org-shell=${{ matrix.mongodb-version }} mongodb-org-mongos=${{ matrix.mongodb-version }} mongodb-org-tools=${{ matrix.mongodb-version }}
+        shell: bash
+
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.11.0
+        with:
+            mongodb-version: ${{ matrix.mongodb-version }}
+            mongodb-replica-set: test-rs
+            mongodb-port: 27017
+
+      - name: Install node dependencies
+        run: npm install
+        working-directory: qualitag
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
