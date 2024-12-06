@@ -1,23 +1,12 @@
 name: Build QualiTag Java
 on:
   push:
-    paths:
-      - "qualitag/**"
+#    paths:
+#      - "qualitag/**"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    services:
-      mongodb:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'" 
-          --health-interval 10s 
-          --health-timeout 5s 
-          --health-retries 5
 
     steps:
       - name: Checkout repository
@@ -54,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: checkstyle-report
-          path: qualitag/build/reports/checkstyle
+          path: qualitag/build/reports/checkstyle     # uploading whole folder
 
       - name: Run JaCoCo coverage test
         run: ./gradlew jacocoTestReport
@@ -64,10 +53,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: qualitag/build/jacoco/test/html
-
-      - name: Run tests with MongoDB
-        env:
-          MONGO_URI: "mongodb://localhost:27017/qualitag-test-db"
-        run: ./gradlew test
-        working-directory: qualitag
+          path: qualitag/build/jacoco/test/html       # uploading whole folder

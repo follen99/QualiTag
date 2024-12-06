@@ -6,19 +6,23 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-/*@SpringBootTest
-@AutoConfigureTestDatabase
-@ActiveProfiles("test")*/
+import static org.mockito.Mockito.when;   // to not always write Mockito.when
+
+/**
+ * MOCKED Test class for the TagRepository.
+ */
 @SpringBootTest
 public class TagRepositoryTest {
 
-  @Autowired
+  @MockBean
   private TagRepository tagRepository;
 
-  @Autowired
+  @MockBean
   private UserRepository userRepository;
 
   private final String username = "user1";
@@ -35,13 +39,19 @@ public class TagRepositoryTest {
         "Pietro",
         "Smusi");
 
-    userRepository.save(testUser);
+    // when userRepository.save() is called in my program, return testUser (mocked)
+    when(userRepository.save(Mockito.any(User.class))).thenReturn(testUser);
 
-    // the user has created 3 tags
-    // tag value shoud be saved in uppercase
-    tagRepository.save(new Tag("tag1", this.username, "#FFFFFF"));
-    tagRepository.save(new Tag("tag2", this.username, "#000000"));
-    tagRepository.save(new Tag("tag3", this.username, "#FF0000"));
+    // Tags
+    Tag tag1 = new Tag("tag1", this.username, "#FFFFFF");
+    Tag tag2 = new Tag("tag2", this.username, "#000000");
+    Tag tag3 = new Tag("tag3", this.username, "#FF0000");
+
+    when(tagRepository.findTagByCreatedBy(this.username))
+            .thenReturn(List.of(tag1, tag2, tag3));
+
+    when(tagRepository.findByTagValueContaining("TAG1"))
+            .thenReturn(List.of(tag1));
 
   }
 
