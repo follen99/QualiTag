@@ -65,9 +65,9 @@ public class ArtifactTest {
   @Test
   public void addAndRemoveTagId() {
     artifact.addTagId("tagId");
-    assertTrue(artifact.getTagIds().contains("tagId"));
+    assertTrue(artifact.getTags().contains("tagId"));
     artifact.removeTagId("tagId");
-    assertFalse(artifact.getTagIds().contains("tagId"));
+    assertFalse(artifact.getTags().contains("tagId"));
   }
 
   /**

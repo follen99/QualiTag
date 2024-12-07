@@ -7,12 +7,13 @@ package it.unisannio.studenti.qualitag.model;
  */
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Date;
 import java.util.Objects;
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.*;
 
+@Data
+@Document(collection = "project")
 public class Project {
 
   @MongoId
@@ -25,20 +26,20 @@ public class Project {
   @Field(name="projectDescription")
   private String projectDescription;
 
-  @Field(name="projectDeadline")
-  private Date projectDeadline;
-
   @Field(name="projectCreationDate")
-  private Date projectCreationDate;
+  private Long projectCreationDate;
+
+  @Field(name="projectDeadline")
+  private Long projectDeadline;
 
   @Field(name="projectUsers")
-  private List<String> userIds;
+  private List<String> users;
 
   @Field(name="projectTeams")
-  private List<String> teamIds;
+  private List<String> teams;
 
   @Field(name="projectArtifacts")
-  private List<String> artifactIds;
+  private List<String> artifacts;
 
   @Field(name="projectOwner")
   private String ownerId;
@@ -48,9 +49,9 @@ public class Project {
    *
    */
   public Project() {
-    this.userIds = new ArrayList<>();
-    this.teamIds = new ArrayList<>();
-    this.artifactIds = new ArrayList<>();
+    this.users = new ArrayList<>();
+    this.teams = new ArrayList<>();
+    this.artifacts = new ArrayList<>();
   }
 
   /**
@@ -61,15 +62,15 @@ public class Project {
    * @param projectDeadline The project's deadline
    */
   public Project(String projectName, String projectDescription,
-      Date projectDeadline) {
+      Long projectDeadline) {
     this.projectName = projectName;
-    this.projectDeadline = projectDeadline;
-    this.projectCreationDate = new Date();
     this.projectDescription = projectDescription;
+    this.projectCreationDate = System.currentTimeMillis();
+    this.projectDeadline = projectDeadline;
 
-    this.userIds = new ArrayList<>();
-    this.teamIds = new ArrayList<>();
-    this.artifactIds = new ArrayList<>();
+    this.users = new ArrayList<>();
+    this.teams = new ArrayList<>();
+    this.artifacts = new ArrayList<>();
   }
 
   /**
@@ -81,16 +82,16 @@ public class Project {
    * @param userId The userId of the user that is part of the project
    */
   public Project(String projectName, String projectDescription,
-      Date projectDeadline, String userId) {
+      Long projectDeadline, String userId) {
     this.projectName = projectName;
     this.projectDescription = projectDescription;
-    this.projectCreationDate = new Date();
+    this.projectCreationDate = System.currentTimeMillis();
     this.projectDeadline = projectDeadline;
 
-    this.userIds = new ArrayList<>();
-    userIds.add(userId);
-    this.teamIds = new ArrayList<>();
-    this.artifactIds = new ArrayList<>();
+    this.users = new ArrayList<>();
+    users.add(userId);
+    this.teams = new ArrayList<>();
+    this.artifacts = new ArrayList<>();
   }
 
   /**
@@ -99,23 +100,23 @@ public class Project {
    * @param projectName The project's name
    * @param projectDescription The project's description
    * @param projectDeadline The project's deadline
-   * @param userIds The ids of the users in the project
-   * @param teamIds The ids of the teams in the project
-   * @param artifactIds The ids of the artifacts in the project
+   * @param users The ids of the users in the project
+   * @param teams The ids of the teams in the project
+   * @param artifacts The ids of the artifacts in the project
    * @param ownerId The id of the owner of the project
    */
   public Project (String projectName, String projectDescription,
-      Date projectDeadline,List<String> userIds,
-      List<String> teamIds, List<String> artifactIds
+      Long projectDeadline,List<String> users,
+      List<String> teams, List<String> artifacts
       , String ownerId){
     this.projectName = projectName;
     this.projectDescription = projectDescription;
-    this.projectCreationDate = new Date();
+    this.projectCreationDate = System.currentTimeMillis();
     this.projectDeadline = projectDeadline;
 
-    this.userIds = userIds;
-    this.teamIds = teamIds;
-    this.artifactIds = artifactIds;
+    this.users = users;
+    this.teams = teams;
+    this.artifacts = artifacts;
     this.ownerId = ownerId;
   }
 
@@ -125,7 +126,7 @@ public class Project {
    * @param userId The id of the user to add to the project
    */
   public void addUserId(String userId) {
-    userIds.add(userId);
+    users.add(userId);
   }
 
   /**
@@ -135,7 +136,7 @@ public class Project {
    * @return true if the user is in the project, false otherwise
    */
   public boolean isUserIdInProject(String userId) {
-    return userIds.contains(userId);
+    return users.contains(userId);
   }
 
   /**
@@ -144,7 +145,7 @@ public class Project {
    * @param userId the id of the user to remove from the project
    */
   public void removeUserId(String userId) {
-    userIds.remove(userId);
+    users.remove(userId);
   }
 
   /**
@@ -153,7 +154,7 @@ public class Project {
    * @param teamId The id of the team to add to the project
    */
   public void addTeamId(String teamId) {
-    teamIds.add(teamId);
+    teams.add(teamId);
   }
 
   /**
@@ -163,7 +164,7 @@ public class Project {
    * @return true if the team is in the project, false otherwise
    */
   public boolean isTeamIDInProject(String teamId) {
-    return teamIds.contains(teamId);
+    return teams.contains(teamId);
   }
 
   /**
@@ -172,7 +173,7 @@ public class Project {
    * @param teamId The id of the team to remove from the project
    */
   public void removeTeamId(String teamId) {
-    teamIds.remove(teamId);
+    teams.remove(teamId);
   }
 
   /**
@@ -180,7 +181,7 @@ public class Project {
    * @param artifactId the id of the artifact to add to the project
    */
   public void addArtifactId(String artifactId) {
-    artifactIds.add(artifactId);
+    artifacts.add(artifactId);
   }
 
   /**
@@ -189,7 +190,7 @@ public class Project {
    * @return true if the artifact is in the project, false otherwise
    */
   public boolean isArtifactIdInProject(String artifactId) {
-    return artifactIds.contains(artifactId);
+    return artifacts.contains(artifactId);
   }
 
   /**
@@ -197,159 +198,7 @@ public class Project {
    * @param artifactId the id of the artifact to remove from the project
    */
   public void removeArtifactId(String artifactId) {
-    artifactIds.remove(artifactId);
-  }
-
-
-  //GETTERS AND SETTERS
-  /**
-   * Gets the project_name
-   *
-   * @return project_name The project's name
-   */
-  public String getProjectId() {
-    return projectId;
-  }
-
-  /**
-   * Gets the project_name
-   *
-   * @return project_name The project's name
-   */
-  public String getProjectName() {
-    return projectName;
-  }
-
-  /**
-   * Sets the project_name
-   *
-   * @param projectName The project's name
-   */
-  public void setProjectName(String projectName) {
-    this.projectName = projectName;
-  }
-
-  /**
-   * Gets the project_description
-   *
-   * @return project_description The project's description
-   */
-  public String getProjectDescription() {
-    return projectDescription;
-  }
-
-  /**
-   * Sets the project_description
-   *
-   * @param projectDescription The project's description
-   */
-  public void setProjectDescription(String projectDescription) {
-    this.projectDescription = projectDescription;
-  }
-
-  /**
-   * Gets the project_deadline
-   *
-   * @return project_deadline The project's deadline
-   */
-  public Date getProjectDeadline() {
-    return projectDeadline;
-  }
-
-  /**
-   * Sets the project_deadline
-   *
-   * @param projectDeadline The project's deadline
-   */
-  public void setProjectDeadline(Date projectDeadline) {
-    this.projectDeadline = projectDeadline;
-  }
-
-  /**
-   * Gets the project_creation_date
-   *
-   * @return project_creation_date The project's creation date
-   */
-  public Date getProjectCreationDate() {
-    return projectCreationDate;
-  }
-
-  /**
-   * Sets the project_creation_date
-   *
-   * @param projectCreationDate The project's creation date
-   */
-  public void setProjectCreationDate(Date projectCreationDate) {
-    this.projectCreationDate = projectCreationDate;
-  } //is this really necessary?
-
-
-  /**
-   * Gets the users
-   *
-   * @return userIds The id of the users in the project
-   */
-  public List<String> getUserIds() {
-    return Collections.unmodifiableList(userIds);
-  }
-
-  /**
-   * Sets the users
-   *
-   * @param userIds The ids of the users in the project
-   */
-  public void setUserIds(List<String> userIds) {
-    this.userIds = userIds;
-  }
-
-  /**
-   * Gets the teams
-   *
-   * @return teams The ids of the teams in the project
-   */
-  public List<String> getTeamIds() {
-    return Collections.unmodifiableList(teamIds);
-  }
-
-  /**
-   * Sets the teams
-   *
-   * @param teamIds The ids of the teams in the project
-   */
-  public void setTeamIds(List<String> teamIds) {
-    this.teamIds = teamIds;
-  }
-
-  /**
-   * Gets the artifacts
-   * @return artifactIds The ids of the artifact in the project
-   */
-  public List<String> getArtifactIds() {
-    return Collections.unmodifiableList(artifactIds);
-  }
-
-  /**
-   * Sets the artifacts
-   * @param artifactIds The ids of the artifacts in the project
-   */
-  public void setArtifactIds(List<String> artifactIds) {
-    this.artifactIds = artifactIds;
-  }
-
-  /**
-   * Gets the owner
-   * @return ownerId The id of the owner of the project
-   */
-  public String getOwnerId() {
-    return ownerId;
-  }
-
-  /**
-   * Sets the owner
-   * @param ownerId The id of the owner of the project
-   */
-  public void setOwnerId(String ownerId) {
-    this.ownerId = ownerId;
+    artifacts.remove(artifactId);
   }
 
   //EQUALS AND HASHCODE
@@ -369,7 +218,7 @@ public class Project {
           return false;
       }
     Project project = (Project) o;
-    return Objects.equals(getProjectId(), project.getProjectId());
+    return Objects.equals(projectId, project.projectId);
   }
 
   /**
@@ -379,7 +228,7 @@ public class Project {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(getProjectId());
+    return Objects.hash(projectId);
   }
 
   //TO STRING
@@ -397,9 +246,9 @@ public class Project {
         + ", projectDescription='" + projectDescription + '\''
         + ", projectCreationDate=" + projectCreationDate
         + ", projectDeadline=" + projectDeadline
-        + ", usersIds=" + userIds
-        + ", teamsIds=" + teamIds
-        + ", artifactsIds=" + artifactIds
+        + ", usersIds=" + users
+        + ", teamsIds=" + teams
+        + ", artifactsIds=" + artifacts
         + ", ownerId=" + ownerId
         + '}';
   }

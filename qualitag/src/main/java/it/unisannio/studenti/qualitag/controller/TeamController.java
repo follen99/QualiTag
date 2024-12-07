@@ -51,7 +51,6 @@ public class TeamController {
     return this.teamService.getTeamsByUser(userId);
   }
 
-
   /**
    * ####################################################################### DELETE MAPPING
    * #######################################################################

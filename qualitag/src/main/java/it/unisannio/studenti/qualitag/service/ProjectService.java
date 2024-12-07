@@ -9,13 +9,17 @@ import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
+import it.unisannio.studenti.qualitag.security.service.CustomUserDetailService;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 
 /**
  * the ProjectService class is a service class that provides methods to manage the project entity
@@ -27,25 +31,27 @@ public class ProjectService {
 
   private final ProjectRepository projectRepository;
   private final ProjectMapper projectMapper;
-  private final UserRepository userRepository;
-  private final TeamRepository teamRepository;
-  private final ArtifactRepository artifactRepository;
+  private final UserRepository usersRepository;
+  private final TeamRepository teamsRepository;
+  private final ArtifactRepository artifactsRepository;
+  private final CustomUserDetailService customUserDetailService;
 
 
   /**
    * Constructs a new ProjectService
    *
    * @param projectRepository the project repository
-   * @param userRepository    the user repository
+   * @param usersRepository   the user repository
    */
   public ProjectService(ProjectRepository projectRepository,
-      UserRepository userRepository, TeamRepository teamRepository,
-      ArtifactRepository artifactRepository) {
+      UserRepository usersRepository, TeamRepository teamsRepository,
+      ArtifactRepository artifactsRepository, CustomUserDetailService customUserDetailService) {
     this.projectRepository = projectRepository;
-    this.userRepository = userRepository;
-    this.teamRepository = teamRepository;
-    this.artifactRepository = artifactRepository;
+    this.usersRepository = usersRepository;
+    this.teamsRepository = teamsRepository;
+    this.artifactsRepository = artifactsRepository;
     this.projectMapper = new ProjectMapper(this);
+    this.customUserDetailService = customUserDetailService;
   }
 
   /**
@@ -77,7 +83,7 @@ public class ProjectService {
     if (ownerId == null || ownerId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Owner ID cannot be null or empty");
     }
-    if (!userRepository.existsById(ownerId)) {
+    if (!usersRepository.existsById(ownerId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Owner not found");
     }
     if (!projectRepository.existsByOwnerId(ownerId)) {
@@ -90,12 +96,14 @@ public class ProjectService {
 
   public ResponseEntity<?> getProjectById(String projectId) {
     if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Project ID cannot be null or empty");
     }
     if (!projectRepository.existsById(projectId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
     }
-    return ResponseEntity.status(HttpStatus.OK).body(projectRepository.findProjectByProjectId(projectId));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(projectRepository.findProjectByProjectId(projectId));
   }
 
   //DELETE
@@ -134,9 +142,9 @@ public class ProjectService {
       project.setProjectName(correctProjectDto.projectName());
       project.setProjectDescription(correctProjectDto.projectDescription());
       project.setProjectDeadline(correctProjectDto.deadlineDate());
-      project.setUserIds(correctProjectDto.userIds());
-      project.setTeamIds(correctProjectDto.teamIds());
-      project.setArtifactIds(correctProjectDto.artifactIds());
+      project.setUsers(correctProjectDto.users());
+      project.setTeams(correctProjectDto.teams());
+      project.setArtifacts(correctProjectDto.artifacts());
       //TODO checks if other parameters should be changed
 
       this.projectRepository.save(project);
@@ -148,6 +156,23 @@ public class ProjectService {
     }
   }
 
+
+  /**
+   * Private method that returns the ID of the logged-in user.
+   * @return the ID of the logged-in user
+   */
+  private String getLoggedInUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new IllegalStateException("No authenticated user found");
+    }
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof CustomUserDetails) {
+      CustomUserDetails userDetails = (CustomUserDetails) principal;
+      return userDetails.user().getUserId();
+    }
+    throw new IllegalStateException("Unexpected authentication principal type: " + principal.getClass());
+  }
 
   /**
    * Validates a project.
@@ -162,15 +187,15 @@ public class ProjectService {
 
     String name = projectCreateDto.projectName();
     String description = projectCreateDto.projectDescription();
-    Date creationDate = projectCreateDto.creationDate();
-    Date deadlineDate = projectCreateDto.deadlineDate();
-    List<String> users = projectCreateDto.userIds();
-    List<String> teams = projectCreateDto.teamIds();
-    List<String> artifacts = projectCreateDto.artifactIds();
-    String owner = projectCreateDto.ownerId();
+    Long creationDate = System.currentTimeMillis();
+    Long deadlineDate = projectCreateDto.deadlineDate();
+    List<String> users = projectCreateDto.users();
+    List<String> teams = projectCreateDto.teams();
+    List<String> artifacts = projectCreateDto.artifacts();
+    String owner = getLoggedInUserId();
 
     LocalDate localDate = LocalDate.of(2030, 12, 31);
-    Date maxDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Long maxDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
     //Validate the project name
     if (name == null || name.isEmpty()) {
@@ -185,22 +210,14 @@ public class ProjectService {
       throw new ProjectValidationException("Project description cannot be null or empty");
     }
 
-    //Validate the creation date
-    if (creationDate == null) {
-      throw new ProjectValidationException("Creation date cannot be null");
-    }
-    if (creationDate.after(new Date())) {
-      throw new ProjectValidationException("Creation date cannot be in the future");
-    }
-
     //Validate the deadline date
     if (deadlineDate == null) {
       throw new ProjectValidationException("Deadline date cannot be null");
     }
-    if (deadlineDate.before(creationDate)) {
+    if (deadlineDate < creationDate) {
       throw new ProjectValidationException("Deadline date cannot be before the creation date");
     }
-    if (deadlineDate.after(maxDeadline)) {
+    if (deadlineDate > maxDeadline) {
       throw new ProjectValidationException("Deadline date cannot be after 2030-12-31");
     }
 
@@ -214,7 +231,7 @@ public class ProjectService {
         throw new TeamValidationException("There is an empty user in the list. Remove it.");
       }
       currentUserId = currentUserId.trim(); // Remove leading and trailing whitespaces
-      if (!userRepository.existsById(currentUserId)) {
+      if (!usersRepository.existsById(currentUserId)) {
         throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
       }
     }
@@ -230,12 +247,12 @@ public class ProjectService {
         throw new TeamValidationException("There is an empty team in the list. Remove it.");
       }
       currentTeamId = currentTeamId.trim(); // Remove leading and trailing whitespaces
-      if (!teamRepository.existsById(currentTeamId)) {
+      if (!teamsRepository.existsById(currentTeamId)) {
         throw new TeamValidationException("Team with ID " + currentTeamId + " does not exist");
       }
     }
-    //TODO check other constraints with teams
 
+    //TODO check other constraints with teams
     //check the artifacts
     if (artifacts == null || artifacts.isEmpty()) {
       throw new ProjectValidationException("Artifacts cannot be null or empty");
@@ -246,24 +263,35 @@ public class ProjectService {
         throw new TeamValidationException("There is an empty artifact in the list. Remove it.");
       }
       currentArtifactId = currentArtifactId.trim(); // Remove leading and trailing whitespaces
-      if (!artifactRepository.existsById(currentArtifactId)) {
-        throw new TeamValidationException(
+
+      //POSSIBILE BUG
+      boolean exist = false;
+      try {
+        exist = artifactsRepository.existsById(currentArtifactId);
+      } catch (Exception e) {
+        throw new ProjectValidationException(
+            "Artifact with ID " + currentArtifactId + " does not exist");
+      }
+      if (!exist) {
+        throw new ProjectValidationException(
             "Artifact with ID " + currentArtifactId + " does not exist");
       }
     }
-    //TODO check other constraints with artifacts
+      //TODO check other constraints with artifacts
 
-    //Validate the owner
-    if (owner == null || owner.isEmpty()) {
-      throw new ProjectValidationException("Owner cannot be null or empty");
-    }
-    if (!users.contains(owner)) {
-      throw new ProjectValidationException("Owner must be a user in the project");
-    }
+      //Validate the owner
+      if (owner == null || owner.isEmpty()) {
+        throw new ProjectValidationException("Owner cannot be null or empty");
+      }
+      if (!users.contains(owner)) {
+        throw new ProjectValidationException("Owner must be a user in the project");
+      }
 
-    return new ProjectCreateDto(name, description, creationDate, deadlineDate,
-        users, teams, artifacts, owner);
+      return new ProjectCreateDto(name, description, creationDate, deadlineDate,
+          users, teams, artifacts, owner);
+    }
   }
-}
+
+
 
 

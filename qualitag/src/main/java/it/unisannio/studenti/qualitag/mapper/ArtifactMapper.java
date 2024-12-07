@@ -34,7 +34,7 @@ public class ArtifactMapper {
     return new Artifact(
         dto.artifactName(),
         dto.content(),
-        dto.tagIds()
+        dto.tags()
     );
   }
 
@@ -51,7 +51,7 @@ public class ArtifactMapper {
     return new ArtifactCreateDto(
         entity.getArtifactName(),
         entity.getContent(),
-        entity.getTagIds()
+        entity.getTags()
     );
   }
 

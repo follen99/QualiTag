@@ -6,7 +6,6 @@ import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,7 +101,7 @@ public class ArtifactService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
     }
 
-    List<String> tagIds = artifact.getTagIds();
+    List<String> tagIds = artifact.getTags();
     if (tagIds == null || tagIds.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact has no tags");
     }
@@ -112,7 +111,7 @@ public class ArtifactService {
     }
 
     tagIds.remove(tagId);
-    artifact.setTagIds(tagIds);
+    artifact.setTags(tagIds);
     artifactRepository.save(artifact);
 
     return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
@@ -136,7 +135,7 @@ public class ArtifactService {
 
       artifact.setArtifactName(correctDTo.artifactName());
       artifact.setContent(correctDTo.content());
-      artifact.setTagIds(correctDTo.tagIds());
+      artifact.setTags(correctDTo.tags());
 
       artifactRepository.save(artifact);
 
@@ -154,7 +153,7 @@ public class ArtifactService {
     }
     String artifactName = artifactDto.artifactName();
     String artifactContent = artifactDto.content();
-    List<String> artifactTags = artifactDto.tagIds();
+    List<String> artifactTags = artifactDto.tags();
 
     //artifact name validation
     if (artifactName == null || artifactName.isEmpty()) {
