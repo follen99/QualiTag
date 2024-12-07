@@ -11,8 +11,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Date;
 import java.util.Objects;
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.*;
-
+@Data
 public class Project {
 
   @MongoId
@@ -26,10 +27,10 @@ public class Project {
   private String projectDescription;
 
   @Field(name="projectDeadline")
-  private Date projectDeadline;
+  private Long projectDeadline;
 
   @Field(name="projectCreationDate")
-  private Date projectCreationDate;
+  private Long projectCreationDate;
 
   @Field(name="projectUsers")
   private List<String> userIds;
@@ -61,10 +62,10 @@ public class Project {
    * @param projectDeadline The project's deadline
    */
   public Project(String projectName, String projectDescription,
-      Date projectDeadline) {
+      Long projectDeadline) {
     this.projectName = projectName;
     this.projectDeadline = projectDeadline;
-    this.projectCreationDate = new Date();
+    this.projectCreationDate = System.currentTimeMillis();
     this.projectDescription = projectDescription;
 
     this.userIds = new ArrayList<>();
@@ -81,10 +82,10 @@ public class Project {
    * @param userId The userId of the user that is part of the project
    */
   public Project(String projectName, String projectDescription,
-      Date projectDeadline, String userId) {
+      Long projectDeadline, String userId) {
     this.projectName = projectName;
     this.projectDescription = projectDescription;
-    this.projectCreationDate = new Date();
+    this.projectCreationDate = System.currentTimeMillis();
     this.projectDeadline = projectDeadline;
 
     this.userIds = new ArrayList<>();
@@ -105,12 +106,38 @@ public class Project {
    * @param ownerId The id of the owner of the project
    */
   public Project (String projectName, String projectDescription,
-      Date projectDeadline,List<String> userIds,
+      Long projectDeadline,List<String> userIds,
       List<String> teamIds, List<String> artifactIds
       , String ownerId){
     this.projectName = projectName;
     this.projectDescription = projectDescription;
-    this.projectCreationDate = new Date();
+    this.projectCreationDate = System.currentTimeMillis();
+    this.projectDeadline = projectDeadline;
+
+    this.userIds = userIds;
+    this.teamIds = teamIds;
+    this.artifactIds = artifactIds;
+    this.ownerId = ownerId;
+  }
+
+  /**
+   * Constructor for Project with a list of users, teams and artifacts as well as the ownerId
+   *
+   * @param projectName The project's name
+   * @param projectDescription The project's description
+   * @param projectDeadline The project's deadline
+   * @param userIds The ids of the users in the project
+   * @param teamIds The ids of the teams in the project
+   * @param artifactIds The ids of the artifacts in the project
+   * @param ownerId The id of the owner of the project
+   */
+  public Project (String projectName, String projectDescription,
+      Long projectDeadline, Long projectCreationDate, List<String> userIds,
+      List<String> teamIds, List<String> artifactIds
+      , String ownerId){
+    this.projectName = projectName;
+    this.projectDescription = projectDescription;
+    this.projectCreationDate = projectCreationDate;
     this.projectDeadline = projectDeadline;
 
     this.userIds = userIds;
@@ -201,89 +228,6 @@ public class Project {
   }
 
 
-  //GETTERS AND SETTERS
-  /**
-   * Gets the project_name
-   *
-   * @return project_name The project's name
-   */
-  public String getProjectId() {
-    return projectId;
-  }
-
-  /**
-   * Gets the project_name
-   *
-   * @return project_name The project's name
-   */
-  public String getProjectName() {
-    return projectName;
-  }
-
-  /**
-   * Sets the project_name
-   *
-   * @param projectName The project's name
-   */
-  public void setProjectName(String projectName) {
-    this.projectName = projectName;
-  }
-
-  /**
-   * Gets the project_description
-   *
-   * @return project_description The project's description
-   */
-  public String getProjectDescription() {
-    return projectDescription;
-  }
-
-  /**
-   * Sets the project_description
-   *
-   * @param projectDescription The project's description
-   */
-  public void setProjectDescription(String projectDescription) {
-    this.projectDescription = projectDescription;
-  }
-
-  /**
-   * Gets the project_deadline
-   *
-   * @return project_deadline The project's deadline
-   */
-  public Date getProjectDeadline() {
-    return projectDeadline;
-  }
-
-  /**
-   * Sets the project_deadline
-   *
-   * @param projectDeadline The project's deadline
-   */
-  public void setProjectDeadline(Date projectDeadline) {
-    this.projectDeadline = projectDeadline;
-  }
-
-  /**
-   * Gets the project_creation_date
-   *
-   * @return project_creation_date The project's creation date
-   */
-  public Date getProjectCreationDate() {
-    return projectCreationDate;
-  }
-
-  /**
-   * Sets the project_creation_date
-   *
-   * @param projectCreationDate The project's creation date
-   */
-  public void setProjectCreationDate(Date projectCreationDate) {
-    this.projectCreationDate = projectCreationDate;
-  } //is this really necessary?
-
-
   /**
    * Gets the users
    *
@@ -291,15 +235,6 @@ public class Project {
    */
   public List<String> getUserIds() {
     return Collections.unmodifiableList(userIds);
-  }
-
-  /**
-   * Sets the users
-   *
-   * @param userIds The ids of the users in the project
-   */
-  public void setUserIds(List<String> userIds) {
-    this.userIds = userIds;
   }
 
   /**
@@ -311,46 +246,6 @@ public class Project {
     return Collections.unmodifiableList(teamIds);
   }
 
-  /**
-   * Sets the teams
-   *
-   * @param teamIds The ids of the teams in the project
-   */
-  public void setTeamIds(List<String> teamIds) {
-    this.teamIds = teamIds;
-  }
-
-  /**
-   * Gets the artifacts
-   * @return artifactIds The ids of the artifact in the project
-   */
-  public List<String> getArtifactIds() {
-    return Collections.unmodifiableList(artifactIds);
-  }
-
-  /**
-   * Sets the artifacts
-   * @param artifactIds The ids of the artifacts in the project
-   */
-  public void setArtifactIds(List<String> artifactIds) {
-    this.artifactIds = artifactIds;
-  }
-
-  /**
-   * Gets the owner
-   * @return ownerId The id of the owner of the project
-   */
-  public String getOwnerId() {
-    return ownerId;
-  }
-
-  /**
-   * Sets the owner
-   * @param ownerId The id of the owner of the project
-   */
-  public void setOwnerId(String ownerId) {
-    this.ownerId = ownerId;
-  }
 
   //EQUALS AND HASHCODE
 

@@ -59,6 +59,7 @@ public class ProjectService {
     try {
       ProjectCreateDto correctProjectDto = validateProject(projectCreateDto);
 
+
       Project project = projectMapper.toEntity(correctProjectDto);
       this.projectRepository.save(project);
       return ResponseEntity.status(HttpStatus.CREATED).body("Project created successfully");
@@ -159,11 +160,14 @@ public class ProjectService {
     if (projectCreateDto == null) {
       throw new ProjectValidationException("Project cannot be null");
     }
+    System.out.println("DTO IS " + projectCreateDto);
 
     String name = projectCreateDto.projectName();
     String description = projectCreateDto.projectDescription();
-    Date creationDate = projectCreateDto.creationDate();
-    Date deadlineDate = projectCreateDto.deadlineDate();
+//    Date creationDate = projectCreateDto.creationDate();
+//    Date deadlineDate = projectCreateDto.deadlineDate();
+    Long creationDate = projectCreateDto.creationDate();
+    Long deadlineDate = projectCreateDto.deadlineDate();
     List<String> users = projectCreateDto.userIds();
     List<String> teams = projectCreateDto.teamIds();
     List<String> artifacts = projectCreateDto.artifactIds();
@@ -189,20 +193,18 @@ public class ProjectService {
     if (creationDate == null) {
       throw new ProjectValidationException("Creation date cannot be null");
     }
-    if (creationDate.after(new Date())) {
+    if (creationDate < 0) {
+      throw new ProjectValidationException("Creation date cannot be negative");
+    }
+    if (creationDate > System.currentTimeMillis()) {
       throw new ProjectValidationException("Creation date cannot be in the future");
     }
+    if (creationDate > deadlineDate) {
+      throw new ProjectValidationException("Creation date cannot be after the deadline date");
+    }
 
-    //Validate the deadline date
-    if (deadlineDate == null) {
-      throw new ProjectValidationException("Deadline date cannot be null");
-    }
-    if (deadlineDate.before(creationDate)) {
-      throw new ProjectValidationException("Deadline date cannot be before the creation date");
-    }
-    if (deadlineDate.after(maxDeadline)) {
-      throw new ProjectValidationException("Deadline date cannot be after 2030-12-31");
-    }
+
+
 
     //Validate the users
     if (users == null || users.isEmpty()) {
@@ -218,6 +220,7 @@ public class ProjectService {
         throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
       }
     }
+
     //TODO check other constraints with users
 
     //Validate the teams
@@ -234,6 +237,7 @@ public class ProjectService {
         throw new TeamValidationException("Team with ID " + currentTeamId + " does not exist");
       }
     }
+
     //TODO check other constraints with teams
 
     //check the artifacts
@@ -246,11 +250,20 @@ public class ProjectService {
         throw new TeamValidationException("There is an empty artifact in the list. Remove it.");
       }
       currentArtifactId = currentArtifactId.trim(); // Remove leading and trailing whitespaces
-      if (!artifactRepository.existsById(currentArtifactId)) {
-        throw new TeamValidationException(
-            "Artifact with ID " + currentArtifactId + " does not exist");
+
+      // POSSIBLE BUG
+      boolean exists = false;
+      try {
+        exists = artifactRepository.existsById(currentArtifactId);
+      } catch (Exception e) {
+        throw new ProjectValidationException("Artifact with ID " + currentArtifactId + " does not exist");
       }
+      if (!exists) {
+        throw new ProjectValidationException("Artifact with ID " + currentArtifactId + " does not exist");
+      }
+
     }
+
     //TODO check other constraints with artifacts
 
     //Validate the owner
@@ -260,6 +273,7 @@ public class ProjectService {
     if (!users.contains(owner)) {
       throw new ProjectValidationException("Owner must be a user in the project");
     }
+
 
     return new ProjectCreateDto(name, description, creationDate, deadlineDate,
         users, teams, artifacts, owner);

@@ -11,8 +11,8 @@ import java.util.List;
 public record ProjectCreateDto(
     @NotBlank String projectName,
     @NotBlank String projectDescription,
-    @NotBlank Date creationDate,
-    @NotBlank Date deadlineDate,
+    Long creationDate,
+    Long deadlineDate,
     List<String> userIds,
     List <String> teamIds,
     List<String> artifactIds,
