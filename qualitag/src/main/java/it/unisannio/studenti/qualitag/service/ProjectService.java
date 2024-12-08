@@ -1,24 +1,27 @@
 package it.unisannio.studenti.qualitag.service;
 
+import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
+import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
-import it.unisannio.studenti.qualitag.security.service.CustomUserDetailService;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 
 
 /**
@@ -34,8 +37,6 @@ public class ProjectService {
   private final UserRepository usersRepository;
   private final TeamRepository teamsRepository;
   private final ArtifactRepository artifactsRepository;
-  private final CustomUserDetailService customUserDetailService;
-
 
   /**
    * Constructs a new ProjectService
@@ -45,20 +46,26 @@ public class ProjectService {
    */
   public ProjectService(ProjectRepository projectRepository,
       UserRepository usersRepository, TeamRepository teamsRepository,
-      ArtifactRepository artifactsRepository, CustomUserDetailService customUserDetailService) {
+      ArtifactRepository artifactsRepository) {
     this.projectRepository = projectRepository;
     this.usersRepository = usersRepository;
     this.teamsRepository = teamsRepository;
     this.artifactsRepository = artifactsRepository;
     this.projectMapper = new ProjectMapper(this);
-    this.customUserDetailService = customUserDetailService;
   }
 
+  //POST
   /**
    * Creates a new project
    *
    * @param projectCreateDto the project creation data
    * @return the response entity with the result of the project creation
+   */
+
+  /**
+   * Creates a new project
+   * @param projectCreateDto the DTO used to create a project
+   * @return the response entity
    */
   public ResponseEntity<?> createProject(ProjectCreateDto projectCreateDto) {
     //Project validation
@@ -73,12 +80,60 @@ public class ProjectService {
     }
   }
 
+  /**
+   * Adds an artifact to a project
+   * @param projectId the id of the project
+   * @param artifactId the id of the artifact
+   * @return the response entity
+   */
+  public ResponseEntity<?> addArtifact(String projectId, String artifactId) {
+    if (projectId == null || projectId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
+    }
+
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+    }
+
+    String currentUserID = getLoggedInUserId();
+    if (!project.getOwnerId().equals(currentUserID)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Only the project owner can add a new artifact!");
+    }
+
+    if (artifactId == null || artifactId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Artifact ID cannot be null or empty");
+    }
+    Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
+    }
+
+    List<String> artifacts = project.getArtifacts();
+    artifacts.add(artifactId);
+    project.setArtifacts(artifacts);
+
+    projectRepository.save(project);
+
+    return ResponseEntity.status(HttpStatus.OK).body("Artifact added to the project successfully");
+  }
+
   //GET
+
+  /**
+   * Return all the projects in the database
+   * @return the response entity
+   */
   public ResponseEntity<?> getAllProjects() {
     return ResponseEntity.status(HttpStatus.OK).body(projectRepository.findAll());
   }
 
-  //TODO it should probably return a list, assuming a user can create
+  /**
+   * Returns all the projects created by a specific owner
+   * @param ownerId The id of the owner
+   * @return the response entity
+   */
   public ResponseEntity<?> getProjectsByOwner(String ownerId) {
     if (ownerId == null || ownerId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Owner ID cannot be null or empty");
@@ -94,6 +149,11 @@ public class ProjectService {
         .body(projectRepository.findProjectsByOwnerId(ownerId));
   }
 
+  /**
+   * Searches for a project with a specific id
+   * @param projectId the id of the project to search
+   * @return the response entity
+   */
   public ResponseEntity<?> getProjectById(String projectId) {
     if (projectId == null || projectId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -106,7 +166,88 @@ public class ProjectService {
         .body(projectRepository.findProjectByProjectId(projectId));
   }
 
+  /**
+   * Searches for the tags of the artifacts of a project
+   * @param projectId the id of the project
+   * @return the list of the tags associated to the artifacts of the project
+   */
+  public ResponseEntity<?> getProjectsTags(String projectId) {
+
+    if (projectId == null || projectId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project ID cannot be null or empty");
+    }
+
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+    }
+
+    // Retrieve the logged-in user's ID
+    String currentUserID = getLoggedInUserId();
+    if (!project.getOwnerId().equals(currentUserID)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Only the project owner can see the tags!");
+    }
+
+    //retrieve the project's artifacts
+    List<String> artifactIds = project.getArtifacts();
+    if (artifactIds == null || artifactIds.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No artifacts found for the project");
+    }
+
+    //retrive the tags of the artifacts
+    List<String> tags = new ArrayList<>();
+    for (String artifactId : artifactIds) {
+      Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
+      if (artifact == null) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Artifact with ID " + artifactId + " not found");
+      }
+      tags.addAll(artifact.getTags());
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(tags);
+  }
+
+  /**
+   * Gets all the artifacts of a project
+   * @param projectId the id of the project
+   * @return the response entity
+   */
+  public ResponseEntity<?> getProjectsArtifacts(String projectId) {
+    if (projectId == null || projectId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
+    }
+
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+    }
+
+    List<String> artifactIds = project.getArtifacts();
+    if (artifactIds == null || artifactIds.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No artifacts found for the project");
+    }
+
+    List<Artifact> artifacts = new ArrayList<>();
+    for (String artifactId : artifactIds) {
+      Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
+      if (artifact == null) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Artifact with ID " + artifactId + " not found");
+      }
+      artifacts.add(artifact);
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(artifacts);
+  }
+
   //DELETE
+
+  /**
+   * Deletes a project
+   * @param projectId the id of the project to delete
+   * @return the response entity
+   */
   public ResponseEntity<?> deleteProject(String projectId) {
     if (projectId == null || projectId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -115,6 +256,13 @@ public class ProjectService {
     if (!projectRepository.existsById(projectId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
     }
+
+    String currentUserId = getLoggedInUserId();
+
+    if(!currentUserId.equals(projectRepository.findProjectByProjectId(projectId).getOwnerId()))
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("Only the owner can delete the project!");
+
     projectRepository.deleteById(projectId);
     if (projectRepository.existsById(projectId)) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Project not deleted");
@@ -124,6 +272,13 @@ public class ProjectService {
   }
 
   //UPDATE
+
+  /**
+   * Modifies an existing projects
+   * @param projectModifyDto the DTO used to modify the project
+   * @param projectId the id of the project to modify
+   * @return the response entity
+   */
   public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
     //id check
     if (projectId == null || projectId.isEmpty()) {
@@ -157,6 +312,8 @@ public class ProjectService {
   }
 
 
+  //UTILITY METHODS
+
   /**
    * Private method that returns the ID of the logged-in user.
    * @return the ID of the logged-in user
@@ -177,7 +334,7 @@ public class ProjectService {
   /**
    * Validates a project.
    *
-   * @param projectCreateDto the project to validate
+   * @param projectCreateDto the dto used to create the project
    * @return the validated project
    */
   private ProjectCreateDto validateProject(ProjectCreateDto projectCreateDto) {
