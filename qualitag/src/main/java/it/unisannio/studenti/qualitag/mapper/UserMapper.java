@@ -69,25 +69,6 @@ public class UserMapper {
   }
 
   /**
-   * Converts a User entity to a UserRegistrationDto.
-   *
-   * @param entity The User entity to convert.
-   * @return The UserRegistrationDto.
-   */
-  public UserRegistrationDto toDto(User entity) {
-    if (entity == null) {
-      return null;
-    }
-    return new UserRegistrationDto(
-        entity.getUsername(),
-        entity.getEmail(),
-        "********", // Placeholder for the password
-        entity.getName(),
-        entity.getSurname()
-    );
-  }
-
-  /**
    * Converts a User entity to a UserInfoDisplayDto.
    *
    * @param entity The User entity to convert.

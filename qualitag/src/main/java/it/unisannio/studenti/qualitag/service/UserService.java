@@ -69,10 +69,10 @@ public class UserService {
    * @param username The username to check.
    * @return true if the username is valid, false otherwise.
    */
-  public static boolean isValidUsername(String username) {
+  public static boolean isNotValidUsername(String username) {
     String usernameRegex = "^[A-Za-z0-9_]{3,20}$";
     Pattern pattern = Pattern.compile(usernameRegex);
-    return pattern.matcher(username).matches();
+    return !pattern.matcher(username).matches();
   }
 
   /**
@@ -81,10 +81,10 @@ public class UserService {
    * @param email The email to check.
    * @return true if the email is valid, false otherwise.
    */
-  public static boolean isValidEmail(String email) {
+  public static boolean isNotValidEmail(String email) {
     String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
     Pattern pattern = Pattern.compile(emailRegex);
-    return pattern.matcher(email).matches();
+    return !pattern.matcher(email).matches();
   }
 
   /**
@@ -95,14 +95,14 @@ public class UserService {
    * @param password The password to check.
    * @return true if the password is valid, false otherwise.
    */
-  public static boolean isValidPassword(String password) {
+  public static boolean isNotValidPassword(String password) {
     String passwordRegex = "^(?=.*[A-Z])"
         + "(?=.*[a-z])"
         + "(?=.*\\d)"
         + "(?=.*[@$!%*?&])"
         + "[A-Za-z\\d@$!%*?&]{8,}$";
     Pattern pattern = Pattern.compile(passwordRegex);
-    return pattern.matcher(password).matches();
+    return !pattern.matcher(password).matches();
   }
 
   /**
@@ -116,7 +116,7 @@ public class UserService {
     Map<String, Object> response = new HashMap<>();
 
     // Check if the user is trying to modify another user
-    if (!AuthenticationService.getAuthority(username)) {
+    if (AuthenticationService.getAuthority(username)) {
       response.put("msg", "You are not authorized to modify this user.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -128,13 +128,13 @@ public class UserService {
     }
 
     // Username validation
-    if (!UserService.isValidUsername(userModifyDto.username())) {
+    if (UserService.isNotValidUsername(userModifyDto.username())) {
       response.put("msg", "Invalid username.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Email validation
-    if (!UserService.isValidEmail(userModifyDto.email())) {
+    if (UserService.isNotValidEmail(userModifyDto.email())) {
       response.put("msg", "Invalid email address.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -186,7 +186,7 @@ public class UserService {
     Map<String, Object> response = new HashMap<>();
 
     // Check if the user is trying to get info of another user
-    if (!AuthenticationService.getAuthority(username)) {
+    if (AuthenticationService.getAuthority(username)) {
       response.put("msg", "You are not authorized to access to this user.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -211,7 +211,7 @@ public class UserService {
     Map<String, Object> response = new HashMap<>();
 
     // Check if the user is trying to delete another user
-    if (!AuthenticationService.getAuthority(username)) {
+    if (AuthenticationService.getAuthority(username)) {
       response.put("msg", "You are not authorized to delete this user.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -239,7 +239,7 @@ public class UserService {
     Map<String, Object> response = new HashMap<>();
 
     // Check if the user is trying to modify another user
-    if (!AuthenticationService.getAuthority(username)) {
+    if (AuthenticationService.getAuthority(username)) {
       response.put("msg", "You are not authorized to modify this user.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -251,7 +251,7 @@ public class UserService {
     }
 
     // Password validation
-    if (!UserService.isValidPassword(passwordUpdateDto.newPassword())) {
+    if (UserService.isNotValidPassword(passwordUpdateDto.newPassword())) {
       response.put("msg", "Invalid password.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

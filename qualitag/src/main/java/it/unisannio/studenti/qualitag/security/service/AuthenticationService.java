@@ -66,7 +66,7 @@ public class AuthenticationService {
     String authenticatedUsername = authentication.getName();
 
     // Check if the authenticated user is the same as the logged user
-    return authenticatedUsername.equals(username);
+    return !authenticatedUsername.equals(username);
   }
 
   /**
@@ -98,19 +98,19 @@ public class AuthenticationService {
     }
 
     // Username validation
-    if (!UserService.isValidUsername(request.username())) {
+    if (UserService.isNotValidUsername(request.username())) {
       response.put("msg", "Invalid username.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Email validation
-    if (!UserService.isValidEmail(request.email())) {
+    if (UserService.isNotValidEmail(request.email())) {
       response.put("msg", "Invalid email address.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Password validation
-    if (!UserService.isValidPassword(request.password())) {
+    if (UserService.isNotValidPassword(request.password())) {
       response.put("msg", "Invalid password.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
