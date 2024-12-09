@@ -19,7 +19,8 @@ public class ProjectTest {
   @BeforeEach
   public void setUp() {
     LocalDate localDate = LocalDate.of(2025, 12, 31);
-    Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    //Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
     project = new Project("ProjectName", "ProjectDescription", projectDeadline);
   }
 
@@ -89,7 +90,8 @@ public class ProjectTest {
   @Test
   public void testSetProjectDeadline() {
     LocalDate localDate = LocalDate.of(2026, 12, 31);
-    Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    // Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
     project.setProjectDeadline(projectDeadline);
     assertEquals(projectDeadline, project.getProjectDeadline());
   }
@@ -150,7 +152,8 @@ public class ProjectTest {
   @Test
   public void testEqualsAndHashCode() {
     LocalDate localDate = LocalDate.of(2025, 12, 31);
-    Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+//    Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
     Project anotherProject = new Project("ProjectName", "ProjectDescription",
         projectDeadline);
     assertEquals(project, anotherProject);
