@@ -1,12 +1,12 @@
 package it.unisannio.studenti.qualitag.service;
 
-import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
@@ -16,12 +16,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.stereotype.Service;
-
 
 
 /**
@@ -30,13 +31,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProjectService {
 
-  private static final int LOG_ROUNDS = 12;
-
   private final ProjectRepository projectRepository;
   private final ProjectMapper projectMapper;
   private final UserRepository usersRepository;
   private final TeamRepository teamsRepository;
   private final ArtifactRepository artifactsRepository;
+  private final WebInvocationPrivilegeEvaluator privilegeEvaluator;
 
   /**
    * Constructs a new ProjectService
@@ -44,26 +44,22 @@ public class ProjectService {
    * @param projectRepository the project repository
    * @param usersRepository   the user repository
    */
-  public ProjectService(ProjectRepository projectRepository,
-      UserRepository usersRepository, TeamRepository teamsRepository,
-      ArtifactRepository artifactsRepository) {
+  public ProjectService(ProjectRepository projectRepository, UserRepository usersRepository,
+      TeamRepository teamsRepository, ArtifactRepository artifactsRepository,
+      WebInvocationPrivilegeEvaluator privilegeEvaluator) {
     this.projectRepository = projectRepository;
     this.usersRepository = usersRepository;
     this.teamsRepository = teamsRepository;
     this.artifactsRepository = artifactsRepository;
     this.projectMapper = new ProjectMapper(this);
+    this.privilegeEvaluator = privilegeEvaluator;
   }
 
   //POST
-  /**
-   * Creates a new project
-   *
-   * @param projectCreateDto the project creation data
-   * @return the response entity with the result of the project creation
-   */
 
   /**
    * Creates a new project
+   *
    * @param projectCreateDto the DTO used to create a project
    * @return the response entity
    */
@@ -74,15 +70,35 @@ public class ProjectService {
 
       Project project = projectMapper.toEntity(correctProjectDto);
       this.projectRepository.save(project);
+      this.addProjectsToUsers(project);
       return ResponseEntity.status(HttpStatus.CREATED).body("Project created successfully");
     } catch (ProjectValidationException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
 
+  private void addProjectsToUsers(Project project) {
+    List<String> userIds = project.getUsers();    // Get the list of user IDs
+
+    for (String userId : userIds) {
+      Optional<User> optionalUser = usersRepository.findById(userId);
+
+      if (optionalUser.isPresent()) {
+        User currentUser = optionalUser.get();
+        System.out.println("Current user: " + currentUser);
+        List<String> oldProjectIds = currentUser.getProjectIds();
+        oldProjectIds.add(project.getProjectId());
+
+        currentUser.setProjectIds(oldProjectIds);
+        usersRepository.save(currentUser);
+      }
+    }
+  }
+
   /**
    * Adds an artifact to a project
-   * @param projectId the id of the project
+   *
+   * @param projectId  the id of the project
    * @param artifactId the id of the artifact
    * @return the response entity
    */
@@ -98,7 +114,8 @@ public class ProjectService {
 
     String currentUserID = getLoggedInUserId();
     if (!project.getOwnerId().equals(currentUserID)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Only the project owner can add a new artifact!");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("Only the project owner can add a new artifact!");
     }
 
     if (artifactId == null || artifactId.isEmpty()) {
@@ -123,6 +140,7 @@ public class ProjectService {
 
   /**
    * Return all the projects in the database
+   *
    * @return the response entity
    */
   public ResponseEntity<?> getAllProjects() {
@@ -131,6 +149,7 @@ public class ProjectService {
 
   /**
    * Returns all the projects created by a specific owner
+   *
    * @param ownerId The id of the owner
    * @return the response entity
    */
@@ -151,6 +170,7 @@ public class ProjectService {
 
   /**
    * Searches for a project with a specific id
+   *
    * @param projectId the id of the project to search
    * @return the response entity
    */
@@ -168,6 +188,7 @@ public class ProjectService {
 
   /**
    * Searches for the tags of the artifacts of a project
+   *
    * @param projectId the id of the project
    * @return the list of the tags associated to the artifacts of the project
    */
@@ -185,7 +206,8 @@ public class ProjectService {
     // Retrieve the logged-in user's ID
     String currentUserID = getLoggedInUserId();
     if (!project.getOwnerId().equals(currentUserID)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Only the project owner can see the tags!");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("Only the project owner can see the tags!");
     }
 
     //retrieve the project's artifacts
@@ -210,6 +232,7 @@ public class ProjectService {
 
   /**
    * Gets all the artifacts of a project
+   *
    * @param projectId the id of the project
    * @return the response entity
    */
@@ -245,6 +268,7 @@ public class ProjectService {
 
   /**
    * Deletes a project
+   *
    * @param projectId the id of the project to delete
    * @return the response entity
    */
@@ -259,9 +283,10 @@ public class ProjectService {
 
     String currentUserId = getLoggedInUserId();
 
-    if(!currentUserId.equals(projectRepository.findProjectByProjectId(projectId).getOwnerId()))
+    if (!currentUserId.equals(projectRepository.findProjectByProjectId(projectId).getOwnerId())) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
           .body("Only the owner can delete the project!");
+    }
 
     projectRepository.deleteById(projectId);
     if (projectRepository.existsById(projectId)) {
@@ -275,8 +300,9 @@ public class ProjectService {
 
   /**
    * Modifies an existing projects
+   *
    * @param projectModifyDto the DTO used to modify the project
-   * @param projectId the id of the project to modify
+   * @param projectId        the id of the project to modify
    * @return the response entity
    */
   public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
@@ -311,11 +337,11 @@ public class ProjectService {
     }
   }
 
-
   //UTILITY METHODS
 
   /**
    * Private method that returns the ID of the logged-in user.
+   *
    * @return the ID of the logged-in user
    */
   private String getLoggedInUserId() {
@@ -328,7 +354,8 @@ public class ProjectService {
       CustomUserDetails userDetails = (CustomUserDetails) principal;
       return userDetails.user().getUserId();
     }
-    throw new IllegalStateException("Unexpected authentication principal type: " + principal.getClass());
+    throw new IllegalStateException(
+        "Unexpected authentication principal type: " + principal.getClass());
   }
 
   /**
@@ -434,20 +461,20 @@ public class ProjectService {
             "Artifact with ID " + currentArtifactId + " does not exist");
       }
     }
-      //TODO check other constraints with artifacts
+    //TODO check other constraints with artifacts
 
-      //Validate the owner
-      if (owner == null || owner.isEmpty()) {
-        throw new ProjectValidationException("Owner cannot be null or empty");
-      }
-      if (!users.contains(owner)) {
-        throw new ProjectValidationException("Owner must be a user in the project");
-      }
-
-      return new ProjectCreateDto(name, description, creationDate, deadlineDate,
-          users, teams, artifacts, owner);
+    //Validate the owner
+    if (owner == null || owner.isEmpty()) {
+      throw new ProjectValidationException("Owner cannot be null or empty");
     }
+    if (!users.contains(owner)) {
+      throw new ProjectValidationException("Owner must be a user in the project");
+    }
+
+    return new ProjectCreateDto(name, description, creationDate, deadlineDate, users, teams,
+        artifacts, owner);
   }
+}
 
 
 
