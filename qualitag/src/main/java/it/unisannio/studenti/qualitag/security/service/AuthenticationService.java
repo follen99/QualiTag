@@ -131,6 +131,7 @@ public class AuthenticationService {
     // Return the CREATED status and the JWT token
     response.put("msg", "User registered successfully.");
     response.put("token", jwt);
+    response.put("username", user.getUsername());
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -172,6 +173,7 @@ public class AuthenticationService {
     // Return the OK status and the JWT token
     response.put("msg", "User logged in successfully.");
     response.put("token", jwt);
+    response.put("username", user.getUsername());
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }

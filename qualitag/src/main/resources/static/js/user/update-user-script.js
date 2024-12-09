@@ -19,11 +19,11 @@ document.getElementById('updateUserForm').addEventListener('submit', async funct
   const data = Object.fromEntries(formData.entries());
 
   try {
-    const response = await fetch(`/api/v1/user/${encodeURIComponent(username)}`, {
+    const response = await fetch('/api/v1/user/' + encodeURIComponent(username), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`
+        'Authorization': 'Bearer ' + authToken
       },
       body: JSON.stringify(data)
     });
@@ -32,6 +32,9 @@ document.getElementById('updateUserForm').addEventListener('submit', async funct
 
     if (response.ok) {
       alert('User information updated successfully.');
+      localStorage.setItem('authToken', responseData.token);
+      localStorage.setItem('username', responseData.username);
+      window.location.href = '/user/' + username;
     } else {
       alert('Update failed: ' + (responseData.msg || 'Unknown error'));
     }

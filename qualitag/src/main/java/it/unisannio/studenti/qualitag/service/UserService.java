@@ -157,7 +157,33 @@ public class UserService {
     // Return the OK status and the JWT token
     response.put("msg", "User registered successfully.");
     response.put("token", jwt);
+    response.put("username", existingUser.getUsername());
     return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
+   * Gets a user.
+   *
+   * @param username The username of the user to get.
+   * @return A response entity with the user.
+   */
+  public ResponseEntity<?> getUser(String username) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the user is trying to get info of another user
+    if (!AuthenticationService.getAuthority(username)) {
+      response.put("msg", "You are not authorized to access to this user.");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
+      response.put("msg", "User not found.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // TODO: Update to use DTOs
+    return ResponseEntity.status(HttpStatus.OK).body(user);
   }
 
   /**
@@ -167,14 +193,18 @@ public class UserService {
    * @return A response entity with the result of the deletion.
    */
   public ResponseEntity<?> deleteUser(String username) {
+    Map<String, Object> response = new HashMap<>();
+
     // Check if the user is trying to delete another user
     if (!AuthenticationService.getAuthority(username)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN)
-          .body("You are not authorized to delete this user.");
+      response.put("msg", "You are not authorized to delete this user.");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     userRepository.deleteByUsername(username);
-    return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
+
+    response.put("msg", "User deleted successfully.");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   /**

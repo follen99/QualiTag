@@ -18,6 +18,7 @@ document.getElementById('registrationForm').addEventListener('submit', async fun
     if (response.ok) {
       // Success: Use the token from the JSON response
       localStorage.setItem('authToken', responseData.token);
+      localStorage.setItem('username', responseData.username);
       alert(responseData.msg || 'Registration successful');
       window.location.href = '/'; // Redirect to homepage after registration
     } else {

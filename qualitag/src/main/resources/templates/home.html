@@ -10,7 +10,20 @@
 <ul>
   <li><a href="/signup">Register</a></li>
   <li><a href="/signin">Login</a></li>
-<!--  <li><a href="/user/profile">Profile</a></li>-->
+  <li><a id="profileLink" href="/signin">Profile</a></li>
 </ul>
+
+<script>
+  document.getElementById('profileLink').addEventListener('click', function (event) {
+    const username = localStorage.getItem('username');
+    if (username) {
+      this.setAttribute('href', '/user/' + username);
+    } else {
+      event.preventDefault(); // Prevent the default behavior
+      alert('Please login to access the profile page');
+      window.location.href = '/signin';
+    }
+  });
+</script>
 </body>
 </html>

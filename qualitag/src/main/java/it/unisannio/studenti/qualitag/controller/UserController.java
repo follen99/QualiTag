@@ -43,6 +43,11 @@ public class UserController {
     return userService.getAllUsers();
   }
 
+  @GetMapping("/user/{username}")
+  public ResponseEntity<?> getUser(@PathVariable String username) {
+    return userService.getUser(username);
+  }
+
   /**
    * Modifies the user given the username.
    *

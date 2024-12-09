@@ -18,6 +18,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     if (response.ok) {
       // Success: Use the token from the JSON response
       localStorage.setItem('authToken', responseData.token);
+      localStorage.setItem('username', responseData.username);
       alert(responseData.msg || 'Login successful');
       window.location.href = '/'; // Redirect to homepage after login
     } else {
