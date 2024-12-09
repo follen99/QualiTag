@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.mapper;
 
 import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
+import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.model.User;
@@ -77,6 +78,28 @@ public class UserMapper {
         "********", // Placeholder for the password
         entity.getName(),
         entity.getSurname()
+    );
+  }
+
+  /**
+   * Converts a User entity to a UserInfoDisplayDto.
+   *
+   * @param entity The User entity to convert.
+   * @return The UserInfoDisplayDto.
+   */
+  public UserInfoDisplayDto toDisplayDto(User entity) {
+    if (entity == null) {
+      return null;
+    }
+    return new UserInfoDisplayDto(
+        entity.getUsername(),
+        entity.getEmail(),
+        entity.getName(),
+        entity.getSurname(),
+        entity.getProjectIds(),
+        entity.getTeamIds(),
+        entity.getTagIds(),
+        entity.getProjectRoles()
     );
   }
 }

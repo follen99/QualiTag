@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
+import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
@@ -190,8 +191,8 @@ public class UserService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // TODO: Update to use DTOs
-    return ResponseEntity.status(HttpStatus.OK).body(user);
+    UserInfoDisplayDto dto = userMapper.toDisplayDto(user);
+    return ResponseEntity.status(HttpStatus.OK).body(dto);
   }
 
   /**
