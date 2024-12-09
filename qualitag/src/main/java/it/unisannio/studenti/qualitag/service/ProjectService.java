@@ -106,6 +106,12 @@ public class ProjectService {
            * */
           return;
         }
+      }else {
+        List<String> oldProjectIds = user.getProjectIds();
+        oldProjectIds.add(project.getProjectId());
+
+        user.setProjectIds(oldProjectIds);
+        usersRepository.save(user);
       }
     }
   }
@@ -430,9 +436,16 @@ public class ProjectService {
         throw new TeamValidationException("There is an empty user in the list. Remove it.");
       }
       currentUserId = currentUserId.trim(); // Remove leading and trailing whitespaces
-      if (!usersRepository.existsById(currentUserId)) {
-        throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
+      try {
+        if (!usersRepository.existsById(currentUserId)) {
+          throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
+        }
+      }catch (Exception e){
+        if (!usersRepository.existsByUsername(currentUserId)) {
+          throw new TeamValidationException("User with username " + currentUserId + " does not exist");
+        }
       }
+
     }
     //TODO check other constraints with users
 
@@ -482,9 +495,18 @@ public class ProjectService {
     if (owner == null || owner.isEmpty()) {
       throw new ProjectValidationException("Owner cannot be null or empty");
     }
-    if (!users.contains(owner)) {
-      throw new ProjectValidationException("Owner must be a user in the project");
+    User ownerUser = usersRepository.findByUsername(owner);
+    if (ownerUser == null) {
+      ownerUser = usersRepository.findById(owner).orElse(null);
+      if (ownerUser == null) {
+        throw new ProjectValidationException("Owner with ID " + owner + " does not exist");
+      }
     }
+
+    if (!users.contains(ownerUser.getUserId()) && !users.contains(ownerUser.getUsername())) {
+      throw new ProjectValidationException("Owner must be in the list of users");
+    }
+
 
     return new ProjectCreateDto(name, description, creationDate, deadlineDate, users, teams,
         artifacts, owner);
