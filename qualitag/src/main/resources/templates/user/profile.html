@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile</title>
+</head>
+<body>
+<h2>User Profile</h2>
+<p>This is an example page for the user profile. The user is <span th:text="${username}"></span>.</p>
+<a th:href="@{/user/{username}/update(username=${username})}">Update</a>
+</body>
+</html>
