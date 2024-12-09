@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.service.UserService;
 import lombok.extern.java.Log;
@@ -58,6 +59,12 @@ public class UserController {
   public ResponseEntity<?> updateUser(@RequestBody UserModifyDto userModifyDto,
       @PathVariable String username) {
     return userService.updateUser(userModifyDto, username);
+  }
+
+  @PutMapping("/user/{username}/password")
+  public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto,
+      @PathVariable String username) {
+    return userService.updatePassword(passwordUpdateDto, username);
   }
 
   /**

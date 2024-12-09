@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.mapper;
 
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.model.User;
@@ -51,6 +52,13 @@ public class UserMapper {
     entity.setEmail(dto.email());
     entity.setName(dto.name());
     entity.setSurname(dto.surname());
+  }
+
+  public void updateEntity(PasswordUpdateDto dto, User entity) {
+    if (dto == null || entity == null) {
+      return;
+    }
+    entity.setPasswordHash(passwordEncoder.encode(dto.newPassword()));
   }
 
   /**

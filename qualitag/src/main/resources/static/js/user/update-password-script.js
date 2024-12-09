@@ -1,4 +1,4 @@
-document.getElementById('updateUserForm').addEventListener('submit', async function (event) {
+document.getElementById('updatePasswordForm').addEventListener('submit', async function (event) {
   event.preventDefault();
 
   const authToken = localStorage.getItem('authToken');
@@ -21,7 +21,7 @@ document.getElementById('updateUserForm').addEventListener('submit', async funct
   const data = Object.fromEntries(formData.entries());
 
   try {
-    const response = await fetch('/api/v1/user/' + encodeURIComponent(username), {
+    const response = await fetch('/api/v1/user/' + encodeURIComponent(username) + '/password', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -33,11 +33,7 @@ document.getElementById('updateUserForm').addEventListener('submit', async funct
     const responseData = await response.json();
 
     if (response.ok) {
-      alert(responseData.msg || 'User information updated successfully.');
-      localStorage.setItem('authToken', responseData.token);
-      localStorage.setItem('username', responseData.username);
-
-      const username = localStorage.getItem('username');
+      alert(responseData.msg || 'Password updated successfully.');
       window.location.href = '/user/' + username;
     } else {
       alert('Update failed: ' + (responseData.msg || 'Unknown error'));

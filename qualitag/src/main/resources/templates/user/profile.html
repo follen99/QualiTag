@@ -14,7 +14,11 @@
 <p>E-mail: <span id="email"></span></p>
 <p>First name: <span id="name"></span></p>
 <p>Last name: <span id="surname"></span></p>
-<a th:href="@{/user/{username}/update(username=${username})}">Update</a>
+
+<ul>
+  <li><a th:href="@{/user/{username}/update(username=${username})}">Update</a></li>
+  <li><a th:href="@{/user/{username}/password(username=${username})}">Change password</a></li>
+</ul>
 
 <script src="/js/user/get-user-data-script.js"></script>
 </body>

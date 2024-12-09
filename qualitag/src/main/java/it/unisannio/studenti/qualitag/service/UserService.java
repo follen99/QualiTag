@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.service;
 
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
@@ -43,6 +44,13 @@ public class UserService {
   public boolean isValidUserModification(UserModifyDto userModifyDto) {
     Set<ConstraintViolation<UserModifyDto>> violations = validator.validate(
         userModifyDto);
+
+    return violations.isEmpty();
+  }
+
+  public boolean isValidPasswordUpdateDto(PasswordUpdateDto passwordUpdateDto) {
+    Set<ConstraintViolation<PasswordUpdateDto>> violations = validator.validate(
+        passwordUpdateDto);
 
     return violations.isEmpty();
   }
@@ -155,7 +163,7 @@ public class UserService {
     String jwt = jwtService.generateToken(new CustomUserDetails(existingUser));
 
     // Return the OK status and the JWT token
-    response.put("msg", "User registered successfully.");
+    response.put("msg", "User updated successfully.");
     response.put("token", jwt);
     response.put("username", existingUser.getUsername());
     return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -204,6 +212,51 @@ public class UserService {
     userRepository.deleteByUsername(username);
 
     response.put("msg", "User deleted successfully.");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  public ResponseEntity<?> updatePassword(PasswordUpdateDto passwordUpdateDto, String username) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the user is trying to modify another user
+    if (!AuthenticationService.getAuthority(username)) {
+      response.put("msg", "You are not authorized to modify this user.");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // DTO validation
+    if (!isValidPasswordUpdateDto(passwordUpdateDto)) {
+      response.put("msg", "All fields must be filled.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Password validation
+    if (!UserService.isValidPassword(passwordUpdateDto.newPassword())) {
+      response.put("msg", "Invalid password.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Check if the two passwords in the DTO are the same
+    if (!passwordUpdateDto.newPassword().equals(passwordUpdateDto.confirmPassword())) {
+      response.put("msg", "Passwords do not match.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Retrieve the existing user
+    User existingUser = userRepository.findByUsername(username);
+    if (existingUser == null) {
+      response.put("msg", "User not found.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Update the user
+    userMapper.updateEntity(passwordUpdateDto, existingUser);
+
+    // Save the updated user
+    userRepository.save(existingUser);
+
+    // Return the OK status and the JWT token
+    response.put("msg", "Password updated successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 

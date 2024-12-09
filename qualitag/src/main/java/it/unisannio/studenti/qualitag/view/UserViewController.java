@@ -21,4 +21,10 @@ public class UserViewController {
     model.addAttribute("username", username);
     return "user/update_user";
   }
+
+  @GetMapping("/{username}/password")
+  public String updatePassword(@PathVariable("username") String username, Model model) {
+    model.addAttribute("username", username);
+    return "user/update_password";
+  }
 }
