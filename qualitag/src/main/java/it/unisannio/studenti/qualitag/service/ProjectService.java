@@ -409,6 +409,9 @@ public class ProjectService {
     if (name.contains(" ")) {
       throw new ProjectValidationException("Project name cannot contain whitespaces");
     }
+    if (projectRepository.existsByProjectName(name)) {
+      throw new ProjectValidationException("Project with name " + name + " already exists");
+    }
 
     //Validate the project description
     if (description == null || description.isEmpty()) {
