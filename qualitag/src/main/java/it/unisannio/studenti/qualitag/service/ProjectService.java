@@ -371,7 +371,7 @@ public class ProjectService {
     if (deadlineDate == null) {
       throw new ProjectValidationException("Deadline date cannot be null");
     }
-    if (deadlineDate < creationDate) {
+    if (deadlineDate > creationDate) {
       throw new ProjectValidationException("Deadline date cannot be before the creation date");
     }
     if (deadlineDate > maxDeadline) {
