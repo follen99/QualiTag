@@ -44,6 +44,12 @@ public class UserController {
     return userService.getAllUsers();
   }
 
+  /**
+   * Gets a user by its username.
+   *
+   * @param username The username of the user to get.
+   * @return The response entity.
+   */
   @GetMapping("/user/{username}")
   public ResponseEntity<?> getUser(@PathVariable String username) {
     return userService.getUser(username);
@@ -61,6 +67,13 @@ public class UserController {
     return userService.updateUser(userModifyDto, username);
   }
 
+  /**
+   * Updates the password of a user by its username.
+   *
+   * @param passwordUpdateDto The password update data.
+   * @param username The username of the user to update the password.
+   * @return The response entity.
+   */
   @PutMapping("/user/{username}/password")
   public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto,
       @PathVariable String username) {

@@ -52,6 +52,14 @@ public class AuthenticationService {
     return violations.isEmpty();
   }
 
+  /**
+   * Checks if the currently authenticated user has the authority to access the user with the
+   * specified username.
+   *
+   * @param username The username of the user to check.
+   * @return true if the currently authenticated user has the authority to access the user with the
+   * specified username, false otherwise.
+   */
   public static boolean getAuthority(String username) {
     // Get the currently authenticated user
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

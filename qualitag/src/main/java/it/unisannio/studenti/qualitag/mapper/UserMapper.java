@@ -55,6 +55,12 @@ public class UserMapper {
     entity.setSurname(dto.surname());
   }
 
+  /**
+   * Updates a User entity with the data from a PasswordUpdateDto.
+   *
+   * @param dto The PasswordUpdateDto with the new password.
+   * @param entity The User entity to update.
+   */
   public void updateEntity(PasswordUpdateDto dto, User entity) {
     if (dto == null || entity == null) {
       return;

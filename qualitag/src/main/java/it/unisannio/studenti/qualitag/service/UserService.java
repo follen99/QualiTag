@@ -49,6 +49,12 @@ public class UserService {
     return violations.isEmpty();
   }
 
+  /**
+   * Validates the password update data.
+   *
+   * @param passwordUpdateDto The password update data to validate.
+   * @return true if the password update data is valid, false otherwise.
+   */
   public boolean isValidPasswordUpdateDto(PasswordUpdateDto passwordUpdateDto) {
     Set<ConstraintViolation<PasswordUpdateDto>> violations = validator.validate(
         passwordUpdateDto);
@@ -222,6 +228,13 @@ public class UserService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
+  /**
+   * Updates the password of a user.
+   *
+   * @param passwordUpdateDto The password update data.
+   * @param username          The username of the user to update the password.
+   * @return A response entity with the result of the password update.
+   */
   public ResponseEntity<?> updatePassword(PasswordUpdateDto passwordUpdateDto, String username) {
     Map<String, Object> response = new HashMap<>();
 
