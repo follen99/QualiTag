@@ -78,7 +78,9 @@ public class ProjectTest {
   @Test
   public void testGetProjectDeadline() {
     LocalDate localDate = LocalDate.of(2025, 12, 31);
-    Date projectDeadline = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    this.project.setProjectDeadline(projectDeadline);
+
     assertEquals(projectDeadline, project.getProjectDeadline());
   }
 
