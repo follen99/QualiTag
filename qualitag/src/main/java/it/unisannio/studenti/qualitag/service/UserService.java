@@ -209,6 +209,12 @@ public class UserService {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
+    // Check if the user exists
+    if (!userRepository.existsByUsername(username)) {
+      response.put("msg", "User not found.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     userRepository.deleteByUsername(username);
 
     response.put("msg", "User deleted successfully.");
