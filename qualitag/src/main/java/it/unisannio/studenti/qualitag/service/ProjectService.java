@@ -78,19 +78,34 @@ public class ProjectService {
   }
 
   private void addProjectsToUsers(Project project) {
-    List<String> userIds = project.getUsers();    // Get the list of user IDs
+    List<String> userList = project.getUsers();    // Get the list of user IDs
 
-    for (String userId : userIds) {
-      Optional<User> optionalUser = usersRepository.findById(userId);
+    for (String userId : userList) {
+      User user = usersRepository.findByUsername(userId);
+      System.out.println("User: " + user);
+      System.out.println("User ID: " + userId);
 
-      if (optionalUser.isPresent()) {
-        User currentUser = optionalUser.get();
-        System.out.println("Current user: " + currentUser);
-        List<String> oldProjectIds = currentUser.getProjectIds();
-        oldProjectIds.add(project.getProjectId());
+      // if user is not found, try to find it by id
+      // TODO add a list of users that were not found, then throw an exception returning the list
+      // TODO check if a user is mentioned more than once (both by username and by id!!!)
+      if (user == null) {
+        System.out.println("ENTERING");
+        Optional<User> optionalUser = usersRepository.findById(userId);
+        if (optionalUser.isPresent()) {
 
-        currentUser.setProjectIds(oldProjectIds);
-        usersRepository.save(currentUser);
+          User currentUser = optionalUser.get();
+          System.out.println("Current user: " + currentUser);
+          List<String> oldProjectIds = currentUser.getProjectIds();
+          oldProjectIds.add(project.getProjectId());
+
+          currentUser.setProjectIds(oldProjectIds);
+          usersRepository.save(currentUser);
+        }else{
+           /*if we cannot find user even by id, return
+           * even a single user is not found, the project is not added to any user
+           * */
+          return;
+        }
       }
     }
   }

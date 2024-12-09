@@ -9,7 +9,9 @@ import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -69,21 +71,42 @@ public class TagService {
    */
   private boolean addTagToUser(Tag tag) {
     User user = userRepository.findByUsername(tag.getCreatedBy());
+
+    // if user is not found, try to find it by id
     if (user == null) {
-      return false;                               // user does not exist
+      Optional<User> optionalUser = userRepository.findById(tag.getCreatedBy());
+      if (optionalUser.isPresent()) {
+        user = optionalUser.get();
+      }else {
+        // if we cannot find user even by id, return false
+        return false;                               // user does not exist
+      }
     }
-
     List<String> userTagIds = user.getTagIds();
-    if (!userTagIds.contains(tag.getTagId())) {
-      userTagIds.add(tag.getTagId());             // add new tag to user
-      user.setTagIds(userTagIds);                 // set new tag list
 
-      // TODO: use a DTO instead of the entity
-      userRepository.save(user);                  // save user
-      return true;
+    // simple check
+    if (userTagIds == null) {
+      return false;
     }
 
-    return false;                                 // tag already exists
+    if (userTagIds.contains(tag.getTagId())) {
+      return false;                               // tag ID already exists
+    }
+
+    List<String> userTagsValues = new ArrayList<>();
+    for (String tagId : userTagIds) {
+      tagRepository.findById(tagId).ifPresent(userTag -> userTagsValues.add(userTag.getTagValue()));
+      if (userTagsValues.contains(tag.getTagValue())) {
+        return false;                             // tag value already exists
+      }
+    }
+
+    userTagIds.add(tag.getTagId());             // add new tag to user
+    user.setTagIds(userTagIds);                 // set new tag list
+
+    // TODO: use a DTO instead of the entity
+    userRepository.save(user);                  // save user
+    return true;
   }
 
 
@@ -259,7 +282,7 @@ public class TagService {
     if (createdBy == null || createdBy.isEmpty()) {
       throw new TagValidationException("User information is null or empty");
     }
-    if (!userRepository.existsByUsername(createdBy)) {
+    if (!userRepository.existsByUsername(createdBy) && !userRepository.existsById(createdBy)) {
       throw new TagValidationException("User does not exist");
     }
 
