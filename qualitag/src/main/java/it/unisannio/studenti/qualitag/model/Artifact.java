@@ -1,11 +1,13 @@
 package it.unisannio.studenti.qualitag.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.*;
 
+@Data
+@Document(collection = "artifact")
 public class Artifact {
 
   @MongoId
@@ -19,13 +21,13 @@ public class Artifact {
   private String content;
 
   @Field(name="artifactTags")
-  private List<String> tagIds;
+  private List<String> tags;
 
   /**
    * Default constructor for Artifact
    */
   public Artifact() {
-    this.tagIds = new ArrayList<>();
+    this.tags = new ArrayList<>();
   }
 
   /**
@@ -38,7 +40,7 @@ public class Artifact {
   public Artifact(String artifactName, String content) {
     this.artifactName = artifactName;
     this.content = content;
-    this.tagIds = new ArrayList<>();
+    this.tags = new ArrayList<>();
   }
 
   /**
@@ -46,12 +48,12 @@ public class Artifact {
    *
    * @param artifactName the name of the artifact
    * @param content     the content of the artifact
-   * @param tagIds      the tags of the artifact
+   * @param tags      the tags of the artifact
    */
-  public Artifact(String artifactName, String content, List<String> tagIds) {
+  public Artifact(String artifactName, String content, List<String> tags) {
     this.artifactName = artifactName;
     this.content = content;
-    this.tagIds = tagIds;
+    this.tags = tags;
   }
 
   /**
@@ -60,7 +62,7 @@ public class Artifact {
    * @param tagId the id of the tag to add
    */
   public void addTagId(String tagId) {
-    this.tagIds.add(tagId);
+    this.tags.add(tagId);
   }
 
   /**
@@ -69,7 +71,7 @@ public class Artifact {
    * @param tagId the id of the tag to remove
    */
   public void removeTagId(String tagId) {
-    this.tagIds.remove(tagId);
+    this.tags.remove(tagId);
   }
 
   /**
@@ -79,74 +81,8 @@ public class Artifact {
    * @return true if the artifact has the tag, false otherwise
    */
   public boolean isTagIdInArtifact(String tagId) {
-    return this.tagIds.contains(tagId);
+    return this.tags.contains(tagId);
   }
-
-  //GETTERS AND SETTERS
-
-  /**
-   * Gets the id of the artifact
-   *
-   * @return the id of the artifact
-   */
-  public String getArtifactId() {
-    return artifactId;
-  }
-
-  /**
-   * Gets the name of the artifact
-   *
-   * @return the name of the artifact
-   */
-  public String getArtifactName() {
-    return artifactName;
-  }
-
-  /**
-   * Sets the name of the artifact
-   *
-   * @param artifactName the name of the artifact
-   */
-  public void setArtifactName(String artifactName) {
-    this.artifactName = artifactName;
-  }
-
-  /**
-   * Gets the content of the artifact
-   *
-   * @return the content of the artifact
-   */
-  public String getContent() {
-    return content;
-  }
-
-  /**
-   * Sets the content of the artifact
-   *
-   * @param content the content of the artifact
-   */
-  public void setContent(String content) {
-    this.content = content;
-  }
-
-  /**
-   * Gets the tags of the artifact
-   *
-   * @return the tags of the artifact
-   */
-  public List<String> getTagIds() {
-    return Collections.unmodifiableList(tagIds);
-  }
-
-  /**
-   * Sets the tags of the artifact
-   *
-   * @param tagIds the tags of the artifact
-   */
-  public void setTagIds(List<String> tagIds) {
-    this.tagIds = tagIds;
-  }
-
 
   //EQUALS AND HASHCODE
   /**
@@ -164,7 +100,7 @@ public class Artifact {
           return false;
       }
     Artifact artifact = (Artifact) o;
-    return Objects.equals(artifactId, artifact.getArtifactId());
+    return Objects.equals(artifactId, artifact.artifactId);
   }
 
   /**
@@ -174,7 +110,7 @@ public class Artifact {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(getArtifactId());
+      return Objects.hash(artifactId);
   }
 
   //TO STRING
@@ -189,7 +125,7 @@ public class Artifact {
        "artifactId='" + artifactId + '\'' +
        ", artifactName='" + artifactName + '\'' +
        ", content='" + content + '\'' +
-       ", tagIds=" + tagIds +
+       ", tagIds=" + tags +
        '}';
   }
 }

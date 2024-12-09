@@ -9,7 +9,7 @@ import java.util.List;
 public record ArtifactCreateDto(
     @NotBlank String artifactName,
     @NotBlank String content,
-    List<String> tagIds) {
+    List<String> tags) {
 }
 
 

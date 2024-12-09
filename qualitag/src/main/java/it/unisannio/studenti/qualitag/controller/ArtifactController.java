@@ -34,6 +34,17 @@ public class ArtifactController {
     return this.artifactService.addArtifact(artifactCreateDto);
   }
 
+  /**
+   * Adds a tag to an artifact
+   * @param artifactId the id of the artifact
+   * @param tagId the id of the tag
+   * @return the response entity
+   */
+  @PostMapping("/add/{artifactId}/tag/{tagId}")
+  public ResponseEntity<?> addTag(@PathVariable String artifactId, @PathVariable String tagId) {
+    return this.artifactService.addTag(artifactId, tagId);
+  }
+
 //GET
   /**
    * Gets all the artifacts
@@ -45,7 +56,18 @@ public class ArtifactController {
     return artifactService.getAllArtifacts();
   }
 
-  //TODO see other ways to get the artifacts
+ //PUT
+  /**
+   * Updates an artifact
+   * @param artifactId the id of the artifact to update
+   * @param artifactCreateDto the updated artifact
+   * @return the response entity
+    */
+  @PutMapping("/update/{artifactId}")
+    public ResponseEntity<?> updateArtifact(@PathVariable String artifactId, @RequestBody ArtifactCreateDto artifactCreateDto) {
+      return this.artifactService.updateArtifact(artifactCreateDto, artifactId);
+    }
+
 
 //DELETE
   /**
@@ -64,7 +86,7 @@ public class ArtifactController {
    * @param tagId the id of the tag to delete
    * @return the response entity
    */
-  @DeleteMapping("/{artifactId}/tag/{tagId}")
+  @DeleteMapping("/delete/{artifactId}/tag/{tagId}")
   public ResponseEntity<?> deleteTag(@PathVariable String artifactId, @PathVariable String tagId) {
     return this.artifactService.deleteTag(artifactId, tagId);
   }

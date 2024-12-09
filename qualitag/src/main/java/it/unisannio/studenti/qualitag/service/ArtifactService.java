@@ -6,7 +6,6 @@ import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +53,37 @@ public class ArtifactService {
     }
   }
 
-  //TODO : aggiungere metodo post per mettere tag ad un artefatto
+  /**
+   * Add a tag to an artifact
+   * @param artifactId the id of the artifact
+   * @param tagId the id of the tag
+   * return The response entity
+   */
+
+  public ResponseEntity<?> addTag(String artifactId, String tagId) {
+    if (artifactId == null || artifactId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
+    }
+    if (tagId == null || tagId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
+    }
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
+    }
+
+    List<String> tagIds = artifact.getTags();
+    if (tagIds.contains(tagId)) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag already exists in artifact");
+    }
+
+    tagIds.add(tagId);
+    artifact.setTags(tagIds);
+    artifactRepository.save(artifact);
+
+    return ResponseEntity.status(HttpStatus.OK).body("Tag added successfully");
+  }
 
   /**
    * Gets all the artifacts
@@ -89,6 +118,12 @@ public class ArtifactService {
     }
   }
 
+  /**
+   * Deletes a tag of an artifact
+   * @param artifactId the id of the artifact which tag we want to delete
+   * @param tagId the id of the tag to delete
+   * @return the response entity
+   */
   public ResponseEntity<?> deleteTag(String artifactId, String tagId) {
     if (artifactId == null || artifactId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
@@ -102,7 +137,7 @@ public class ArtifactService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
     }
 
-    List<String> tagIds = artifact.getTagIds();
+    List<String> tagIds = artifact.getTags();
     if (tagIds == null || tagIds.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact has no tags");
     }
@@ -112,16 +147,23 @@ public class ArtifactService {
     }
 
     tagIds.remove(tagId);
-    artifact.setTagIds(tagIds);
+    artifact.setTags(tagIds);
     artifactRepository.save(artifact);
 
     return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
   }
 
   //UPDATE
-  public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String id) {
+
+  /**
+   * Modifies and existing artifact
+   * @param artifactModifyDto the dto used to modify the artifact
+   * @param artifactId the id of the artifact to modify
+   * @return the response entity
+   */
+  public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
     //id check
-    if (id == null || id.isEmpty()) {
+    if (artifactId == null || artifactId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
     }
 
@@ -129,14 +171,14 @@ public class ArtifactService {
     try{
       ArtifactCreateDto correctDTo = validateArtifact(artifactModifyDto);
 
-      Artifact artifact = artifactRepository.findArtifactByArtifactId(id);
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
       }
 
       artifact.setArtifactName(correctDTo.artifactName());
       artifact.setContent(correctDTo.content());
-      artifact.setTagIds(correctDTo.tagIds());
+      artifact.setTags(correctDTo.tags());
 
       artifactRepository.save(artifact);
 
@@ -148,13 +190,18 @@ public class ArtifactService {
 
   }
 
+  /**
+   * validates an artifact
+   * @param artifactDto the dto used to create the artifact
+   * @return the validated artifact
+   */
   private ArtifactCreateDto validateArtifact(ArtifactCreateDto artifactDto) {
     if (artifactDto == null) {
       throw new ArtifactValidationException("ArtifactCreateDto is null");
     }
     String artifactName = artifactDto.artifactName();
     String artifactContent = artifactDto.content();
-    List<String> artifactTags = artifactDto.tagIds();
+    List<String> artifactTags = artifactDto.tags();
 
     //artifact name validation
     if (artifactName == null || artifactName.isEmpty()) {

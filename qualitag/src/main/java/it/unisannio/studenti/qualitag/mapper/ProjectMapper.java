@@ -36,9 +36,9 @@ public class ProjectMapper {
         dto.projectName(),
         dto.projectDescription(),
         dto.deadlineDate(),
-        dto.userIds(),
-        dto.teamIds(),
-        dto.artifactIds(),
+        dto.users(),
+        dto.teams(),
+        dto.artifacts(),
         dto.ownerId()
     );
   }
@@ -52,9 +52,9 @@ public class ProjectMapper {
         entity.getProjectDescription(),
         entity.getProjectCreationDate(),
         entity.getProjectDeadline(),
-        entity.getUserIds(),
-        entity.getTeamIds(),
-        entity.getArtifactIds(),
+        entity.getUsers(),
+        entity.getTeams(),
+        entity.getArtifacts(),
         entity.getOwnerId()
     );
   }
