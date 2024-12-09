@@ -128,7 +128,7 @@ public class UserService {
     User existingUser = userRepository.findByUsername(username);
     if (existingUser == null) {
       response.put("msg", "User not found.");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Check if the username is already taken

@@ -10,4 +10,9 @@ public class HomeViewController {
   public String home() {
     return "home";
   }
+
+  @GetMapping("/404")
+  public String error404() {
+    return "404";
+  }
 }

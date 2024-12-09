@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const username = localStorage.getItem('username');
   const authToken = localStorage.getItem('authToken');
+
+  // Extract username from URL
+  const urlParts = window.location.pathname.split('/');
+  const username = urlParts[2]; // Assuming the path is /user/{username} or /user/{username}/update
 
   if (username) {
     fetch('/api/v1/user/' + username, {
@@ -8,7 +11,13 @@ document.addEventListener('DOMContentLoaded', function () {
         'Authorization': 'Bearer ' + authToken
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      if (response.status === 403 || response.status === 404) {
+        window.location.href = '/404'; // Redirect to 404 page
+        throw new Error('Unauthorized access or user not found');
+      }
+      return response.json();
+    })
     .then(user => {
       console.log('Fetched user data:', user); // Log the user object
       if (user) {
