@@ -31,5 +31,4 @@ gradle-app.setting
 Thumbs.db
 
 # Credentials
-/qualitag/src/main/resources/credentials_test.json
-/tokens/StoredCredential
+/qualitag/src/main/resources/credentials/**

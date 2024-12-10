@@ -48,7 +48,7 @@ public class GmailService {
     GsonFactory jsonFactory = GsonFactory.getDefaultInstance();
     service = new Gmail.Builder(httpTransport, jsonFactory,
         getCredentials(httpTransport, jsonFactory))
-        .setApplicationName("Test Mailer")
+        .setApplicationName("QualiTag Project")
         .build();
   }
 
@@ -56,7 +56,7 @@ public class GmailService {
    * Creates a new Gmail service instance.
    *
    * @param httpTransport the HTTP transport.
-   * @param jsonFactory the JSON factory.
+   * @param jsonFactory   the JSON factory.
    * @return the Gmail service instance.
    * @throws IOException if an error occurs while loading the credentials.
    */
@@ -64,11 +64,13 @@ public class GmailService {
       GsonFactory jsonFactory)
       throws IOException {
     GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory,
-        new InputStreamReader(GmailService.class.getResourceAsStream("/credentials_test.json")));
+        new InputStreamReader(GmailService.class.getResourceAsStream(
+            "/credentials/credentials_email_service.json")));
 
     GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
         httpTransport, jsonFactory, clientSecrets, Set.of(GMAIL_SEND))
-        .setDataStoreFactory(new FileDataStoreFactory(Paths.get("tokens").toFile()))
+        .setDataStoreFactory(new FileDataStoreFactory(
+            Paths.get("qualitag/src/main/resources/credentials/tokens").toFile()))
         .setAccessType("offline")
         .build();
 
@@ -80,7 +82,7 @@ public class GmailService {
    * Sends an e-mail message.
    *
    * @param subject the e-mail subject.
-   * @param to the recipient e-mail address.
+   * @param to      the recipient e-mail address.
    * @param message the e-mail message.
    * @throws Exception if an error occurs while sending the e-mail.
    */
@@ -88,7 +90,7 @@ public class GmailService {
     Properties props = new Properties();
     Session session = Session.getDefaultInstance(props, null);
     MimeMessage email = new MimeMessage(session);
-    email.setFrom(new InternetAddress(FROM_EMAIL));
+    email.setFrom("QualiTag Project <" + FROM_EMAIL + ">");
     email.addRecipient(TO, new InternetAddress(to));
     email.setSubject(subject);
     email.setText(message);
@@ -101,7 +103,7 @@ public class GmailService {
     msg.setRaw(encodedEmail);
 
     try {
-      msg = service.users().messages().send("me", msg).execute();
+      msg = service.users().messages().send(FROM_EMAIL, msg).execute();
       System.out.println("Message id: " + msg.getId());
       System.out.println(msg.toPrettyString());
     } catch (GoogleJsonResponseException e) {
@@ -121,8 +123,8 @@ public class GmailService {
    * @throws Exception if an error occurs while sending the e-mail.
    */
   public static void main(String[] args) throws Exception {
-    new GmailService().sendMail("Test e-mail",
+    new GmailService().sendMail(" Test e-mail",
         TEST_EMAIL,
-        "This is a test e-mail from the Test Mailer application.");
+        "This is a test e-mail.");
   }
 }
