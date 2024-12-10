@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 
 
 /**
- * the ProjectService class is a service class that provides methods to manage the project entity
+ * The ProjectService class is a service class that provides methods to manage the project entity.
  */
 @Service
 public class ProjectService {
@@ -39,7 +39,7 @@ public class ProjectService {
   private final WebInvocationPrivilegeEvaluator privilegeEvaluator;
 
   /**
-   * Constructs a new ProjectService
+   * Constructs a new ProjectService.
    *
    * @param projectRepository the project repository
    * @param usersRepository   the user repository
@@ -55,10 +55,10 @@ public class ProjectService {
     this.privilegeEvaluator = privilegeEvaluator;
   }
 
-  //POST
+  // POST
 
   /**
-   * Creates a new project
+   * Creates a new project.
    *
    * @param projectCreateDto the DTO used to create a project
    * @return the response entity
@@ -100,13 +100,13 @@ public class ProjectService {
 
           currentUser.setProjectIds(oldProjectIds);
           usersRepository.save(currentUser);
-        }else{
-           /*if we cannot find user even by id, return
+        } else {
+          /*if we cannot find user even by id, return
            * even a single user is not found, the project is not added to any user
            * */
           return;
         }
-      }else {
+      } else {
         List<String> oldProjectIds = user.getProjectIds();
         oldProjectIds.add(project.getProjectId());
 
@@ -117,7 +117,7 @@ public class ProjectService {
   }
 
   /**
-   * Adds an artifact to a project
+   * Adds an artifact to a project.
    *
    * @param projectId  the id of the project
    * @param artifactId the id of the artifact
@@ -133,8 +133,8 @@ public class ProjectService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
     }
 
-    String currentUserID = getLoggedInUserId();
-    if (!project.getOwnerId().equals(currentUserID)) {
+    String currentUserId = getLoggedInUserId();
+    if (!project.getOwnerId().equals(currentUserId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
           .body("Only the project owner can add a new artifact!");
     }
@@ -157,10 +157,10 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body("Artifact added to the project successfully");
   }
 
-  //GET
+  // GET
 
   /**
-   * Return all the projects in the database
+   * Return all the projects in the database.
    *
    * @return the response entity
    */
@@ -169,7 +169,7 @@ public class ProjectService {
   }
 
   /**
-   * Returns all the projects created by a specific owner
+   * Returns all the projects created by a specific owner.
    *
    * @param ownerId The id of the owner
    * @return the response entity
@@ -190,7 +190,7 @@ public class ProjectService {
   }
 
   /**
-   * Searches for a project with a specific id
+   * Searches for a project with a specific id.
    *
    * @param projectId the id of the project to search
    * @return the response entity
@@ -208,7 +208,7 @@ public class ProjectService {
   }
 
   /**
-   * Searches for the tags of the artifacts of a project
+   * Searches for the tags of the artifacts of a project.
    *
    * @param projectId the id of the project
    * @return the list of the tags associated to the artifacts of the project
@@ -225,8 +225,8 @@ public class ProjectService {
     }
 
     // Retrieve the logged-in user's ID
-    String currentUserID = getLoggedInUserId();
-    if (!project.getOwnerId().equals(currentUserID)) {
+    String currentUserId = getLoggedInUserId();
+    if (!project.getOwnerId().equals(currentUserId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
           .body("Only the project owner can see the tags!");
     }
@@ -252,7 +252,7 @@ public class ProjectService {
   }
 
   /**
-   * Gets all the artifacts of a project
+   * Gets all the artifacts of a project.
    *
    * @param projectId the id of the project
    * @return the response entity
@@ -285,10 +285,10 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body(artifacts);
   }
 
-  //DELETE
+  // DELETE
 
   /**
-   * Deletes a project
+   * Deletes a project.
    *
    * @param projectId the id of the project to delete
    * @return the response entity
@@ -317,10 +317,10 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body("Project deleted successfully");
   }
 
-  //UPDATE
+  // UPDATE
 
   /**
-   * Modifies an existing projects
+   * Modifies an existing projects.
    *
    * @param projectModifyDto the DTO used to modify the project
    * @param projectId        the id of the project to modify
@@ -443,9 +443,10 @@ public class ProjectService {
         if (!usersRepository.existsById(currentUserId)) {
           throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
         }
-      }catch (Exception e){
+      } catch (Exception e) {
         if (!usersRepository.existsByUsername(currentUserId)) {
-          throw new TeamValidationException("User with username " + currentUserId + " does not exist");
+          throw new TeamValidationException(
+              "User with username " + currentUserId + " does not exist");
         }
       }
 
@@ -509,7 +510,6 @@ public class ProjectService {
     if (!users.contains(ownerUser.getUserId()) && !users.contains(ownerUser.getUsername())) {
       throw new ProjectValidationException("Owner must be in the list of users");
     }
-
 
     return new ProjectCreateDto(name, description, creationDate, deadlineDate, users, teams,
         artifacts, owner);
