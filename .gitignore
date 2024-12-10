@@ -29,3 +29,7 @@ gradle-app.setting
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+# Credentials
+/qualitag/src/main/resources/credentials_test.json
+/tokens/StoredCredential
