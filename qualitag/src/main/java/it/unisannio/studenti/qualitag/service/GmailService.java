@@ -112,7 +112,8 @@ public class GmailService {
 
     try {
       // Send the e-mail using the Gmail API
-      service.users().messages().send(FROM_EMAIL, msg).execute();
+      msg = service.users().messages().send(FROM_EMAIL, msg).execute();
+      System.out.println("Message sent: " + msg.toPrettyString());
     } catch (GoogleJsonResponseException e) {
       GoogleJsonError error = e.getDetails();
       if (error.getCode() == 403) {

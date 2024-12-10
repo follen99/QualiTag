@@ -6,6 +6,7 @@ import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
+import it.unisannio.studenti.qualitag.service.GmailService;
 import it.unisannio.studenti.qualitag.service.UserService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -88,7 +89,7 @@ public class AuthenticationService {
    * @param request The user registration request.
    * @return The response entity.
    */
-  public ResponseEntity<?> register(UserRegistrationDto request) {
+  public ResponseEntity<?> register(UserRegistrationDto request) throws Exception {
     Map<String, Object> response = new HashMap<>();
 
     // DTO validation
@@ -126,6 +127,11 @@ public class AuthenticationService {
       response.put("msg", "Email already taken.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
+    // Send email
+    new GmailService().sendMail("QualiTag Registration",
+        request.email(),
+        "Thank you for registering to QualiTag!");
 
     // Map the new user from the request
     User user = userMapper.toEntity(request);
