@@ -79,12 +79,8 @@ public class TeamService {
       throw new TeamValidationException("Team cannot be null");
     }
 
-    String name = teamCreateDto.teamName();
-    Long creationDate = teamCreateDto.creationDate();
-    String description = teamCreateDto.teamDescription();
-    List<String> users = teamCreateDto.users();
-
     // Validate and correct team name
+    String name = teamCreateDto.teamName();
     if (name == null || name.trim().isEmpty()) {
       throw new TeamValidationException("Team name cannot be empty");
     }
@@ -100,6 +96,7 @@ public class TeamService {
     }
 
     // Validate users list
+    List<String> users = teamCreateDto.users();
     if (users == null || users.isEmpty()) {
       throw new TeamValidationException("Users list cannot be empty");
     }
@@ -139,6 +136,7 @@ public class TeamService {
     }
 
     // Validate creation date
+    Long creationDate = teamCreateDto.creationDate();
     if (creationDate == null) {
       creationDate = System.currentTimeMillis();
     } else {
@@ -152,6 +150,7 @@ public class TeamService {
     }
 
     // Validate and correct team description
+    String description = teamCreateDto.teamDescription();
     if (description == null) {
       description = "Hi, we are team " + name + "!";
     } else {
