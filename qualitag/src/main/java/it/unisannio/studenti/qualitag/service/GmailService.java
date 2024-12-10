@@ -26,12 +26,10 @@ import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.stereotype.Service;
 
 /**
  * This class is used to send e-mails using the Gmail API.
  */
-@Service
 public class GmailService {
 
   private static final String TEST_EMAIL = "qualitag.project@gmail.com";
@@ -75,7 +73,7 @@ public class GmailService {
     GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
         httpTransport, jsonFactory, clientSecrets, Set.of(GMAIL_SEND))
         .setDataStoreFactory(new FileDataStoreFactory(
-            Paths.get("qualitag/src/main/resources/credentials/tokens").toFile()))
+            Paths.get("/src/main/resources/credentials/tokens").toFile()))
         .setAccessType("offline")
         .build();
 
