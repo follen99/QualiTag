@@ -390,19 +390,8 @@ public class ProjectService {
       throw new ProjectValidationException("Project cannot be null");
     }
 
-    String name = projectCreateDto.projectName();
-    String description = projectCreateDto.projectDescription();
-    Long creationDate = System.currentTimeMillis();
-    Long deadlineDate = projectCreateDto.deadlineDate();
-    List<String> users = projectCreateDto.users();
-    List<String> teams = projectCreateDto.teams();
-    List<String> artifacts = projectCreateDto.artifacts();
-    String owner = getLoggedInUserId();
-
-    LocalDate localDate = LocalDate.of(2030, 12, 31);
-    Long maxDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-
     //Validate the project name
+    String name = projectCreateDto.projectName();
     if (name == null || name.isEmpty()) {
       throw new ProjectValidationException("Project name cannot be null or empty");
     }
@@ -414,11 +403,17 @@ public class ProjectService {
     }
 
     //Validate the project description
+    String description = projectCreateDto.projectDescription();
     if (description == null || description.isEmpty()) {
       throw new ProjectValidationException("Project description cannot be null or empty");
     }
 
     //Validate the deadline date
+    Long deadlineDate = projectCreateDto.deadlineDate();
+    Long creationDate = System.currentTimeMillis();
+
+    LocalDate localDate = LocalDate.of(2030, 12, 31);
+    Long maxDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
     if (deadlineDate == null) {
       throw new ProjectValidationException("Deadline date cannot be null");
     }
@@ -430,6 +425,7 @@ public class ProjectService {
     }
 
     //Validate the users
+    List<String> users = projectCreateDto.users();
     if (users == null || users.isEmpty()) {
       throw new ProjectValidationException("Users cannot be null or empty");
     }
@@ -454,6 +450,7 @@ public class ProjectService {
     //TODO check other constraints with users
 
     //Validate the teams
+    List<String> teams = projectCreateDto.teams();
     if (teams == null || teams.isEmpty()) {
       throw new ProjectValidationException("Teams cannot be null or empty");
     }
@@ -470,6 +467,7 @@ public class ProjectService {
 
     //TODO check other constraints with teams
     //check the artifacts
+    List<String> artifacts = projectCreateDto.artifacts();
     if (artifacts == null || artifacts.isEmpty()) {
       throw new ProjectValidationException("Artifacts cannot be null or empty");
     }
@@ -496,6 +494,7 @@ public class ProjectService {
     //TODO check other constraints with artifacts
 
     //Validate the owner
+    String owner = getLoggedInUserId();
     if (owner == null || owner.isEmpty()) {
       throw new ProjectValidationException("Owner cannot be null or empty");
     }
