@@ -1,14 +1,21 @@
 package it.unisannio.studenti.qualitag.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * This class tests the User class.
+ */
 public class UserTest {
 
   private User user;
 
+  /**
+   * This method is executed before each test method is executed and creates a user for tests.
+   */
   @BeforeEach
   public void setUp() {
     user = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
