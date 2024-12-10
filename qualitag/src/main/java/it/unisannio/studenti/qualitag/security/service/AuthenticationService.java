@@ -52,13 +52,21 @@ public class AuthenticationService {
     return violations.isEmpty();
   }
 
+  /**
+   * Checks if the currently authenticated user has the authority to access the user with the
+   *     specified username.
+   *
+   * @param username The username of the user to check.
+   * @return true if the currently authenticated user has the authority to access the user with the
+   *     specified username, false otherwise.
+   */
   public static boolean getAuthority(String username) {
     // Get the currently authenticated user
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String authenticatedUsername = authentication.getName();
 
     // Check if the authenticated user is the same as the logged user
-    return authenticatedUsername.equals(username);
+    return !authenticatedUsername.equals(username);
   }
 
   /**
@@ -90,19 +98,19 @@ public class AuthenticationService {
     }
 
     // Username validation
-    if (!UserService.isValidUsername(request.username())) {
+    if (UserService.isNotValidUsername(request.username())) {
       response.put("msg", "Invalid username.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Email validation
-    if (!UserService.isValidEmail(request.email())) {
+    if (UserService.isNotValidEmail(request.email())) {
       response.put("msg", "Invalid email address.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Password validation
-    if (!UserService.isValidPassword(request.password())) {
+    if (UserService.isNotValidPassword(request.password())) {
       response.put("msg", "Invalid password.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -131,6 +139,7 @@ public class AuthenticationService {
     // Return the CREATED status and the JWT token
     response.put("msg", "User registered successfully.");
     response.put("token", jwt);
+    response.put("username", user.getUsername());
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -172,6 +181,7 @@ public class AuthenticationService {
     // Return the OK status and the JWT token
     response.put("msg", "User logged in successfully.");
     response.put("token", jwt);
+    response.put("username", user.getUsername());
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }

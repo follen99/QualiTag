@@ -78,6 +78,8 @@ public class SecurityConfig {
             .requestMatchers("/index.html", "/auth/**", "/user/**").permitAll()
             // Permit all authentication-related POST requests
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+            .requestMatchers("/api/v1/**").authenticated()
+            .requestMatchers(HttpMethod.GET, "/**").permitAll()
             // All other requests require authentication
             .anyRequest().authenticated()
         )

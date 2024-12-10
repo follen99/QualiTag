@@ -1,5 +1,8 @@
 package it.unisannio.studenti.qualitag.constants;
 
+/**
+ * TagConstants is a class that contains constants related to tags.
+ */
 public class TagConstants {
 
   public static final int MAX_TAG_VALUE_LENGTH = 16;  // The maximum length of a tag value

@@ -11,11 +11,11 @@ import java.util.List;
 public record ProjectCreateDto(
     @NotBlank String projectName,
     @NotBlank String projectDescription,
-    @NotBlank Date creationDate,
-    @NotBlank Date deadlineDate,
-    List<String> userIds,
-    List <String> teamIds,
-    List<String> artifactIds,
+    @NotBlank Long creationDate,
+    @NotBlank Long deadlineDate,
+    List<String> users,
+    List<String> teams,
+    List<String> artifacts,
     String ownerId) {
 
 }

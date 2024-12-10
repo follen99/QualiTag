@@ -1,5 +1,8 @@
 package it.unisannio.studenti.qualitag.model;
 
+/**
+ * The DefaultColor enum provides the default colors used in the application.
+ */
 public enum DefaultColor {
   PASTEL_GRAY_DARK("#a6aebf"), PASTEL_GRAY_LIGHT("#c5d3e8"), PASTEL_GREEN(
       "#d0e8c5"), PASTEL_YELLOW_LIGHT("#fff8de"), PASTEL_BLUE_NAVY("#295f98");

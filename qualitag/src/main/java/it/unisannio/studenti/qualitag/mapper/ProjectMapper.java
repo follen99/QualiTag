@@ -1,8 +1,8 @@
 package it.unisannio.studenti.qualitag.mapper;
 
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
-import it.unisannio.studenti.qualitag.service.ProjectService;
 import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.service.ProjectService;
 
 
 /**
@@ -14,7 +14,7 @@ public class ProjectMapper {
   private final ProjectService projectService;
 
   /**
-   * Constructs a new ProjectMapper
+   * Constructs a new ProjectMapper.
    *
    * @param projectService The project service to use
    */
@@ -23,7 +23,7 @@ public class ProjectMapper {
   }
 
   /**
-   * Converts a ProjectCreationDto to a Project entity
+   * Converts a ProjectCreationDto to a Project entity.
    *
    * @param dto The ProjectCreationDto to convert
    * @return The converted Project entity
@@ -36,13 +36,19 @@ public class ProjectMapper {
         dto.projectName(),
         dto.projectDescription(),
         dto.deadlineDate(),
-        dto.userIds(),
-        dto.teamIds(),
-        dto.artifactIds(),
+        dto.users(),
+        dto.teams(),
+        dto.artifacts(),
         dto.ownerId()
     );
   }
 
+  /**
+   * Converts a Project entity to a ProjectCreationDto.
+   *
+   * @param entity The Project entity to convert
+   * @return The converted ProjectCreationDto
+   */
   public ProjectCreateDto toDto(Project entity) {
     if (entity == null) {
       return null;
@@ -52,9 +58,9 @@ public class ProjectMapper {
         entity.getProjectDescription(),
         entity.getProjectCreationDate(),
         entity.getProjectDeadline(),
-        entity.getUserIds(),
-        entity.getTeamIds(),
-        entity.getArtifactIds(),
+        entity.getUsers(),
+        entity.getTeams(),
+        entity.getArtifacts(),
         entity.getOwnerId()
     );
   }
