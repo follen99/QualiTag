@@ -1,16 +1,22 @@
 package it.unisannio.studenti.qualitag.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Test class for the Artifact class.
+ */
 public class ArtifactTest {
 
   private Artifact artifact;
 
   /**
-   * Set up an artifact object for the tests
+   * Set up an artifact object for the tests.
    */
   @BeforeEach
   public void setUp() {
@@ -18,7 +24,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the getArtifactId method
+   * Test the getArtifactId method.
    */
   @Test
   public void testGetArtifactId() {
@@ -26,7 +32,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the getArtifactName method
+   * Test the getArtifactName method.
    */
   @Test
   public void testGetArtifactName() {
@@ -34,7 +40,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the setArtifactName method
+   * Test the setArtifactName method.
    */
   @Test
   public void testSetArtifactName() {
@@ -43,7 +49,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the getContent method
+   * Test the getContent method.
    */
   @Test
   public void testGetContent() {
@@ -51,7 +57,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the setContent method
+   * Test the setContent method.
    */
   @Test
   public void testSetContent() {
@@ -60,7 +66,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the getTagIds method
+   * Test the getTagIds method.
    */
   @Test
   public void addAndRemoveTagId() {
@@ -71,7 +77,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the equals and hashCode methods
+   * Test the equals and hashCode methods.
    */
   @Test
   public void testEqualsAndHashCode() {
@@ -82,11 +88,12 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the toString method
+   * Test the toString method.
    */
   @Test
   public void testToString() {
-    String expected = "Artifact{artifactId='null', artifactName='name', content='content', tagIds=[]}";
+    String expected = "Artifact{artifactId='null', artifactName='name', "
+        + "content='content', tagIds=[]}";
     assertEquals(expected, artifact.toString());
   }
 }
