@@ -1,5 +1,7 @@
 package it.unisannio.studenti.qualitag.repository;
 
+import static org.mockito.Mockito.when;   // to not always write Mockito.when
+
 import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.User;
 import java.util.List;
@@ -7,11 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
-import static org.mockito.Mockito.when;   // to not always write Mockito.when
 
 /**
  * MOCKED Test class for the TagRepository.
@@ -27,7 +26,9 @@ public class TagRepositoryTest {
 
   private final String username = "user1";
 
-
+  /**
+   * Set up the mock objects.
+   */
   @BeforeEach
   public void setUp() {
     tagRepository.deleteAll();
@@ -55,6 +56,9 @@ public class TagRepositoryTest {
 
   }
 
+  /**
+   * Clean up the repository after each test.
+   */
   @AfterEach
   public void cleanUp() {
     tagRepository.deleteAll();
