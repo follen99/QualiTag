@@ -1,17 +1,17 @@
 package it.unisannio.studenti.qualitag.model;
 
-/**
- * Represents a project in the system
- * <p>
- * Created by Raffaele Izzo on 14/11/2024
- */
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.*;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
+/**
+ * Represents a project in the system. Created by Raffaele Izzo on 14/11/2024
+ */
 @Data
 @Document(collection = "project")
 public class Project {
@@ -20,33 +20,32 @@ public class Project {
   @Field(targetType = FieldType.OBJECT_ID)
   private String projectId;
 
-  @Field(name="projectName")
+  @Field(name = "projectName")
   private String projectName;
 
-  @Field(name="projectDescription")
+  @Field(name = "projectDescription")
   private String projectDescription;
 
-  @Field(name="projectCreationDate")
+  @Field(name = "projectCreationDate")
   private Long projectCreationDate;
 
-  @Field(name="projectDeadline")
+  @Field(name = "projectDeadline")
   private Long projectDeadline;
 
-  @Field(name="projectUsers")
+  @Field(name = "projectUsers")
   private List<String> users;
 
-  @Field(name="projectTeams")
+  @Field(name = "projectTeams")
   private List<String> teams;
 
-  @Field(name="projectArtifacts")
+  @Field(name = "projectArtifacts")
   private List<String> artifacts;
 
-  @Field(name="projectOwner")
+  @Field(name = "projectOwner")
   private String ownerId;
 
   /**
-   * Default constructor for Project
-   *
+   * Default constructor for Project.
    */
   public Project() {
     this.users = new ArrayList<>();
@@ -55,11 +54,11 @@ public class Project {
   }
 
   /**
-   * Constructor for Project with Parameters
+   * Constructor for Project with Parameters.
    *
-   * @param projectName The project's name
+   * @param projectName        The project's name
    * @param projectDescription The project's description
-   * @param projectDeadline The project's deadline
+   * @param projectDeadline    The project's deadline
    */
   public Project(String projectName, String projectDescription,
       Long projectDeadline) {
@@ -74,12 +73,12 @@ public class Project {
   }
 
   /**
-   * Constructor for Project with one user
+   * Constructor for Project with one user.
    *
-   * @param projectName The project's name
-   * @param projectDeadline The project's deadline
+   * @param projectName        The project's name
+   * @param projectDeadline    The project's deadline
    * @param projectDescription The project's description
-   * @param userId The userId of the user that is part of the project
+   * @param userId             The userId of the user that is part of the project
    */
   public Project(String projectName, String projectDescription,
       Long projectDeadline, String userId) {
@@ -95,20 +94,19 @@ public class Project {
   }
 
   /**
-   * Constructor for Project with a list of users, teams and artifacts as well as the ownerId
+   * Constructor for Project with a list of users, teams and artifacts as well as the ownerId.
    *
-   * @param projectName The project's name
+   * @param projectName        The project's name
    * @param projectDescription The project's description
-   * @param projectDeadline The project's deadline
-   * @param users The ids of the users in the project
-   * @param teams The ids of the teams in the project
-   * @param artifacts The ids of the artifacts in the project
-   * @param ownerId The id of the owner of the project
+   * @param projectDeadline    The project's deadline
+   * @param users              The ids of the users in the project
+   * @param teams              The ids of the teams in the project
+   * @param artifacts          The ids of the artifacts in the project
+   * @param ownerId            The id of the owner of the project
    */
-  public Project (String projectName, String projectDescription,
-      Long projectDeadline,List<String> users,
-      List<String> teams, List<String> artifacts
-      , String ownerId){
+  public Project(String projectName, String projectDescription,
+      Long projectDeadline, List<String> users,
+      List<String> teams, List<String> artifacts, String ownerId) {
     this.projectName = projectName;
     this.projectDescription = projectDescription;
     this.projectCreationDate = System.currentTimeMillis();
@@ -121,7 +119,7 @@ public class Project {
   }
 
   /**
-   * Adds one user to the project
+   * Adds one user to the project.
    *
    * @param userId The id of the user to add to the project
    */
@@ -130,7 +128,7 @@ public class Project {
   }
 
   /**
-   * Checks if a user is in the project
+   * Checks if a user is in the project.
    *
    * @param userId the id of the user to check
    * @return true if the user is in the project, false otherwise
@@ -140,7 +138,7 @@ public class Project {
   }
 
   /**
-   * Removes one user from the project
+   * Removes one user from the project.
    *
    * @param userId the id of the user to remove from the project
    */
@@ -149,7 +147,7 @@ public class Project {
   }
 
   /**
-   * Adds one team to the project
+   * Adds one team to the project.
    *
    * @param teamId The id of the team to add to the project
    */
@@ -158,17 +156,17 @@ public class Project {
   }
 
   /**
-   * Checks if a team is in the project
+   * Checks if a team is in the project.
    *
    * @param teamId The id of the team to check
    * @return true if the team is in the project, false otherwise
    */
-  public boolean isTeamIDInProject(String teamId) {
+  public boolean isTeamIdInProject(String teamId) {
     return teams.contains(teamId);
   }
 
   /**
-   * Removes one team from the project
+   * Removes one team from the project.
    *
    * @param teamId The id of the team to remove from the project
    */
@@ -177,7 +175,8 @@ public class Project {
   }
 
   /**
-   * Adds one artifact to the project
+   * Adds one artifact to the project.
+   *
    * @param artifactId the id of the artifact to add to the project
    */
   public void addArtifactId(String artifactId) {
@@ -185,7 +184,8 @@ public class Project {
   }
 
   /**
-   * Checks if an artifact is in the project
+   * Checks if an artifact is in the project.
+   *
    * @param artifactId the id of the artifact to check
    * @return true if the artifact is in the project, false otherwise
    */
@@ -194,35 +194,36 @@ public class Project {
   }
 
   /**
-   * Removes one artifact from the project
+   * Removes one artifact from the project.
+   *
    * @param artifactId the id of the artifact to remove from the project
    */
   public void removeArtifactId(String artifactId) {
     artifacts.remove(artifactId);
   }
 
-  //EQUALS AND HASHCODE
+  // EQUALS AND HASHCODE
 
   /**
-   * Checks if two projects are equal
+   * Checks if two projects are equal.
    *
    * @param o The object to compare
    * @return true if the projects are equal, false otherwise
    */
   @Override
   public boolean equals(Object o) {
-      if (this == o) {
-          return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-          return false;
-      }
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     Project project = (Project) o;
     return Objects.equals(projectId, project.projectId);
   }
 
   /**
-   * Generates the hash code for the project
+   * Generates the hash code for the project.
    *
    * @return the hash code
    */
@@ -231,10 +232,10 @@ public class Project {
     return Objects.hash(projectId);
   }
 
-  //TO STRING
+  // TO STRING
 
   /**
-   * Gets the project as a string
+   * Gets the project as a string.
    *
    * @return the project as a string
    */
