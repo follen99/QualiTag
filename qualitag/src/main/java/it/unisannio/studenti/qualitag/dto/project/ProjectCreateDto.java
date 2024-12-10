@@ -14,7 +14,7 @@ public record ProjectCreateDto(
     @NotBlank Long creationDate,
     @NotBlank Long deadlineDate,
     List<String> users,
-    List <String> teams,
+    List<String> teams,
     List<String> artifacts,
     String ownerId) {
 
