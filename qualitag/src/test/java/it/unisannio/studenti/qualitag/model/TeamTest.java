@@ -115,7 +115,8 @@ class TeamTest {
     Team team = new Team("TeamName", 123456789L, "Description", users);
     team.setTeamId("1");
     team.setProjectId("project1");
-    String expected = "Team{team_id='1', project_id='project1', users=[user1, user2], team_name='TeamName', creation_date=123456789, team_description='Description'}";
+    String expected = "Team{team_id='1', project_id='project1', users=[user1, user2], "
+        + "team_name='TeamName', creation_date=123456789, team_description='Description'}";
     assertEquals(expected, team.toString());
   }
 
@@ -128,8 +129,8 @@ class TeamTest {
   @Test
   void testEqualsWithDifferentClass() {
     Team team1 = new Team();
-    String notATeam = "Not a Team";
-    assertNotEquals(team1, notATeam);
+    String notateam = "Not a Team";
+    assertNotEquals(team1, notateam);
   }
 
   @Test
