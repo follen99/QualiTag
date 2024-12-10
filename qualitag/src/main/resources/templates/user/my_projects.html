@@ -9,41 +9,50 @@
   <script src="/js/auth/token-validation.js"></script>
 
   <script>
-    const username = localStorage.getItem('username');
-    if (username) {
-      /*fetch(`/api/v1/user/${username}`)
-      .then(response => response.json())
-      .then(data => {
-        // Handle the user data here
-        const user = data;
-        console.log('User data:', user);
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-      });*/
+    document.addEventListener('DOMContentLoaded', function () {
+      const username = localStorage.getItem('username');
+      const authToken = localStorage.getItem('authToken');
+      if (username) {
+        console.log('Token:', authToken);
+        fetch('/api/v1/user/' + username, {
+          headers: {
+            'Authorization': 'Bearer ' + authToken
+          }
+        })
+        .then(response => {
+          if (response.status === 403 || response.status === 404) {
+            window.location.href = '/404'; // Redirect to 404 page
+            throw new Error('Unauthorized access or user not found');
+          }
+          return response.json();
+        }).then(user => {
+          console.log('User data:', user);
+          const userProjectIds = user.projectIds;
+          displayProjectIds(userProjectIds);
+        })
+        .catch(error => console.error('Error fetching user data:', error));
+      } else {
+        alert('Please login to access the profile page');
+        window.location.href = '/signin';
+      }
+    });
 
-      console.log('Token:', localStorage.getItem('token'));
-      fetch(`/api/v1/user/` + username, {
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token')
-        }
-      }).then(response => {
-        if (response.status === 403 || response.status === 404){
-          window.location.href = '/404'; // Redirect to 404 page
-          throw new Error('Unauthorized access or user not found');
-        }
-        return response.json();
-      }).then(user => {
-        console.log('User projects:', user);
-      })
-    } else {
-      alert('Please login to access the profile page');
-      window.location.href = '/signin';
+    function displayProjectIds(projectIds) {
+      const projectListContainer = document.getElementById('projectsList');
+      projectIds.forEach(projectId => {
+        const listItem = document.createElement('li');
+        listItem.textContent = projectId;
+        projectListContainer.appendChild(listItem);
+      });
     }
   </script>
 </head>
 <body>
   <h2>Lista Progetti</h2>
+  <ul id="projectsList"></ul>
+    <!-- <li><a href="/project/1">Project 1</a></li> -->
+    <!-- <li><a href="/project/2">Project 2</a></li> -->
+    <!-- <li><a href="/project/3">Project 3</a></li> -->
 
 </body>
 </html>
