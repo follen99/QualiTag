@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.security.service;
 
+import it.unisannio.studenti.qualitag.dto.user.ForgotPasswordDto;
 import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
@@ -197,13 +198,13 @@ public class AuthenticationService {
   /**
    * Sends a password reset email to the user.
    *
-   * @param email The email of the user.
+   * @param dto The DTO containing email of the user.
    * @return The response entity.
    */
-  public ResponseEntity<?> sendPasswordResetEmail(String email) throws Exception {
+  public ResponseEntity<?> sendPasswordResetEmail(ForgotPasswordDto dto) throws Exception {
     Map<String, Object> response = new HashMap<>();
 
-    User user = userRepository.findByEmail(email);
+    User user = userRepository.findByEmail(dto.email());
     if (user == null) {
       response.put("msg", "No user found with the given email.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -219,7 +220,7 @@ public class AuthenticationService {
     // Send email with reset link
     String resetLink = "http://localhost:8080/reset-password?token=" + resetToken;
     new GmailService().sendMail("QualiTag Password Reset",
-        email,
+        dto.email(),
         "Click the following link to reset your password: " + resetLink);
 
     response.put("msg", "Password reset email sent successfully.");

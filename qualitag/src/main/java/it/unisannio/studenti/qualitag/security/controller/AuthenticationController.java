@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.security.controller;
 
+import it.unisannio.studenti.qualitag.dto.user.ForgotPasswordDto;
 import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
@@ -47,7 +48,7 @@ public class AuthenticationController {
   }
 
   @PostMapping("/forgot-password")
-  public ResponseEntity<?> forgotPassword(@RequestParam String email) throws Exception {
+  public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDto email) throws Exception {
     return authenticationService.sendPasswordResetEmail(email);
   }
 
