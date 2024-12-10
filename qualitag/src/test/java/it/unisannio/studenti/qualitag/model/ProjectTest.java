@@ -1,29 +1,37 @@
 package it.unisannio.studenti.qualitag.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
-import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Test class for the Project model.
+ */
 public class ProjectTest {
 
   private Project project;
 
   /**
-   * Set up a project object for the tests
+   * Set up a project object for the tests.
    */
   @BeforeEach
   public void setUp() {
     LocalDate localDate = LocalDate.of(2025, 12, 31);
-    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault())
+        .toInstant().toEpochMilli();
+
     project = new Project("ProjectName", "ProjectDescription", projectDeadline);
   }
 
   /**
-   * Test the getProjectId method
+   * Test the getProjectId method.
    */
   @Test
   public void testGetProjectId() {
@@ -31,7 +39,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the getProjectName method
+   * Test the getProjectName method.
    */
   @Test
   public void testGetProjectName() {
@@ -39,7 +47,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the setProjectName method
+   * Test the setProjectName method.
    */
   @Test
   public void testSetProjectName() {
@@ -48,7 +56,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the getProjectDescription method
+   * Test the getProjectDescription method.
    */
   @Test
   public void testGetProjectDescription() {
@@ -56,7 +64,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the setProjectDescription method
+   * Test the setProjectDescription method.
    */
   @Test
   public void testSetProjectDescription() {
@@ -65,7 +73,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the getProjectCreationDate method
+   * Test the getProjectCreationDate method.
    */
   @Test
   public void testGetProjectCreationDate() {
@@ -73,30 +81,33 @@ public class ProjectTest {
   }
 
   /**
-   * Test the getProjectDeadline method
+   * Test the getProjectDeadline method.
    */
   @Test
   public void testGetProjectDeadline() {
     LocalDate localDate = LocalDate.of(2025, 12, 31);
-    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-    this.project.setProjectDeadline(projectDeadline);
+    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault())
+        .toInstant().toEpochMilli();
 
+    this.project.setProjectDeadline(projectDeadline);
     assertEquals(projectDeadline, project.getProjectDeadline());
   }
 
   /**
-   * Test the setProjectDeadline method
+   * Test the setProjectDeadline method.
    */
   @Test
   public void testSetProjectDeadline() {
     LocalDate localDate = LocalDate.of(2026, 12, 31);
-    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault())
+        .toInstant().toEpochMilli();
+
     project.setProjectDeadline(projectDeadline);
     assertEquals(projectDeadline, project.getProjectDeadline());
   }
 
   /**
-   * Test the add and remove methods for the user, team and artifact ids
+   * Test the add and remove methods for the user, team and artifact ids.
    */
   @Test
   public void testAddAndRemoveUserId() {
@@ -107,7 +118,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the add and remove methods for the team ids
+   * Test the add and remove methods for the team ids.
    */
   @Test
   public void testAddAndRemoveTeamId() {
@@ -118,7 +129,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the add and remove methods for the artifact ids
+   * Test the add and remove methods for the artifact ids.
    */
   @Test
   public void testAddAndRemoveArtifactId() {
@@ -129,7 +140,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the isUserIdInProject method
+   * Test the isUserIdInProject method.
    */
   @Test
   public void testGetOwnerId() {
@@ -137,7 +148,7 @@ public class ProjectTest {
   }
 
   /**
-   * Test the setOwnerId method
+   * Test the setOwnerId method.
    */
   @Test
   public void testSetOwnerId() {
@@ -146,28 +157,17 @@ public class ProjectTest {
   }
 
   /**
-   * Test the isUserIdInProject method
+   * Test the isUserIdInProject method.
    */
   @Test
   public void testEqualsAndHashCode() {
     LocalDate localDate = LocalDate.of(2025, 12, 31);
-    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault())
+        .toInstant().toEpochMilli();
+
     Project anotherProject = new Project("ProjectName", "ProjectDescription",
         projectDeadline);
     assertEquals(project, anotherProject);
     assertEquals(project.hashCode(), anotherProject.hashCode());
   }
-
-//  /**
-//   * Test the toString method
-//   */
-//  @Test
-//  public void testToString() {
-//    String expected =
-//        "Project{projectId='null', projectName='ProjectName', projectDescription='ProjectDescription', projectCreationDate="
-//            + project.getProjectCreationDate()
-//            + ", projectDeadline=Wed Dec 31 00:00:00 CET 2025, "
-//            + "usersIds=[], teamsIds=[], artifactsIds=[], ownerId=null}";
-//    assertEquals(expected, project.toString());
-//  }
 }
