@@ -44,7 +44,10 @@ public class GmailService {
    * @throws Exception if an error occurs while initializing the service.
    */
   public GmailService() throws Exception {
+    // Initialize HTTP transport and JSON factory
     NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+
+    // Build the Gmail service
     GsonFactory jsonFactory = GsonFactory.getDefaultInstance();
     service = new Gmail.Builder(httpTransport, jsonFactory,
         getCredentials(httpTransport, jsonFactory))
@@ -63,10 +66,12 @@ public class GmailService {
   private static Credential getCredentials(final NetHttpTransport httpTransport,
       GsonFactory jsonFactory)
       throws IOException {
+    // Load client secrets from the credentials file
     GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory,
         new InputStreamReader(GmailService.class.getResourceAsStream(
             "/credentials/credentials_email_service.json")));
 
+    // Build the authorization flow
     GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
         httpTransport, jsonFactory, clientSecrets, Set.of(GMAIL_SEND))
         .setDataStoreFactory(new FileDataStoreFactory(
@@ -74,6 +79,7 @@ public class GmailService {
         .setAccessType("offline")
         .build();
 
+    // Set up a local server receiver to handle the authorization
     LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
     return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
   }
@@ -87,14 +93,18 @@ public class GmailService {
    * @throws Exception if an error occurs while sending the e-mail.
    */
   public void sendMail(String subject, String to, String message) throws Exception {
+    // Set up mail properties and session
     Properties props = new Properties();
     Session session = Session.getDefaultInstance(props, null);
+
+    // Create a new e-mail message
     MimeMessage email = new MimeMessage(session);
     email.setFrom("QualiTag Project <" + FROM_EMAIL + ">");
     email.addRecipient(TO, new InternetAddress(to));
     email.setSubject(subject);
     email.setText(message);
 
+    // Encode the e-mail message
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     email.writeTo(buffer);
     byte[] rawMessageBytes = buffer.toByteArray();
@@ -103,6 +113,7 @@ public class GmailService {
     msg.setRaw(encodedEmail);
 
     try {
+      // Send the e-mail using the Gmail API
       service.users().messages().send(FROM_EMAIL, msg).execute();
     } catch (GoogleJsonResponseException e) {
       GoogleJsonError error = e.getDetails();
