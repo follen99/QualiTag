@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.security.controller;
 
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -42,5 +44,16 @@ public class AuthenticationController {
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@RequestBody UserLoginDto userLoginDto) {
     return authenticationService.login(userLoginDto);
+  }
+
+  @PostMapping("/forgot-password")
+  public ResponseEntity<?> forgotPassword(@RequestParam String email) throws Exception {
+    return authenticationService.sendPasswordResetEmail(email);
+  }
+
+  @PostMapping("/reset-password")
+  public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody
+      PasswordUpdateDto passwordUpdateDto) {
+    return authenticationService.resetPassword(token, passwordUpdateDto);
   }
 }

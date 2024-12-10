@@ -42,9 +42,17 @@ public interface UserRepository extends MongoRepository<User, String> {
   User findByUsername(String username);
 
   /**
-   * Deletes a user by its id.
+   * Finds a user by its email.
    *
-   * @param username The id of the user to delete.
+   * @param email The email of the user to find.
+   * @return User with the given email.
+   */
+  User findByEmail(String email);
+
+  /**
+   * Deletes a user by its username.
+   *
+   * @param username The username of the user to delete.
    */
   void deleteByUsername(String username);
 }

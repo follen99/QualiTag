@@ -6,10 +6,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,10 @@ public class JwtService {
 
   @Value("${token.expiration}")
   Long jwtExpirationMs;
+
+  @Getter
+  @Value("${token.password.expiration}")
+  int jwtResetPwMin;
 
   /**
    * Extracts the username from the token.
@@ -74,6 +81,28 @@ public class JwtService {
   public boolean isTokenValid(String token, UserDetails userDetails) {
     final String userName = extractUserName(token);
     return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
+  }
+
+  /**
+   * Generates a reset token for the user.
+   *
+   * @param user the user
+   * @return the reset token
+   */
+  public String generateResetToken(UserDetails user) {
+    Date now = new Date();
+    Date expirationDate = Date.from(LocalDateTime.now()
+        .plusMinutes(jwtResetPwMin)
+        .atZone(ZoneId.systemDefault())
+        .toInstant());
+
+    return Jwts
+        .builder()
+        .setSubject(user.getUsername()) // Embed user ID in the token
+        .setIssuedAt(now)
+        .setExpiration(expirationDate)
+        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+        .compact();
   }
 
   /**

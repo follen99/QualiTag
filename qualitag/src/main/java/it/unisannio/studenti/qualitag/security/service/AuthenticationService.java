@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.security.service;
 
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
@@ -12,6 +13,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +37,7 @@ public class AuthenticationService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final JwtService jwtService;
+  private final UserService userService;
   private final AuthenticationManager authenticationManager;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -188,6 +191,80 @@ public class AuthenticationService {
     response.put("msg", "User logged in successfully.");
     response.put("token", jwt);
     response.put("username", user.getUsername());
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
+   * Sends a password reset email to the user.
+   *
+   * @param email The email of the user.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> sendPasswordResetEmail(String email) throws Exception {
+    Map<String, Object> response = new HashMap<>();
+
+    User user = userRepository.findByEmail(email);
+    if (user == null) {
+      response.put("msg", "No user found with the given email.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Generate JWT token
+    String resetToken = jwtService.generateResetToken(new CustomUserDetails(user));
+
+    // Update reset token expiration in the database
+    user.setResetTokenExpiration(LocalDateTime.now().plusMinutes(jwtService.getJwtResetPwMin()));
+    userRepository.save(user);
+
+    // Send email with reset link
+    String resetLink = "http://localhost:8080/reset-password?token=" + resetToken;
+    new GmailService().sendMail("QualiTag Password Reset",
+        email,
+        "Click the following link to reset your password: " + resetLink);
+
+    response.put("msg", "Password reset email sent successfully.");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
+   * Resets the password of the user.
+   *
+   * @param token The reset token.
+   * @param dto The new password.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> resetPassword(String token, PasswordUpdateDto dto) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Validate the password update data
+    String msg = userService.isValidPasswordUpdateDto(dto);
+    if (msg != null) {
+      response.put("msg", msg);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Extract the username from the token, and from it get the user
+    String username = jwtService.extractUserName(token);
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
+      response.put("msg", "No user found with the given username.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the reset token is valid or expired
+    if (user.getResetTokenExpiration() == null ||
+        user.getResetTokenExpiration().isBefore(LocalDateTime.now()) ||
+        !jwtService.isTokenValid(token, new CustomUserDetails(user))) {
+      response.put("msg", "Invalid or expired reset token.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Update the password
+    userMapper.updateEntity(dto, user);
+    user.setResetTokenExpiration(null);
+    userRepository.save(user);
+
+    response.put("msg", "Password reset successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }
