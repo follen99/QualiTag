@@ -11,6 +11,7 @@
   <li><a href="/signup">Register</a></li>
   <li><a href="/signin">Login</a></li>
   <li><a id="profileLink" href="/signin">Profile</a></li>
+  <li><a id="userProjects" href="/myprojects">My Projects</a></li>
 </ul>
 
 <script>
@@ -18,6 +19,19 @@
     const username = localStorage.getItem('username');
     if (username) {
       this.setAttribute('href', '/user/' + username);
+    } else {
+      event.preventDefault(); // Prevent the default behavior
+      alert('Please login to access the profile page');
+      window.location.href = '/signin';
+    }
+  });
+</script>
+
+<script>
+  document.getElementById('userProjects').addEventListener('click', function (event) {
+    const username = localStorage.getItem('username');
+    if (username) {
+      this.setAttribute('href', '/user/' + username + '/projects');
     } else {
       event.preventDefault(); // Prevent the default behavior
       alert('Please login to access the profile page');

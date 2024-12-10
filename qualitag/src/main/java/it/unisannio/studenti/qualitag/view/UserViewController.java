@@ -26,6 +26,12 @@ public class UserViewController {
     return "user/profile";
   }
 
+  @GetMapping("/{username}/projects")
+  public String myProjects(@PathVariable("username") String username, Model model) {
+    model.addAttribute("username", username);
+    return "user/my_projects";
+  }
+
   /**
    * Returns the update user view.
    *

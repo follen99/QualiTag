@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Projects</title>
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+
+  <script>
+    const username = localStorage.getItem('username');
+    if (username) {
+      /*fetch(`/api/v1/user/${username}`)
+      .then(response => response.json())
+      .then(data => {
+        // Handle the user data here
+        const user = data;
+        console.log('User data:', user);
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+      });*/
+
+      console.log('Token:', localStorage.getItem('token'));
+      fetch(`/api/v1/user/` + username, {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).then(response => {
+        if (response.status === 403 || response.status === 404){
+          window.location.href = '/404'; // Redirect to 404 page
+          throw new Error('Unauthorized access or user not found');
+        }
+        return response.json();
+      }).then(user => {
+        console.log('User projects:', user);
+      })
+    } else {
+      alert('Please login to access the profile page');
+      window.location.href = '/signin';
+    }
+  </script>
+</head>
+<body>
+  <h2>Lista Progetti</h2>
+
+</body>
+</html>
