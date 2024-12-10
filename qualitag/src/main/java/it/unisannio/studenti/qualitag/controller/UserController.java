@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.service.UserService;
 import lombok.extern.java.Log;
@@ -44,6 +45,17 @@ public class UserController {
   }
 
   /**
+   * Gets a user by its username.
+   *
+   * @param username The username of the user to get.
+   * @return The response entity.
+   */
+  @GetMapping("/user/{username}")
+  public ResponseEntity<?> getUser(@PathVariable String username) {
+    return userService.getUser(username);
+  }
+
+  /**
    * Modifies the user given the username.
    *
    * @param username The username of the user to get.
@@ -53,6 +65,19 @@ public class UserController {
   public ResponseEntity<?> updateUser(@RequestBody UserModifyDto userModifyDto,
       @PathVariable String username) {
     return userService.updateUser(userModifyDto, username);
+  }
+
+  /**
+   * Updates the password of a user by its username.
+   *
+   * @param passwordUpdateDto The password update data.
+   * @param username The username of the user to update the password.
+   * @return The response entity.
+   */
+  @PutMapping("/user/{username}/password")
+  public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto,
+      @PathVariable String username) {
+    return userService.updatePassword(passwordUpdateDto, username);
   }
 
   /**

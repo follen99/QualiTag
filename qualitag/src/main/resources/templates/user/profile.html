@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+</head>
+<body>
+<h2>User Profile</h2>
+<p>Username: <span id="username"></span></p>
+<p>E-mail: <span id="email"></span></p>
+<p>First name: <span id="name"></span></p>
+<p>Last name: <span id="surname"></span></p>
+
+<ul>
+  <li><a th:href="@{/user/{username}/update(username=${username})}">Update</a></li>
+  <li><a th:href="@{/user/{username}/password(username=${username})}">Change password</a></li>
+</ul>
+
+<button id="deleteAccount" style="color: red;">Delete Account</button>
+
+<script src="/js/user/get-user-data-script.js"></script>
+<script src="/js/user/delete-user-script.js"></script>
+</body>
+</html>

@@ -76,6 +76,9 @@ dependencies {
 
     // JUnit 5
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 // Checkstyle configuration for Google Java Style

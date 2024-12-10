@@ -1,5 +1,7 @@
 package it.unisannio.studenti.qualitag.mapper;
 
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
+import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.model.User;
@@ -54,21 +56,37 @@ public class UserMapper {
   }
 
   /**
-   * Converts a User entity to a UserRegistrationDto.
+   * Updates a User entity with the data from a PasswordUpdateDto.
+   *
+   * @param dto The PasswordUpdateDto with the new password.
+   * @param entity The User entity to update.
+   */
+  public void updateEntity(PasswordUpdateDto dto, User entity) {
+    if (dto == null || entity == null) {
+      return;
+    }
+    entity.setPasswordHash(passwordEncoder.encode(dto.newPassword()));
+  }
+
+  /**
+   * Converts a User entity to a UserInfoDisplayDto.
    *
    * @param entity The User entity to convert.
-   * @return The UserRegistrationDto.
+   * @return The UserInfoDisplayDto.
    */
-  public UserRegistrationDto toDto(User entity) {
+  public UserInfoDisplayDto toDisplayDto(User entity) {
     if (entity == null) {
       return null;
     }
-    return new UserRegistrationDto(
+    return new UserInfoDisplayDto(
         entity.getUsername(),
         entity.getEmail(),
-        "********", // Placeholder for the password
         entity.getName(),
-        entity.getSurname()
+        entity.getSurname(),
+        entity.getProjectIds(),
+        entity.getTeamIds(),
+        entity.getTagIds(),
+        entity.getProjectRoles()
     );
   }
 }
