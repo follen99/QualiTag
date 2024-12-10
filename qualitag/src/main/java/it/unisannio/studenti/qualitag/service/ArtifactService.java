@@ -11,19 +11,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+/**
+ * The service class for the artifact.
+ */
 @Service
 public class ArtifactService {
-
-  private static final int LOG_ROUNDS = 12;
 
   private final ArtifactRepository artifactRepository;
   private final TagRepository tagRepository;
   private final ArtifactMapper artifactMapper;
 
-
-
   /**
-   * Constructs a new ArtifactService
+   * Constructs a new ArtifactService.
    *
    * @param artifactRepository the artifact repository
    */
@@ -33,9 +32,8 @@ public class ArtifactService {
     this.artifactMapper = new ArtifactMapper(this);
   }
 
-  //CREATE
   /**
-   * Creates a new artifact
+   * Creates a new artifact.
    *
    * @param artifactCreateDto the artifact creation data
    * @return the response entity with the result of the artifact creation
@@ -48,18 +46,18 @@ public class ArtifactService {
       this.artifactRepository.save(artifact);
       return ResponseEntity.status(HttpStatus.CREATED).body("Artifact added successfully");
 
-    }catch (ArtifactValidationException e) {
+    } catch (ArtifactValidationException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
 
   /**
-   * Add a tag to an artifact
-   * @param artifactId the id of the artifact
-   * @param tagId the id of the tag
-   * return The response entity
+   * Adds a tag to an artifact.
+   *
+   * @param artifactId the id of the artifact to add the tag
+   * @param tagId      the id of the tag to add
+   * @return the response entity
    */
-
   public ResponseEntity<?> addTag(String artifactId, String tagId) {
     if (artifactId == null || artifactId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
@@ -86,7 +84,7 @@ public class ArtifactService {
   }
 
   /**
-   * Gets all the artifacts
+   * Gets all the artifacts.
    *
    * @return The response entity
    */
@@ -95,14 +93,13 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(artifactRepository.findAll());
   }
 
-  //DELETE
   /**
-   * Deletes an artifact by its id
+   * Deletes an artifact by its id.
    *
    * @param id the id of the artifact to delete
    * @return The response entity
    */
-  public ResponseEntity<?> deleteArtifact(String id){
+  public ResponseEntity<?> deleteArtifact(String id) {
     if (id == null || id.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id id null");
     }
@@ -119,9 +116,10 @@ public class ArtifactService {
   }
 
   /**
-   * Deletes a tag of an artifact
+   * Deletes a tag of an artifact.
+   *
    * @param artifactId the id of the artifact which tag we want to delete
-   * @param tagId the id of the tag to delete
+   * @param tagId      the id of the tag to delete
    * @return the response entity
    */
   public ResponseEntity<?> deleteTag(String artifactId, String tagId) {
@@ -153,45 +151,45 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
   }
 
-  //UPDATE
-
   /**
-   * Modifies and existing artifact
+   * Modifies an existing artifact.
+   *
    * @param artifactModifyDto the dto used to modify the artifact
-   * @param artifactId the id of the artifact to modify
+   * @param artifactId        the id of the artifact to modify
    * @return the response entity
    */
   public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
-    //id check
+    // ID check
     if (artifactId == null || artifactId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
     }
 
-    //artifact validation
-    try{
-      ArtifactCreateDto correctDTo = validateArtifact(artifactModifyDto);
+    // Artifact validation
+    try {
+      ArtifactCreateDto correctDto = validateArtifact(artifactModifyDto);
 
       Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
       }
 
-      artifact.setArtifactName(correctDTo.artifactName());
-      artifact.setContent(correctDTo.content());
-      artifact.setTags(correctDTo.tags());
+      artifact.setArtifactName(correctDto.artifactName());
+      artifact.setContent(correctDto.content());
+      artifact.setTags(correctDto.tags());
 
       artifactRepository.save(artifact);
 
       return ResponseEntity.status(HttpStatus.OK).body("Artifact updated successfully");
 
-    }catch (ArtifactValidationException e) {
+    } catch (ArtifactValidationException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
   }
 
   /**
-   * validates an artifact
+   * Validates an artifact.
+   *
    * @param artifactDto the dto used to create the artifact
    * @return the validated artifact
    */
