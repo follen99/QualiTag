@@ -73,7 +73,7 @@ public class GmailService {
     GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
         httpTransport, jsonFactory, clientSecrets, Set.of(GMAIL_SEND))
         .setDataStoreFactory(new FileDataStoreFactory(
-            Paths.get("/src/main/resources/credentials/tokens").toFile()))
+            Paths.get("qualitag/src/main/resources/credentials/tokens").toFile()))
         .setAccessType("offline")
         .build();
 
