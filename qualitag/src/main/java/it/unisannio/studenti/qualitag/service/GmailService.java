@@ -30,7 +30,8 @@ import static jakarta.mail.Message.RecipientType.TO;
 
 public class GmailService {
 
-  private static final String TEST_EMAIL = "mattia.marino01@gmail.com";
+  private static final String TEST_EMAIL = "qualitag.project@gmail.com";
+  private static final String FROM_EMAIL = "qualitag.project@gmail.com";
   private final Gmail service;
 
   public GmailService() throws Exception {
@@ -58,12 +59,12 @@ public class GmailService {
     return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
   }
 
-  public void sendMailTest(String subject, String message) throws Exception {
+  public void sendMail(String subject, String to, String message) throws Exception {
     Properties props = new Properties();
     Session session = Session.getDefaultInstance(props, null);
     MimeMessage email = new MimeMessage(session);
-    email.setFrom(new InternetAddress(TEST_EMAIL));
-    email.addRecipient(TO, new InternetAddress(TEST_EMAIL));
+    email.setFrom(new InternetAddress(FROM_EMAIL));
+    email.addRecipient(TO, new InternetAddress(to));
     email.setSubject(subject);
     email.setText(message);
 
@@ -89,9 +90,8 @@ public class GmailService {
   }
 
   public static void main(String[] args) throws Exception {
-    new GmailService().sendMailTest("Test e-mail",
-        """
-            This is a test e-mail.
-            """);
+    new GmailService().sendMail("Test e-mail",
+        TEST_EMAIL,
+        "This is a test e-mail from the Test Mailer application.");
   }
 }
