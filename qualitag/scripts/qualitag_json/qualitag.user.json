@@ -4,10 +4,14 @@
   },
   "username": "pietrosmusi",
   "email": "pietrosmusi@example.com",
-  "passwordHash": "$2a$10$VI5T8sp5RLszF/TveK4woemSkff9qTPuKb8hv5fiEwzHtZCif8HO.",
+  "passwordHash": "$2a$10$mSJkWeInOxiZ05ZTgZBOaeLAScaeU/biXYXLspdOeqAUjIk4M0zi.",
   "name": "Pietro",
   "surname": "Smusi",
-  "projectIds": [],
+  "projectIds": [
+    "675761c6e9acb65db4632e98",
+    "67576215e9acb65db4632e99",
+    "675762d17006980fd443d481"
+  ],
   "teamIds": [
     "6753768ca201a8718d16bcbd",
     "67537803ebf3c97069ad69a3",
@@ -27,10 +31,14 @@
   },
   "username": "oraziogrinzosi",
   "email": "oraziogrinzosi@example.com",
-  "passwordHash": "$2a$10$VI5T8sp5RLszF/TveK4woemSkff9qTPuKb8hv5fiEwzHtZCif8HO.",
+  "passwordHash": "$2a$10$mSJkWeInOxiZ05ZTgZBOaeLAScaeU/biXYXLspdOeqAUjIk4M0zi.",
   "name": "Orazio",
   "surname": "Grinzosi",
-  "projectIds": [],
+  "projectIds": [
+    "675761c6e9acb65db4632e98",
+    "67576215e9acb65db4632e99",
+    "675762d17006980fd443d481"
+  ],
   "teamIds": [
     "6753768ca201a8718d16bcbd",
     "67537803ebf3c97069ad69a3",
@@ -50,7 +58,7 @@
   },
   "username": "flaviofacoceri",
   "email": "flaviofacoceri@example.com",
-  "passwordHash": "$2a$10$VI5T8sp5RLszF/TveK4woemSkff9qTPuKb8hv5fiEwzHtZCif8HO.",
+  "passwordHash": "$2a$10$mSJkWeInOxiZ05ZTgZBOaeLAScaeU/biXYXLspdOeqAUjIk4M0zi.",
   "name": "Flavio",
   "surname": "Facoceri",
   "projectIds": [],
@@ -69,7 +77,7 @@
   },
   "username": "ziopeppe",
   "email": "ziopeppe@example.com",
-  "passwordHash": "$2a$10$VI5T8sp5RLszF/TveK4woemSkff9qTPuKb8hv5fiEwzHtZCif8HO.",
+  "passwordHash": "$2a$10$mSJkWeInOxiZ05ZTgZBOaeLAScaeU/biXYXLspdOeqAUjIk4M0zi.",
   "name": "Zio",
   "surname": "Peppe",
   "projectIds": [],
@@ -77,6 +85,21 @@
   "tagIds": [
     "67536fb52a25624ab952ed1f"
   ],
+  "roles": {},
+  "_class": "it.unisannio.studenti.qualitag.model.User"
+},
+{
+  "_id": {
+    "$oid": "6758868ea39d916fd1d68e9e"
+  },
+  "username": "tesuser",
+  "email": "test@gmail.com",
+  "passwordHash": "$2a$10$mSJkWeInOxiZ05ZTgZBOaeLAScaeU/biXYXLspdOeqAUjIk4M0zi.",
+  "name": "test",
+  "surname": "test",
+  "projectIds": [],
+  "teamIds": [],
+  "tagIds": [],
   "roles": {},
   "_class": "it.unisannio.studenti.qualitag.model.User"
 }]
