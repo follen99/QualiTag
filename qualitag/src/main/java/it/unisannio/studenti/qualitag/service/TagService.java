@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service to manage tags.
+ */
 @Service
 public class TagService {
 
@@ -52,7 +55,7 @@ public class TagService {
       Tag tag = tagMapper.toEntity(correctTagDto);
 
       this.tagRepository.save(tag);
-      if(this.addTagToUser(tag)) {
+      if (this.addTagToUser(tag)) {
         return ResponseEntity.status(HttpStatus.CREATED).body("Tag added successfully");
       }
       this.tagRepository.delete(tag); // rollback
@@ -77,7 +80,7 @@ public class TagService {
       Optional<User> optionalUser = userRepository.findById(tag.getCreatedBy());
       if (optionalUser.isPresent()) {
         user = optionalUser.get();
-      }else {
+      } else {
         // if we cannot find user even by id, return false
         return false;                               // user does not exist
       }
@@ -143,7 +146,7 @@ public class TagService {
   }
 
   /**
-   * Gets a tag by its creator username
+   * Gets a tag by its creator username.
    *
    * @param createdBy The username of the user that created the tag.
    * @return The response entity.
@@ -190,17 +193,19 @@ public class TagService {
   }
 
   /**
-   * ####################################################################### UPDATE
-   * #######################################################################
+   * Updates a tag.
+   *
+   * @param tagModifyDto The tag to update.
+   * @param id           The id of the tag to update.
+   * @return The response entity.
    */
-
   public ResponseEntity<?> updateTag(TagCreateDto tagModifyDto, String id) {
-    // id check
+    // ID check
     if (id == null || id.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
     }
 
-    // tag validation
+    // Tag validation
     try {
       TagCreateDto correctDto = validateTag(tagModifyDto);
 
@@ -221,7 +226,6 @@ public class TagService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
-
 
   /**
    * Validates a tag and corrects it if necessary.

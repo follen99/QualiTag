@@ -15,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for managing teams.
+ */
 @Service
 public class TeamService {
 
@@ -22,6 +25,13 @@ public class TeamService {
   private final UserRepository userRepository;
   private final TeamMapper teamMapper;
 
+  /**
+   * Constructs a new TeamService.
+   *
+   * @param teamRepository The team repository.
+   * @param userRepository The user repository.
+   * @param teamMapper The team mapper.
+   */
   public TeamService(TeamRepository teamRepository, UserRepository userRepository,
       TeamMapper teamMapper) {
     this.teamRepository = teamRepository;
@@ -30,12 +40,13 @@ public class TeamService {
   }
 
   /**
-   * ####################################################################### POST
-   * #######################################################################
+   * Adds a new team.
+   *
+   * @param teamCreateDto The team data transfer object.
+   * @return The response entity.
    */
-
   public ResponseEntity<?> addTeam(TeamCreateDto teamCreateDto) {
-    // team validation
+    // Team validation
     try {
       TeamCreateDto correctTeamDto = validateTeam(teamCreateDto);
 
@@ -49,24 +60,19 @@ public class TeamService {
   }
 
   /**
-   * ####################################################################### GET
-   * #######################################################################
+   * Gets all teams.
+   *
+   * @return The response entity.
    */
   public ResponseEntity<?> getAllTeams() {
     return ResponseEntity.status(HttpStatus.OK).body(teamRepository.findAll());
   }
 
   /**
-   * #######################################################################
-   *                               VALIDATION
-   * #######################################################################
-   */
-
-  /**
    * Validates a team.
    *
-   * @param teamCreateDto
-   * @return
+   * @param teamCreateDto The team data transfer object.
+   * @return The validated team data transfer object.
    */
   private TeamCreateDto validateTeam(TeamCreateDto teamCreateDto) {
     if (teamCreateDto == null) {
@@ -100,10 +106,11 @@ public class TeamService {
 
     users = users.stream().distinct().collect(Collectors.toList()); // Remove duplicates
 
-    /**
+    /*
      * If MIN_TEAM_USERS == 1 this check is useless, we can use users.isEmpty() instead
      * If MIN_TEAM_USERS > 1 we need to check if the list has at least MIN_TEAM_USERS elements
      */
+
     if (users.size() < TeamConstants.MIN_TEAM_USERS) {
       throw new TeamValidationException(
           "A team must have at least " + TeamConstants.MIN_TEAM_USERS + (
@@ -160,6 +167,12 @@ public class TeamService {
     return new TeamCreateDto(name, creationDate, description, users);
   }
 
+  /**
+   * Adds a team to a user.
+   *
+   * @param team The team entity.
+   * @throws TeamValidationException If the team is null or the user does not exist.
+   */
   private void addTeamToUser(Team team) throws TeamValidationException {
     if (team == null) {
       throw new TeamValidationException("Team cannot be null");
@@ -172,10 +185,12 @@ public class TeamService {
       if (!userRepository.existsById(userId)) {
         throw new TeamValidationException("User with ID " + userId + " does not exist");
       }
+
       /*if (teamRepository.existsByUsersContaining(userId)) {
         throw new TeamValidationException("User with ID " + userId
             + " is already in a team. Same user cannot be in multiple teams.");
       }*/
+
       if (teamRepository.existsByUsersContainingAndTeamIdNot(userId, team.getTeamId())) {
         throw new TeamValidationException("User with ID " + userId
             + " is already in a team. Same user cannot be in multiple teams.");
@@ -196,6 +211,12 @@ public class TeamService {
     }
   }
 
+  /**
+   * Gets teams by project ID.
+   *
+   * @param projectId The project ID.
+   * @return The response entity.
+   */
   public ResponseEntity<?> getTeamsByProject(String projectId) {
     if (projectId == null || projectId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project ID is null or empty");
@@ -208,6 +229,12 @@ public class TeamService {
         .body(teamRepository.findTeamsByProjectId(projectId));
   }
 
+  /**
+   * Deletes a team by its ID.
+   *
+   * @param teamId The team ID.
+   * @return The response entity.
+   */
   public ResponseEntity<?> deleteTeam(String teamId) {
     if (teamId == null || teamId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Team ID is null or empty");
@@ -222,6 +249,12 @@ public class TeamService {
     return ResponseEntity.status(HttpStatus.OK).body("Team deleted successfully.");
   }
 
+  /**
+   * Gets teams by user ID.
+   *
+   * @param userId The user ID.
+   * @return The response entity.
+   */
   public ResponseEntity<?> getTeamsByUser(String userId) {
     if (userId == null || userId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID is null or empty");

@@ -11,55 +11,75 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller for managing team-related operations.
+ */
 @RestController
 @RequestMapping("/api/v1/team")
 public class TeamController {
 
   private final TeamService teamService;
 
+  /**
+   * Constructor for the TeamController.
+   *
+   * @param teamService the service for managing team-related operations
+   */
   public TeamController(TeamService teamService) {
     this.teamService = teamService;
   }
 
   /**
-   * ####################################################################### POST MAPPING
-   * #######################################################################
+   * Adds a team to the database.
+   *
+   * @param teamCreateDto the DTO containing the team's information
+   * @return a ResponseEntity containing the result of the operation
    */
-
   @PostMapping("/add")
   public ResponseEntity<?> addTeam(@RequestBody TeamCreateDto teamCreateDto) {
     return this.teamService.addTeam(teamCreateDto);
   }
 
   /**
-   * ####################################################################### GET MAPPING
-   * #######################################################################
+   * Retrieves all teams from the database.
+   *
+   * @return a ResponseEntity containing the result of the operation
    */
-
   @GetMapping("/get/all")
   public ResponseEntity<?> getAllTeams() {
     return this.teamService.getAllTeams();
   }
 
+  /**
+   * Gets teams by project ID.
+   *
+   * @param projectId The project ID.
+   * @return The response entity.
+   */
   @GetMapping("/get/byproject/{projectId}")
   public ResponseEntity<?> getTeamsByProjectId(@PathVariable String projectId) {
     return this.teamService.getTeamsByProject(projectId);
   }
 
+  /**
+   * Gets teams by user ID.
+   *
+   * @param userId The user ID.
+   * @return The response entity.
+   */
   @GetMapping("/get/byuser/{userId}")
   public ResponseEntity<?> getTeamsByUserId(@PathVariable String userId) {
     return this.teamService.getTeamsByUser(userId);
   }
 
   /**
-   * ####################################################################### DELETE MAPPING
-   * #######################################################################
+   * Deletes a team by its ID.
+   *
+   * @param teamId The team ID.
+   * @return The response entity.
    */
-
   @DeleteMapping("/delete/{teamId}")
   public ResponseEntity<?> deleteTeam(@PathVariable String teamId) {
     return this.teamService.deleteTeam(teamId);
   }
-
-
 }
