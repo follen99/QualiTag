@@ -4,8 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.*;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
+/**
+ * Represents an artifact in the system.
+ */
 @Data
 @Document(collection = "artifact")
 public class Artifact {
@@ -14,29 +20,28 @@ public class Artifact {
   @Field(targetType = FieldType.OBJECT_ID)
   private String artifactId;
 
-  @Field (name = "ArtifactName")
+  @Field(name = "ArtifactName")
   private String artifactName;
 
-  @Field(name="ArtifactContent")
+  @Field(name = "ArtifactContent")
   private String content;
 
-  @Field(name="artifactTags")
+  @Field(name = "artifactTags")
   private List<String> tags;
 
   /**
-   * Default constructor for Artifact
+   * Default constructor for Artifact.
    */
   public Artifact() {
     this.tags = new ArrayList<>();
   }
 
   /**
-   * Constructor for Artifact
+   * Constructor for Artifact.
    *
    * @param artifactName the name of the artifact
-   * @param content     the content of the artifact
+   * @param content      the content of the artifact
    */
-
   public Artifact(String artifactName, String content) {
     this.artifactName = artifactName;
     this.content = content;
@@ -44,11 +49,11 @@ public class Artifact {
   }
 
   /**
-   * Constructor for Artifact with tags
+   * Constructor for Artifact with tags.
    *
    * @param artifactName the name of the artifact
-   * @param content     the content of the artifact
-   * @param tags      the tags of the artifact
+   * @param content      the content of the artifact
+   * @param tags         the tags of the artifact
    */
   public Artifact(String artifactName, String content, List<String> tags) {
     this.artifactName = artifactName;
@@ -57,7 +62,7 @@ public class Artifact {
   }
 
   /**
-   * Adds a tag to the artifact
+   * Adds a tag to the artifact.
    *
    * @param tagId the id of the tag to add
    */
@@ -66,7 +71,7 @@ public class Artifact {
   }
 
   /**
-   * Removes a tag from the artifact
+   * Removes a tag from the artifact.
    *
    * @param tagId the id of the tag to remove
    */
@@ -75,7 +80,7 @@ public class Artifact {
   }
 
   /**
-   * Checks if the artifact has a specific tag
+   * Checks if the artifact has a specific tag.
    *
    * @param tagId the id of the tag to check
    * @return true if the artifact has the tag, false otherwise
@@ -85,47 +90,46 @@ public class Artifact {
   }
 
   //EQUALS AND HASHCODE
+
   /**
-   * Checks if two artifacts are equal
+   * Checks if two artifacts are equal.
    *
    * @param o the object to compare
    * @return true if the artifacts are equal, false otherwise
    */
   @Override
   public boolean equals(Object o) {
-      if (this == o) {
-          return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-          return false;
-      }
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     Artifact artifact = (Artifact) o;
     return Objects.equals(artifactId, artifact.artifactId);
   }
 
   /**
-   * Generates the hashcode of the artifact
+   * Generates the hashcode of the artifact.
    *
    * @return the hashcode of the artifact
    */
   @Override
   public int hashCode() {
-      return Objects.hash(artifactId);
+    return Objects.hash(artifactId);
   }
 
-  //TO STRING
-
   /**
-   * Generates the string representation of the artifact
+   * Generates the string representation of the artifact.
    *
    * @return the string representation of the artifact
    */
   public String toString() {
-   return "Artifact{" +
-       "artifactId='" + artifactId + '\'' +
-       ", artifactName='" + artifactName + '\'' +
-       ", content='" + content + '\'' +
-       ", tagIds=" + tags +
-       '}';
+    return "Artifact{"
+        + "artifactId='" + artifactId + '\''
+        + ", artifactName='" + artifactName + '\''
+        + ", content='" + content + '\''
+        + ", tagIds=" + tags
+        + '}';
   }
 }
