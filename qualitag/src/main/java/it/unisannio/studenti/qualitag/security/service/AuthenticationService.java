@@ -54,11 +54,11 @@ public class AuthenticationService {
 
   /**
    * Checks if the currently authenticated user has the authority to access the user with the
-   * specified username.
+   *     specified username.
    *
    * @param username The username of the user to check.
    * @return true if the currently authenticated user has the authority to access the user with the
-   * specified username, false otherwise.
+   *     specified username, false otherwise.
    */
   public static boolean getAuthority(String username) {
     // Get the currently authenticated user
