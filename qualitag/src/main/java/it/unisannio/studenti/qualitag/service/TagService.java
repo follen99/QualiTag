@@ -237,15 +237,13 @@ public class TagService {
     if (tagDto == null) {
       throw new TagValidationException("TagCreateDto is null");
     }
-    String tagValue = tagDto.tagValue();
-    String tagColor = tagDto.colorHex();
-    String createdBy = tagDto.createdBy();
 
+    String tagValue = tagDto.tagValue();
     if (tagDto.tagValue() == null || tagDto.tagValue().isEmpty()) {
       throw new TagValidationException("Tag name is null");
     }
 
-    // tag value valiation
+    // tag value validation
     if (!tagValue.matches("\\w+")) {
       throw new TagValidationException("Tag value must be a single word");
     }
@@ -260,6 +258,7 @@ public class TagService {
 
     // tag color validation
     // TODO color can be null or empty, just choose randomly, get from the TagMapper
+    String tagColor = tagDto.colorHex();
     if (tagColor == null || tagColor.isEmpty()) {
       throw new TagValidationException("Tag color cannot be null or empty");
     }
@@ -283,6 +282,7 @@ public class TagService {
     }
 
     // user validation
+    String createdBy = tagDto.createdBy();
     if (createdBy == null || createdBy.isEmpty()) {
       throw new TagValidationException("User information is null or empty");
     }
