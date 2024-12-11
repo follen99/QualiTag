@@ -10,10 +10,19 @@
 <div id="projectDetails">
   <p><strong>Project Name:</strong> <span id="projectName"></span></p>
   <p><strong>Description:</strong> <span id="projectDescription"></span></p>
-  <p><strong>Status:</strong> <span id="projectStatus"></span></p>
 </div>
 
 <script>
+  document.addEventListener('DOMContentLoaded', function (){
+    const wholeProject = localStorage.getItem('wholeproject');
+    if (wholeProject) {
+      const project = JSON.parse(wholeProject);
+      document.getElementById('projectName').textContent = project.projectName;
+      document.getElementById('projectDescription').textContent = project.projectDescription;
+    }
+  })
+</script>
+<!--<script>
   document.addEventListener('DOMContentLoaded', function () {
     const projectId = window.location.pathname.split('/').pop();
     const authToken = localStorage.getItem('authToken');
@@ -36,6 +45,6 @@
     })
     .catch(error => console.error('Error fetching project data:', error));
   });
-</script>
+</script>-->
 </body>
 </html>

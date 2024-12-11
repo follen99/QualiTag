@@ -56,9 +56,17 @@
               projects.forEach(project => {
                 const listItem = document.createElement('li');
                 const link = document.createElement('a');
-                // TODO REDIRECT TO PROJECT PAGE
-                link.href = `/project/${project.id}`;
+
+                link.href = `/project/detail/${project.projectId}`;
                 link.textContent = `${project.projectName} - ${project.projectDescription}`;
+
+                link.addEventListener('click',
+                    () => {
+                      // saving the project data in local storage
+                      // only when the user clicks on the project link
+                      localStorage.setItem('wholeproject', JSON.stringify(project));
+                    });
+
                 listItem.appendChild(link);
                 projectListContainer.appendChild(listItem);
               });
@@ -84,11 +92,11 @@
   </script>
 </head>
 <body>
-  <h2>Projects</h2>
-  <ul id="projectsList"></ul>
-    <!-- <li><a href="/project/1">Project 1</a></li> -->
-    <!-- <li><a href="/project/2">Project 2</a></li> -->
-    <!-- <li><a href="/project/3">Project 3</a></li> -->
+<h2>Projects</h2>
+<ul id="projectsList"></ul>
+<!-- <li><a href="/project/1">Project 1</a></li> -->
+<!-- <li><a href="/project/2">Project 2</a></li> -->
+<!-- <li><a href="/project/3">Project 3</a></li> -->
 
 </body>
 </html>
