@@ -4,7 +4,6 @@ import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
-import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
@@ -15,7 +14,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -61,16 +59,19 @@ public class UserService {
     // DTO validation
     Set<ConstraintViolation<PasswordUpdateDto>> violations = validator.validate(
         passwordUpdateDto);
-    if (!violations.isEmpty())
+    if (!violations.isEmpty()) {
       return "All fields must be filled.";
+    }
 
     // Password validation
-    if (UserService.isNotValidPassword(passwordUpdateDto.newPassword()))
+    if (UserService.isNotValidPassword(passwordUpdateDto.newPassword())) {
       return "Invalid password.";
+    }
 
     // Check if the two passwords in the DTO are the same
-    if (!passwordUpdateDto.newPassword().equals(passwordUpdateDto.confirmPassword()))
+    if (!passwordUpdateDto.newPassword().equals(passwordUpdateDto.confirmPassword())) {
       return "Passwords do not match.";
+    }
 
     return null;
   }
