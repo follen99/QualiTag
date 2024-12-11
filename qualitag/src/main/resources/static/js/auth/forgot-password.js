@@ -1,4 +1,4 @@
-document.getElementById("forgotPasswordForm").addEventListener("submit", function (event) {
+document.getElementById("forgotPasswordForm").addEventListener("submit", async function (event) {
   event.preventDefault(); // Prevent the default form submission
 
   const email = document.getElementById("email").value;
@@ -10,22 +10,24 @@ document.getElementById("forgotPasswordForm").addEventListener("submit", functio
   }
 
   // Send a POST request to the server
-  fetch("/api/v1/auth/forgot-password", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email: email }),
-  })
-  .then((response) => {
+  try {
+    const response = await fetch("/api/v1/auth/forgot-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({email: email}),
+    });
+
+    const responseData = await response.json();
+
     if (response.ok) {
-      alert("Password reset email sent successfully.");
+      alert(responseData.msg || "Password reset email sent successfully.");
+      window.location.href = "/"; // Redirect to the home page
     } else {
       alert("Error sending email. Please try again.");
     }
-  })
-  .catch((error) => {
-    console.error("Error:", error);
-    alert("An error occurred. Please try again.");
-  });
+  } catch (error) {
+    alert('An error occurred: ' + error.message);
+  }
 });

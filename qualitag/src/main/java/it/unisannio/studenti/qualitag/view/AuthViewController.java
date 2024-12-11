@@ -38,4 +38,14 @@ public class AuthViewController {
   public String forgotPassword() {
     return "auth/forgot_password";
   }
+
+  /**
+   * Returns the reset password view.
+   *
+   * @return the reset password view
+   */
+  @GetMapping("/reset-password")
+  public String resetPassword() {
+    return "auth/reset_password";
+  }
 }
