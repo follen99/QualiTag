@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.security.service;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import it.unisannio.studenti.qualitag.dto.user.ForgotPasswordDto;
 import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
@@ -63,7 +64,7 @@ public class AuthenticationService {
    *
    * @param username The username of the user to check.
    * @return true if the currently authenticated user has the authority to access the user with the
-   * specified username, false otherwise.
+   *      specified username, false otherwise.
    */
   public static boolean getAuthority(String username) {
     // Get the currently authenticated user
@@ -244,8 +245,17 @@ public class AuthenticationService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Extract the username from the token, and from it get the user
-    String username = jwtService.extractUserName(token);
+    // Try to extract the username from the token and throw an exception if the token is
+    // invalid or expired
+    String username;
+    try {
+      username = jwtService.extractUserName(token);
+    } catch (ExpiredJwtException ex) {
+      response.put("msg", "Invalid or expired reset token.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Find the user by username
     User user = userRepository.findByUsername(username);
     if (user == null) {
       response.put("msg", "No user found with the given username.");
@@ -253,9 +263,9 @@ public class AuthenticationService {
     }
 
     // Check if the reset token is valid or expired
-    if (user.getResetTokenExpiration() == null ||
-        user.getResetTokenExpiration().isBefore(LocalDateTime.now()) ||
-        !jwtService.isTokenValid(token, new CustomUserDetails(user))) {
+    if (user.getResetTokenExpiration() == null
+        || user.getResetTokenExpiration().isBefore(LocalDateTime.now())
+        || !jwtService.isTokenValid(token, new CustomUserDetails(user))) {
       response.put("msg", "Invalid or expired reset token.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.security.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -113,7 +114,8 @@ public class JwtService {
    * @param <T>             the type of the claim
    * @return the claim
    */
-  private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
+  private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers)
+      throws ExpiredJwtException {
     final Claims claims = extractAllClaims(token);
     return claimsResolvers.apply(claims);
   }
