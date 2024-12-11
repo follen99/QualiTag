@@ -40,7 +40,7 @@ public class JwtService {
    * @param token the token
    * @return the username
    */
-  public String extractUserName(String token) {
+  public String extractUserName(String token) throws ExpiredJwtException {
     return extractClaim(token, Claims::getSubject);
   }
 
@@ -124,7 +124,7 @@ public class JwtService {
     return extractExpiration(token).before(new Date());
   }
 
-  private Date extractExpiration(String token) {
+  private Date extractExpiration(String token) throws ExpiredJwtException {
     return extractClaim(token, Claims::getExpiration);
   }
 
