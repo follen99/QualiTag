@@ -10,6 +10,8 @@
 <div id="projectDetails">
   <p><strong>Project Name:</strong> <span id="projectName"></span></p>
   <p><strong>Description:</strong> <span id="projectDescription"></span></p>
+  <p><strong>Creation Date:</strong> <span id="creationDate"></span></p>
+  <p><strong>Deadline:</strong> <span id="deadline"></span></p>
 </div>
 
 <script>
@@ -19,8 +21,36 @@
       const project = JSON.parse(wholeProject);
       document.getElementById('projectName').textContent = project.projectName;
       document.getElementById('projectDescription').textContent = project.projectDescription;
+
+      const creationDate = new Date(project.projectCreationDate * 1000);
+      const deadline = new Date(project.projectDeadline * 1000);
+      const secondsElapsed = (project.projectDeadline - project.projectCreationDate);
+      console.log('Seconds elapsed:', secondsElapsed);
+      const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+
+      document.getElementById('creationDate').textContent = creationDate.toLocaleString('it-IT', dateOptions);
+      document.getElementById('deadline').textContent = deadline.toLocaleString('it-IT', dateOptions) + " (" + getTimeElapsedString(secondsElapsed) + ")";
     }
   })
+
+  function getTimeElapsedString(secondsElapsed){
+    switch (true) {
+      case (secondsElapsed < 60):
+        return secondsElapsed + ' seconds';
+      case (secondsElapsed >= 60 && secondsElapsed < 3600):
+        return '~ ' + Math.floor(secondsElapsed / 60) + ' minutes';
+      case (secondsElapsed >= 3600 && secondsElapsed < 86400):
+        return '~ ' + Math.floor(secondsElapsed / 3600) + ' hours';
+      case (secondsElapsed >= 86400 && secondsElapsed < 604800):
+        return '~ ' + Math.floor(secondsElapsed / 86400) + ' days';
+      case (secondsElapsed >= 604800 && secondsElapsed < 2592000):
+        return '~ ' + Math.floor(secondsElapsed / 604800) + ' weeks';
+      case (secondsElapsed >= 2592000 && secondsElapsed < 31536000):
+        return '~ ' + Math.floor(secondsElapsed / 2592000) + ' months';
+      case (secondsElapsed >= 31536000):
+        return '~ ' + Math.floor(secondsElapsed / 31536000) + ' years';
+    }
+  }
 </script>
 <!--<script>
   document.addEventListener('DOMContentLoaded', function () {
