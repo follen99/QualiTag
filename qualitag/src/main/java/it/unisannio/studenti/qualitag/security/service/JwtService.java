@@ -1,15 +1,19 @@
 package it.unisannio.studenti.qualitag.security.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -26,13 +30,17 @@ public class JwtService {
   @Value("${token.expiration}")
   Long jwtExpirationMs;
 
+  @Getter
+  @Value("${token.password.expiration}")
+  int jwtResetPwMin;
+
   /**
    * Extracts the username from the token.
    *
    * @param token the token
    * @return the username
    */
-  public String extractUserName(String token) {
+  public String extractUserName(String token) throws ExpiredJwtException {
     return extractClaim(token, Claims::getSubject);
   }
 
@@ -77,6 +85,28 @@ public class JwtService {
   }
 
   /**
+   * Generates a reset token for the user.
+   *
+   * @param user the user
+   * @return the reset token
+   */
+  public String generateResetToken(UserDetails user) {
+    Date now = new Date();
+    Date expirationDate = Date.from(LocalDateTime.now()
+        .plusMinutes(jwtResetPwMin)
+        .atZone(ZoneId.systemDefault())
+        .toInstant());
+
+    return Jwts
+        .builder()
+        .setSubject(user.getUsername()) // Embed user ID in the token
+        .setIssuedAt(now)
+        .setExpiration(expirationDate)
+        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+        .compact();
+  }
+
+  /**
    * Extracts a claim from the token.
    *
    * @param token           the token
@@ -84,7 +114,8 @@ public class JwtService {
    * @param <T>             the type of the claim
    * @return the claim
    */
-  private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
+  private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers)
+      throws ExpiredJwtException {
     final Claims claims = extractAllClaims(token);
     return claimsResolvers.apply(claims);
   }
@@ -93,7 +124,7 @@ public class JwtService {
     return extractExpiration(token).before(new Date());
   }
 
-  private Date extractExpiration(String token) {
+  private Date extractExpiration(String token) throws ExpiredJwtException {
     return extractClaim(token, Claims::getExpiration);
   }
 

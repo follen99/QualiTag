@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.security.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import it.unisannio.studenti.qualitag.security.service.CustomUserDetailService;
 import it.unisannio.studenti.qualitag.security.service.JwtService;
 import jakarta.servlet.FilterChain;
@@ -45,7 +46,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     jwt = authHeader.substring(7);
     log.debug("JWT - {}", jwt);
-    userIdentifier = jwtService.extractUserName(jwt);
+
+    try {
+      userIdentifier = jwtService.extractUserName(jwt);
+    } catch (ExpiredJwtException e) {
+      log.error("JWT expired - {}", e.getMessage());
+      filterChain.doFilter(request, response);
+      return;
+    }
+
 
     if (userIdentifier != null && SecurityContextHolder.getContext().getAuthentication() == null) {
       UserDetails userDetails = customUserDetailService.loadUserByUsername(userIdentifier);

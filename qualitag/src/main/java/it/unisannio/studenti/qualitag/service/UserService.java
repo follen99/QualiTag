@@ -4,7 +4,6 @@ import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
-import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
@@ -15,7 +14,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -55,13 +53,27 @@ public class UserService {
    * Validates the password update data.
    *
    * @param passwordUpdateDto The password update data to validate.
-   * @return true if the password update data is valid, false otherwise.
+   * @return the error message if the password update data is not valid, null otherwise.
    */
-  public boolean isValidPasswordUpdateDto(PasswordUpdateDto passwordUpdateDto) {
+  public String isValidPasswordUpdateDto(PasswordUpdateDto passwordUpdateDto) {
+    // DTO validation
     Set<ConstraintViolation<PasswordUpdateDto>> violations = validator.validate(
         passwordUpdateDto);
+    if (!violations.isEmpty()) {
+      return "All fields must be filled.";
+    }
 
-    return violations.isEmpty();
+    // Password validation
+    if (UserService.isNotValidPassword(passwordUpdateDto.newPassword())) {
+      return "Invalid password.";
+    }
+
+    // Check if the two passwords in the DTO are the same
+    if (!passwordUpdateDto.newPassword().equals(passwordUpdateDto.confirmPassword())) {
+      return "Passwords do not match.";
+    }
+
+    return null;
   }
 
   /**
@@ -247,20 +259,9 @@ public class UserService {
     }
 
     // DTO validation
-    if (!isValidPasswordUpdateDto(passwordUpdateDto)) {
-      response.put("msg", "All fields must be filled.");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    // Password validation
-    if (UserService.isNotValidPassword(passwordUpdateDto.newPassword())) {
-      response.put("msg", "Invalid password.");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    // Check if the two passwords in the DTO are the same
-    if (!passwordUpdateDto.newPassword().equals(passwordUpdateDto.confirmPassword())) {
-      response.put("msg", "Passwords do not match.");
+    String msg = isValidPasswordUpdateDto(passwordUpdateDto);
+    if (msg != null) {
+      response.put("msg", msg);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 

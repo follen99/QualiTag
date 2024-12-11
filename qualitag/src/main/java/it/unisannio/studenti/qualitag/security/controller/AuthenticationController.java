@@ -1,5 +1,7 @@
 package it.unisannio.studenti.qualitag.security.controller;
 
+import it.unisannio.studenti.qualitag.dto.user.ForgotPasswordDto;
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
@@ -8,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -28,7 +31,8 @@ public class AuthenticationController {
    * @return The response entity.
    */
   @PostMapping("/register")
-  public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto userRegistrationDto) {
+  public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto userRegistrationDto)
+      throws Exception {
     return authenticationService.register(userRegistrationDto);
   }
 
@@ -41,5 +45,29 @@ public class AuthenticationController {
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@RequestBody UserLoginDto userLoginDto) {
     return authenticationService.login(userLoginDto);
+  }
+
+  /**
+   * Sends a password reset email.
+   *
+   * @param email The email.
+   * @return The response entity.
+   */
+  @PostMapping("/forgot-password")
+  public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDto email) throws Exception {
+    return authenticationService.sendPasswordResetEmail(email);
+  }
+
+  /**
+   * Resets the password.
+   *
+   * @param token The token.
+   * @param passwordUpdateDto The password update DTO.
+   * @return The response entity.
+   */
+  @PostMapping("/reset-password")
+  public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody
+      PasswordUpdateDto passwordUpdateDto) {
+    return authenticationService.resetPassword(token, passwordUpdateDto);
   }
 }

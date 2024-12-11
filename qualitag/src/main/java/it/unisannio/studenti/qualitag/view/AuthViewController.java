@@ -28,4 +28,24 @@ public class AuthViewController {
   public String signup() {
     return "auth/sign_up";
   }
+
+  /**
+   * Returns the forgot password view.
+   *
+   * @return the forgot password view
+   */
+  @GetMapping("/forgot-password")
+  public String forgotPassword() {
+    return "auth/forgot_password";
+  }
+
+  /**
+   * Returns the reset password view.
+   *
+   * @return the reset password view
+   */
+  @GetMapping("/reset-password")
+  public String resetPassword() {
+    return "auth/reset_password";
+  }
 }
