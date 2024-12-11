@@ -47,11 +47,24 @@ public class AuthenticationController {
     return authenticationService.login(userLoginDto);
   }
 
+  /**
+   * Sends a password reset email.
+   *
+   * @param email The email.
+   * @return The response entity.
+   */
   @PostMapping("/forgot-password")
   public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDto email) throws Exception {
     return authenticationService.sendPasswordResetEmail(email);
   }
 
+  /**
+   * Resets the password.
+   *
+   * @param token The token.
+   * @param passwordUpdateDto The password update DTO.
+   * @return The response entity.
+   */
   @PostMapping("/reset-password")
   public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody
       PasswordUpdateDto passwordUpdateDto) {
