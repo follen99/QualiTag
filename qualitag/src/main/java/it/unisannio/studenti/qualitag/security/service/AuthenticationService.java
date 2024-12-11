@@ -1,16 +1,21 @@
 package it.unisannio.studenti.qualitag.security.service;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import it.unisannio.studenti.qualitag.dto.user.ForgotPasswordDto;
+import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
+import it.unisannio.studenti.qualitag.service.GmailService;
 import it.unisannio.studenti.qualitag.service.UserService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +39,7 @@ public class AuthenticationService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final JwtService jwtService;
+  private final UserService userService;
   private final AuthenticationManager authenticationManager;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -54,11 +60,11 @@ public class AuthenticationService {
 
   /**
    * Checks if the currently authenticated user has the authority to access the user with the
-   *     specified username.
+   * specified username.
    *
    * @param username The username of the user to check.
    * @return true if the currently authenticated user has the authority to access the user with the
-   *     specified username, false otherwise.
+   *      specified username, false otherwise.
    */
   public static boolean getAuthority(String username) {
     // Get the currently authenticated user
@@ -88,7 +94,7 @@ public class AuthenticationService {
    * @param request The user registration request.
    * @return The response entity.
    */
-  public ResponseEntity<?> register(UserRegistrationDto request) {
+  public ResponseEntity<?> register(UserRegistrationDto request) throws Exception {
     Map<String, Object> response = new HashMap<>();
 
     // DTO validation
@@ -126,6 +132,11 @@ public class AuthenticationService {
       response.put("msg", "Email already taken.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
+    // Send email
+    new GmailService().sendMail("QualiTag Registration",
+        request.email(),
+        "Thank you for registering to QualiTag!");
 
     // Map the new user from the request
     User user = userMapper.toEntity(request);
@@ -182,6 +193,89 @@ public class AuthenticationService {
     response.put("msg", "User logged in successfully.");
     response.put("token", jwt);
     response.put("username", user.getUsername());
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
+   * Sends a password reset email to the user.
+   *
+   * @param dto The DTO containing email of the user.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> sendPasswordResetEmail(ForgotPasswordDto dto) throws Exception {
+    Map<String, Object> response = new HashMap<>();
+
+    User user = userRepository.findByEmail(dto.email());
+    if (user == null) {
+      response.put("msg", "No user found with the given email.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Generate JWT token
+    String resetToken = jwtService.generateResetToken(new CustomUserDetails(user));
+
+    // Update reset token expiration in the database
+    user.setResetTokenExpiration(LocalDateTime.now().plusMinutes(jwtService.getJwtResetPwMin()));
+    userRepository.save(user);
+
+    // Send email with reset link
+    String resetLink = "http://localhost:8080/reset-password?token=" + resetToken;
+    new GmailService().sendMail("QualiTag Password Reset",
+        dto.email(),
+        "Click the following link to reset your password: " + resetLink);
+
+    response.put("msg", "Password reset email sent successfully.");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
+   * Resets the password of the user.
+   *
+   * @param token The reset token.
+   * @param dto The new password.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> resetPassword(String token, PasswordUpdateDto dto) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Validate the password update data
+    String msg = userService.isValidPasswordUpdateDto(dto);
+    if (msg != null) {
+      response.put("msg", msg);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Try to extract the username from the token and throw an exception if the token is
+    // invalid or expired
+    String username;
+    try {
+      username = jwtService.extractUserName(token);
+    } catch (ExpiredJwtException ex) {
+      response.put("msg", "Invalid or expired reset token.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Find the user by username
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
+      response.put("msg", "No user found with the given username.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the reset token is valid or expired
+    if (user.getResetTokenExpiration() == null
+        || user.getResetTokenExpiration().isBefore(LocalDateTime.now())
+        || !jwtService.isTokenValid(token, new CustomUserDetails(user))) {
+      response.put("msg", "Invalid or expired reset token.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Update the password
+    userMapper.updateEntity(dto, user);
+    user.setResetTokenExpiration(null);
+    userRepository.save(user);
+
+    response.put("msg", "Password reset successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }

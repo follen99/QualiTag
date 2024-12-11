@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +46,9 @@ public class User {
   @Field(name = "surname")
   private String surname;
 
+  @Field(name = "resetTokenExpiration")
+  private LocalDateTime resetTokenExpiration;
+
   @Field(name = "projectIds")
   private List<String> projectIds;
 
@@ -63,6 +67,8 @@ public class User {
    * Constructs a new User with no parameters.
    */
   public User() {
+    this.resetTokenExpiration = null;
+
     this.projectIds = new ArrayList<>();
     this.teamIds = new ArrayList<>();
     this.tagIds = new ArrayList<>();
@@ -84,6 +90,8 @@ public class User {
     this.passwordHash = passwordHash;
     this.name = name;
     this.surname = surname;
+
+    this.resetTokenExpiration = null;
 
     this.projectIds = new ArrayList<>();
     this.teamIds = new ArrayList<>();
