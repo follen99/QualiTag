@@ -31,7 +31,7 @@
   document.getElementById('userProjects').addEventListener('click', function (event) {
     const username = localStorage.getItem('username');
     if (username) {
-      this.setAttribute('href', '/user/' + username + '/projects');
+      this.setAttribute('href', '/project/' + username + '/projects');
     } else {
       event.preventDefault(); // Prevent the default behavior
       alert('Please login to access the profile page');
