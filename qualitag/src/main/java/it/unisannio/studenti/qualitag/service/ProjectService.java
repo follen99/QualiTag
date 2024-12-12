@@ -3,9 +3,8 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.constants.ProjectConstants;
 import it.unisannio.studenti.qualitag.dto.project.CompletedProjectCreationDto;
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
-import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
+import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
-import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
@@ -19,22 +18,19 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -51,6 +47,8 @@ public class ProjectService {
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
+  private final TeamService teamService;
+  private final UserRepository userRepository;
 
   /**
    * Constructs a new ProjectService.
@@ -59,12 +57,15 @@ public class ProjectService {
    * @param usersRepository   the user repository
    */
   public ProjectService(ProjectRepository projectRepository, UserRepository usersRepository,
-      TeamRepository teamsRepository, ArtifactRepository artifactsRepository) {
+      TeamRepository teamsRepository, ArtifactRepository artifactsRepository,
+      TeamService teamService, UserRepository userRepository) {
     this.projectRepository = projectRepository;
     this.usersRepository = usersRepository;
     this.teamsRepository = teamsRepository;
     this.artifactsRepository = artifactsRepository;
     this.projectMapper = new ProjectMapper(this);
+    this.teamService = teamService;
+    this.userRepository = userRepository;
   }
 
   // POST
@@ -75,6 +76,7 @@ public class ProjectService {
    * @param projectCreateDto the DTO used to create a project
    * @return the response entity
    */
+  @Transactional
   public ResponseEntity<?> createProject(ProjectCreateDto projectCreateDto) {
     Map<String, Object> response = new HashMap<>();
 
@@ -85,53 +87,64 @@ public class ProjectService {
       Project project = projectMapper.toEntity(correctProjectDto);
 
       // TODO: create new team and add it to the project
+      TeamCreateDto teamCreateDto = new TeamCreateDto("Team 1", project.getProjectCreationDate(),
+          "Default team for project " + project.getProjectName(), project.getUsers());
+      teamService.addTeam(teamCreateDto, project.getProjectId());
 
       this.projectRepository.save(project);
       this.addProjectsToUsers(project);
-      return ResponseEntity.status(HttpStatus.CREATED).body("Project created successfully");
+
+      response.put("msg", "Project created successfully");
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (ProjectValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      response.put("msg", e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private void addProjectsToUsers(Project project) {
+  private void addProjectsToUsers(Project project) throws Exception {
     List<String> userList = project.getUsers();    // Get the list of user IDs
+    User owner = usersRepository.findByUserId(project.getOwnerId());
+    if (owner == null) {
+      throw new ProjectValidationException("User with ID " + project.getOwnerId() + " not found");
+    }
 
     for (String userId : userList) {
-      User user = usersRepository.findByUsername(userId);
+      User user = usersRepository.findByUserId(userId);
+
+      // Debugging
       System.out.println("User: " + user);
       System.out.println("User ID: " + userId);
 
-      // if user is not found, try to find it by id
       // TODO add a list of users that were not found, then throw an exception returning the list
-      // TODO check if a user is mentioned more than once (both by username and by id!!!)
       if (user == null) {
-        System.out.println("ENTERING");
-        Optional<User> optionalUser = usersRepository.findById(userId);
-        if (optionalUser.isPresent()) {
-
-          User currentUser = optionalUser.get();
-          System.out.println("Current user: " + currentUser);
-          List<String> oldProjectIds = currentUser.getProjectIds();
-          oldProjectIds.add(project.getProjectId());
-
-          currentUser.setProjectIds(oldProjectIds);
-          usersRepository.save(currentUser);
-        } else {
-          /*if we cannot find user even by id, return
-           * even a single user is not found, the project is not added to any user
-           * */
-          return;
-        }
-      } else {
-        List<String> oldProjectIds = user.getProjectIds();
-        oldProjectIds.add(project.getProjectId());
-
-        user.setProjectIds(oldProjectIds);
-        usersRepository.save(user);
+        throw new ProjectValidationException("User with ID " + userId + " not found");
       }
+
+      // Add the project to the user
+      user.getProjectIds().add(project.getProjectId());
+      userRepository.save(user);
+
+      // Send email to user
+      String emailMessage = String.format(
+          """
+              Dear %s,
+              
+              You have been invited to join the project: %s.
+              
+              Project Description: %s
+              
+              We look forward to your valuable contributions.
+              
+              Best regards,
+              %s
+              """,
+          user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+          owner.getName() + " " + owner.getSurname()
+      );
+      new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
     }
   }
 
@@ -346,35 +359,38 @@ public class ProjectService {
    * @return the response entity
    */
   public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
-//    //id check
-//    if (projectId == null || projectId.isEmpty()) {
-//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
-//    }
-//
-//    //project validation
-//    try {
-//      ProjectCreateDto correctProjectDto = validateProject(projectModifyDto);
-//
-//      Project project = projectRepository.findProjectByProjectId(projectId);
-//      if (project == null) {
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
-//      }
-//
-//      project.setProjectName(correctProjectDto.projectName());
-//      project.setProjectDescription(correctProjectDto.projectDescription());
-//      project.setProjectDeadline(correctProjectDto.deadlineDate());
-//      project.setUsers(correctProjectDto.users());
-//      project.setTeams(correctProjectDto.teams());
-//      project.setArtifacts(correctProjectDto.artifacts());
-//      //TODO checks if other parameters should be changed
-//
-//      this.projectRepository.save(project);
-//
-//      return ResponseEntity.status(HttpStatus.OK).body("Project updated successfully");
-//
-//    } catch (ProjectValidationException e) {
-//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//    }
+    /*
+    //id check
+    if (projectId == null || projectId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
+    }
+
+    //project validation
+    try {
+      ProjectCreateDto correctProjectDto = validateProject(projectModifyDto);
+
+      Project project = projectRepository.findProjectByProjectId(projectId);
+      if (project == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+      }
+
+      project.setProjectName(correctProjectDto.projectName());
+      project.setProjectDescription(correctProjectDto.projectDescription());
+      project.setProjectDeadline(correctProjectDto.deadlineDate());
+      project.setUsers(correctProjectDto.users());
+      project.setTeams(correctProjectDto.teams());
+      project.setArtifacts(correctProjectDto.artifacts());
+      //TODO checks if other parameters should be changed
+
+      this.projectRepository.save(project);
+
+      return ResponseEntity.status(HttpStatus.OK).body("Project updated successfully");
+
+    } catch (ProjectValidationException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+     */
 
     return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
   }
@@ -412,8 +428,7 @@ public class ProjectService {
    * @param projectCreateDto the dto used to create the project
    * @return the validated project
    */
-  private CompletedProjectCreationDto validateProject(ProjectCreateDto projectCreateDto)
-      throws Exception {
+  private CompletedProjectCreationDto validateProject(ProjectCreateDto projectCreateDto) {
     if (!isValidProjectCreateDto(projectCreateDto)) {
       throw new ProjectValidationException("All fields must be filled");
     }
@@ -438,7 +453,9 @@ public class ProjectService {
     ZonedDateTime maxDeadline = ZonedDateTime.now()
         .plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
     if (deadlineDate.isAfter(maxDeadline)) {
-      throw new ProjectValidationException("Deadline date cannot be after 2030-12-31");
+      throw new ProjectValidationException(
+          "Deadline date cannot be after " + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS
+              + " years from now");
     }
 
     // Validate the owner
@@ -477,31 +494,9 @@ public class ProjectService {
       userIds.add(user.getUserId());
     }
 
-    // Team validation removed. The system will automatically create one team and more can be added.
+    // Team validation removed. One team is created by default.
 
-    // Artifact validation removed. The project will start with no artifacts and will be added later.
-
-    // TODO: move this for when adding users to project
-    // Send email to the users
-    for (String email : userEmails) {
-      User user = usersRepository.findByEmail(email);
-      String emailMessage = String.format(
-          """
-              Dear %s,
-              
-              You have been invited to join the project: %s.
-              
-              Project Description: %s
-              
-              We look forward to your valuable contributions.
-              
-              Best regards,
-              The Team
-              """,
-          user.getUsername(), name, projectCreateDto.projectDescription()
-      );
-      new GmailService().sendMail("Project Invitation", email, emailMessage);
-    }
+    // Artifact validation removed. No artifacts when creating a project.
 
     return new CompletedProjectCreationDto(
         name,
@@ -512,7 +507,3 @@ public class ProjectService {
         userIds);
   }
 }
-
-
-
-

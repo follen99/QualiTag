@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
  * Represents a project in the system. Created by Raffaele Izzo on 14/11/2024
  */
 @Data
+@NoArgsConstructor
 @Document(collection = "project")
 public class Project {
 
@@ -44,8 +46,6 @@ public class Project {
   @Field(name = "projectArtifacts")
   private List<String> artifacts;
 
-  // TODO: Probably this constructor should be removed. All project should have at least one team, one user and one artifact
-
   /**
    * Constructor for Project with no users, teams or artifacts.
    *
@@ -65,6 +65,8 @@ public class Project {
     this.teams = new ArrayList<>();
     this.artifacts = new ArrayList<>();
   }
+
+  // TODO: Constructor with all args is never used, probably should be removed
 
   /**
    * Constructor for Project with a list of users, teams and artifacts as well as the ownerId.

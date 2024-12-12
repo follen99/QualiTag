@@ -45,12 +45,14 @@ public class TeamService {
    * @param teamCreateDto The team data transfer object.
    * @return The response entity.
    */
-  public ResponseEntity<?> addTeam(TeamCreateDto teamCreateDto) {
+  public ResponseEntity<?> addTeam(TeamCreateDto teamCreateDto, String projectId) {
     // Team validation
     try {
       TeamCreateDto correctTeamDto = validateTeam(teamCreateDto);
 
       Team team = teamMapper.toEntity(correctTeamDto);
+      team.setProjectId(projectId);
+
       this.teamRepository.save(team);
       this.addTeamToUser(team);
       return ResponseEntity.status(HttpStatus.CREATED).body("Team added successfully");
