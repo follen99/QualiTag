@@ -35,6 +35,9 @@ public class Project {
   @Field(name = "projectOwner")
   private String ownerId;
 
+  @Field(name = "projectStatus")
+  private ProjectStatus projectStatus;
+
   @Field(name = "projectUsers")
   private List<String> users;
 
@@ -45,6 +48,11 @@ public class Project {
   private List<String> artifacts;
 
   // TODO: Probably this constructor should be removed. All project should have at least one team, one user and one artifact
+
+  //No-argument construction for Spring
+  public Project(){
+
+  }
 
   /**
    * Constructor for Project with no users, teams or artifacts.
@@ -60,6 +68,7 @@ public class Project {
     this.projectCreationDate = projectCreationDate;
     this.projectDeadline = projectDeadline;
     this.ownerId = ownerId;
+    this.projectStatus = ProjectStatus.OPEN;
 
     this.users = users;
     this.teams = new ArrayList<>();
@@ -85,6 +94,7 @@ public class Project {
     this.projectCreationDate = projectCreationDate;
     this.projectDeadline = projectDeadline;
     this.ownerId = ownerId;
+    this.projectStatus = ProjectStatus.OPEN;
 
     this.users = users;
     this.teams = teams;

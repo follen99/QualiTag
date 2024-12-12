@@ -57,8 +57,18 @@ public class ProjectController {
     return projectService.addArtifact(projectId, artifactId);
   }
 
-  // GET
+  /**
+   * Close a project
+   *
+   * @param projectId the id of the project to close
+   * @return the response entity
+   */
+  @PostMapping("/{projectId}/close")
+  public ResponseEntity<?> closeProject(@PathVariable String projectId) {
+    return projectService.closeProject(projectId);
+  }
 
+  // GET
   /**
    * Gets all the projects.
    *

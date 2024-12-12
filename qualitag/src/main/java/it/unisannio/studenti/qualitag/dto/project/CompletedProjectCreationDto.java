@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.dto.project;
 
+import it.unisannio.studenti.qualitag.model.ProjectStatus;
 import java.util.List;
 
 /**
