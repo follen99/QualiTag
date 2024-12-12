@@ -50,6 +50,14 @@ public interface UserRepository extends MongoRepository<User, String> {
   User findByEmail(String email);
 
   /**
+   * Finds a user by its userId.
+   *
+   * @param userId The userId of the user to find.
+   * @return User with the given userId.
+   */
+  User findByUserId(String userId);
+
+  /**
    * Deletes a user by its username.
    *
    * @param username The username of the user to delete.

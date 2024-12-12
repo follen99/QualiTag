@@ -1,6 +1,9 @@
 package it.unisannio.studenti.qualitag.service;
 
+import it.unisannio.studenti.qualitag.constants.ProjectConstants;
+import it.unisannio.studenti.qualitag.dto.project.CompletedProjectCreationDto;
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
+import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
@@ -12,11 +15,20 @@ import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -36,7 +48,9 @@ public class ProjectService {
   private final UserRepository usersRepository;
   private final TeamRepository teamsRepository;
   private final ArtifactRepository artifactsRepository;
-  private final WebInvocationPrivilegeEvaluator privilegeEvaluator;
+
+  private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+  private final Validator validator = factory.getValidator();
 
   /**
    * Constructs a new ProjectService.
@@ -45,14 +59,12 @@ public class ProjectService {
    * @param usersRepository   the user repository
    */
   public ProjectService(ProjectRepository projectRepository, UserRepository usersRepository,
-      TeamRepository teamsRepository, ArtifactRepository artifactsRepository,
-      WebInvocationPrivilegeEvaluator privilegeEvaluator) {
+      TeamRepository teamsRepository, ArtifactRepository artifactsRepository) {
     this.projectRepository = projectRepository;
     this.usersRepository = usersRepository;
     this.teamsRepository = teamsRepository;
     this.artifactsRepository = artifactsRepository;
     this.projectMapper = new ProjectMapper(this);
-    this.privilegeEvaluator = privilegeEvaluator;
   }
 
   // POST
@@ -64,16 +76,23 @@ public class ProjectService {
    * @return the response entity
    */
   public ResponseEntity<?> createProject(ProjectCreateDto projectCreateDto) {
+    Map<String, Object> response = new HashMap<>();
+
     //Project validation
     try {
-      ProjectCreateDto correctProjectDto = validateProject(projectCreateDto);
+      CompletedProjectCreationDto correctProjectDto = validateProject(projectCreateDto);
 
       Project project = projectMapper.toEntity(correctProjectDto);
+
+      // TODO: create new team and add it to the project
+
       this.projectRepository.save(project);
       this.addProjectsToUsers(project);
       return ResponseEntity.status(HttpStatus.CREATED).body("Project created successfully");
     } catch (ProjectValidationException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -327,35 +346,37 @@ public class ProjectService {
    * @return the response entity
    */
   public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
-    //id check
-    if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
-    }
+//    //id check
+//    if (projectId == null || projectId.isEmpty()) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
+//    }
+//
+//    //project validation
+//    try {
+//      ProjectCreateDto correctProjectDto = validateProject(projectModifyDto);
+//
+//      Project project = projectRepository.findProjectByProjectId(projectId);
+//      if (project == null) {
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+//      }
+//
+//      project.setProjectName(correctProjectDto.projectName());
+//      project.setProjectDescription(correctProjectDto.projectDescription());
+//      project.setProjectDeadline(correctProjectDto.deadlineDate());
+//      project.setUsers(correctProjectDto.users());
+//      project.setTeams(correctProjectDto.teams());
+//      project.setArtifacts(correctProjectDto.artifacts());
+//      //TODO checks if other parameters should be changed
+//
+//      this.projectRepository.save(project);
+//
+//      return ResponseEntity.status(HttpStatus.OK).body("Project updated successfully");
+//
+//    } catch (ProjectValidationException e) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//    }
 
-    //project validation
-    try {
-      ProjectCreateDto correctProjectDto = validateProject(projectModifyDto);
-
-      Project project = projectRepository.findProjectByProjectId(projectId);
-      if (project == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
-      }
-
-      project.setProjectName(correctProjectDto.projectName());
-      project.setProjectDescription(correctProjectDto.projectDescription());
-      project.setProjectDeadline(correctProjectDto.deadlineDate());
-      project.setUsers(correctProjectDto.users());
-      project.setTeams(correctProjectDto.teams());
-      project.setArtifacts(correctProjectDto.artifacts());
-      //TODO checks if other parameters should be changed
-
-      this.projectRepository.save(project);
-
-      return ResponseEntity.status(HttpStatus.OK).body("Project updated successfully");
-
-    } catch (ProjectValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
   }
 
   //UTILITY METHODS
@@ -370,13 +391,19 @@ public class ProjectService {
     if (authentication == null || !authentication.isAuthenticated()) {
       throw new IllegalStateException("No authenticated user found");
     }
+
     Object principal = authentication.getPrincipal();
-    if (principal instanceof CustomUserDetails) {
-      CustomUserDetails userDetails = (CustomUserDetails) principal;
-      return userDetails.user().getUserId();
+    if (principal instanceof CustomUserDetails(User user)) {
+      return user.getUserId();
     }
     throw new IllegalStateException(
         "Unexpected authentication principal type: " + principal.getClass());
+  }
+
+  private boolean isValidProjectCreateDto(ProjectCreateDto dto) {
+    Set<ConstraintViolation<ProjectCreateDto>> violations = validator.validate(dto);
+
+    return violations.isEmpty();
   }
 
   /**
@@ -385,16 +412,14 @@ public class ProjectService {
    * @param projectCreateDto the dto used to create the project
    * @return the validated project
    */
-  private ProjectCreateDto validateProject(ProjectCreateDto projectCreateDto) {
-    if (projectCreateDto == null) {
-      throw new ProjectValidationException("Project cannot be null");
+  private CompletedProjectCreationDto validateProject(ProjectCreateDto projectCreateDto)
+      throws Exception {
+    if (!isValidProjectCreateDto(projectCreateDto)) {
+      throw new ProjectValidationException("All fields must be filled");
     }
 
-    //Validate the project name
+    // Validate the project name
     String name = projectCreateDto.projectName();
-    if (name == null || name.isEmpty()) {
-      throw new ProjectValidationException("Project name cannot be null or empty");
-    }
     if (name.contains(" ")) {
       throw new ProjectValidationException("Project name cannot contain whitespaces");
     }
@@ -402,116 +427,89 @@ public class ProjectService {
       throw new ProjectValidationException("Project with name " + name + " already exists");
     }
 
-    //Validate the project description
-    String description = projectCreateDto.projectDescription();
-    if (description == null || description.isEmpty()) {
-      throw new ProjectValidationException("Project description cannot be null or empty");
-    }
-
-    //Validate the deadline date
-    Long deadlineDate = projectCreateDto.deadlineDate();
-    Long creationDate = System.currentTimeMillis();
-
-    LocalDate localDate = LocalDate.of(2030, 12, 31);
-    Long maxDeadline = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-    if (deadlineDate == null) {
-      throw new ProjectValidationException("Deadline date cannot be null");
-    }
-    if (deadlineDate > creationDate) {
+    // Validate the deadline date and set creation date
+    ZonedDateTime deadlineDate = ZonedDateTime.parse(projectCreateDto.deadlineDate(),
+        DateTimeFormatter.ISO_DATE_TIME);
+    ZonedDateTime creationDate = ZonedDateTime.now();
+    if (deadlineDate.isBefore(creationDate)) {
       throw new ProjectValidationException("Deadline date cannot be before the creation date");
     }
-    if (deadlineDate > maxDeadline) {
+
+    ZonedDateTime maxDeadline = ZonedDateTime.now()
+        .plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
+    if (deadlineDate.isAfter(maxDeadline)) {
       throw new ProjectValidationException("Deadline date cannot be after 2030-12-31");
     }
 
-    //Validate the users
-    List<String> users = projectCreateDto.users();
-    if (users == null || users.isEmpty()) {
-      throw new ProjectValidationException("Users cannot be null or empty");
-    }
-
-    for (String currentUserId : users) {
-      if (currentUserId == null || currentUserId.trim().isEmpty()) {
-        throw new TeamValidationException("There is an empty user in the list. Remove it.");
-      }
-      currentUserId = currentUserId.trim(); // Remove leading and trailing whitespaces
-      try {
-        if (!usersRepository.existsById(currentUserId)) {
-          throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
-        }
-      } catch (Exception e) {
-        if (!usersRepository.existsByUsername(currentUserId)) {
-          throw new TeamValidationException(
-              "User with username " + currentUserId + " does not exist");
-        }
-      }
-
-    }
-    //TODO check other constraints with users
-
-    //Validate the teams
-    List<String> teams = projectCreateDto.teams();
-    if (teams == null || teams.isEmpty()) {
-      throw new ProjectValidationException("Teams cannot be null or empty");
-    }
-
-    for (String currentTeamId : teams) {
-      if (currentTeamId == null || currentTeamId.trim().isEmpty()) {
-        throw new TeamValidationException("There is an empty team in the list. Remove it.");
-      }
-      currentTeamId = currentTeamId.trim(); // Remove leading and trailing whitespaces
-      if (!teamsRepository.existsById(currentTeamId)) {
-        throw new TeamValidationException("Team with ID " + currentTeamId + " does not exist");
-      }
-    }
-
-    //TODO check other constraints with teams
-    //check the artifacts
-    List<String> artifacts = projectCreateDto.artifacts();
-    if (artifacts == null || artifacts.isEmpty()) {
-      throw new ProjectValidationException("Artifacts cannot be null or empty");
-    }
-
-    for (String currentArtifactId : artifacts) {
-      if (currentArtifactId == null || currentArtifactId.trim().isEmpty()) {
-        throw new TeamValidationException("There is an empty artifact in the list. Remove it.");
-      }
-      currentArtifactId = currentArtifactId.trim(); // Remove leading and trailing whitespaces
-
-      //POSSIBILE BUG
-      boolean exist = false;
-      try {
-        exist = artifactsRepository.existsById(currentArtifactId);
-      } catch (Exception e) {
-        throw new ProjectValidationException(
-            "Artifact with ID " + currentArtifactId + " does not exist");
-      }
-      if (!exist) {
-        throw new ProjectValidationException(
-            "Artifact with ID " + currentArtifactId + " does not exist");
-      }
-    }
-    //TODO check other constraints with artifacts
-
-    //Validate the owner
-    String owner = getLoggedInUserId();
-    if (owner == null || owner.isEmpty()) {
+    // Validate the owner
+    String ownerId = getLoggedInUserId();
+    if (ownerId == null || ownerId.isEmpty()) {
       throw new ProjectValidationException("Owner cannot be null or empty");
     }
-    User ownerUser = usersRepository.findByUsername(owner);
-    if (ownerUser == null) {
-      ownerUser = usersRepository.findById(owner).orElse(null);
-      if (ownerUser == null) {
-        throw new ProjectValidationException("Owner with ID " + owner + " does not exist");
+
+    User owner = usersRepository.findByUserId(ownerId);
+    if (owner == null) {
+      throw new ProjectValidationException("User with ID " + ownerId + " does not exist");
+    }
+
+    // Owner must not be part of users
+    List<String> userEmails = projectCreateDto.userEmails();
+    if (userEmails.contains(owner.getEmail())) {
+      throw new ProjectValidationException("Owner must not be part of the list of users");
+    }
+
+    // Validate the user emails and retrieve userIds
+    List<String> userIds = new ArrayList<>();
+    for (String email : userEmails) {
+      if (email == null) {
+        throw new ProjectValidationException(
+            "There is an empty email in the list. Please remove it.");
       }
+
+      User user = usersRepository.findByEmail(email);
+      if (user == null) {
+        throw new ProjectValidationException("User with email " + email + " does not exist");
+      }
+      if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
+        throw new ProjectValidationException(
+            "User with email " + email + " is mentioned more than once");
+      }
+      userIds.add(user.getUserId());
     }
 
-    if (!users.contains(ownerUser.getUserId()) && !users.contains(ownerUser.getUsername())) {
-      throw new ProjectValidationException("Owner must be in the list of users");
+    // Team validation removed. The system will automatically create one team and more can be added.
+
+    // Artifact validation removed. The project will start with no artifacts and will be added later.
+
+    // TODO: move this for when adding users to project
+    // Send email to the users
+    for (String email : userEmails) {
+      User user = usersRepository.findByEmail(email);
+      String emailMessage = String.format(
+          """
+              Dear %s,
+              
+              You have been invited to join the project: %s.
+              
+              Project Description: %s
+              
+              We look forward to your valuable contributions.
+              
+              Best regards,
+              The Team
+              """,
+          user.getUsername(), name, projectCreateDto.projectDescription()
+      );
+      new GmailService().sendMail("Project Invitation", email, emailMessage);
     }
 
-    return new ProjectCreateDto(name, description, creationDate, deadlineDate, users, teams,
-        artifacts, owner);
+    return new CompletedProjectCreationDto(
+        name,
+        projectCreateDto.projectDescription(),
+        creationDate.toInstant().toEpochMilli(),
+        deadlineDate.toInstant().toEpochMilli(),
+        ownerId,
+        userIds);
   }
 }
 
