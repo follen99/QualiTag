@@ -10,10 +10,21 @@
 <ul>
   <li><a href="/signup">Register</a></li>
   <li><a href="/signin">Login</a></li>
-  <li>>/li>
+  <li><a id="logoutLink" href="#">Logout (not safe yet!)</a></li>
   <li><a id="profileLink" href="/signin">Profile</a></li>
   <li><a id="userProjects" href="/myprojects">My Projects</a></li>
 </ul>
+
+<script>
+  document.getElementById('logoutLink').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent the default behavior
+    alert('User ' + localStorage.getItem('username') + ' has been logged out successfully.\n' +
+        'You can now register or login again.');
+    localStorage.removeItem('username');
+    localStorage.removeItem('authToken');
+    location.reload(); // Reload the current page
+  });
+</script>
 
 <script>
   document.getElementById('profileLink').addEventListener('click', function (event) {
