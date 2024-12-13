@@ -1,6 +1,6 @@
 package it.unisannio.studenti.qualitag.mapper;
 
-import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
+import it.unisannio.studenti.qualitag.dto.team.CompletedTeamCreateDto;
 import it.unisannio.studenti.qualitag.model.Team;
 import org.springframework.stereotype.Component;
 
@@ -13,10 +13,10 @@ public class TeamMapper {
   /**
    * Converts a TeamCreateDto to a Team entity.
    *
-   * @param correctTeamDto The TeamCreateDto to convert.
+   * @param correctTeamDto The CompletedTeamCreateDto to convert.
    * @return The converted Team entity, or null if the input is null.
    */
-  public Team toEntity(TeamCreateDto correctTeamDto) {
+  public Team toEntity(CompletedTeamCreateDto correctTeamDto) {
     if (correctTeamDto == null) {
       return null;
     }

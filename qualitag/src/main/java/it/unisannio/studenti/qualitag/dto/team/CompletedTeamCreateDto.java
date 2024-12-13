@@ -6,8 +6,9 @@ import java.util.List;
 /**
  * DTO used for creating a new team in the system.
  */
-public record TeamCreateDto(
+public record CompletedTeamCreateDto(
     @NotBlank String teamName,
+    @NotBlank Long creationDate,
     @NotBlank String teamDescription,
     List<String> users) {
 

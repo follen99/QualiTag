@@ -86,12 +86,20 @@ public class ProjectService {
 
       Project project = projectMapper.toEntity(correctProjectDto);
 
-      // TODO: create new team and add it to the project
-      TeamCreateDto teamCreateDto = new TeamCreateDto("Team 1", project.getProjectCreationDate(),
-          "Default team for project " + project.getProjectName(), project.getUsers());
-      teamService.addTeam(teamCreateDto, project.getProjectId());
-
+      // Save project to get ID
       this.projectRepository.save(project);
+
+      // Create a default team for the project
+      TeamCreateDto teamCreateDto = new TeamCreateDto("Default team",
+          "Default team for project " + project.getProjectName(), project.getUsers());
+      ResponseEntity<?> teamResponse = teamService.addTeam(teamCreateDto, project.getProjectId());
+      if (teamResponse.getStatusCode() != HttpStatus.CREATED) {
+        // If there's a problem, rollback the project creation
+        this.projectRepository.delete(project);
+        return teamResponse;
+      }
+
+      // Add the project to the users
       this.addProjectsToUsers(project);
 
       response.put("msg", "Project created successfully");
@@ -105,18 +113,23 @@ public class ProjectService {
   }
 
   private void addProjectsToUsers(Project project) throws Exception {
-    List<String> userList = project.getUsers();    // Get the list of user IDs
     User owner = usersRepository.findByUserId(project.getOwnerId());
     if (owner == null) {
       throw new ProjectValidationException("User with ID " + project.getOwnerId() + " not found");
     }
 
+    // Add project to owner
+    owner.getProjectIds().add(project.getProjectId());
+    userRepository.save(owner);
+
+    // Add project to users
+    List<String> userList = project.getUsers();
     for (String userId : userList) {
       User user = usersRepository.findByUserId(userId);
 
       // Debugging
-      System.out.println("User: " + user);
-      System.out.println("User ID: " + userId);
+      // System.out.println("User: " + user);
+      // System.out.println("User ID: " + userId);
 
       // TODO add a list of users that were not found, then throw an exception returning the list
       if (user == null) {

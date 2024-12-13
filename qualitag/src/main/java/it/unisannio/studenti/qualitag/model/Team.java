@@ -12,8 +12,8 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 /**
  * Represents a team in the system.
  */
-@Document
 @Data
+@Document(collection = "team")
 public class Team {
 
   @MongoId
