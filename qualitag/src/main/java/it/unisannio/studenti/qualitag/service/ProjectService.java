@@ -185,8 +185,9 @@ public class ProjectService {
           .body("Only the project owner can add a new artifact!");
     }
 
-    if(project.getProjectStatus() == ProjectStatus.CLOSED) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project is closed. Cannot add artifact");
+    if (project.getProjectStatus() == ProjectStatus.CLOSED) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Project is closed. Cannot add artifact");
     }
 
     if (artifactId == null || artifactId.isEmpty()) {
@@ -208,7 +209,8 @@ public class ProjectService {
   }
 
   /**
-   * Close a project
+   * Close a project.
+   *
    * @param projectId the id of the project to close
    */
   public ResponseEntity<?> closeProject(String projectId) {
@@ -221,7 +223,7 @@ public class ProjectService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
     }
 
-    if(project.getProjectStatus() == ProjectStatus.CLOSED) {
+    if (project.getProjectStatus() == ProjectStatus.CLOSED) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project is already closed");
     }
 
@@ -236,7 +238,6 @@ public class ProjectService {
 
     return ResponseEntity.status(HttpStatus.OK).body("Project closed successfully");
   }
-
 
   // GET
 

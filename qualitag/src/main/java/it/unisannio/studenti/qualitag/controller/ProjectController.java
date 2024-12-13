@@ -58,7 +58,7 @@ public class ProjectController {
   }
 
   /**
-   * Close a project
+   * Close a project.
    *
    * @param projectId the id of the project to close
    * @return the response entity
