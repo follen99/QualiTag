@@ -53,7 +53,6 @@ public class TagRepositoryTest {
 
     when(tagRepository.findByTagValueContaining("TAG1"))
             .thenReturn(List.of(tag1));
-
   }
 
   /**

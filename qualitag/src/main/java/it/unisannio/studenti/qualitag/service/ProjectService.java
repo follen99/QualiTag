@@ -8,6 +8,7 @@ import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.ProjectStatus;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
@@ -184,6 +185,10 @@ public class ProjectService {
           .body("Only the project owner can add a new artifact!");
     }
 
+    if(project.getProjectStatus() == ProjectStatus.CLOSED) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project is closed. Cannot add artifact");
+    }
+
     if (artifactId == null || artifactId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body("Artifact ID cannot be null or empty");
@@ -201,6 +206,37 @@ public class ProjectService {
 
     return ResponseEntity.status(HttpStatus.OK).body("Artifact added to the project successfully");
   }
+
+  /**
+   * Close a project
+   * @param projectId the id of the project to close
+   */
+  public ResponseEntity<?> closeProject(String projectId) {
+    if (projectId == null || projectId.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
+    }
+
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+    }
+
+    if(project.getProjectStatus() == ProjectStatus.CLOSED) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project is already closed");
+    }
+
+    String currentUserId = getLoggedInUserId();
+    if (!project.getOwnerId().equals(currentUserId)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("Only the project owner can close the project!");
+    }
+
+    project.setProjectStatus(ProjectStatus.CLOSED);
+    projectRepository.save(project);
+
+    return ResponseEntity.status(HttpStatus.OK).body("Project closed successfully");
+  }
+
 
   // GET
 

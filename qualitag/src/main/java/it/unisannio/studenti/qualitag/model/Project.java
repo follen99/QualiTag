@@ -37,6 +37,9 @@ public class Project {
   @Field(name = "projectOwner")
   private String ownerId;
 
+  @Field(name = "projectStatus")
+  private ProjectStatus projectStatus;
+
   @Field(name = "projectUsers")
   private List<String> users;
 
@@ -60,6 +63,7 @@ public class Project {
     this.projectCreationDate = projectCreationDate;
     this.projectDeadline = projectDeadline;
     this.ownerId = ownerId;
+    this.projectStatus = ProjectStatus.OPEN;
 
     this.users = users;
     this.teams = new ArrayList<>();
@@ -87,6 +91,8 @@ public class Project {
     this.projectCreationDate = projectCreationDate;
     this.projectDeadline = projectDeadline;
     this.ownerId = ownerId;
+
+    this.projectStatus = ProjectStatus.OPEN;
 
     this.users = users;
     this.teams = teams;
