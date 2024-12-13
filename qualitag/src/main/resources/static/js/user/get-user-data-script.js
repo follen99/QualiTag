@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
   const authToken = localStorage.getItem('authToken');
 
+  // if we don't handle this case, an exception will be thrown
+  if (!authToken) {
+    window.location.href = '/signin';
+    return;
+  }
+
+
   // Extract username from URL
   const urlParts = window.location.pathname.split('/');
   const username = urlParts[2]; // Assuming the path is /user/{username} or /user/{username}/update
