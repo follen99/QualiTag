@@ -78,7 +78,7 @@ jobs:
         run: docker-compose up -d
       
       - name: Run tests
-        run: docker-compose exec qualitag ./gradlew test
+        run: docker-compose exec -T qualitag ./gradlew test
 
       - name: Stop Docker Compose
         run: docker-compose down
