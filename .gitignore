@@ -26,6 +26,9 @@ gradle-app.setting
 *.ipr
 *.iws
 
+# Visual Studio Code
+.vscode/
+
 # OS-specific files
 .DS_Store
 Thumbs.db
