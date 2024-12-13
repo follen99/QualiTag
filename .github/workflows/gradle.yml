@@ -1,4 +1,4 @@
-name: Build QualiTag Java
+name: Build and Deploy QualiTag Java
 on:
   push:
 #    paths:
@@ -55,3 +55,30 @@ jobs:
         with:
           name: jacoco-report
           path: qualitag/build/jacoco/test/html       # uploading whole folder
+
+  docker:
+    name: Build and Run Docker Compose
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Install Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
+      - name: Build Docker image
+        run: docker-compose build
+
+      - name: Run Docker Compose
+        run: docker-compose up -d
+      
+      - name: Run tests
+        run: docker-compose exec qualitag ./gradlew test
+
+      - name: Stop Docker Compose
+        run: docker-compose down

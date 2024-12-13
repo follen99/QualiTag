@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  qualitag:
+    build:
+      context: ./qualitag
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xmx512m
