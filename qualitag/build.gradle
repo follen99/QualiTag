@@ -87,6 +87,9 @@ dependencies {
 
     // Jakarta Mail
     implementation 'com.sun.mail:jakarta.mail:2.0.1'
+
+    // Dotenv
+    implementation 'io.github.cdimascio:java-dotenv:5.2.1'
 }
 
 // Checkstyle configuration for Google Java Style
