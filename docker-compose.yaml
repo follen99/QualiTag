@@ -1,11 +1,36 @@
-version: '3.8'
-
 services:
   qualitag:
+    image: qualitag
+    container_name: qualitag_java
     build:
       context: ./qualitag
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8080:8080" # Expose HTTP port for redirection
+      - "8443:8443" # Expose HTTPS port for secure access
     environment:
       - JAVA_OPTS=-Xmx512m
+      - SERVER_PORT=8443 # Specify HTTPS port
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_KEY_STORE=classpath:credentials/certs/keystore.p12
+      - SERVER_SSL_KEY_STORE_TYPE=PKCS12
+      - SERVER_SSL_KEY_ALIAS=qualitag
+      - SERVER_SSL_KEY_STORE_PASSWORD=${KEYSTORE_PASSWORD} # Load from .env file
+    volumes:
+      - ./qualitag/src/main/resources/credentials/certs:/etc/ssl/certs # Mount SSL certificates
+      - ./.env:/app/.env # Mount .env file
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+    mongo-data:

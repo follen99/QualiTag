@@ -32,7 +32,7 @@ COPY config ./config
 RUN ./gradlew build
 
 # Expose the port the application runs on
-EXPOSE 8080
+EXPOSE 8080 8443
 
 # Define the command to run the application
 CMD ["java", "-jar", "build/libs/qualitag-0.0.1-SNAPSHOT.jar"]
