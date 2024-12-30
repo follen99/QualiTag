@@ -68,6 +68,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+
+      - name: Create certificate files
+        run: |
+          mkdir -p qualitag/src/main/resources/credentials/certs
+          echo "${{ secrets.KEYSTORE_CONTENT }}" | base64 -d > qualitag/src/main/resources/credentials/certs/keystore.p12
+
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
 
