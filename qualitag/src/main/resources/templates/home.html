@@ -24,7 +24,9 @@
                 <li class="nav-item"><a class="nav-link" href="/signup">Register</a></li>
 
                 <li class="nav-item"><a id="userProjects" class="nav-link" href="/myprojects">My Projects</a></li>
-            </ul><a id="profileLink" class="btn btn-primary shadow" role="button" href="signup">Profile</a>
+            </ul>
+                <a id="profileLink" class="btn btn-primary shadow" role="button" href="signup">Profile</a>
+                <a id="logoutbutton" class="btn btn-primary shadow" role="button" href="home.html" style="margin-left: 10pt">Log Out</a>
         </div>
     </div>
 </nav>
@@ -82,6 +84,34 @@
 <footer class="bg-dark"></footer>
 <script> src="assets/bootstrap/js/bootstrap.min.js" </script>
 <script src="assets/js/bold-and-dark.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const profileLink = document.getElementById('profileLink');
+        const logoutButton = document.getElementById('logoutbutton');
+        const username = localStorage.getItem('username');
+
+        if (username) {
+            profileLink.style.display = 'block'; // Mostra il bottone
+            logoutButton.style.display = 'block'; // Mostra il bottone
+
+        } else {
+            profileLink.style.display = 'none'; // Nascondi il bottone
+            logoutButton.style.display = 'none'; // Nascondi il bottone
+        }
+    });
+</script>
+<!--logout-->
+<script>
+    document.getElementById('logoutbutton').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent the default behavior
+        alert('User ' + localStorage.getItem('username') + ' has been logged out successfully.\n' +
+            'You can now register or login again.');
+        localStorage.removeItem('username');
+        localStorage.removeItem('authToken');
+        location.reload(); // Reload the current page
+    });
+</script>
 
 <!--Projects-->
 <script>
