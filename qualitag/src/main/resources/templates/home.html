@@ -20,11 +20,11 @@
         <div class="collapse navbar-collapse" id="navcol-1">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
-                <li class="nav-item"></li>
-                <li class="nav-item"></li>
                 <li class="nav-item"><a class="nav-link" href="/signin">Log in</a></li>
                 <li class="nav-item"><a class="nav-link" href="/signup">Register</a></li>
-            </ul><a class="btn btn-primary shadow" role="button" href="signup">Sign up</a>
+
+                <li class="nav-item"><a id="userProjects" class="nav-link" href="/myprojects">My Projects</a></li>
+            </ul><a id="profileLink" class="btn btn-primary shadow" role="button" href="signup">Profile</a>
         </div>
     </div>
 </nav>
@@ -82,6 +82,34 @@
 <footer class="bg-dark"></footer>
 <script> src="assets/bootstrap/js/bootstrap.min.js" </script>
 <script src="assets/js/bold-and-dark.js"></script>
+
+<!--Projects-->
+<script>
+    document.getElementById('userProjects').addEventListener('click', function (event) {
+        const username = localStorage.getItem('username');
+        if (username) {
+            this.setAttribute('href', '/project/' + username + '/projects');
+        } else {
+            event.preventDefault(); // Prevent the default behavior
+            alert('Please login to access the profile page');
+            window.location.href = '/signin';
+        }
+    });
+</script>
+
+<!--Profile-->
+<script>
+    document.getElementById('profileLink').addEventListener('click', function (event) {
+        const username = localStorage.getItem('username');
+        if (username) {
+            this.setAttribute('href', '/user/' + username);
+        } else {
+            event.preventDefault(); // Prevent the default behavior
+            alert('Please login to access the profile page');
+            window.location.href = '/signin';
+        }
+    });
+</script>
 </body>
 
 </html>
