@@ -1,0 +1,2 @@
+org.springframework.boot.SpringApplicationRunListener=\
+it.unisannio.studenti.qualitag.DotenvApplicationRunListener

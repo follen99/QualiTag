@@ -19,6 +19,9 @@ COPY gradle ./gradle
 # Ensure the gradlew script is executable
 RUN chmod +x gradlew
 
+# Copy the .env file
+COPY .env ../.env
+
 # Copy the source code
 COPY src ./src
 

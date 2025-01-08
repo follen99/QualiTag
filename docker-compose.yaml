@@ -13,18 +13,21 @@ services:
     environment:
       - JAVA_OPTS=-Xmx512m
       - SERVER_PORT=8443 # Specify HTTPS port
-      - SERVER_SSL_ENABLED=true
-      - SERVER_SSL_KEY_STORE=classpath:credentials/certs/keystore.p12
-      - SERVER_SSL_KEY_STORE_TYPE=PKCS12
-      - SERVER_SSL_KEY_ALIAS=qualitag
-      - SERVER_SSL_KEY_STORE_PASSWORD=${KEYSTORE_PASSWORD} # Load from .env file
-    volumes:
-      - ./qualitag/src/main/resources/credentials/certs:/etc/ssl/certs # Mount SSL certificates
-      - ./.env:/app/.env # Mount .env file
     env_file:
       - .env
+    volumes:
+      - certs:/etc/ssl/certs
+      - ./.env:/app/.env
+      - ./qualitag/src/main/resources/credentials/tokens:/app/qualitag/src/main/resources/credentials/tokens
+    networks:
+      - qualitag-network
     depends_on:
       - mongodb
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   mongodb:
     image: mongo:6.0
@@ -33,6 +36,13 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+     - qualitag-network
 
 volumes:
     mongo-data:
+    certs:
+
+networks:
+  qualitag-network:
+    driver: bridge
