@@ -38,3 +38,9 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Mongo configuration
+qualitag/config/mongo/*
+
+# Zip files
+*.zip
