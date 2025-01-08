@@ -26,9 +26,21 @@ gradle-app.setting
 *.ipr
 *.iws
 
+# Visual Studio Code
+.vscode/
+
 # OS-specific files
 .DS_Store
 Thumbs.db
 
 # Credentials
 /qualitag/src/main/resources/credentials/**
+
+# Environment variables
+.env
+
+# Mongo configuration
+qualitag/config/mongo/*
+
+# Zip files
+*.zip

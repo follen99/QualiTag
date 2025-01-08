@@ -17,7 +17,7 @@ public class UserViewController {
    * Returns the profile view.
    *
    * @param username The username of the user.
-   * @param model The model.
+   * @param model    The model.
    * @return the profile view
    */
   @GetMapping("/{username}")
@@ -30,7 +30,7 @@ public class UserViewController {
    * Returns the update user view.
    *
    * @param username The username of the user.
-   * @param model The model.
+   * @param model    The model.
    * @return the update user view
    */
   @GetMapping("/{username}/update")
@@ -43,7 +43,7 @@ public class UserViewController {
    * Returns the update password view.
    *
    * @param username The username of the user.
-   * @param model The model.
+   * @param model    The model.
    * @return the update password view
    */
   @GetMapping("/{username}/password")

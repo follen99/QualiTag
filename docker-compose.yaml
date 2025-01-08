@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  qualitag:
+    image: qualitag
+    container_name: qualitag_java
+    build:
+      context: ./qualitag
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Expose HTTP port for redirection
+      - "8443:8443" # Expose HTTPS port for secure access
+    environment:
+      - JAVA_OPTS=-Xmx512m
+      - SERVER_PORT=8443 # Specify HTTPS port
+    env_file:
+      - .env
+    volumes:
+      - certs:/etc/ssl/certs
+      - ./.env:/app/.env
+      - ./qualitag/src/main/resources/credentials/tokens:/app/qualitag/src/main/resources/credentials/tokens
+    networks:
+      - qualitag-network
+    depends_on:
+      - mongodb
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+     - qualitag-network
+
+volumes:
+    mongo-data:
+    certs:
+
+networks:
+  qualitag-network:
+    driver: bridge

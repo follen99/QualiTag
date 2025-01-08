@@ -1,4 +1,4 @@
-name: Build QualiTag Java
+name: Build and Deploy QualiTag Java
 on:
   push:
 #    paths:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: Build Java Application
     runs-on: ubuntu-latest
 
     steps:
@@ -31,9 +32,29 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x qualitag/gradlew
 
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+
+      - name: Copy .env in qualitag directory
+        run: cp .env qualitag/.env
+
+      - name: Create certificate files for HTTPS
+        run: |
+          mkdir -p qualitag/src/main/resources/credentials/certs
+          echo "${{ secrets.KEYSTORE_CONTENT }}" | base64 -d > qualitag/src/main/resources/credentials/certs/keystore.p12
+
       - name: Build with Gradle
         run: ./gradlew build
         working-directory: qualitag
+
+      - name: Store reports in case of failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: |
+            **/build/reports/
+            **/build/test-results/
 
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest
@@ -54,3 +75,41 @@ jobs:
         with:
           name: jacoco-report
           path: qualitag/build/jacoco/test/html       # uploading whole folder
+
+  docker:
+    name: Build and Run Docker Compose
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+
+      - name: Copy .env in qualitag directory
+        run: cp .env qualitag/.env
+
+      - name: Create certificate files for HTTPS
+        run: |
+          mkdir -p qualitag/src/main/resources/credentials/certs
+          echo "${{ secrets.KEYSTORE_CONTENT }}" | base64 -d > qualitag/src/main/resources/credentials/certs/keystore.p12
+
+      - name: Install Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
+      - name: Build Docker image
+        run: docker-compose build
+
+      - name: Run Docker Compose
+        run: docker-compose up -d
+      
+      - name: Run tests
+        run: docker-compose exec -T qualitag ./gradlew test
+
+      - name: Stop Docker Compose
+        run: docker-compose down

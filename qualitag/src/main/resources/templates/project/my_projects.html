@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Projects</title>
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const username = localStorage.getItem('username');
+      const authToken = localStorage.getItem('authToken');
+      if (username) {
+        console.log('Token:', authToken);
+        fetch('/api/v1/user/' + username, {
+          headers: {
+            'Authorization': 'Bearer ' + authToken
+          }
+        })
+        .then(response => {
+          if (response.status === 403 || response.status === 404) {
+            window.location.href = '/404'; // Redirect to 404 page
+            throw new Error('Unauthorized access or user not found');
+          }
+          return response.json();
+        }).then(user => {
+          console.log('User data:', user);
+          const userProjectIds = user.projectIds;
+
+          // if there are no projects, display a message before fetching the projects
+          if (userProjectIds.length === 0) {
+            thereAreNoProjects();
+          }
+          else {
+            const projects = [];
+            userProjectIds.forEach(projectId => {
+              console.log('Fetching project data for project ID:', projectId);
+              fetch(`/api/v1/projects/${projectId}/status`, {
+                headers: {
+                  'Authorization': 'Bearer ' + authToken
+                }
+              })
+              .then(response => {
+                if (response.status === 403 || response.status === 404) {
+                  window.location.href = '/404'; // Redirect to 404 page
+                  throw new Error('Unauthorized access or user not found');
+                }
+                return response.json();
+              })
+              .then(project => {
+                // displayProjectIds(project);
+                projects.push(project);
+              })
+              .then(() => {
+                const projectListContainer = document.getElementById('projectsList');
+                projects.forEach(project => {
+                  const listItem = document.createElement('li');
+                  const link = document.createElement('a');
+
+                  link.href = `/project/detail/${project.projectId}`;
+                  link.textContent = `${project.projectName} - ${project.projectDescription}`;
+
+                  link.addEventListener('click',
+                      () => {
+                        // saving the project data in local storage
+                        // only when the user clicks on the project link
+                        localStorage.setItem('wholeproject', JSON.stringify(project));
+                      });
+
+                  listItem.appendChild(link);
+                  projectListContainer.appendChild(listItem);
+                });
+              })
+              .catch(error => console.error('Error fetching project data:', error));
+            });
+          }
+        })
+        .catch(error => console.error('Error fetching user data:', error));
+      } else {
+        alert('Please login to access the profile page');
+        window.location.href = '/signin';
+      }
+    });
+
+    function thereAreNoProjects() {
+      const projectListContainer = document.getElementById('projectsList');
+      const listItem = document.createElement('li');
+      listItem.textContent = 'There are no projects to display.';
+      projectListContainer.appendChild(listItem);
+
+      // Create "Go Home" link
+      const goHomeLink = document.createElement('a');
+      goHomeLink.href = '/';
+      goHomeLink.textContent = 'Go Home';
+      goHomeLink.style.paddingRight = '10px';
+      projectListContainer.appendChild(goHomeLink);
+
+      // Create "Create New Project" link
+      const createProjectLink = document.createElement('a');
+      createProjectLink.href = '/project/create';
+      createProjectLink.textContent = 'Create New Project';
+      projectListContainer.appendChild(createProjectLink);
+    }
+
+    function displayProjectIds(projectIds) {
+      const projectListContainer = document.getElementById('projectsList');
+      projectIds.forEach(projectId => {
+        const listItem = document.createElement('li');
+        listItem.textContent = projectId;
+        projectListContainer.appendChild(listItem);
+      });
+    }
+  </script>
+</head>
+<body>
+<h2>Projects</h2>
+<ul id="projectsList"></ul>
+<!-- <li><a href="/project/1">Project 1</a></li> -->
+<!-- <li><a href="/project/2">Project 2</a></li> -->
+<!-- <li><a href="/project/3">Project 3</a></li> -->
+
+</body>
+</html>

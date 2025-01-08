@@ -1,15 +1,20 @@
 package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.constants.TeamConstants;
+import it.unisannio.studenti.qualitag.dto.team.CompletedTeamCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.TeamMapper;
+import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.model.Team;
 import it.unisannio.studenti.qualitag.model.User;
+import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +26,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TeamService {
 
+  private final ProjectRepository projectRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
   private final TeamMapper teamMapper;
@@ -30,10 +36,11 @@ public class TeamService {
    *
    * @param teamRepository The team repository.
    * @param userRepository The user repository.
-   * @param teamMapper The team mapper.
+   * @param teamMapper     The team mapper.
    */
-  public TeamService(TeamRepository teamRepository, UserRepository userRepository,
-      TeamMapper teamMapper) {
+  public TeamService(ProjectRepository projectRepository, TeamRepository teamRepository,
+      UserRepository userRepository, TeamMapper teamMapper) {
+    this.projectRepository = projectRepository;
     this.teamRepository = teamRepository;
     this.userRepository = userRepository;
     this.teamMapper = teamMapper;
@@ -45,17 +52,37 @@ public class TeamService {
    * @param teamCreateDto The team data transfer object.
    * @return The response entity.
    */
-  public ResponseEntity<?> addTeam(TeamCreateDto teamCreateDto) {
+  public ResponseEntity<?> addTeam(TeamCreateDto teamCreateDto, String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
     // Team validation
     try {
-      TeamCreateDto correctTeamDto = validateTeam(teamCreateDto);
+      // Validate project ID
+      Project project = projectRepository.findProjectByProjectId(projectId);
+      if (project == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+      }
 
+      // Validate DTO
+      CompletedTeamCreateDto correctTeamDto = validateTeam(teamCreateDto);
+
+      // Create team
       Team team = teamMapper.toEntity(correctTeamDto);
+      team.setProjectId(projectId);
+
+      // Save team and add it to users
       this.teamRepository.save(team);
       this.addTeamToUser(team);
-      return ResponseEntity.status(HttpStatus.CREATED).body("Team added successfully");
+
+      // Add team to project
+      project.getTeams().add(team.getTeamId());
+      projectRepository.save(project);
+
+      response.put("msg", "Team added successfully");
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (TeamValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      response.put("msg", e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
   }
 
@@ -74,7 +101,7 @@ public class TeamService {
    * @param teamCreateDto The team data transfer object.
    * @return The validated team data transfer object.
    */
-  private TeamCreateDto validateTeam(TeamCreateDto teamCreateDto) {
+  private CompletedTeamCreateDto validateTeam(TeamCreateDto teamCreateDto) {
     if (teamCreateDto == null) {
       throw new TeamValidationException("Team cannot be null");
     }
@@ -84,9 +111,11 @@ public class TeamService {
     if (name == null || name.trim().isEmpty()) {
       throw new TeamValidationException("Team name cannot be empty");
     }
+    /*
     if (name.contains(" ")) {
       throw new TeamValidationException("Team name cannot contain whitespaces");
     }
+     */
 
     if (name.length() > TeamConstants.MAX_TEAM_NAME_LENGTH) {
       throw new TeamValidationException("Team name is too long");
@@ -108,6 +137,7 @@ public class TeamService {
      * If MIN_TEAM_USERS > 1 we need to check if the list has at least MIN_TEAM_USERS elements
      */
 
+    /*
     if (users.size() < TeamConstants.MIN_TEAM_USERS) {
       throw new TeamValidationException(
           "A team must have at least " + TeamConstants.MIN_TEAM_USERS + (
@@ -118,6 +148,7 @@ public class TeamService {
           "A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + (
               TeamConstants.MAX_TEAM_USERS > 1 ? " users" : " user"));
     }
+     */
 
     for (String currentUserId : users) {
       if (currentUserId == null || currentUserId.trim().isEmpty()) {
@@ -135,20 +166,6 @@ public class TeamService {
       }
     }
 
-    // Validate creation date
-    Long creationDate = teamCreateDto.creationDate();
-    if (creationDate == null) {
-      creationDate = System.currentTimeMillis();
-    } else {
-      if (creationDate <= 0) {
-        throw new TeamValidationException("Invalid creation date");
-      }
-
-      if (creationDate > System.currentTimeMillis()) {
-        throw new TeamValidationException("Creation date cannot be in the future");
-      }
-    }
-
     // Validate and correct team description
     String description = teamCreateDto.teamDescription();
     if (description == null) {
@@ -163,7 +180,7 @@ public class TeamService {
       }
     }
 
-    return new TeamCreateDto(name, creationDate, description, users);
+    return new CompletedTeamCreateDto(name, System.currentTimeMillis(), description, users);
   }
 
   /**

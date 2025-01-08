@@ -15,7 +15,7 @@ public class QualitagApplication {
    * @param args The command line arguments.
    */
   public static void main(String[] args) {
+
     SpringApplication.run(QualitagApplication.class, args);
   }
-
 }

@@ -35,9 +35,10 @@ public class TeamController {
    * @param teamCreateDto the DTO containing the team's information
    * @return a ResponseEntity containing the result of the operation
    */
-  @PostMapping("/add")
-  public ResponseEntity<?> addTeam(@RequestBody TeamCreateDto teamCreateDto) {
-    return this.teamService.addTeam(teamCreateDto);
+  @PostMapping("/add/{projectId}")
+  public ResponseEntity<?> addTeam(@RequestBody TeamCreateDto teamCreateDto,
+      @PathVariable String projectId) {
+    return this.teamService.addTeam(teamCreateDto, projectId);
   }
 
   /**
