@@ -28,7 +28,7 @@ public class DotenvApplicationRunListener implements SpringApplicationRunListene
   public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext,
       ConfigurableEnvironment environment) {
     Dotenv dotenv = Dotenv.configure()
-        .directory("../")
+        .directory("./")
         .load();
 
     for (DotenvEntry entry : dotenv.entries()) {

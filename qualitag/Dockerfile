@@ -20,7 +20,7 @@ COPY gradle ./gradle
 RUN chmod +x gradlew
 
 # Copy the .env file
-COPY .env ../.env
+COPY .env .env
 
 # Copy the source code
 COPY src ./src
