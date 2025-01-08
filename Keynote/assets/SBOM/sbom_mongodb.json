@@ -1,0 +1,28 @@
+{
+    "spdxVersion": "SPDX-2.3",
+    "name": "com.github.follen99/QualiTag",
+    "packages": [
+        {
+            "name": "webidl-conversions",
+            "versionInfo": "7.0.0",
+            "licenseConcluded": "BSD-2-Clause",
+            "externalRefs": [
+                {
+                    "referenceType": "purl",
+                    "referenceLocator": "pkg:npm/webidl-conversions@7.0.0"
+                }
+            ]
+        },
+        {
+            "name": "mongodb",
+            "versionInfo": "6.11.0",
+            "licenseConcluded": "Apache-2.0",
+            "externalRefs": [
+                {
+                    "referenceType": "purl",
+                    "referenceLocator": "pkg:npm/mongodb@6.11.0"
+                }
+            ]
+        }
+    ]
+}
