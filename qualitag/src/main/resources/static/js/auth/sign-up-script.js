@@ -1,9 +1,10 @@
 document.getElementById('registrationForm').addEventListener('submit', async function(event) {
   event.preventDefault();
 
+
   const formData = new FormData(event.target);
   const data = Object.fromEntries(formData.entries());
-
+  console.log(JSON.stringify(data));
   try {
     const response = await fetch('/api/v1/auth/register', {
       method: 'POST',

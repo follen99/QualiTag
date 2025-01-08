@@ -105,11 +105,13 @@
 <script>
     document.getElementById('logoutbutton').addEventListener('click', function (event) {
         event.preventDefault(); // Prevent the default behavior
-        alert('User ' + localStorage.getItem('username') + ' has been logged out successfully.\n' +
-            'You can now register or login again.');
-        localStorage.removeItem('username');
-        localStorage.removeItem('authToken');
-        location.reload(); // Reload the current page
+        if (confirm('Are you sure you want to log out?')) {
+            alert('User ' + localStorage.getItem('username') + ' has been logged out successfully.\n' +
+                'You can now register or login again.');
+            localStorage.removeItem('username');
+            localStorage.removeItem('authToken');
+            location.reload(); // Reload the current page
+        }
     });
 </script>
 
