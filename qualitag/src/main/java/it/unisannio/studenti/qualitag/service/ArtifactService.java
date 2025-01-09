@@ -19,7 +19,6 @@ public class ArtifactService {
 
   private final ArtifactRepository artifactRepository;
   private final TagRepository tagRepository;
-  private final ArtifactMapper artifactMapper;
 
   /**
    * Constructs a new ArtifactService.
@@ -29,7 +28,6 @@ public class ArtifactService {
   public ArtifactService(ArtifactRepository artifactRepository, TagRepository tagRepository) {
     this.artifactRepository = artifactRepository;
     this.tagRepository = tagRepository;
-    this.artifactMapper = new ArtifactMapper(this);
   }
 
   /**
@@ -42,7 +40,7 @@ public class ArtifactService {
     try {
       ArtifactCreateDto correctArtifactDto = validateArtifact(artifactCreateDto);
 
-      Artifact artifact = artifactMapper.toEntity(correctArtifactDto);
+      Artifact artifact = ArtifactMapper.toEntity(correctArtifactDto);
       this.artifactRepository.save(artifact);
       return ResponseEntity.status(HttpStatus.CREATED).body("Artifact added successfully");
 
