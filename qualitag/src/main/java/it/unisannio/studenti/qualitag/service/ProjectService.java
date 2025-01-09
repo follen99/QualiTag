@@ -381,7 +381,7 @@ public class ProjectService {
 
   // DELETE
 
-  // TODO: Fix response to be a map and interneve also on team, artifact and user
+  // TODO: Interneve also on team, artifact and user
   /**
    * Deletes a project.
    *
@@ -389,27 +389,33 @@ public class ProjectService {
    * @return the response entity
    */
   public ResponseEntity<?> deleteProject(String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
     if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     if (!projectRepository.existsById(projectId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     String currentUserId = getLoggedInUserId();
 
     if (!currentUserId.equals(projectRepository.findProjectByProjectId(projectId).getOwnerId())) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body("Only the owner can delete the project!");
+      response.put("msg", "Only the owner can delete the project!");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     projectRepository.deleteById(projectId);
+    // FIXME: Is this check necessary?
     if (projectRepository.existsById(projectId)) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Project not deleted");
+      response.put("msg", "Project not deleted");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    return ResponseEntity.status(HttpStatus.OK).body("Project deleted successfully");
+    response.put("msg", "Project deleted successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   // UPDATE
