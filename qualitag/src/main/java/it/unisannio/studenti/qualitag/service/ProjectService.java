@@ -135,15 +135,6 @@ public class ProjectService {
     for (String userId : userList) {
       User user = usersRepository.findByUserId(userId);
 
-      // Debugging
-      // System.out.println("User: " + user);
-      // System.out.println("User ID: " + userId);
-
-      // TODO add a list of users that were not found, then throw an exception returning the list
-      if (user == null) {
-        throw new ProjectValidationException("User with ID " + userId + " not found");
-      }
-
       // Add the project to the user
       user.getProjectIds().add(project.getProjectId());
       userRepository.save(user);
@@ -501,7 +492,6 @@ public class ProjectService {
       project.setUsers(correctProjectDto.users());
       project.setTeams(correctProjectDto.teams());
       project.setArtifacts(correctProjectDto.artifacts());
-      //TODO checks if other parameters should be changed
 
       this.projectRepository.save(project);
 
@@ -596,28 +586,40 @@ public class ProjectService {
       throw new ProjectValidationException("Owner must not be part of the list of users");
     }
 
-    // Validate the user emails and retrieve userIds
-    List<String> userIds = new ArrayList<>();
+    // Validate the user emails and eventually make a list of missing emails
+    List<String> missingUserEmails = new ArrayList<>();
     for (String email : userEmails) {
+      // Check if the email is null
       if (email == null) {
         throw new ProjectValidationException(
             "There is an empty email in the list. Please remove it.");
       }
 
-      User user = usersRepository.findByEmail(email);
-      if (user == null) {
-        throw new ProjectValidationException("User with email " + email + " does not exist");
-      }
+      // Check if the email is duplicated in the list
       if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
         throw new ProjectValidationException(
             "User with email " + email + " is mentioned more than once");
       }
-      userIds.add(user.getUserId());
+
+      // Check if the email is registered. If not, add to a list of missing emails
+      if (!userRepository.existsByEmail(email)) {
+        missingUserEmails.add(email);
+      }
+    }
+    if (!missingUserEmails.isEmpty()) {
+      throw new ProjectValidationException(
+          "The following emails are not registered: " + missingUserEmails);
     }
 
-    // Team validation removed. One team is created by default.
-
-    // Artifact validation removed. No artifacts when creating a project.
+    // Validate the user emails and retrieve userIds
+    List<String> userIds = new ArrayList<>();
+    for (String email : userEmails) {
+      User user = usersRepository.findByEmail(email);
+      if (user == null) {
+        throw new ProjectValidationException("User with email " + email + " does not exist");
+      }
+      userIds.add(user.getUserId());
+    }
 
     return new CompletedProjectCreationDto(
         name,
