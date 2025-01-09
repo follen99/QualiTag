@@ -381,7 +381,7 @@ public class ProjectService {
 
   // DELETE
 
-  // TODO: Interneve also on team, artifact and user
+  // TODO: Interneve also on tag, team, artifact and user
   /**
    * Deletes a project.
    *
@@ -391,6 +391,7 @@ public class ProjectService {
   public ResponseEntity<?> deleteProject(String projectId) {
     Map<String, Object> response = new HashMap<>();
 
+    // Check if there's a problem with the project ID
     if (projectId == null || projectId.isEmpty()) {
       response.put("msg", "Project ID cannot be null or empty");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -400,11 +401,39 @@ public class ProjectService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    String currentUserId = getLoggedInUserId();
+    Project projectToDelete = projectRepository.findProjectByProjectId(projectId);
 
-    if (!currentUserId.equals(projectRepository.findProjectByProjectId(projectId).getOwnerId())) {
+    // Check if the logged user is the owner of the project
+    String currentUserId = getLoggedInUserId();
+    if (!currentUserId.equals(projectToDelete.getOwnerId())) {
       response.put("msg", "Only the owner can delete the project!");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // TODO: Eventually delete the roles of the users
+    // Delete links to the project from owner
+    User owner = usersRepository.findByUserId(currentUserId);
+    owner.getProjectIds().remove(projectId);
+
+    // Delete links to the project from users
+    List<String> userIds = projectToDelete.getUsers();
+    for (String userId : userIds) {
+      User user = usersRepository.findByUserId(userId);
+      user.getProjectIds().remove(projectId);
+    }
+
+    // TODO: Delete tags using the proper service
+
+    // Delete teams using the proper service
+    List<String> teamIds = projectToDelete.getTeams();
+    for (String teamId : teamIds) {
+      teamsRepository.deleteById(teamId);
+    }
+
+    // Delete artifacts using the proper service
+    List<String> artifactIds = projectToDelete.getArtifacts();
+    for (String artifactId : artifactIds) {
+      artifactsRepository.deleteById(artifactId);
     }
 
     projectRepository.deleteById(projectId);
