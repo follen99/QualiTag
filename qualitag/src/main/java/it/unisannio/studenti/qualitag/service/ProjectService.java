@@ -96,19 +96,24 @@ public class ProjectService {
       ResponseEntity<?> teamResponse = teamService.addTeam(teamCreateDto, project.getProjectId());
       if (teamResponse.getStatusCode() != HttpStatus.CREATED) {
         // If there's a problem, rollback the project creation
-        // TODO: Delete using the proper service to avoid inconsistencies
-        this.projectRepository.delete(project);
+        this.deleteProject(project.getProjectId());
         return teamResponse;
       }
 
       // Add the project to the users
-      this.addProjectsToUsers(project);
+      try {
+        this.addProjectsToUsers(project);
+      } catch (ProjectValidationException e) {
+        // If there's a problem, rollback the project creation
+        this.deleteProject(project.getProjectId());
+
+        response.put("msg", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
 
       response.put("msg", "Project created successfully");
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (ProjectValidationException e) {
-      // TODO: Delete project with method
-
       response.put("msg", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     } catch (Exception e) {
@@ -213,36 +218,41 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body("Artifact added to the project successfully");
   }
 
-  // TODO: Fix response to be a map
   /**
    * Close a project.
    *
    * @param projectId the id of the project to close
    */
   public ResponseEntity<?> closeProject(String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
     if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     if (project.getProjectStatus() == ProjectStatus.CLOSED) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project is already closed");
+      response.put("msg", "Project is already closed");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     String currentUserId = getLoggedInUserId();
     if (!project.getOwnerId().equals(currentUserId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body("Only the project owner can close the project!");
+      response.put("msg", "Only the project owner can close the project");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     project.setProjectStatus(ProjectStatus.CLOSED);
     projectRepository.save(project);
 
-    return ResponseEntity.status(HttpStatus.OK).body("Project closed successfully");
+    response.put("msg", "Project closed successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   // GET
@@ -257,8 +267,7 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body(projectRepository.findAll());
   }
 
-  // TODO: Fix response to be a map
-  // TODO: It is possible to implement this method using the role of the user
+  // TODO: It might be possible to implement this method using the role of the user
   /**
    * Returns all the projects created by a specific owner.
    *
@@ -266,21 +275,30 @@ public class ProjectService {
    * @return the response entity
    */
   public ResponseEntity<?> getProjectsByOwner(String ownerId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if there's a problem with the owner ID
     if (ownerId == null || ownerId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Owner ID cannot be null or empty");
+      response.put("msg", "Owner ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     if (!usersRepository.existsById(ownerId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Owner not found");
+      response.put("msg", "Owner not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    if (!projectRepository.existsByOwnerId(ownerId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body("Project with owner " + ownerId + " not found");
+
+    // Retrieve the projects of the owner. If none, return message
+    List<Project> projects = projectRepository.findProjectsByOwnerId(ownerId);
+    if (projects == null || projects.isEmpty()) {
+      response.put("msg", "No projects found for the owner");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(projectRepository.findProjectsByOwnerId(ownerId));
+
+    response.put("msg", "Projects found successfully");
+    response.put("projects", projects);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  // TODO: Fix response to be a map
   /**
    * Searches for a project with a specific id.
    *
@@ -288,15 +306,22 @@ public class ProjectService {
    * @return the response entity
    */
   public ResponseEntity<?> getProjectById(String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if there's a problem with the project ID
     if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     if (!projectRepository.existsById(projectId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(projectRepository.findProjectByProjectId(projectId));
+
+    // Retrieve the project and return it
+    response.put("msg", "Project found successfully");
+    response.put("project", projectRepository.findProjectByProjectId(projectId));
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   // TODO: Probably move this method to tag service and fix response to be a map
@@ -381,7 +406,6 @@ public class ProjectService {
 
   // DELETE
 
-  // TODO: Interneve also on tag, team, artifact and user
   /**
    * Deletes a project.
    *
