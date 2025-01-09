@@ -4,7 +4,11 @@ import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
+import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.Team;
 import it.unisannio.studenti.qualitag.model.User;
+import it.unisannio.studenti.qualitag.repository.ProjectRepository;
+import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
 import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The userService class is a service class that provides methods to manage the user entity.
@@ -29,8 +34,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
-  private final UserRepository userRepository;
   private final UserMapper userMapper;
+
+  private final ProjectRepository projectRepository;
+  private final TeamRepository teamRepository;
+  private final UserRepository userRepository;
+  
+  private final ProjectService projectService;
   private final JwtService jwtService;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -221,6 +231,7 @@ public class UserService {
    * @param username The username of the user to delete.
    * @return A response entity with the result of the deletion.
    */
+  @Transactional
   public ResponseEntity<?> deleteUser(String username) {
     Map<String, Object> response = new HashMap<>();
 
@@ -231,11 +242,33 @@ public class UserService {
     }
 
     // Check if the user exists
-    if (!userRepository.existsByUsername(username)) {
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
       response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // Delete the projects owned by the user or remove the user from the projects
+    for (String projectId : user.getProjectIds()) {
+      Project project = projectRepository.findProjectByProjectId(projectId);
+      if (project.getOwnerId().equals(user.getUserId())) {
+        projectService.deleteProject(projectId);
+      } else {
+        project.getUsers().remove(user.getUserId());
+        projectRepository.save(project);
+      }
+    }
+
+    // Remove the user from the teams
+    for (String teamId : user.getTeamIds()) {
+      Team team = teamRepository.findTeamByTeamId(teamId);
+      team.getUsers().remove(user.getUserId());
+      teamRepository.save(team);
+    }
+
+    // TODO: Delete the user's tags (?)
+
+    // Delete the user
     userRepository.deleteByUsername(username);
 
     response.put("msg", "User deleted successfully.");

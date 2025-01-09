@@ -50,4 +50,12 @@ public interface TeamRepository extends MongoRepository<Team, String> {
    *      team ID, false otherwise.
    */
   boolean existsByUsersContainingAndTeamIdNot(String userId, String teamId);
+
+  /**
+   * Finds a team by its ID.
+   *
+   * @param teamId The team ID to exclude.
+   * @return The team mathcing the specified team ID.
+   */
+  Team findTeamByTeamId(String teamId);
 }
