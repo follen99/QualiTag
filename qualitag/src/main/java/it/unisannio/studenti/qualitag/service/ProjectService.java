@@ -41,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProjectService {
 
   private final ProjectRepository projectRepository;
-  private final ProjectMapper projectMapper;
   private final UserRepository usersRepository;
   private final TeamRepository teamsRepository;
   private final ArtifactRepository artifactsRepository;
@@ -64,7 +63,6 @@ public class ProjectService {
     this.usersRepository = usersRepository;
     this.teamsRepository = teamsRepository;
     this.artifactsRepository = artifactsRepository;
-    this.projectMapper = new ProjectMapper(this);
     this.teamService = teamService;
     this.userRepository = userRepository;
   }
@@ -85,7 +83,7 @@ public class ProjectService {
     try {
       CompletedProjectCreationDto correctProjectDto = validateProject(projectCreateDto);
 
-      Project project = projectMapper.toEntity(correctProjectDto);
+      Project project = ProjectMapper.toEntity(correctProjectDto);
 
       // Save project to get ID
       this.projectRepository.save(project);
