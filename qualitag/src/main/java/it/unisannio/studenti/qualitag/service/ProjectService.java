@@ -96,6 +96,7 @@ public class ProjectService {
       ResponseEntity<?> teamResponse = teamService.addTeam(teamCreateDto, project.getProjectId());
       if (teamResponse.getStatusCode() != HttpStatus.CREATED) {
         // If there's a problem, rollback the project creation
+        // TODO: Delete using the proper service to avoid inconsistencies
         this.projectRepository.delete(project);
         return teamResponse;
       }
@@ -106,6 +107,8 @@ public class ProjectService {
       response.put("msg", "Project created successfully");
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (ProjectValidationException e) {
+      // TODO: Delete project with method
+
       response.put("msg", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     } catch (Exception e) {
@@ -113,6 +116,7 @@ public class ProjectService {
     }
   }
 
+  // TODO: Add roles to users
   private void addProjectsToUsers(Project project) throws Exception {
     User owner = usersRepository.findByUserId(project.getOwnerId());
     if (owner == null) {
@@ -162,6 +166,7 @@ public class ProjectService {
     }
   }
 
+  // TODO: Probably have to rewrite this method
   /**
    * Adds an artifact to a project.
    *
@@ -208,6 +213,7 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body("Artifact added to the project successfully");
   }
 
+  // TODO: Fix response to be a map
   /**
    * Close a project.
    *
@@ -241,6 +247,7 @@ public class ProjectService {
 
   // GET
 
+  // TODO: Add some protection or delete the method
   /**
    * Return all the projects in the database.
    *
@@ -250,6 +257,8 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body(projectRepository.findAll());
   }
 
+  // TODO: Fix response to be a map
+  // TODO: It is possible to implement this method using the role of the user
   /**
    * Returns all the projects created by a specific owner.
    *
@@ -271,6 +280,7 @@ public class ProjectService {
         .body(projectRepository.findProjectsByOwnerId(ownerId));
   }
 
+  // TODO: Fix response to be a map
   /**
    * Searches for a project with a specific id.
    *
@@ -289,6 +299,7 @@ public class ProjectService {
         .body(projectRepository.findProjectByProjectId(projectId));
   }
 
+  // TODO: Probably move this method to tag service and fix response to be a map
   /**
    * Searches for the tags of the artifacts of a project.
    *
@@ -333,6 +344,7 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body(tags);
   }
 
+  // TODO: Probably move this method to artifact service and fix response to be a map
   /**
    * Gets all the artifacts of a project.
    *
@@ -369,6 +381,7 @@ public class ProjectService {
 
   // DELETE
 
+  // TODO: Fix response to be a map and interneve also on team, artifact and user
   /**
    * Deletes a project.
    *
@@ -401,6 +414,7 @@ public class ProjectService {
 
   // UPDATE
 
+  // TODO: Implement this method
   /**
    * Modifies an existing projects.
    *
