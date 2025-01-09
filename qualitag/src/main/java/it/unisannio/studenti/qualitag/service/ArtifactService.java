@@ -87,7 +87,6 @@ public class ArtifactService {
    * @return The response entity
    */
   public ResponseEntity<?> getAllArtifacts() {
-    List<Artifact> artifacts = artifactRepository.findAll();
     return ResponseEntity.status(HttpStatus.OK).body(artifactRepository.findAll());
   }
 

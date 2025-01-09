@@ -12,7 +12,6 @@ import it.unisannio.studenti.qualitag.model.ProjectStatus;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
-import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
 import jakarta.validation.ConstraintViolation;
@@ -26,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -38,34 +38,18 @@ import org.springframework.transaction.annotation.Transactional;
  * The ProjectService class is a service class that provides methods to manage the project entity.
  */
 @Service
+@RequiredArgsConstructor
 public class ProjectService {
 
-  private final ProjectRepository projectRepository;
-  private final UserRepository usersRepository;
-  private final TeamRepository teamsRepository;
+  private final ArtifactService artifactService;
+  private final TeamService teamService;
+
   private final ArtifactRepository artifactsRepository;
+  private final ProjectRepository projectRepository;
+  private final UserRepository userRepository;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
-  private final TeamService teamService;
-  private final UserRepository userRepository;
-
-  /**
-   * Constructs a new ProjectService.
-   *
-   * @param projectRepository the project repository
-   * @param usersRepository   the user repository
-   */
-  public ProjectService(ProjectRepository projectRepository, UserRepository usersRepository,
-      TeamRepository teamsRepository, ArtifactRepository artifactsRepository,
-      TeamService teamService, UserRepository userRepository) {
-    this.projectRepository = projectRepository;
-    this.usersRepository = usersRepository;
-    this.teamsRepository = teamsRepository;
-    this.artifactsRepository = artifactsRepository;
-    this.teamService = teamService;
-    this.userRepository = userRepository;
-  }
 
   // POST
 
@@ -79,7 +63,7 @@ public class ProjectService {
   public ResponseEntity<?> createProject(ProjectCreateDto projectCreateDto) {
     Map<String, Object> response = new HashMap<>();
 
-    //Project validation
+    // Project validation
     try {
       CompletedProjectCreationDto correctProjectDto = validateProject(projectCreateDto);
 
@@ -121,7 +105,7 @@ public class ProjectService {
 
   // TODO: Add roles to users
   private void addProjectsToUsers(Project project) throws Exception {
-    User owner = usersRepository.findByUserId(project.getOwnerId());
+    User owner = userRepository.findByUserId(project.getOwnerId());
     if (owner == null) {
       throw new ProjectValidationException("User with ID " + project.getOwnerId() + " not found");
     }
@@ -133,29 +117,26 @@ public class ProjectService {
     // Add project to users
     List<String> userList = project.getUsers();
     for (String userId : userList) {
-      User user = usersRepository.findByUserId(userId);
+      User user = userRepository.findByUserId(userId);
 
       // Add the project to the user
       user.getProjectIds().add(project.getProjectId());
       userRepository.save(user);
 
       // Send email to user
-      String emailMessage = String.format(
-          """
-              Dear %s,
-              
-              You have been invited to join the project: %s.
-              
-              Project Description: %s
-              
-              We look forward to your valuable contributions.
-              
-              Best regards,
-              %s
-              """,
-          user.getUsername(), project.getProjectName(), project.getProjectDescription(),
-          owner.getName() + " " + owner.getSurname()
-      );
+      String emailMessage = String.format("""
+          Dear %s,
+
+          You have been invited to join the project: %s.
+
+          Project Description: %s
+
+          We look forward to your valuable contributions.
+
+          Best regards,
+          %s
+          """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+          owner.getName() + " " + owner.getSurname());
       new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
     }
   }
@@ -164,7 +145,7 @@ public class ProjectService {
   /**
    * Adds an artifact to a project.
    *
-   * @param projectId  the id of the project
+   * @param projectId the id of the project
    * @param artifactId the id of the artifact
    * @return the response entity
    */
@@ -271,7 +252,7 @@ public class ProjectService {
       response.put("msg", "Owner ID cannot be null or empty");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-    if (!usersRepository.existsById(ownerId)) {
+    if (!userRepository.existsById(ownerId)) {
       response.put("msg", "Owner not found");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -338,13 +319,13 @@ public class ProjectService {
           .body("Only the project owner can see the tags!");
     }
 
-    //retrieve the project's artifacts
+    // retrieve the project's artifacts
     List<String> artifactIds = project.getArtifacts();
     if (artifactIds == null || artifactIds.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No artifacts found for the project");
     }
 
-    //retrive the tags of the artifacts
+    // retrive the tags of the artifacts
     List<String> tags = new ArrayList<>();
     for (String artifactId : artifactIds) {
       Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
@@ -425,13 +406,13 @@ public class ProjectService {
 
     // TODO: Eventually delete the roles of the users
     // Delete links to the project from owner
-    User owner = usersRepository.findByUserId(currentUserId);
+    User owner = userRepository.findByUserId(currentUserId);
     owner.getProjectIds().remove(projectId);
 
     // Delete links to the project from users
     List<String> userIds = projectToDelete.getUsers();
     for (String userId : userIds) {
-      User user = usersRepository.findByUserId(userId);
+      User user = userRepository.findByUserId(userId);
       user.getProjectIds().remove(projectId);
     }
 
@@ -440,13 +421,13 @@ public class ProjectService {
     // Delete teams using the proper service
     List<String> teamIds = projectToDelete.getTeams();
     for (String teamId : teamIds) {
-      teamsRepository.deleteById(teamId);
+      teamService.deleteTeam(teamId);
     }
 
     // Delete artifacts using the proper service
     List<String> artifactIds = projectToDelete.getArtifacts();
     for (String artifactId : artifactIds) {
-      artifactsRepository.deleteById(artifactId);
+      artifactService.deleteArtifact(artifactId);
     }
 
     projectRepository.deleteById(projectId);
@@ -467,46 +448,39 @@ public class ProjectService {
    * Modifies an existing projects.
    *
    * @param projectModifyDto the DTO used to modify the project
-   * @param projectId        the id of the project to modify
+   * @param projectId the id of the project to modify
    * @return the response entity
    */
   public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
     /*
-    //id check
-    if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
-    }
-
-    //project validation
-    try {
-      ProjectCreateDto correctProjectDto = validateProject(projectModifyDto);
-
-      Project project = projectRepository.findProjectByProjectId(projectId);
-      if (project == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
-      }
-
-      project.setProjectName(correctProjectDto.projectName());
-      project.setProjectDescription(correctProjectDto.projectDescription());
-      project.setProjectDeadline(correctProjectDto.deadlineDate());
-      project.setUsers(correctProjectDto.users());
-      project.setTeams(correctProjectDto.teams());
-      project.setArtifacts(correctProjectDto.artifacts());
-
-      this.projectRepository.save(project);
-
-      return ResponseEntity.status(HttpStatus.OK).body("Project updated successfully");
-
-    } catch (ProjectValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
+     * //id check if (projectId == null || projectId.isEmpty()) { return
+     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty"); }
+     * 
+     * //project validation try { ProjectCreateDto correctProjectDto =
+     * validateProject(projectModifyDto);
+     * 
+     * Project project = projectRepository.findProjectByProjectId(projectId); if (project == null) {
+     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found"); }
+     * 
+     * project.setProjectName(correctProjectDto.projectName());
+     * project.setProjectDescription(correctProjectDto.projectDescription());
+     * project.setProjectDeadline(correctProjectDto.deadlineDate());
+     * project.setUsers(correctProjectDto.users()); project.setTeams(correctProjectDto.teams());
+     * project.setArtifacts(correctProjectDto.artifacts());
+     * 
+     * this.projectRepository.save(project);
+     * 
+     * return ResponseEntity.status(HttpStatus.OK).body("Project updated successfully");
+     * 
+     * } catch (ProjectValidationException e) { return
+     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
+     * 
      */
 
     return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
   }
 
-  //UTILITY METHODS
+  // UTILITY METHODS
 
   /**
    * Private method that returns the ID of the logged-in user.
@@ -554,19 +528,18 @@ public class ProjectService {
     }
 
     // Validate the deadline date and set creation date
-    ZonedDateTime deadlineDate = ZonedDateTime.parse(projectCreateDto.deadlineDate(),
-        DateTimeFormatter.ISO_DATE_TIME);
+    ZonedDateTime deadlineDate =
+        ZonedDateTime.parse(projectCreateDto.deadlineDate(), DateTimeFormatter.ISO_DATE_TIME);
     ZonedDateTime creationDate = ZonedDateTime.now();
     if (deadlineDate.isBefore(creationDate)) {
       throw new ProjectValidationException("Deadline date cannot be before the creation date");
     }
 
-    ZonedDateTime maxDeadline = ZonedDateTime.now()
-        .plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
+    ZonedDateTime maxDeadline =
+        ZonedDateTime.now().plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
     if (deadlineDate.isAfter(maxDeadline)) {
-      throw new ProjectValidationException(
-          "Deadline date cannot be after " + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS
-              + " years from now");
+      throw new ProjectValidationException("Deadline date cannot be after "
+          + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS + " years from now");
     }
 
     // Validate the owner
@@ -575,7 +548,7 @@ public class ProjectService {
       throw new ProjectValidationException("Owner cannot be null or empty");
     }
 
-    User owner = usersRepository.findByUserId(ownerId);
+    User owner = userRepository.findByUserId(ownerId);
     if (owner == null) {
       throw new ProjectValidationException("User with ID " + ownerId + " does not exist");
     }
@@ -614,19 +587,15 @@ public class ProjectService {
     // Validate the user emails and retrieve userIds
     List<String> userIds = new ArrayList<>();
     for (String email : userEmails) {
-      User user = usersRepository.findByEmail(email);
+      User user = userRepository.findByEmail(email);
       if (user == null) {
         throw new ProjectValidationException("User with email " + email + " does not exist");
       }
       userIds.add(user.getUserId());
     }
 
-    return new CompletedProjectCreationDto(
-        name,
-        projectCreateDto.projectDescription(),
-        creationDate.toInstant().toEpochMilli(),
-        deadlineDate.toInstant().toEpochMilli(),
-        ownerId,
+    return new CompletedProjectCreationDto(name, projectCreateDto.projectDescription(),
+        creationDate.toInstant().toEpochMilli(), deadlineDate.toInstant().toEpochMilli(), ownerId,
         userIds);
   }
 }
