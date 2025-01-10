@@ -70,7 +70,7 @@
               <div class="mb-3">
                   <button class="btn btn-primary shadow d-block w-100" type="submit">Login</button>
               </div>
-              <p class="text-muted">Forgot your password?</p>
+              <p class="text-muted"><a th:href="@{/user/{username}/password/reset(username=${username})}">Forgot your password?</a></p>
             </form>
           </div>
         </div>
@@ -79,11 +79,13 @@
   </div>
 </section>
 <footer class="bg-dark"></footer>
-<script src="assets/bootstrap/js/bootstrap.min.js"></script>
-<script src="assets/js/bold-and-dark.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/bold-and-dark.js"></script>
 <script src="/js/auth/sign-in-script.js"></script>
+<!--<script src="/js/user/get-user-data-script.js"></script>-->
 
 <script src="/js/user/nav-bar-logic.js"></script>
+
 </body>
 
 </html>

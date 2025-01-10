@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // if we don't handle this case, an exception will be thrown
   if (!authToken) {
+    alert('You must be logged in to access this page.');
     window.location.href = '/signin';
     return;
   }
