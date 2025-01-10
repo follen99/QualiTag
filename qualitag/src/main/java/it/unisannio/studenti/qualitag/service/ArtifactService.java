@@ -59,7 +59,7 @@ public class ArtifactService {
 
     // Construct the path where the file will be saved using the upload directory
     // and the unique file name.
-    Path path = Paths.get(UPLOAD_DIR + uniqueFileName);
+    Path path = Paths.get(System.getProperty("user.dir"), "..", UPLOAD_DIR, uniqueFileName);
 
     // Create any necessary directories in the path if they do not already exist.
     Files.createDirectories(path.getParent());
@@ -98,7 +98,7 @@ public class ArtifactService {
 
       // Check if the logged in user is the owner of the project
       User user = userRepository.findByUserId(project.getOwnerId());
-      if (!AuthenticationService.getAuthority(user.getUsername())) {
+      if (AuthenticationService.getAuthority(user.getUsername())) {
         response.put("msg", "User is not the project owner");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
       }
@@ -133,9 +133,15 @@ public class ArtifactService {
       Team team = teamRepository.findTeamByTeamId(minTeamId);
       team.getArtifactIds().add(artifact.getArtifactId());
       teamRepository.save(team);
+      artifact.setTeamId(team.getTeamId());
+
+      // Save the artifact to the database
+      artifactRepository.save(artifact);
 
     } catch (IOException e) {
       response.put("msg", "File upload failed");
+      response.put("error_message", e.getMessage());
+      response.put("error", e);
       return ResponseEntity.status(500).body(response);
     } catch (Exception e) {
       response.put("msg", "An error occurred");

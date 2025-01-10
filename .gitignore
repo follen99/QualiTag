@@ -44,3 +44,6 @@ qualitag/config/mongo/*
 
 # Zip files
 *.zip
+
+# Folder of artifacts
+artifacts/

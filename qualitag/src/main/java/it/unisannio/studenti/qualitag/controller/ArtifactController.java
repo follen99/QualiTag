@@ -3,9 +3,11 @@ package it.unisannio.studenti.qualitag.controller;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,8 +41,8 @@ public class ArtifactController {
    *
    * @param artifactCreateDto the artifact to add to the repository
    */
-  @PostMapping("/add")
-  public ResponseEntity<?> createArtifact(@RequestBody ArtifactCreateDto artifactCreateDto) {
+  @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<?> createArtifact(@ModelAttribute ArtifactCreateDto artifactCreateDto) {
     return this.artifactService.addArtifact(artifactCreateDto);
   }
 
