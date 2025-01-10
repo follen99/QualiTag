@@ -14,9 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const registerButton = document.getElementById('register-navbar');
     const projectsButton = document.getElementById('projects-navbar');
 
-    const username = localStorage.getItem('username');
+    const authToken = localStorage.getItem('authToken');
+    console.log('authToken: ' + authToken);
 
-    if (username) {
+    if (authToken) {
         profileLink.style.display = 'block'; // Mostra il bottone
         logoutButton.style.display = 'block'; // Mostra il bottone
         projectsButton.style.display = 'block'; // Mostra il bottone
