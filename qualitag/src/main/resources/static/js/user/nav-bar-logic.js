@@ -7,7 +7,7 @@
  */
 
 // If user is logged in, show the profile link and logout button
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const profileLink = document.getElementById('profileLink');
     const logoutButton = document.getElementById('logoutbutton');
     const loginButton = document.getElementById('login-navbar');
@@ -62,8 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('logoutbutton').addEventListener('click', function (event) {
         event.preventDefault(); // Prevent the default behavior
         if (confirm('Are you sure you want to log out?')) {
-            alert('User ' + localStorage.getItem('username') + ' has been logged out successfully.\n' +
-                'You can now register or login again.');
+            alert('User ' + localStorage.getItem('username') + ' has been logged out successfully.\n' + 'You can now register or login again.');
             localStorage.removeItem('username');
             localStorage.removeItem('authToken');
             location.reload(); // Reload the current page
