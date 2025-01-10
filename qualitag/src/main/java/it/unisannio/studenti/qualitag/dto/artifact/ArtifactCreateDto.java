@@ -1,15 +1,15 @@
 package it.unisannio.studenti.qualitag.dto.artifact;
 
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * DTO used for artifact creation in the system.
  */
 public record ArtifactCreateDto(
     @NotBlank String artifactName,
-    @NotBlank String content,
-    List<String> tags) {
+    String description,
+    @NotBlank String projectId,
+    @NotNull MultipartFile file) {
 }
-
-
