@@ -15,8 +15,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const projectsButton = document.getElementById('projects-navbar');
 
     await checkToken();
-    const authToken = localStorage.getItem('authToken qui');
-    console.log('authToken: ' + authToken);
+    const authToken = localStorage.getItem('authToken');
 
     if (!authToken) {
         profileLink.style.display = 'none'; // Nascondi il bottone
