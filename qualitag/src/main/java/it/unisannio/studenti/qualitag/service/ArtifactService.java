@@ -1,23 +1,27 @@
 package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
-import it.unisannio.studenti.qualitag.exception.ArtifactValidationException;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.Team;
+import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
-import it.unisannio.studenti.qualitag.repository.TagRepository;
+import it.unisannio.studenti.qualitag.repository.TeamRepository;
+import it.unisannio.studenti.qualitag.repository.UserRepository;
+import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +39,8 @@ public class ArtifactService {
 
   private final ArtifactRepository artifactRepository;
   private final ProjectRepository projectRepository;
-  private final TagRepository tagRepository;
+  private final TeamRepository teamRepository;
+  private final UserRepository userRepository;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -66,7 +71,6 @@ public class ArtifactService {
     return path.toString();
   }
 
-  // TODO: Properly implement this method using validator and saveFile
   /**
    * Creates a new artifact.
    *
@@ -74,12 +78,29 @@ public class ArtifactService {
    * @return the response entity with the result of the artifact creation
    */
   public ResponseEntity<?> addArtifact(ArtifactCreateDto artifactCreateDto) {
+    Map<String, Object> response = new HashMap<>();
+
     try {
       // Validate the DTO
       Set<ConstraintViolation<ArtifactCreateDto>> violations =
           validator.validate(artifactCreateDto);
       if (!violations.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid artifact data");
+        response.put("msg", "Invalid artifact data");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
+
+      // Check if the project exists
+      Project project = projectRepository.findProjectByProjectId(artifactCreateDto.projectId());
+      if (project == null) {
+        response.put("msg", "Project not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      // Check if the logged in user is the owner of the project
+      User user = userRepository.findByUserId(project.getOwnerId());
+      if (!AuthenticationService.getAuthority(user.getUsername())) {
+        response.put("msg", "User is not the project owner");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
       }
 
       // Save the file to the server's file system
@@ -90,19 +111,39 @@ public class ArtifactService {
       artifact.setFilePath(filePath);
 
       // Add the artifact to the project
+      project.getArtifactIds().add(artifact.getArtifactId());
+      projectRepository.save(project);
 
-      // Add the artifact to the team (might include previous step)
-      Project project = projectRepository.findProjectByProjectId(artifactCreateDto.projectId());
+      // Find the team with the least artifacts
+      String minTeamId = null;
+      int minSize = Integer.MAX_VALUE;
       List<String> teamIds = project.getTeamIds();
+
       for (String teamId : teamIds) {
-        // Select the team with less artifacts assigned and add the artifact to it
+        Team team = teamRepository.findTeamByTeamId(teamId);
+        List<String> artifactIds = team.getArtifactIds();
+
+        if (artifactIds.size() < minSize) {
+          minSize = artifactIds.size();
+          minTeamId = teamId;
+        }
       }
 
+      // Add the artifact to the team with the least artifacts
+      Team team = teamRepository.findTeamByTeamId(minTeamId);
+      team.getArtifactIds().add(artifact.getArtifactId());
+      teamRepository.save(team);
+
     } catch (IOException e) {
-      return ResponseEntity.status(500).body("File upload failed");
+      response.put("msg", "File upload failed");
+      return ResponseEntity.status(500).body(response);
+    } catch (Exception e) {
+      response.put("msg", "An error occurred");
+      return ResponseEntity.status(500).body(response);
     }
 
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
+    response.put("msg", "Artifact created successfully");
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   /**
@@ -204,7 +245,7 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
   }
 
-  // TODO: Properly implement this method
+  // TODO: Properly implement update method
   /**
    * Modifies an existing artifact.
    *

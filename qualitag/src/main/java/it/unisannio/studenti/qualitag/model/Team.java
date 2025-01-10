@@ -27,6 +27,9 @@ public class Team {
   @Field(name = "user_ids")
   private List<String> userIds;
 
+  @Field(name = "artifact_ids")
+  private List<String> artifactIds;
+
   @Field(name = "team_name")
   private String teamName;
 
@@ -41,6 +44,7 @@ public class Team {
    */
   public Team() {
     this.userIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
@@ -56,6 +60,8 @@ public class Team {
     this.creationTimeStamp = creationTimeStamp;
     this.teamDescription = teamDescription;
     this.userIds = userIds;
+    
+    this.artifactIds = new ArrayList<>();
   }
 
   // GETTERS AND SETTERS
