@@ -36,7 +36,7 @@ public class TeamService {
    *
    * @param teamRepository The team repository.
    * @param userRepository The user repository.
-   * @param teamMapper     The team mapper.
+   * @param teamMapper The team mapper.
    */
   public TeamService(ProjectRepository projectRepository, TeamRepository teamRepository,
       UserRepository userRepository, TeamMapper teamMapper) {
@@ -112,9 +112,8 @@ public class TeamService {
       throw new TeamValidationException("Team name cannot be empty");
     }
     /*
-    if (name.contains(" ")) {
-      throw new TeamValidationException("Team name cannot contain whitespaces");
-    }
+     * if (name.contains(" ")) { throw new
+     * TeamValidationException("Team name cannot contain whitespaces"); }
      */
 
     if (name.length() > TeamConstants.MAX_TEAM_NAME_LENGTH) {
@@ -133,21 +132,16 @@ public class TeamService {
     users = users.stream().distinct().collect(Collectors.toList()); // Remove duplicates
 
     /*
-     * If MIN_TEAM_USERS == 1 this check is useless, we can use users.isEmpty() instead
-     * If MIN_TEAM_USERS > 1 we need to check if the list has at least MIN_TEAM_USERS elements
+     * If MIN_TEAM_USERS == 1 this check is useless, we can use users.isEmpty() instead If
+     * MIN_TEAM_USERS > 1 we need to check if the list has at least MIN_TEAM_USERS elements
      */
 
     /*
-    if (users.size() < TeamConstants.MIN_TEAM_USERS) {
-      throw new TeamValidationException(
-          "A team must have at least " + TeamConstants.MIN_TEAM_USERS + (
-              TeamConstants.MIN_TEAM_USERS > 1 ? " users" : " user"));
-    }
-    if (users.size() > TeamConstants.MAX_TEAM_USERS) {
-      throw new TeamValidationException(
-          "A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + (
-              TeamConstants.MAX_TEAM_USERS > 1 ? " users" : " user"));
-    }
+     * if (users.size() < TeamConstants.MIN_TEAM_USERS) { throw new TeamValidationException(
+     * "A team must have at least " + TeamConstants.MIN_TEAM_USERS + ( TeamConstants.MIN_TEAM_USERS
+     * > 1 ? " users" : " user")); } if (users.size() > TeamConstants.MAX_TEAM_USERS) { throw new
+     * TeamValidationException( "A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + (
+     * TeamConstants.MAX_TEAM_USERS > 1 ? " users" : " user")); }
      */
 
     for (String currentUserId : users) {
@@ -160,7 +154,7 @@ public class TeamService {
         throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
       }
 
-      if (teamRepository.existsByUsersContaining(currentUserId)) {
+      if (teamRepository.existsByUserIdsContaining(currentUserId)) {
         throw new TeamValidationException("User with ID " + currentUserId
             + " is already in a team. Same user cannot be in multiple teams.");
       }
@@ -174,9 +168,8 @@ public class TeamService {
       description = description.trim();
 
       if (description.length() > TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH) {
-        throw new TeamValidationException(
-            "Team description is too long. Max is " + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH
-                + " characters including whitespaces.");
+        throw new TeamValidationException("Team description is too long. Max is "
+            + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH + " characters including whitespaces.");
       }
     }
 
@@ -193,7 +186,7 @@ public class TeamService {
     if (team == null) {
       throw new TeamValidationException("Team cannot be null");
     }
-    List<String> users = team.getUsers();
+    List<String> users = team.getUserIds();
     for (String userId : users) {
       if (userId == null || userId.isEmpty()) {
         throw new TeamValidationException("User ID is null or empty");
@@ -202,12 +195,13 @@ public class TeamService {
         throw new TeamValidationException("User with ID " + userId + " does not exist");
       }
 
-      /*if (teamRepository.existsByUsersContaining(userId)) {
-        throw new TeamValidationException("User with ID " + userId
-            + " is already in a team. Same user cannot be in multiple teams.");
-      }*/
+      /*
+       * if (teamRepository.existsByUsersContaining(userId)) { throw new
+       * TeamValidationException("User with ID " + userId +
+       * " is already in a team. Same user cannot be in multiple teams."); }
+       */
 
-      if (teamRepository.existsByUsersContainingAndTeamIdNot(userId, team.getTeamId())) {
+      if (teamRepository.existsByUserIdsContainingAndTeamIdNot(userId, team.getTeamId())) {
         throw new TeamValidationException("User with ID " + userId
             + " is already in a team. Same user cannot be in multiple teams.");
       }
@@ -275,10 +269,11 @@ public class TeamService {
     if (userId == null || userId.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID is null or empty");
     }
-    if (!teamRepository.existsByUsersContaining(userId)) {
+    if (!teamRepository.existsByUserIdsContaining(userId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
           .body("No teams found for user ID " + userId);
     }
-    return ResponseEntity.status(HttpStatus.OK).body(teamRepository.findByUsersContaining(userId));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(teamRepository.findByUserIdsContaining(userId));
   }
 }

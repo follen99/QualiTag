@@ -18,8 +18,8 @@ class TeamTest {
     Team team = new Team();
     assertNull(team.getTeamId());
     assertNull(team.getProjectId());
-    assertNotNull(team.getUsers());
-    assertTrue(team.getUsers().isEmpty());
+    assertNotNull(team.getUserIds());
+    assertTrue(team.getUserIds().isEmpty());
     assertNull(team.getTeamName());
     assertNull(team.getCreationTimeStamp());
     assertNull(team.getTeamDescription());
@@ -34,7 +34,7 @@ class TeamTest {
     assertEquals("TeamName", team.getTeamName());
     assertEquals(123456789L, team.getCreationTimeStamp());
     assertEquals("Description", team.getTeamDescription());
-    assertEquals(users, team.getUsers());
+    assertEquals(users, team.getUserIds());
   }
 
   @Test
@@ -46,14 +46,14 @@ class TeamTest {
     team.setCreationTimeStamp(123456789L);
     team.setTeamDescription("Description");
     List<String> users = new ArrayList<>(Arrays.asList("user1", "user2"));
-    team.setUsers(users);
+    team.setUserIds(users);
 
     assertEquals("1", team.getTeamId());
     assertEquals("project1", team.getProjectId());
     assertEquals("TeamName", team.getTeamName());
     assertEquals(123456789L, team.getCreationTimeStamp());
     assertEquals("Description", team.getTeamDescription());
-    assertEquals(users, team.getUsers());
+    assertEquals(users, team.getUserIds());
   }
 
   @Test
@@ -62,8 +62,8 @@ class TeamTest {
     User user = new User();
     user.setUserId("user1");
     team.addUser(user);
-    assertEquals(1, team.getUsers().size());
-    assertEquals("user1", team.getUsers().getFirst());
+    assertEquals(1, team.getUserIds().size());
+    assertEquals("user1", team.getUserIds().getFirst());
   }
 
   @Test
@@ -160,9 +160,9 @@ class TeamTest {
   @Test
   void testEqualsWithDifferentUsers() {
     Team team1 = new Team();
-    team1.setUsers(Arrays.asList("user1", "user2"));
+    team1.setUserIds(Arrays.asList("user1", "user2"));
     Team team2 = new Team();
-    team2.setUsers(Arrays.asList("user3", "user4"));
+    team2.setUserIds(Arrays.asList("user3", "user4"));
     assertNotEquals(team1, team2);
   }
 

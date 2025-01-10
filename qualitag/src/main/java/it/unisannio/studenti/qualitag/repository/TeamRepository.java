@@ -31,7 +31,7 @@ public interface TeamRepository extends MongoRepository<Team, String> {
    * @param userId The user ID.
    * @return true if a team exists containing the specified user ID, false otherwise.
    */
-  boolean existsByUsersContaining(String userId);
+  boolean existsByUserIdsContaining(String userId);
 
   /**
    * Finds teams by user ID.
@@ -39,7 +39,7 @@ public interface TeamRepository extends MongoRepository<Team, String> {
    * @param userId The user ID.
    * @return A list of teams containing the specified user ID.
    */
-  List<Team> findByUsersContaining(String userId);
+  List<Team> findByUserIdsContaining(String userId);
 
   /**
    * Checks if a team exists by user ID and team ID not matching.
@@ -49,7 +49,7 @@ public interface TeamRepository extends MongoRepository<Team, String> {
    * @return true if a team exists containing the specified user ID and not matching the specified
    *      team ID, false otherwise.
    */
-  boolean existsByUsersContainingAndTeamIdNot(String userId, String teamId);
+  boolean existsByUserIdsContainingAndTeamIdNot(String userId, String teamId);
 
   /**
    * Finds a team by its ID.

@@ -262,7 +262,7 @@ public class UserService {
     // Remove the user from the teams
     for (String teamId : user.getTeamIds()) {
       Team team = teamRepository.findTeamByTeamId(teamId);
-      team.getUsers().remove(user.getUserId());
+      team.getUserIds().remove(user.getUserId());
       teamRepository.save(team);
     }
 
