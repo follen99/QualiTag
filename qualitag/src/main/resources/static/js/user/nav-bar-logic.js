@@ -7,32 +7,33 @@
  */
 
 // If user is logged in, show the profile link and logout button
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const profileLink = document.getElementById('profileLink');
     const logoutButton = document.getElementById('logoutbutton');
     const loginButton = document.getElementById('login-navbar');
     const registerButton = document.getElementById('register-navbar');
     const projectsButton = document.getElementById('projects-navbar');
 
-    const authToken = localStorage.getItem('authToken');
+    await checkToken();
+    const authToken = localStorage.getItem('authToken qui');
     console.log('authToken: ' + authToken);
 
-    if (authToken) {
-        profileLink.style.display = 'block'; // Mostra il bottone
-        logoutButton.style.display = 'block'; // Mostra il bottone
-        projectsButton.style.display = 'block'; // Mostra il bottone
-
-        loginButton.style.display = 'none'; // Nascondi il bottone
-        registerButton.style.display = 'none'; // Nascondi il bottone
-
-    } else {
+    if (!authToken) {
         profileLink.style.display = 'none'; // Nascondi il bottone
         logoutButton.style.display = 'none'; // Nascondi il bottone
         projectsButton.style.display = 'none'; // Nascondi il bottone
 
         loginButton.style.display = 'block'; // Mostra il bottone
         registerButton.style.display = 'block'; // Mostra il bottone
+    }else {
+        profileLink.style.display = 'block'; // Mostra il bottone
+        logoutButton.style.display = 'block'; // Mostra il bottone
+        projectsButton.style.display = 'block'; // Mostra il bottone
+
+        loginButton.style.display = 'none'; // Nascondi il bottone
+        registerButton.style.display = 'none'; // Nascondi il bottone
     }
+
 
     // Profile redirect
     document.getElementById('profileLink').addEventListener('click', function (event) {
@@ -70,6 +71,29 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+
+async function checkToken() {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+        return false;
+    }
+
+    const response = await fetch('/api/v1/auth/check-token', {
+        method: 'GET', headers: {
+            'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken
+        }
+    });
+
+    if (!response.ok) {
+        // alert('Your session has expired. Please log in again.');
+        localStorage.clear(); // Clear all items in local storage
+        return false;
+        // window.location.href = '/signin'; // Redirect to login page
+    }
+
+    console.log(response);
+    return true;
+}
 
 
 
