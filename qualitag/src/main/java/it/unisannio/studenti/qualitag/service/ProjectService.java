@@ -74,7 +74,7 @@ public class ProjectService {
 
       // Create a default team for the project
       TeamCreateDto teamCreateDto = new TeamCreateDto("Default team",
-          "Default team for project " + project.getProjectName(), project.getUsers());
+          "Default team for project " + project.getProjectName(), project.getUserIds());
       ResponseEntity<?> teamResponse = teamService.addTeam(teamCreateDto, project.getProjectId());
       if (teamResponse.getStatusCode() != HttpStatus.CREATED) {
         // If there's a problem, rollback the project creation
@@ -115,7 +115,7 @@ public class ProjectService {
     userRepository.save(owner);
 
     // Add project to users
-    List<String> userList = project.getUsers();
+    List<String> userList = project.getUserIds();
     for (String userId : userList) {
       User user = userRepository.findByUserId(userId);
 
@@ -179,9 +179,9 @@ public class ProjectService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
     }
 
-    List<String> artifacts = project.getArtifacts();
+    List<String> artifacts = project.getArtifactIds();
     artifacts.add(artifactId);
-    project.setArtifacts(artifacts);
+    project.setArtifactIds(artifacts);
 
     projectRepository.save(project);
 
@@ -320,7 +320,7 @@ public class ProjectService {
     }
 
     // retrieve the project's artifacts
-    List<String> artifactIds = project.getArtifacts();
+    List<String> artifactIds = project.getArtifactIds();
     if (artifactIds == null || artifactIds.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No artifacts found for the project");
     }
@@ -356,7 +356,7 @@ public class ProjectService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
     }
 
-    List<String> artifactIds = project.getArtifacts();
+    List<String> artifactIds = project.getArtifactIds();
     if (artifactIds == null || artifactIds.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No artifacts found for the project");
     }
@@ -410,7 +410,7 @@ public class ProjectService {
     owner.getProjectIds().remove(projectId);
 
     // Delete links to the project from users
-    List<String> userIds = projectToDelete.getUsers();
+    List<String> userIds = projectToDelete.getUserIds();
     for (String userId : userIds) {
       User user = userRepository.findByUserId(userId);
       user.getProjectIds().remove(projectId);
@@ -419,13 +419,13 @@ public class ProjectService {
     // TODO: Delete tags using the proper service
 
     // Delete teams using the proper service
-    List<String> teamIds = projectToDelete.getTeams();
+    List<String> teamIds = projectToDelete.getTeamIds();
     for (String teamId : teamIds) {
       teamService.deleteTeam(teamId);
     }
 
     // Delete artifacts using the proper service
-    List<String> artifactIds = projectToDelete.getArtifacts();
+    List<String> artifactIds = projectToDelete.getArtifactIds();
     for (String artifactId : artifactIds) {
       artifactService.deleteArtifact(artifactId);
     }

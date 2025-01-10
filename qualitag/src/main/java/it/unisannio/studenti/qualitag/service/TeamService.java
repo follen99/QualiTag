@@ -75,7 +75,7 @@ public class TeamService {
       this.addTeamToUser(team);
 
       // Add team to project
-      project.getTeams().add(team.getTeamId());
+      project.getTeamIds().add(team.getTeamId());
       projectRepository.save(project);
 
       response.put("msg", "Team added successfully");

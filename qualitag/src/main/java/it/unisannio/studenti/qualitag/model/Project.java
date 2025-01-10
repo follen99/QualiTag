@@ -40,14 +40,14 @@ public class Project {
   @Field(name = "projectStatus")
   private ProjectStatus projectStatus;
 
-  @Field(name = "projectUsers")
-  private List<String> users;
+  @Field(name = "projectUsersIds")
+  private List<String> userIds;
 
-  @Field(name = "projectTeams")
-  private List<String> teams;
+  @Field(name = "projectTeamsIds")
+  private List<String> teamIds;
 
-  @Field(name = "projectArtifacts")
-  private List<String> artifacts;
+  @Field(name = "projectArtifactsIds")
+  private List<String> artifactIds;
 
   /**
    * Constructor for Project with no users, teams or artifacts.
@@ -57,7 +57,7 @@ public class Project {
    * @param projectDeadline    The project's deadline
    */
   public Project(String projectName, String projectDescription,
-      Long projectCreationDate, Long projectDeadline, String ownerId, List<String> users) {
+      Long projectCreationDate, Long projectDeadline, String ownerId, List<String> userIds) {
     this.projectName = projectName;
     this.projectDescription = projectDescription;
     this.projectCreationDate = projectCreationDate;
@@ -65,9 +65,9 @@ public class Project {
     this.ownerId = ownerId;
     this.projectStatus = ProjectStatus.OPEN;
 
-    this.users = users;
-    this.teams = new ArrayList<>();
-    this.artifacts = new ArrayList<>();
+    this.userIds = userIds;
+    this.teamIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   // TODO: Constructor with all args is never used, probably should be removed
@@ -94,9 +94,9 @@ public class Project {
 
     this.projectStatus = ProjectStatus.OPEN;
 
-    this.users = users;
-    this.teams = teams;
-    this.artifacts = artifacts;
+    this.userIds = users;
+    this.teamIds = teams;
+    this.artifactIds = artifacts;
   }
 
   // EQUALS AND HASHCODE
@@ -145,9 +145,9 @@ public class Project {
         + ", projectCreationDate=" + projectCreationDate
         + ", projectDeadline=" + projectDeadline
         + ", ownerId=" + ownerId
-        + ", usersIds=" + users
-        + ", teamsIds=" + teams
-        + ", artifactsIds=" + artifacts
+        + ", usersIds=" + userIds
+        + ", teamsIds=" + teamIds
+        + ", artifactsIds=" + artifactIds
         + '}';
   }
 }

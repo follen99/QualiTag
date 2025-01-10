@@ -254,7 +254,7 @@ public class UserService {
       if (project.getOwnerId().equals(user.getUserId())) {
         projectService.deleteProject(projectId);
       } else {
-        project.getUsers().remove(user.getUserId());
+        project.getUserIds().remove(user.getUserId());
         projectRepository.save(project);
       }
     }

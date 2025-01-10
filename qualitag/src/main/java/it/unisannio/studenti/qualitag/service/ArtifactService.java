@@ -4,14 +4,21 @@ import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.exception.ArtifactValidationException;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
+import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
+import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +34,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class ArtifactService {
 
   private final ArtifactRepository artifactRepository;
+  private final ProjectRepository projectRepository;
   private final TagRepository tagRepository;
+
+  private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+  private final Validator validator = factory.getValidator();
 
   private static final String UPLOAD_DIR = "artifacts/";
 
@@ -40,17 +51,17 @@ public class ArtifactService {
   public String saveFile(MultipartFile file) throws IOException {
     // Generate a unique file name by appending a UUID to the original file name.
     String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-      
-    // Construct the path where the file will be saved using the upload directory 
+
+    // Construct the path where the file will be saved using the upload directory
     // and the unique file name.
     Path path = Paths.get(UPLOAD_DIR + uniqueFileName);
 
     // Create any necessary directories in the path if they do not already exist.
     Files.createDirectories(path.getParent());
-      
+
     // Transfer the contents of the multipart file to the target file on the file system.
     file.transferTo(path.toFile());
-      
+
     // Return the path to the saved file as a string.
     return path.toString();
   }
@@ -63,6 +74,34 @@ public class ArtifactService {
    * @return the response entity with the result of the artifact creation
    */
   public ResponseEntity<?> addArtifact(ArtifactCreateDto artifactCreateDto) {
+    try {
+      // Validate the DTO
+      Set<ConstraintViolation<ArtifactCreateDto>> violations =
+          validator.validate(artifactCreateDto);
+      if (!violations.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid artifact data");
+      }
+
+      // Save the file to the server's file system
+      String filePath = saveFile(artifactCreateDto.file());
+
+      // Convert the DTO to an entity
+      Artifact artifact = ArtifactMapper.toEntity(artifactCreateDto);
+      artifact.setFilePath(filePath);
+
+      // Add the artifact to the project
+
+      // Add the artifact to the team (might include previous step)
+      Project project = projectRepository.findProjectByProjectId(artifactCreateDto.projectId());
+      List<String> teamIds = project.getTeamIds();
+      for (String teamId : teamIds) {
+        // Select the team with less artifacts assigned and add the artifact to it
+      }
+
+    } catch (IOException e) {
+      return ResponseEntity.status(500).body("File upload failed");
+    }
+
     return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
   }
 
@@ -70,7 +109,7 @@ public class ArtifactService {
    * Adds a tag to an artifact.
    *
    * @param artifactId the id of the artifact to add the tag
-   * @param tagId      the id of the tag to add
+   * @param tagId the id of the tag to add
    * @return the response entity
    */
   public ResponseEntity<?> addTag(String artifactId, String tagId) {
@@ -133,7 +172,7 @@ public class ArtifactService {
    * Deletes a tag of an artifact.
    *
    * @param artifactId the id of the artifact which tag we want to delete
-   * @param tagId      the id of the tag to delete
+   * @param tagId the id of the tag to delete
    * @return the response entity
    */
   public ResponseEntity<?> deleteTag(String artifactId, String tagId) {
@@ -170,35 +209,30 @@ public class ArtifactService {
    * Modifies an existing artifact.
    *
    * @param artifactModifyDto the dto used to modify the artifact
-   * @param artifactId        the id of the artifact to modify
+   * @param artifactId the id of the artifact to modify
    * @return the response entity
    */
   public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
-    /* // ID check
-    if (artifactId == null || artifactId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
-    }
-
-    // Artifact validation
-    try {
-      ArtifactCreateDto correctDto = validateArtifact(artifactModifyDto);
-
-      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
-      if (artifact == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
-      }
-
-      artifact.setArtifactName(correctDto.artifactName());
-      artifact.setContent(correctDto.content());
-      artifact.setTags(correctDto.tags());
-
-      artifactRepository.save(artifact);
-
-      return ResponseEntity.status(HttpStatus.OK).body("Artifact updated successfully");
-
-    } catch (ArtifactValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    } */
+    /*
+     * // ID check if (artifactId == null || artifactId.isEmpty()) { return
+     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty"); }
+     * 
+     * // Artifact validation try { ArtifactCreateDto correctDto =
+     * validateArtifact(artifactModifyDto);
+     * 
+     * Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId); if (artifact ==
+     * null) { return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found"); }
+     * 
+     * artifact.setArtifactName(correctDto.artifactName());
+     * artifact.setContent(correctDto.content()); artifact.setTags(correctDto.tags());
+     * 
+     * artifactRepository.save(artifact);
+     * 
+     * return ResponseEntity.status(HttpStatus.OK).body("Artifact updated successfully");
+     * 
+     * } catch (ArtifactValidationException e) { return
+     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
+     */
 
     return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
   }
