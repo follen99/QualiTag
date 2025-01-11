@@ -2,6 +2,7 @@ package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.constants.ProjectConstants;
 import it.unisannio.studenti.qualitag.dto.project.CompletedProjectCreationDto;
+import it.unisannio.studenti.qualitag.dto.project.CompletedProjectUpdateDto;
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
@@ -380,6 +381,7 @@ public class ProjectService {
     // Delete artifacts using the proper service
     List<String> artifactIds = projectToDelete.getArtifactIds();
     for (String artifactId : artifactIds) {
+      System.out.println("Deleting artifact with ID: " + artifactId);
       artifactService.deleteArtifact(artifactId);
     }
 
@@ -396,7 +398,6 @@ public class ProjectService {
 
   // UPDATE
 
-  // TODO: Implement this method
   /**
    * Modifies an existing projects.
    *
@@ -429,12 +430,12 @@ public class ProjectService {
 
     // Project validation
     try {
-      CompletedProjectCreationDto correctProjectDto = validateProject(projectModifyDto);
+      CompletedProjectUpdateDto correctProjectUpdateDto = validateUpdate(projectModifyDto);
 
-      project.setProjectName(correctProjectDto.projectName());
-      project.setProjectDescription(correctProjectDto.projectDescription());
-      project.setProjectDeadline(correctProjectDto.projectDeadline());
-      project.setUserIds(correctProjectDto.userIds());
+      project.setProjectName(correctProjectUpdateDto.projectName());
+      project.setProjectDescription(correctProjectUpdateDto.projectDescription());
+      project.setProjectDeadline(correctProjectUpdateDto.projectDeadline());
+      project.setUserIds(correctProjectUpdateDto.userIds());
 
       projectRepository.save(project);
 
@@ -444,31 +445,6 @@ public class ProjectService {
       response.put("msg", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-
-    /*
-     * //id check if (projectId == null || projectId.isEmpty()) { return
-     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty"); }
-     * 
-     * //project validation try { ProjectCreateDto correctProjectDto =
-     * validateProject(projectModifyDto);
-     * 
-     * Project project = projectRepository.findProjectByProjectId(projectId); if (project == null) {
-     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found"); }
-     * 
-     * project.setProjectName(correctProjectDto.projectName());
-     * project.setProjectDescription(correctProjectDto.projectDescription());
-     * project.setProjectDeadline(correctProjectDto.deadlineDate());
-     * project.setUsers(correctProjectDto.users()); project.setTeams(correctProjectDto.teams());
-     * project.setArtifacts(correctProjectDto.artifacts());
-     * 
-     * this.projectRepository.save(project);
-     * 
-     * return ResponseEntity.status(HttpStatus.OK).body("Project updated successfully");
-     * 
-     * } catch (ProjectValidationException e) { return
-     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
-     * 
-     */
   }
 
   // UTILITY METHODS
@@ -511,9 +487,6 @@ public class ProjectService {
 
     // Validate the project name
     String name = projectCreateDto.projectName();
-    if (name.contains(" ")) {
-      throw new ProjectValidationException("Project name cannot contain whitespaces");
-    }
     if (projectRepository.existsByProjectName(name)) {
       throw new ProjectValidationException("Project with name " + name + " already exists");
     }
@@ -588,5 +561,78 @@ public class ProjectService {
     return new CompletedProjectCreationDto(name, projectCreateDto.projectDescription(),
         creationDate.toInstant().toEpochMilli(), deadlineDate.toInstant().toEpochMilli(), ownerId,
         userIds);
+  }
+
+  private CompletedProjectUpdateDto validateUpdate(ProjectCreateDto projectCreateDto) {
+    if (!isValidProjectCreateDto(projectCreateDto)) {
+      throw new ProjectValidationException("All fields must be filled");
+    }
+
+    // Validate the project name
+    String name = projectCreateDto.projectName();
+    if (projectRepository.existsByProjectName(name)
+        && !projectCreateDto.projectName().equals(name)) {
+      throw new ProjectValidationException("Project with name " + name + " already exists");
+    }
+
+    // Validate the deadline date and set creation date
+    ZonedDateTime deadlineDate =
+        ZonedDateTime.parse(projectCreateDto.deadlineDate(), DateTimeFormatter.ISO_DATE_TIME);
+    if (deadlineDate.isBefore(ZonedDateTime.now())) {
+      throw new ProjectValidationException("Deadline date cannot be before the creation date");
+    }
+
+    ZonedDateTime maxDeadline =
+        ZonedDateTime.now().plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
+    if (deadlineDate.isAfter(maxDeadline)) {
+      throw new ProjectValidationException("Deadline date cannot be after "
+          + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS + " years from now");
+    }
+
+    // Owner must not be part of users
+    String ownerId = getLoggedInUserId();
+    User owner = userRepository.findByUserId(ownerId);
+    List<String> userEmails = projectCreateDto.userEmails();
+    if (userEmails.contains(owner.getEmail())) {
+      throw new ProjectValidationException("Owner must not be part of the list of users");
+    }
+
+    // Validate the user emails and eventually make a list of missing emails
+    List<String> missingUserEmails = new ArrayList<>();
+    for (String email : userEmails) {
+      // Check if the email is null
+      if (email == null) {
+        throw new ProjectValidationException(
+            "There is an empty email in the list. Please remove it.");
+      }
+
+      // Check if the email is duplicated in the list
+      if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
+        throw new ProjectValidationException(
+            "User with email " + email + " is mentioned more than once");
+      }
+
+      // Check if the email is registered. If not, add to a list of missing emails
+      if (!userRepository.existsByEmail(email)) {
+        missingUserEmails.add(email);
+      }
+    }
+    if (!missingUserEmails.isEmpty()) {
+      throw new ProjectValidationException(
+          "The following emails are not registered: " + missingUserEmails);
+    }
+
+    // Validate the user emails and retrieve userIds
+    List<String> userIds = new ArrayList<>();
+    for (String email : userEmails) {
+      User user = userRepository.findByEmail(email);
+      if (user == null) {
+        throw new ProjectValidationException("User with email " + email + " does not exist");
+      }
+      userIds.add(user.getUserId());
+    }
+
+    return new CompletedProjectUpdateDto(name, projectCreateDto.projectDescription(),
+        deadlineDate.toInstant().toEpochMilli(), userIds);
   }
 }

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * The ProjectController class is a REST controller that handles requests related to projects.
  */
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/api/v1/project")
 public class ProjectController {
 
   private final ProjectService projectService;
@@ -39,7 +39,7 @@ public class ProjectController {
    *
    * @param projectCreateDto the project to add to the repository
    */
-  @PostMapping("/add")
+  @PostMapping()
   public ResponseEntity<?> createProject(@RequestBody ProjectCreateDto projectCreateDto) {
     return projectService.createProject(projectCreateDto);
   }
@@ -84,7 +84,7 @@ public class ProjectController {
    * @param projectId the id of the project to find
    * @return the response entity
    */
-  @GetMapping("/{projectId}/status")
+  @GetMapping("/{projectId}")
   public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
     return projectService.getProjectById(projectId);
   }
@@ -120,7 +120,7 @@ public class ProjectController {
    * @param projectCreateDto the updated project
    * @return the response entity
    */
-  @PutMapping("/update/{projectId}")
+  @PutMapping("/{projectId}")
   public ResponseEntity<?> updateProject(@PathVariable String projectId,
       @RequestBody ProjectCreateDto projectCreateDto) {
     return projectService.updateProject(projectCreateDto, projectId);
@@ -133,7 +133,7 @@ public class ProjectController {
    *
    * @param projectId the id of the project to delete
    */
-  @DeleteMapping("/delete/{projectId}")
+  @DeleteMapping("/{projectId}")
   public ResponseEntity<?> deleteProject(@PathVariable String projectId) {
     return projectService.deleteProject(projectId);
   }
