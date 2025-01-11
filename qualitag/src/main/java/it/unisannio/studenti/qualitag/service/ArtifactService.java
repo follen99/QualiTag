@@ -10,6 +10,7 @@ import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
 import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -27,6 +28,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -202,18 +205,59 @@ public class ArtifactService {
    * @return The response entity
    */
   public ResponseEntity<?> deleteArtifact(String id) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the id is null or empty
     if (id == null || id.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id id null");
-    }
-    if (!artifactRepository.existsById(id)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // Check if the artifact exists and retrieve it
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(id);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Retrieve the project the artifact belongs to
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (project == null) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the project owner is the one deleting the artifact
+    if (!project.getOwnerId().equals(getLoggedInUserId())) {
+      response.put("msg", "User is not the project owner");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Retrieve the team the artifact belongs to
+    Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
+    if (team == null) {
+      response.put("msg", "Team not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Remove the artifact from the project
+    project.getArtifactIds().remove(artifact.getArtifactId());
+    projectRepository.save(project);
+
+    // Remove the artifact from the team
+    team.getArtifactIds().remove(artifact.getArtifactId());
+    teamRepository.save(team);
+
+    // Delete the artifact from the database
     artifactRepository.deleteArtifactByArtifactId(id);
+
+    // Check if the artifact was deleted
     if (!artifactRepository.existsById(id)) {
-      return ResponseEntity.status(HttpStatus.OK).body("Artifact deleted successfully");
+      response.put("msg", "Artifact deleted successfully");
+      return ResponseEntity.status(HttpStatus.OK).body(response);
     } else {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Artifact not deleted");
+      response.put("msg", "Artifact not deleted");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
   }
 
@@ -284,5 +328,19 @@ public class ArtifactService {
      */
 
     return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
+  }
+
+  private String getLoggedInUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new IllegalStateException("No authenticated user found");
+    }
+
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof CustomUserDetails(User user)) {
+      return user.getUserId();
+    }
+    throw new IllegalStateException(
+        "Unexpected authentication principal type: " + principal.getClass());
   }
 }
