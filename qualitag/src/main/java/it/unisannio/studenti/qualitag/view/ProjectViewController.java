@@ -23,6 +23,7 @@ public class ProjectViewController {
    */
   @GetMapping("/{username}/projects")
   public String myProjects(@PathVariable("username") String username, Model model) {
+    System.out.println("username: " + username);
     model.addAttribute("username", username);
     return "project/my_projects";
   }

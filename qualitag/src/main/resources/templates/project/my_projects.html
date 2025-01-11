@@ -12,8 +12,9 @@
     document.addEventListener('DOMContentLoaded', function () {
       const username = localStorage.getItem('username');
       const authToken = localStorage.getItem('authToken');
+
+      // if the user is logged in...
       if (username) {
-        console.log('Token:', authToken);
         fetch('/api/v1/user/' + username, {
           headers: {
             'Authorization': 'Bearer ' + authToken
@@ -29,12 +30,12 @@
           console.log('User data:', user);
           const userProjectIds = user.projectIds;
 
+          alert("User project ids: " + userProjectIds);
+
           // if there are no projects, display a message before fetching the projects
           if (userProjectIds.length === 0) {
             thereAreNoProjects();
-          }
-          else {
-            const projects = [];
+          }else {
             userProjectIds.forEach(projectId => {
               console.log('Fetching project data for project ID:', projectId);
               fetch(`/api/v1/projects/${projectId}/status`, {
@@ -43,9 +44,13 @@
                 }
               })
               .then(response => {
-                if (response.status === 403 || response.status === 404) {
-                  window.location.href = '/404'; // Redirect to 404 page
-                  throw new Error('Unauthorized access or user not found');
+                if (response.status === 404){
+
+                }
+                if (response.status === 403) {
+                  // window.location.href = '/404'; // Redirect to 404 page
+                  throw new Error('Unauthorized access, please login.');
+                  window.location.href = '/signin';
                 }
                 return response.json();
               })

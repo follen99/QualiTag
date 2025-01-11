@@ -145,4 +145,13 @@ public class User {
             entry.getKey() + ":" + entry.getValue()))
         .collect(Collectors.toList());
   }
+
+  /**
+   * Returns a map of project IDs to roles as strings.
+   *
+   * @return Map of project IDs to roles.
+   */
+  public Map<String, String> getProjectRolesAsString() {
+    return projectRoles.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().name()));
+  }
 }

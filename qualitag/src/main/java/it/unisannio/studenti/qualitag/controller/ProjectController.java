@@ -99,6 +99,7 @@ public class ProjectController {
    */
   @GetMapping("/{projectId}/status")
   public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
+    System.out.println(projectId);
     return projectService.getProjectById(projectId);
   }
 
