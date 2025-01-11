@@ -110,10 +110,6 @@ public class ArtifactService {
       Artifact artifact = ArtifactMapper.toEntity(artifactCreateDto);
       artifact.setFilePath(filePath);
 
-      // Add the artifact to the project
-      project.getArtifactIds().add(artifact.getArtifactId());
-      projectRepository.save(project);
-
       // Find the team with the least artifacts
       String minTeamId = null;
       int minSize = Integer.MAX_VALUE;
@@ -131,13 +127,18 @@ public class ArtifactService {
 
       // Add the artifact to the team with the least artifacts
       Team team = teamRepository.findTeamByTeamId(minTeamId);
-      team.getArtifactIds().add(artifact.getArtifactId());
-      teamRepository.save(team);
       artifact.setTeamId(team.getTeamId());
 
       // Save the artifact to the database
       artifactRepository.save(artifact);
 
+      // Add the artifact to the project
+      project.getArtifactIds().add(artifact.getArtifactId());
+      projectRepository.save(project);
+
+      // Add the artifact to the team
+      team.getArtifactIds().add(artifact.getArtifactId());
+      teamRepository.save(team);
     } catch (IOException e) {
       response.put("msg", "File upload failed");
       response.put("error_message", e.getMessage());
@@ -193,6 +194,7 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(artifactRepository.findAll());
   }
 
+  // TODO: Remove artifact from project and team and add check on logged user
   /**
    * Deletes an artifact by its id.
    *
@@ -207,7 +209,7 @@ public class ArtifactService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
     }
 
-    artifactRepository.deleteById(id);
+    artifactRepository.deleteArtifactByArtifactId(id);
     if (!artifactRepository.existsById(id)) {
       return ResponseEntity.status(HttpStatus.OK).body("Artifact deleted successfully");
     } else {

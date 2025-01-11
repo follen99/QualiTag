@@ -15,4 +15,11 @@ public interface ArtifactRepository extends MongoRepository<Artifact, String> {
    * @return the artifact with the given id
    */
   Artifact findArtifactByArtifactId(String artifactId);
+
+  /**
+   * Deletes an artifact by its id.
+   *
+   * @param artifactId the id of the artifact to delete
+   */
+  void deleteArtifactByArtifactId(String artifactId);
 }
