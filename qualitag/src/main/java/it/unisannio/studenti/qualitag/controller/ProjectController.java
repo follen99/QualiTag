@@ -45,19 +45,6 @@ public class ProjectController {
   }
 
   /**
-   * Adds an artifact to a project.
-   *
-   * @param projectId  the id of the project
-   * @param artifactId the id of the artifact
-   * @return the response entity
-   */
-  @PostMapping("/add/{projectId}/artifact/{artifactId}")
-  public ResponseEntity<?> addArtifact(@PathVariable String projectId,
-      @PathVariable String artifactId) {
-    return projectService.addArtifact(projectId, artifactId);
-  }
-
-  /**
    * Close a project.
    *
    * @param projectId the id of the project to close

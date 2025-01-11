@@ -141,53 +141,6 @@ public class ProjectService {
     }
   }
 
-  // TODO: Probably have to rewrite this method
-  /**
-   * Adds an artifact to a project.
-   *
-   * @param projectId the id of the project
-   * @param artifactId the id of the artifact
-   * @return the response entity
-   */
-  public ResponseEntity<?> addArtifact(String projectId, String artifactId) {
-    if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
-    }
-
-    Project project = projectRepository.findProjectByProjectId(projectId);
-    if (project == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
-    }
-
-    String currentUserId = getLoggedInUserId();
-    if (!project.getOwnerId().equals(currentUserId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body("Only the project owner can add a new artifact!");
-    }
-
-    if (project.getProjectStatus() == ProjectStatus.CLOSED) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Project is closed. Cannot add artifact");
-    }
-
-    if (artifactId == null || artifactId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Artifact ID cannot be null or empty");
-    }
-    Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
-    if (artifact == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
-    }
-
-    List<String> artifacts = project.getArtifactIds();
-    artifacts.add(artifactId);
-    project.setArtifactIds(artifacts);
-
-    projectRepository.save(project);
-
-    return ResponseEntity.status(HttpStatus.OK).body("Artifact added to the project successfully");
-  }
-
   /**
    * Close a project.
    *
@@ -452,6 +405,46 @@ public class ProjectService {
    * @return the response entity
    */
   public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the project ID is null or empty
+    if (projectId == null || projectId.isEmpty()) {
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Retrieve the project to modify
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the logged user is the owner of the project
+    String currentUserId = getLoggedInUserId();
+    if (!currentUserId.equals(project.getOwnerId())) {
+      response.put("msg", "Only the owner can modify the project!");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Project validation
+    try {
+      CompletedProjectCreationDto correctProjectDto = validateProject(projectModifyDto);
+
+      project.setProjectName(correctProjectDto.projectName());
+      project.setProjectDescription(correctProjectDto.projectDescription());
+      project.setProjectDeadline(correctProjectDto.projectDeadline());
+      project.setUserIds(correctProjectDto.userIds());
+
+      projectRepository.save(project);
+
+      response.put("msg", "Project updated successfully");
+      return ResponseEntity.status(HttpStatus.OK).body(response);
+    } catch (ProjectValidationException e) {
+      response.put("msg", e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     /*
      * //id check if (projectId == null || projectId.isEmpty()) { return
      * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty"); }
@@ -476,8 +469,6 @@ public class ProjectService {
      * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
      * 
      */
-
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
   }
 
   // UTILITY METHODS
