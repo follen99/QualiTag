@@ -48,13 +48,8 @@ public class UserViewController {
    */
   @GetMapping("/{username}/password/update")
   public String updatePassword(@PathVariable("username") String username, Model model) {
+    System.out.println("username: " + username);
     model.addAttribute("username", username);
     return "user/update_password";
-  }
-
-  @GetMapping("/{username}/password/reset")
-  public String resetPassword(@PathVariable("username") String username, Model model) {
-      model.addAttribute("username", username);
-      return "auth/reset_password";
   }
 }

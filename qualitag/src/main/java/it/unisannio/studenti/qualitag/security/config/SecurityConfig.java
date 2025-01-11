@@ -28,64 +28,64 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final CustomUserDetailService customUserDetailService;
-  private final PasswordEncoder passwordEncoder;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailService customUserDetailService;
+    private final PasswordEncoder passwordEncoder;
 
-  /**
-   * Returns an instance of AuthenticationProvider.
-   *
-   * @return an instance of AuthenticationProvider
-   */
-  @Bean
-  public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetailsService(customUserDetailService);
-    authProvider.setPasswordEncoder(passwordEncoder);
-    return authProvider;
-  }
+    /**
+     * Returns an instance of AuthenticationProvider.
+     *
+     * @return an instance of AuthenticationProvider
+     */
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
+    }
 
-  /**
-   * Returns an instance of AuthenticationManager.
-   *
-   * @param config the AuthenticationConfiguration object
-   * @return an instance of AuthenticationManager
-   * @throws Exception if an error occurs
-   */
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-      throws Exception {
-    return config.getAuthenticationManager();
-  }
+    /**
+     * Returns an instance of AuthenticationManager.
+     *
+     * @param config the AuthenticationConfiguration object
+     * @return an instance of AuthenticationManager
+     * @throws Exception if an error occurs
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
+    }
 
-  /**
-   * Configures the security filter chain.
-   *
-   * @param http the HttpSecurity object
-   * @return the SecurityFilterChain object
-   * @throws Exception if an error occurs
-   */
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(AbstractHttpConfigurer::disable
-        )
-        .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        )
-        .authorizeHttpRequests(authorize -> authorize
-            // Allow access to static resources
-            .requestMatchers("/index.html", "/auth/**", "/user/**").permitAll()
-            // Permit all authentication-related POST requests
-            .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
-            .requestMatchers("/api/v1/**").authenticated()
-            .requestMatchers(HttpMethod.GET, "/**").permitAll()
-            // All other requests require authentication
-            .anyRequest().authenticated()
-        )
-        .authenticationProvider(authenticationProvider())
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    /**
+     * Configures the security filter chain.
+     *
+     * @param http the HttpSecurity object
+     * @return the SecurityFilterChain object
+     * @throws Exception if an error occurs
+     */
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(authorize -> authorize
+                        // Allow access to static resources
+                        .requestMatchers("/index.html", "/auth/**", "/user/**").permitAll()
+                        // Permit all authentication-related POST requests
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                        // All other requests require authentication
+                        .anyRequest().authenticated()
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-    return http.build();
-  }
+        return http.build();
+    }
 }
