@@ -362,12 +362,14 @@ public class ProjectService {
     // Delete links to the project from owner
     User owner = userRepository.findByUserId(currentUserId);
     owner.getProjectIds().remove(projectId);
+    userRepository.save(owner);
 
     // Delete links to the project from users
     List<String> userIds = projectToDelete.getUserIds();
     for (String userId : userIds) {
       User user = userRepository.findByUserId(userId);
       user.getProjectIds().remove(projectId);
+      userRepository.save(user);
     }
 
     // TODO: Delete tags using the proper service

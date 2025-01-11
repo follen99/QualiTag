@@ -239,6 +239,7 @@ public class TeamService {
         .body(teamRepository.findTeamsByProjectId(projectId));
   }
 
+  // TODO: Delete all the links of the team and add some checks
   /**
    * Deletes a team by its ID.
    *
