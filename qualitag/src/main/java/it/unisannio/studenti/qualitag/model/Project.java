@@ -179,6 +179,15 @@ public class Project {
      * @return the ProjectInfoDto
      */
     public ProjectInfoDto toProjectInfoDto() {
+        if (this.projectStatus == null) {
+            this.projectStatus = ProjectStatus.NO_INFO;
+        }
+        if (this.projectDescription == null) {
+            this.projectDescription = "";
+        }
+        if (this.projectName == null) {
+            this.projectName = "";
+        }
         return new ProjectInfoDto(
                 this.projectName,
                 this.projectDescription,

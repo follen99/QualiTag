@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Projects</title>
 
+  <style>
+    .project-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 8px 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.3s ease;
+    }
+    .project-card:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .project-title {
+      font-size: 1.5em;
+      margin-bottom: 8px;
+    }
+    .project-description {
+      margin-bottom: 8px;
+    }
+    .project-status {
+      font-weight: bold;
+      color: #007BFF;
+    }
+  </style>
+
   <!-- Token validation -->
   <script src="/js/auth/token-validation.js"></script>
 
@@ -29,7 +54,7 @@
       }
       
 
-      const requestBody = JSON.stringify(localStorage.getItem('user-projectIds'));
+      const requestBody = localStorage.getItem('user-projectIds'); //JSON.stringify(localStorage.getItem('user-projectIds'));
       console.log('requestBody:', requestBody);
 
       const response = fetch('/api/v1/projects/get-by-ids', {
@@ -42,7 +67,6 @@
       })
       .then(response => response.json())
       .then(userProjects => {
-        console.log('userProjects:', userProjects);
         if (userProjects.length === 0) {
           thereAreNoProjects();
         } else {
@@ -53,6 +77,33 @@
 
 
     });
+
+    function displayProjects(projects) {
+      const projectListContainer = document.getElementById('projectsList');
+      projects.forEach(project => {
+        console.log('project:', project);
+        const projectCard = document.createElement('div');
+        projectCard.className = 'project-card';
+
+        const projectTitle = document.createElement('div');
+        projectTitle.className = 'project-title';
+        projectTitle.textContent = project.projectName;
+
+        const projectDescription = document.createElement('div');
+        projectDescription.className = 'project-description';
+        projectDescription.textContent = project.projectDescription;
+
+        const projectStatus = document.createElement('div');
+        projectStatus.className = 'project-status';
+        projectStatus.textContent = `Status: ${project.projectStatus}`;
+
+        projectCard.appendChild(projectTitle);
+        projectCard.appendChild(projectDescription);
+        projectCard.appendChild(projectStatus);
+
+        projectListContainer.appendChild(projectCard);
+      });
+    }
 
     function thereAreNoProjects() {
       const projectListContainer = document.getElementById('projectsList');
@@ -74,14 +125,6 @@
       projectListContainer.appendChild(createProjectLink);
     }
 
-    function displayProjectIds(projectIds) {
-      const projectListContainer = document.getElementById('projectsList');
-      projectIds.forEach(projectId => {
-        const listItem = document.createElement('li');
-        listItem.textContent = projectId;
-        projectListContainer.appendChild(listItem);
-      });
-    }
   </script>
 </head>
 <body>
