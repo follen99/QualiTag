@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * The ProjectController class is a REST controller that handles requests related to projects.
  */
@@ -68,6 +70,28 @@ public class ProjectController {
     return projectService.closeProject(projectId);
   }
 
+  /**
+ * Gets projects by their IDs.
+ *
+ * @param projectIds The list of project IDs.
+ * @return The response entity with the list of project DTOs.
+ */
+  @PostMapping("/get-by-ids")
+  public ResponseEntity<?> getProjectsByIds(@RequestBody List<String> projectIds) {
+    System.out.println("SONO QUIII" + projectIds);
+    if (projectIds == null || projectIds.isEmpty()) {
+      return ResponseEntity.badRequest().body("Project IDs cannot be null or empty");
+    }
+    return projectService.getProjectsByIds(projectIds);
+  }
+
+  @PostMapping("/test")
+  public ResponseEntity<?> getTest() {
+    System.out.println("SONO QUIII");
+    return ResponseEntity.ok("CIAO");
+  }
+
+
   // GET
   /**
    * Gets all the projects.
@@ -76,6 +100,7 @@ public class ProjectController {
    */
   @GetMapping("/get")
   public ResponseEntity<?> getAllProjects() {
+    System.out.println("test");
     return projectService.getAllProjects();
   }
 

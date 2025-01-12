@@ -3,6 +3,8 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.constants.ProjectConstants;
 import it.unisannio.studenti.qualitag.dto.project.CompletedProjectCreationDto;
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
+import it.unisannio.studenti.qualitag.dto.project.ProjectInfoDto;
+import it.unisannio.studenti.qualitag.dto.project.WholeProjectDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
@@ -248,6 +250,25 @@ public class ProjectService {
    */
   public ResponseEntity<?> getAllProjects() {
     return ResponseEntity.status(HttpStatus.OK).body(projectRepository.findAll());
+  }
+
+  public ResponseEntity<?> getProjectsByIds(List<String> projectIds) {
+    if (projectIds == null || projectIds.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project IDs cannot be null or empty");
+    }
+
+    // new ArrayList to store the projects
+    List<ProjectInfoDto> projects = new ArrayList<>();
+
+    // for every id passed, check if the project exists and add it to the list
+    for (String projectId : projectIds) {
+      Project project = projectRepository.findProjectByProjectId(projectId);
+      if (project == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project with ID " + projectId + " not found");
+      }
+      projects.add(project.toProjectInfoDto());
+    }
+    return ResponseEntity.status(HttpStatus.OK).body(projects);
   }
 
   /**

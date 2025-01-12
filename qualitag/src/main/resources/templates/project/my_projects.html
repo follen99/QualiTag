@@ -9,84 +9,49 @@
   <script src="/js/auth/token-validation.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const username = localStorage.getItem('username');
+    document.addEventListener('DOMContentLoaded', async function () {
       const authToken = localStorage.getItem('authToken');
+      const username = localStorage.getItem('username');
 
-      // if the user is logged in...
-      if (username) {
-        fetch('/api/v1/user/' + username, {
-          headers: {
-            'Authorization': 'Bearer ' + authToken
-          }
-        })
-        .then(response => {
-          if (response.status === 403 || response.status === 404) {
-            window.location.href = '/404'; // Redirect to 404 page
-            throw new Error('Unauthorized access or user not found');
-          }
-          return response.json();
-        }).then(user => {
-          console.log('User data:', user);
-          const userProjectIds = user.projectIds;
+      console.log('authToken:', authToken);
 
-          alert("User project ids: " + userProjectIds);
+      console.log('sending: ' + localStorage.getItem('user-projectIds'));
 
-          // if there are no projects, display a message before fetching the projects
-          if (userProjectIds.length === 0) {
-            thereAreNoProjects();
-          }else {
-            userProjectIds.forEach(projectId => {
-              console.log('Fetching project data for project ID:', projectId);
-              fetch(`/api/v1/projects/${projectId}/status`, {
-                headers: {
-                  'Authorization': 'Bearer ' + authToken
-                }
-              })
-              .then(response => {
-                if (response.status === 404){
-
-                }
-                if (response.status === 403) {
-                  // window.location.href = '/404'; // Redirect to 404 page
-                  throw new Error('Unauthorized access, please login.');
-                  window.location.href = '/signin';
-                }
-                return response.json();
-              })
-              .then(project => {
-                // displayProjectIds(project);
-                projects.push(project);
-              })
-              .then(() => {
-                const projectListContainer = document.getElementById('projectsList');
-                projects.forEach(project => {
-                  const listItem = document.createElement('li');
-                  const link = document.createElement('a');
-
-                  link.href = `/project/detail/${project.projectId}`;
-                  link.textContent = `${project.projectName} - ${project.projectDescription}`;
-
-                  link.addEventListener('click',
-                      () => {
-                        // saving the project data in local storage
-                        // only when the user clicks on the project link
-                        localStorage.setItem('wholeproject', JSON.stringify(project));
-                      });
-
-                  listItem.appendChild(link);
-                  projectListContainer.appendChild(listItem);
-                });
-              })
-              .catch(error => console.error('Error fetching project data:', error));
-            });
-          }
-        })
-        .catch(error => console.error('Error fetching user data:', error));
-      } else {
-        alert('Please login to access the profile page');
+      if (!authToken || !username) {
+        alert('Please login to access your projects');
         window.location.href = '/signin';
+        return;
       }
+
+      if (!localStorage.getItem('user-projectIds')) {
+        thereAreNoProjects();
+        return;
+      }
+      
+
+      const requestBody = JSON.stringify(localStorage.getItem('user-projectIds'));
+      console.log('requestBody:', requestBody);
+
+      const response = fetch('/api/v1/projects/get-by-ids', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + authToken,
+          'Content-Type': 'application/json'
+        },
+        body: requestBody
+      })
+      .then(response => response.json())
+      .then(userProjects => {
+        console.log('userProjects:', userProjects);
+        if (userProjects.length === 0) {
+          thereAreNoProjects();
+        } else {
+          displayProjects(userProjects);
+        }
+      })
+      .catch(error => console.error('Error fetching user projects:', error));
+
+
     });
 
     function thereAreNoProjects() {

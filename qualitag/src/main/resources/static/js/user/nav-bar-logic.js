@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     const registerButton = document.getElementById('register-navbar');
     const projectsButton = document.getElementById('projects-navbar');
 
+    // if user-data is older than 1 hour, redirect to login page
+    if (localStorage.getItem('user-lastFetch') && (Date.now() - localStorage.getItem('user-lastFetch') > 3600000)) {
+        alert('Your session has expired. Please log in again.');
+        localStorage.clear();
+        window.location.href = '/signin';
+        return;
+    }
+
     await checkToken();
     const authToken = localStorage.getItem('authToken');
 
