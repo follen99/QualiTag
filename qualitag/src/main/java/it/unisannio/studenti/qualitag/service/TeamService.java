@@ -11,10 +11,15 @@ import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +36,9 @@ public class TeamService {
   private final UserRepository userRepository;
   private final TeamMapper teamMapper;
 
+  private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+  private final Validator validator = factory.getValidator();
+
   /**
    * Constructs a new TeamService.
    *
@@ -46,6 +54,17 @@ public class TeamService {
     this.teamMapper = teamMapper;
   }
 
+  private boolean validateTeamCreateDto(TeamCreateDto dto) {
+    Set<ConstraintViolation<TeamCreateDto>> violations = validator.validate(dto);
+    return violations.isEmpty();
+  }
+
+  /*
+   * TODO:
+   * -  Add possibility of team switching if a user is already in another team
+   * -  Use emails in TeamCreateDto and convert them later
+   * -  If a user is not present in the project, add it or return an error
+   */
   /**
    * Adds a new team.
    *
@@ -102,20 +121,12 @@ public class TeamService {
    * @return The validated team data transfer object.
    */
   private CompletedTeamCreateDto validateTeam(TeamCreateDto teamCreateDto) {
-    if (teamCreateDto == null) {
-      throw new TeamValidationException("Team cannot be null");
+    if (!validateTeamCreateDto(teamCreateDto)) {
+      throw new TeamValidationException("Invalid team data");
     }
 
-    // Validate and correct team name
+    // Validate team name length
     String name = teamCreateDto.teamName();
-    if (name == null || name.trim().isEmpty()) {
-      throw new TeamValidationException("Team name cannot be empty");
-    }
-    /*
-     * if (name.contains(" ")) { throw new
-     * TeamValidationException("Team name cannot contain whitespaces"); }
-     */
-
     if (name.length() > TeamConstants.MAX_TEAM_NAME_LENGTH) {
       throw new TeamValidationException("Team name is too long");
     }
@@ -123,26 +134,19 @@ public class TeamService {
       throw new TeamValidationException("Team name is too short");
     }
 
-    // Validate users list
+    // Remove duplicates from the list of users
     List<String> users = teamCreateDto.users();
-    if (users == null || users.isEmpty()) {
-      throw new TeamValidationException("Users list cannot be empty");
+    users = users.stream().distinct().collect(Collectors.toList());
+
+    // Validate number of users
+    if (users.size() < TeamConstants.MIN_TEAM_USERS) {
+      throw new TeamValidationException(
+          "A team must have at least " + TeamConstants.MIN_TEAM_USERS + " users");
     }
-
-    users = users.stream().distinct().collect(Collectors.toList()); // Remove duplicates
-
-    /*
-     * If MIN_TEAM_USERS == 1 this check is useless, we can use users.isEmpty() instead If
-     * MIN_TEAM_USERS > 1 we need to check if the list has at least MIN_TEAM_USERS elements
-     */
-
-    /*
-     * if (users.size() < TeamConstants.MIN_TEAM_USERS) { throw new TeamValidationException(
-     * "A team must have at least " + TeamConstants.MIN_TEAM_USERS + ( TeamConstants.MIN_TEAM_USERS
-     * > 1 ? " users" : " user")); } if (users.size() > TeamConstants.MAX_TEAM_USERS) { throw new
-     * TeamValidationException( "A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + (
-     * TeamConstants.MAX_TEAM_USERS > 1 ? " users" : " user")); }
-     */
+    if (users.size() > TeamConstants.MAX_TEAM_USERS) {
+      throw new TeamValidationException(
+          "A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + " users");
+    }
 
     for (String currentUserId : users) {
       if (currentUserId == null || currentUserId.trim().isEmpty()) {
