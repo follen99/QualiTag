@@ -1,7 +1,6 @@
 document.getElementById('loginForm').addEventListener('submit', async function(event) {
   event.preventDefault();
 
-  console.log("button pressed");
   const formData = new FormData(event.target);
   const data = Object.fromEntries(formData.entries());
 

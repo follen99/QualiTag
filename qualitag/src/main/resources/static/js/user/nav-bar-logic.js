@@ -5,6 +5,7 @@
  * - userProjects
  * - profileLink
  */
+import { refreshUserData } from './refresh-user-data.js';
 
 // If user is logged in, show the profile link and logout button
 document.addEventListener('DOMContentLoaded', async function () {
@@ -76,6 +77,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             location.reload(); // Reload the current page
         }
     });
+
+    // refresh user data
+    document.getElementById('refreshUserDataButton').addEventListener('click', async function (event) {
+        event.preventDefault(); // Prevent the default behavior
+        console.log('Refreshing user data...');
+        await refreshUserData();
+    });
+        
 });
 
 
