@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,30 +30,19 @@ import org.springframework.stereotype.Service;
  * Service class for managing teams.
  */
 @Service
+@RequiredArgsConstructor
 public class TeamService {
+
+  private final ArtifactService artifactService;
 
   private final ProjectRepository projectRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
+
   private final TeamMapper teamMapper;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
-
-  /**
-   * Constructs a new TeamService.
-   *
-   * @param teamRepository The team repository.
-   * @param userRepository The user repository.
-   * @param teamMapper The team mapper.
-   */
-  public TeamService(ProjectRepository projectRepository, TeamRepository teamRepository,
-      UserRepository userRepository, TeamMapper teamMapper) {
-    this.projectRepository = projectRepository;
-    this.teamRepository = teamRepository;
-    this.userRepository = userRepository;
-    this.teamMapper = teamMapper;
-  }
 
   private boolean validateTeamCreateDto(TeamCreateDto dto) {
     Set<ConstraintViolation<TeamCreateDto>> violations = validator.validate(dto);
@@ -243,7 +233,6 @@ public class TeamService {
         .body(teamRepository.findTeamsByProjectId(projectId));
   }
 
-  // TODO: Delete all the links of the team and add some checks
   /**
    * Deletes a team by its ID.
    *
@@ -251,16 +240,62 @@ public class TeamService {
    * @return The response entity.
    */
   public ResponseEntity<?> deleteTeam(String teamId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Validate team ID
     if (teamId == null || teamId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Team ID is null or empty");
+      response.put("msg", "Team ID is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-    if (!teamRepository.existsById(teamId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Team not found");
+
+    // Retrieve the team to delete
+    Team team = teamRepository.findById(teamId).orElse(null);
+    if (team == null) {
+      response.put("msg", "Team not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+    // Retrieve the project to remove the team from
+    Project project = projectRepository.findProjectByProjectId(team.getProjectId());
+    if (project == null) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the team is the only team in the project
+    if (project.getTeamIds().size() == 1) {
+      response.put("msg", "Cannot delete the only team in the project");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Remove team from project
+    project.getTeamIds().remove(teamId);
+    projectRepository.save(project);
+
+    // Remove team from users
+    List<String> userIds = team.getUserIds();
+    for (String userId : userIds) {
+      User user = userRepository.findById(userId).orElse(null);
+      if (user == null) {
+        response.put("msg", "User with ID " + userId + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      user.getTeamIds().remove(teamId);
+      userRepository.save(user);
+    }
+
+    // Delete all the artifacts of the team
+    List<String> artifactIds = team.getArtifactIds();
+    for (String artifactId : artifactIds) {
+      artifactService.deleteArtifact(artifactId);
+    }
+
+    // Delete team from repository
     teamRepository.deleteById(teamId);
     if (teamRepository.existsById(teamId)) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Team not deleted");
     }
+
     return ResponseEntity.status(HttpStatus.OK).body("Team deleted successfully.");
   }
 
