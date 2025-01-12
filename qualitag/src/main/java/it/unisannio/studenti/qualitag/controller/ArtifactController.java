@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * The controller for the artifact endpoints.
  */
 @RestController
-@RequestMapping("/api/v1/artifacts")
+@RequestMapping("/api/v1/artifact")
 public class ArtifactController {
 
   private final ArtifactService artifactService;
@@ -41,7 +41,7 @@ public class ArtifactController {
    *
    * @param artifactCreateDto the artifact to add to the repository
    */
-  @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<?> createArtifact(@ModelAttribute ArtifactCreateDto artifactCreateDto) {
     return this.artifactService.addArtifact(artifactCreateDto);
   }
@@ -53,7 +53,7 @@ public class ArtifactController {
    * @param tagId      the id of the tag
    * @return the response entity
    */
-  @PostMapping("/add/{artifactId}/tag/{tagId}")
+  @PostMapping("/{artifactId}/tag/{tagId}")
   public ResponseEntity<?> addTag(@PathVariable String artifactId, @PathVariable String tagId) {
     return this.artifactService.addTag(artifactId, tagId);
   }
@@ -79,7 +79,7 @@ public class ArtifactController {
    * @param artifactCreateDto the updated artifact
    * @return the response entity
    */
-  @PutMapping("/update/{artifactId}")
+  @PutMapping("/{artifactId}")
   public ResponseEntity<?> updateArtifact(@PathVariable String artifactId,
       @RequestBody ArtifactCreateDto artifactCreateDto) {
     return this.artifactService.updateArtifact(artifactCreateDto, artifactId);
@@ -92,11 +92,12 @@ public class ArtifactController {
    *
    * @param artifactId the id of the artifact to delete
    */
-  @DeleteMapping("/delete/{artifactId}")
+  @DeleteMapping("/{artifactId}")
   public ResponseEntity<?> deleteArtifact(@PathVariable String artifactId) {
     return this.artifactService.deleteArtifact(artifactId);
   }
 
+  // TODO: Probably should be a PUT method
   /**
    * Deletes the associated tag.
    *
@@ -104,9 +105,8 @@ public class ArtifactController {
    * @param tagId      the id of the tag to delete
    * @return the response entity
    */
-  @DeleteMapping("/delete/{artifactId}/tag/{tagId}")
+  @DeleteMapping("/{artifactId}/tag/{tagId}")
   public ResponseEntity<?> deleteTag(@PathVariable String artifactId, @PathVariable String tagId) {
     return this.artifactService.deleteTag(artifactId, tagId);
   }
-
 }
