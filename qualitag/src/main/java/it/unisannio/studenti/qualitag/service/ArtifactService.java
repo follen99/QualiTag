@@ -251,6 +251,15 @@ public class ArtifactService {
     // Delete the artifact from the database
     artifactRepository.deleteArtifactByArtifactId(id);
 
+    // Delete the file from the system
+    try {
+      Path filePath = Paths.get(artifact.getFilePath());
+      Files.delete(filePath);
+    } catch (IOException e) {
+      response.put("msg", "File deletion failed");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
     // Check if the artifact was deleted
     if (!artifactRepository.existsById(id)) {
       response.put("msg", "Artifact deleted successfully");
