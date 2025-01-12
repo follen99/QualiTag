@@ -248,7 +248,6 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  // TODO: Probably move this method to tag service and fix response to be a map
   /**
    * Searches for the tags of the artifacts of a project.
    *
@@ -256,44 +255,52 @@ public class ProjectService {
    * @return the list of the tags associated to the artifacts of the project
    */
   public ResponseEntity<?> getProjectsTags(String projectId) {
+    Map<String, Object> response = new HashMap<>();
 
+    // Check if there's a problem with the project ID
     if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // Retrieve the project
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Retrieve the logged-in user's ID
     String currentUserId = getLoggedInUserId();
     if (!project.getOwnerId().equals(currentUserId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body("Only the project owner can see the tags!");
+      response.put("msg", "Only the project owner can see the tags!");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // retrieve the project's artifacts
+    // Retrieve the project's artifacts
     List<String> artifactIds = project.getArtifactIds();
     if (artifactIds == null || artifactIds.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No artifacts found for the project");
+      response.put("msg", "No artifacts found for the project");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // retrive the tags of the artifacts
+    // Retrive the tags of the artifacts
     List<String> tags = new ArrayList<>();
     for (String artifactId : artifactIds) {
       Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Artifact with ID " + artifactId + " not found");
+        response.put("msg", "Artifact with ID " + artifactId + " not found");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
       tags.addAll(artifact.getTags());
     }
 
-    return ResponseEntity.status(HttpStatus.OK).body(tags);
+    response.put("msg", "Tags found successfully");
+    response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  // TODO: Probably move this method to artifact service and fix response to be a map
+  // TODO: Change to actually retrieve the files
   /**
    * Gets all the artifacts of a project.
    *
@@ -301,31 +308,38 @@ public class ProjectService {
    * @return the response entity
    */
   public ResponseEntity<?> getProjectsArtifacts(String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
     if (projectId == null || projectId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Project id is null or empty");
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     List<String> artifactIds = project.getArtifactIds();
     if (artifactIds == null || artifactIds.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No artifacts found for the project");
+      response.put("msg", "No artifacts found for the project");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     List<Artifact> artifacts = new ArrayList<>();
     for (String artifactId : artifactIds) {
       Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Artifact with ID " + artifactId + " not found");
+        response.put("msg", "Artifact with ID " + artifactId + " not found");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
       artifacts.add(artifact);
     }
 
-    return ResponseEntity.status(HttpStatus.OK).body(artifacts);
+    response.put("msg", "Artifacts found successfully");
+    response.put("artifacts", artifacts);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   // DELETE

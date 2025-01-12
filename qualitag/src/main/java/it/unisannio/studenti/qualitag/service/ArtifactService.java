@@ -197,7 +197,6 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(artifactRepository.findAll());
   }
 
-  // TODO: Remove artifact from project and team and add check on logged user
   /**
    * Deletes an artifact by its id.
    *

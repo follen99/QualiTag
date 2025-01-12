@@ -69,36 +69,7 @@ public class Project {
     this.teamIds = new ArrayList<>();
     this.artifactIds = new ArrayList<>();
   }
-
-  // TODO: Constructor with all args is never used, probably should be removed
-
-  /**
-   * Constructor for Project with a list of users, teams and artifacts as well as the ownerId.
-   *
-   * @param projectName        The project's name
-   * @param projectDescription The project's description
-   * @param projectDeadline    The project's deadline
-   * @param ownerId            The id of the owner of the project
-   * @param users              The ids of the users in the project
-   * @param teams              The ids of the teams in the project
-   * @param artifacts          The ids of the artifacts in the project
-   */
-  public Project(String projectName, String projectDescription,
-      Long projectCreationDate, Long projectDeadline, String ownerId,
-      List<String> users, List<String> teams, List<String> artifacts) {
-    this.projectName = projectName;
-    this.projectDescription = projectDescription;
-    this.projectCreationDate = projectCreationDate;
-    this.projectDeadline = projectDeadline;
-    this.ownerId = ownerId;
-
-    this.projectStatus = ProjectStatus.OPEN;
-
-    this.userIds = users;
-    this.teamIds = teams;
-    this.artifactIds = artifacts;
-  }
-
+  
   // EQUALS AND HASHCODE
 
   /**
