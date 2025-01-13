@@ -60,6 +60,7 @@ public class ArtifactController {
 
   // GET Methods
 
+  // TODO: Remove this method
   /**
    * Gets all the artifacts.
    *
@@ -97,16 +98,15 @@ public class ArtifactController {
     return this.artifactService.deleteArtifact(artifactId);
   }
 
-  // TODO: Probably should be a PUT method
   /**
-   * Deletes the associated tag.
+   * Removes the associated tag.
    *
-   * @param artifactId the id of the artifact to delete the tag from
-   * @param tagId      the id of the tag to delete
+   * @param artifactId the id of the artifact to remove the tag from
+   * @param tagId      the id of the tag to remove
    * @return the response entity
    */
   @DeleteMapping("/{artifactId}/tag/{tagId}")
-  public ResponseEntity<?> deleteTag(@PathVariable String artifactId, @PathVariable String tagId) {
-    return this.artifactService.deleteTag(artifactId, tagId);
+  public ResponseEntity<?> removeTag(@PathVariable String artifactId, @PathVariable String tagId) {
+    return this.artifactService.removeTag(artifactId, tagId);
   }
 }

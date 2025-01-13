@@ -269,40 +269,47 @@ public class ArtifactService {
     }
   }
 
+
+  // TODO: Add check on user removing tag
   /**
-   * Deletes a tag of an artifact.
+   * Removss a tag of an artifact.
    *
-   * @param artifactId the id of the artifact which tag we want to delete
-   * @param tagId the id of the tag to delete
+   * @param artifactId the id of the artifact which tag we want to remove
+   * @param tagId the id of the tag to remove
    * @return the response entity
    */
-  public ResponseEntity<?> deleteTag(String artifactId, String tagId) {
+  public ResponseEntity<?> removeTag(String artifactId, String tagId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the IDs are null or empty
     if (artifactId == null || artifactId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     if (tagId == null || tagId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
+      response.put("msg", "Tag id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // Retrieve the artifact
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     List<String> tagIds = artifact.getTags();
-    if (tagIds == null || tagIds.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact has no tags");
-    }
-
     if (!tagIds.contains(tagId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found in artifact");
+      response.put("msg", "Tag not found in artifact");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     tagIds.remove(tagId);
     artifact.setTags(tagIds);
     artifactRepository.save(artifact);
 
-    return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
+    response.put("msg", "Tag removed successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   // TODO: Properly implement update method
