@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
-    if (!localStorage.getItem('user-projectIds')) {
+    if (!localStorage.getItem('user-projectIds') || localStorage.getItem('user-projectIds') === '[]') {
         thereAreNoProjects();
         return;
     }

@@ -1,0 +1,23 @@
+/*project card style*/
+.project-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+.project-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.project-title {
+    font-size: 1.5em;
+    margin-bottom: 8px;
+}
+.project-description {
+    margin-bottom: 8px;
+}
+.project-status {
+    font-weight: bold;
+    color: #007BFF;
+}
