@@ -42,16 +42,6 @@ public class TeamController {
   }
 
   /**
-   * Retrieves all teams from the database.
-   *
-   * @return a ResponseEntity containing the result of the operation
-   */
-  @GetMapping("/get/all")
-  public ResponseEntity<?> getAllTeams() {
-    return this.teamService.getAllTeams();
-  }
-
-  /**
    * Gets teams by project ID.
    *
    * @param projectId The project ID.

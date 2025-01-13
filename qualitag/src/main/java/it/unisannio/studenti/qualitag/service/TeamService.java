@@ -96,15 +96,6 @@ public class TeamService {
   }
 
   /**
-   * Gets all teams.
-   *
-   * @return The response entity.
-   */
-  public ResponseEntity<?> getAllTeams() {
-    return ResponseEntity.status(HttpStatus.OK).body(teamRepository.findAll());
-  }
-
-  /**
    * Validates a team.
    *
    * @param teamCreateDto The team data transfer object.
