@@ -181,16 +181,6 @@ public class ProjectService {
 
   // GET
 
-  // TODO: Add some protection or delete the method
-  /**
-   * Return all the projects in the database.
-   *
-   * @return the response entity
-   */
-  public ResponseEntity<?> getAllProjects() {
-    return ResponseEntity.status(HttpStatus.OK).body(projectRepository.findAll());
-  }
-
   // TODO: It might be possible to implement this method using the role of the user
   /**
    * Returns all the projects created by a specific owner.

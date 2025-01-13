@@ -189,15 +189,6 @@ public class ArtifactService {
   }
 
   /**
-   * Gets all the artifacts.
-   *
-   * @return The response entity
-   */
-  public ResponseEntity<?> getAllArtifacts() {
-    return ResponseEntity.status(HttpStatus.OK).body(artifactRepository.findAll());
-  }
-
-  /**
    * Deletes an artifact by its id.
    *
    * @param id the id of the artifact to delete

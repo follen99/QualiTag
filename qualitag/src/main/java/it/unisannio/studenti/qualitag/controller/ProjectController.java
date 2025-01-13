@@ -56,15 +56,6 @@ public class ProjectController {
   }
 
   // GET
-  /**
-   * Gets all the projects.
-   *
-   * @return the response entity
-   */
-  @GetMapping("/get")
-  public ResponseEntity<?> getAllProjects() {
-    return projectService.getAllProjects();
-  }
 
   /**
    * Gets all the projects created by a user with a given id.
