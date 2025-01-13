@@ -71,12 +71,13 @@ public class ProjectService {
       Project project = ProjectMapper.toEntity(correctProjectDto);
 
       // Save project to get ID
-      this.projectRepository.save(project);
+      projectRepository.save(project);
 
       // Create a default team for the project
-      TeamCreateDto teamCreateDto = new TeamCreateDto("Default team",
-          "Default team for project " + project.getProjectName(), project.getUserIds());
-      ResponseEntity<?> teamResponse = teamService.addTeam(teamCreateDto, project.getProjectId());
+      TeamCreateDto teamCreateDto =
+          new TeamCreateDto("Default team", "Default team for project " + project.getProjectName(),
+              project.getProjectId(), projectCreateDto.userEmails());
+      ResponseEntity<?> teamResponse = teamService.addTeam(teamCreateDto);
       if (teamResponse.getStatusCode() != HttpStatus.CREATED) {
         // If there's a problem, rollback the project creation
         this.deleteProject(project.getProjectId());
@@ -85,7 +86,7 @@ public class ProjectService {
 
       // Add the project to the users
       try {
-        this.addProjectsToUsers(project);
+        this.addProjectToUsers(project);
       } catch (ProjectValidationException e) {
         // If there's a problem, rollback the project creation
         this.deleteProject(project.getProjectId());
@@ -105,7 +106,7 @@ public class ProjectService {
   }
 
   // TODO: Add roles to users
-  private void addProjectsToUsers(Project project) throws Exception {
+  private void addProjectToUsers(Project project) throws Exception {
     User owner = userRepository.findByUserId(project.getOwnerId());
     if (owner == null) {
       throw new ProjectValidationException("User with ID " + project.getOwnerId() + " not found");
@@ -140,6 +141,86 @@ public class ProjectService {
           owner.getName() + " " + owner.getSurname());
       new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
     }
+  }
+
+  /**
+   * Adds a list of users to the project.
+   *
+   * @param projectId the id of the project to add the user to
+   * @param userEmails the list of emails of the users to add
+   * @throws Exception if there's a problem with the user or the project
+   */
+  public void addUsersToProject(String projectId, List<String> userEmails) throws Exception {
+    // Check if the project exists and retrieve it
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      throw new ProjectValidationException("Project with ID " + projectId + " not found");
+    }
+
+    // Check that the logged-in user is the owner
+    if (!getLoggedInUserId().equals(project.getOwnerId())) {
+      throw new ProjectValidationException("Only the owner can add users to the project");
+    }
+
+    // Validate emails
+    String msg = this.checkEmails(userEmails);
+    if (msg != null) {
+      throw new ProjectValidationException(msg);
+    }
+
+    for (String email : userEmails) {
+      User user = userRepository.findByEmail(email);
+      if (!project.getUserIds().contains(user.getUserId())) {
+        // Add the project to the user
+        user.getProjectIds().add(project.getProjectId());
+        userRepository.save(user);
+
+        // Add the user to the project
+        project.getUserIds().add(user.getUserId());
+        projectRepository.save(project);
+
+        // Send email to user
+        String emailMessage = String.format("""
+            Dear %s,
+
+            You have been invited to join the project: %s.
+
+            Project Description: %s
+
+            We look forward to your valuable contributions.
+
+            Best regards,
+            %s
+            """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+            userRepository.findByUserId(project.getOwnerId()).getName() + " "
+              + userRepository.findByUserId(project.getOwnerId()).getSurname());
+        new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage); 
+      }
+
+      // If the user is already in the project, do nothing
+    }
+  }
+
+  private String checkEmails(List<String> userEmails) {
+    List<String> missingUserEmails = new ArrayList<>();
+    for (String email : userEmails) {
+      // Check if the email is null
+      if (email == null) {
+        return "There is an empty email in the list. Please remove it.";
+      }
+
+      // Check if the email is duplicated in the list
+      if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
+        return "User with email " + email + " is mentioned more than once";
+      }      
+
+      // Check if the email is registered. If not, add to a list of missing emails
+      if (!userRepository.existsByEmail(email)) {
+        missingUserEmails.add(email);
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -529,29 +610,10 @@ public class ProjectService {
       throw new ProjectValidationException("Owner must not be part of the list of users");
     }
 
-    // Validate the user emails and eventually make a list of missing emails
-    List<String> missingUserEmails = new ArrayList<>();
-    for (String email : userEmails) {
-      // Check if the email is null
-      if (email == null) {
-        throw new ProjectValidationException(
-            "There is an empty email in the list. Please remove it.");
-      }
-
-      // Check if the email is duplicated in the list
-      if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
-        throw new ProjectValidationException(
-            "User with email " + email + " is mentioned more than once");
-      }
-
-      // Check if the email is registered. If not, add to a list of missing emails
-      if (!userRepository.existsByEmail(email)) {
-        missingUserEmails.add(email);
-      }
-    }
-    if (!missingUserEmails.isEmpty()) {
-      throw new ProjectValidationException(
-          "The following emails are not registered: " + missingUserEmails);
+    // Validate the user emails
+    String msg = this.checkEmails(userEmails);
+    if (msg != null) {
+      throw new ProjectValidationException(msg);
     }
 
     // Validate the user emails and retrieve userIds

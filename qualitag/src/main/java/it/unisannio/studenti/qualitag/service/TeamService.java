@@ -11,6 +11,7 @@ import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
+import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,13 +36,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TeamService {
 
-  private final ArtifactService artifactService;
-
   private final ProjectRepository projectRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
 
-  private final TeamMapper teamMapper;
+  private final ArtifactService artifactService;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -52,7 +53,6 @@ public class TeamService {
   /*
    * TODO:
    * -  Add possibility of team switching if a user is already in another team
-   * -  Use emails in TeamCreateDto and convert them later
    * -  If a user is not present in the project, add it or return an error
    */
   /**
@@ -61,29 +61,23 @@ public class TeamService {
    * @param teamCreateDto The team data transfer object.
    * @return The response entity.
    */
-  public ResponseEntity<?> addTeam(TeamCreateDto teamCreateDto, String projectId) {
+  public ResponseEntity<?> addTeam(TeamCreateDto teamCreateDto) {
     Map<String, Object> response = new HashMap<>();
 
     // Team validation
     try {
-      // Validate project ID
-      Project project = projectRepository.findProjectByProjectId(projectId);
-      if (project == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
-      }
-
       // Validate DTO
       CompletedTeamCreateDto correctTeamDto = validateTeam(teamCreateDto);
 
       // Create team
-      Team team = teamMapper.toEntity(correctTeamDto);
-      team.setProjectId(projectId);
+      Team team = TeamMapper.toEntity(correctTeamDto);
 
       // Save team and add it to users
       this.teamRepository.save(team);
-      this.addTeamToUser(team);
+      this.addTeamToUsers(team);
 
       // Add team to project
+      Project project = projectRepository.findProjectByProjectId(teamCreateDto.projectId());
       project.getTeamIds().add(team.getTeamId());
       projectRepository.save(project);
 
@@ -106,6 +100,18 @@ public class TeamService {
       throw new TeamValidationException("Invalid team data");
     }
 
+    // Retrieve and validate project
+    Project project = projectRepository.findProjectByProjectId(teamCreateDto.projectId());
+    if (project == null) {
+      throw new TeamValidationException("Project not found");
+    }
+
+    // Check that team is being created by project owner
+    User owner = userRepository.findByUserId(getLoggedInUserId());
+    if (!project.getOwnerId().equals(owner.getUserId())) {
+      throw new TeamValidationException("Only the project owner can create a team");
+    }
+
     // Validate team name length
     String name = teamCreateDto.teamName();
     if (name.length() > TeamConstants.MAX_TEAM_NAME_LENGTH) {
@@ -115,34 +121,41 @@ public class TeamService {
       throw new TeamValidationException("Team name is too short");
     }
 
-    // Remove duplicates from the list of users
-    List<String> users = teamCreateDto.users();
-    users = users.stream().distinct().collect(Collectors.toList());
+    // Remove duplicates from the list of user emails
+    List<String> userEmails = teamCreateDto.userEmails();
+    userEmails = userEmails.stream().distinct().collect(Collectors.toList());
+
+    // Owner email must not be in the list
+    if (userEmails.contains(owner.getEmail())) {
+      throw new TeamValidationException("Owner email must not be in the list");
+    }
 
     // Validate number of users
-    if (users.size() < TeamConstants.MIN_TEAM_USERS) {
+    if (userEmails.size() < TeamConstants.MIN_TEAM_USERS) {
       throw new TeamValidationException(
           "A team must have at least " + TeamConstants.MIN_TEAM_USERS + " users");
     }
-    if (users.size() > TeamConstants.MAX_TEAM_USERS) {
+    if (userEmails.size() > TeamConstants.MAX_TEAM_USERS) {
       throw new TeamValidationException(
           "A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + " users");
     }
 
-    for (String currentUserId : users) {
-      if (currentUserId == null || currentUserId.trim().isEmpty()) {
-        throw new TeamValidationException("There is an empty user in the list. Remove it.");
-      }
-      currentUserId = currentUserId.trim(); // Remove leading and trailing whitespaces
-      if (!userRepository.existsById(currentUserId)) {
-        System.out.println("testing userid: " + currentUserId);
-        throw new TeamValidationException("User with ID " + currentUserId + " does not exist");
+    // Validate emails and convert them to user IDs
+    List<String> userIds = new ArrayList<>();
+    for (String email : userEmails) {
+      // Check for empty email
+      if (email == null || email.trim().isEmpty()) {
+        throw new TeamValidationException("There is an empty email in the list. Remove it.");
       }
 
-      if (teamRepository.existsByUserIdsContaining(currentUserId)) {
-        throw new TeamValidationException("User with ID " + currentUserId
-            + " is already in a team. Same user cannot be in multiple teams.");
+      // Retrieve user by email
+      User user = userRepository.findByEmail(email);
+      if (user == null) {
+        throw new TeamValidationException("User with email " + email + " does not exist");
       }
+
+      // Add user ID to list
+      userIds.add(user.getUserId());
     }
 
     // Validate and correct team description
@@ -158,7 +171,8 @@ public class TeamService {
       }
     }
 
-    return new CompletedTeamCreateDto(name, System.currentTimeMillis(), description, users);
+    return new CompletedTeamCreateDto(name, project.getProjectId(), System.currentTimeMillis(),
+        description, userIds);
   }
 
   /**
@@ -167,10 +181,13 @@ public class TeamService {
    * @param team The team entity.
    * @throws TeamValidationException If the team is null or the user does not exist.
    */
-  private void addTeamToUser(Team team) throws TeamValidationException {
+  private void addTeamToUsers(Team team) throws TeamValidationException {
+    // Validate team
     if (team == null) {
       throw new TeamValidationException("Team cannot be null");
     }
+
+    // Validate users and add them to the team
     List<String> users = team.getUserIds();
     for (String userId : users) {
       if (userId == null || userId.isEmpty()) {
@@ -180,16 +197,13 @@ public class TeamService {
         throw new TeamValidationException("User with ID " + userId + " does not exist");
       }
 
-      /*
-       * if (teamRepository.existsByUsersContaining(userId)) { throw new
-       * TeamValidationException("User with ID " + userId +
-       * " is already in a team. Same user cannot be in multiple teams."); }
-       */
-
-      if (teamRepository.existsByUserIdsContainingAndTeamIdNot(userId, team.getTeamId())) {
-        throw new TeamValidationException("User with ID " + userId
-            + " is already in a team. Same user cannot be in multiple teams.");
+      // Check if user is part of the project
+      Project project = projectRepository.findProjectByProjectId(team.getProjectId());
+      if (!project.getUserIds().contains(userId)) {
+        throw new TeamValidationException("User with ID " + userId + " is not part of the project");
       }
+
+      // TODO: If user is already in another team, switch it
 
       User currentUser = userRepository.findById(userId).orElse(null);
       assert currentUser != null;
@@ -306,5 +320,19 @@ public class TeamService {
     }
     return ResponseEntity.status(HttpStatus.OK)
         .body(teamRepository.findByUserIdsContaining(userId));
+  }
+
+  private String getLoggedInUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new IllegalStateException("No authenticated user found");
+    }
+
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof CustomUserDetails(User user)) {
+      return user.getUserId();
+    }
+    throw new IllegalStateException(
+        "Unexpected authentication principal type: " + principal.getClass());
   }
 }

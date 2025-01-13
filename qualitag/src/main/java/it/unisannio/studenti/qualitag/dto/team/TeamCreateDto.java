@@ -10,6 +10,7 @@ import java.util.List;
 public record TeamCreateDto(
         @NotBlank String teamName,
         String teamDescription,
-        @NotEmpty List<String> users) {
+        @NotBlank String projectId,
+        @NotEmpty List<String> userEmails) {
 
 }

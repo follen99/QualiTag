@@ -54,13 +54,14 @@ public class Team {
    * @param creationTimeStamp the creation date of the team
    * @param teamDescription the description of the team
    */
-  public Team(String teamName, Long creationTimeStamp, String teamDescription,
+  public Team(String teamName, String projectId, Long creationTimeStamp, String teamDescription,
       List<String> userIds) {
     this.teamName = teamName;
+    this.projectId = projectId;
     this.creationTimeStamp = creationTimeStamp;
     this.teamDescription = teamDescription;
     this.userIds = userIds;
-    
+
     this.artifactIds = new ArrayList<>();
   }
 

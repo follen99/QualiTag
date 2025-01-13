@@ -16,12 +16,17 @@ public class TeamMapper {
    * @param correctTeamDto The CompletedTeamCreateDto to convert.
    * @return The converted Team entity, or null if the input is null.
    */
-  public Team toEntity(CompletedTeamCreateDto correctTeamDto) {
+  public static Team toEntity(CompletedTeamCreateDto correctTeamDto) {
     if (correctTeamDto == null) {
       return null;
     }
 
-    return new Team(correctTeamDto.teamName(), correctTeamDto.creationDate(),
-        correctTeamDto.teamDescription(), correctTeamDto.users());
+    return new Team(
+        correctTeamDto.teamName(),
+        correctTeamDto.projectId(),
+        correctTeamDto.creationDate(),
+        correctTeamDto.teamDescription(),
+        correctTeamDto.userIds()
+    );
   }
 }
