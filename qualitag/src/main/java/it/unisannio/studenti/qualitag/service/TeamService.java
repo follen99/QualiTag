@@ -50,11 +50,6 @@ public class TeamService {
     return violations.isEmpty();
   }
 
-  /*
-   * TODO:
-   * -  Add possibility of team switching if a user is already in another team
-   * -  If a user is not present in the project, add it or return an error
-   */
   /**
    * Adds a new team.
    *
@@ -188,12 +183,16 @@ public class TeamService {
     }
 
     // Validate users and add them to the team
-    List<String> users = team.getUserIds();
-    for (String userId : users) {
+    List<String> userIds = team.getUserIds();
+    for (String userId : userIds) {
+      // Validate user ID
       if (userId == null || userId.isEmpty()) {
         throw new TeamValidationException("User ID is null or empty");
       }
-      if (!userRepository.existsById(userId)) {
+
+      // Check if user exists
+      User user = userRepository.findByUserId(userId);
+      if (user == null) {
         throw new TeamValidationException("User with ID " + userId + " does not exist");
       }
 
@@ -203,20 +202,19 @@ public class TeamService {
         throw new TeamValidationException("User with ID " + userId + " is not part of the project");
       }
 
-      // TODO: If user is already in another team, switch it
-
-      User currentUser = userRepository.findById(userId).orElse(null);
-      assert currentUser != null;
-      List<String> currentUserTeams = new ArrayList<>(currentUser.getTeamIds());
-
-      if (currentUserTeams.contains(team.getTeamId())) {
-        throw new TeamValidationException("User with ID " + userId + " is already in team "
-            + team.getTeamName() + ". Same user cannot be in multiple teams.");
+      // If user is already in another team, switch it
+      for (String teamId : project.getTeamIds()) {
+        Team existingTeam = teamRepository.findTeamByTeamId(teamId);
+        if (existingTeam != null && existingTeam.getUserIds().contains(userId)) {
+          // Remove user from existing team
+          existingTeam.getUserIds().remove(userId);
+          teamRepository.save(existingTeam);
+        }
       }
-      currentUserTeams.add(team.getTeamId());
-      currentUser.setTeamIds(currentUserTeams);
 
-      userRepository.save(currentUser);
+      // Add team to user
+      user.getTeamIds().add(team.getTeamId());
+      userRepository.save(user);
     }
   }
 

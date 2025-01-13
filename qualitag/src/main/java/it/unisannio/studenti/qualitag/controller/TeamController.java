@@ -68,7 +68,7 @@ public class TeamController {
    * @param teamId The team ID.
    * @return The response entity.
    */
-  @DeleteMapping("/delete/{teamId}")
+  @DeleteMapping("/{teamId}")
   public ResponseEntity<?> deleteTeam(@PathVariable String teamId) {
     return this.teamService.deleteTeam(teamId);
   }
