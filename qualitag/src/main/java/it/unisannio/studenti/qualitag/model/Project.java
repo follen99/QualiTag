@@ -34,19 +34,19 @@ public class Project {
   @Field(name = "projectDeadline")
   private Long projectDeadline;
 
-  @Field(name = "projectOwner")
+  @Field(name = "ownerId")
   private String ownerId;
 
   @Field(name = "projectStatus")
   private ProjectStatus projectStatus;
 
-  @Field(name = "projectUsersIds")
+  @Field(name = "usersIds")
   private List<String> userIds;
 
-  @Field(name = "projectTeamsIds")
+  @Field(name = "teamsIds")
   private List<String> teamIds;
 
-  @Field(name = "projectArtifactsIds")
+  @Field(name = "artifactsIds")
   private List<String> artifactIds;
 
   /**

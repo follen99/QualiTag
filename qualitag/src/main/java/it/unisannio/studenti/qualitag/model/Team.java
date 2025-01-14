@@ -21,22 +21,22 @@ public class Team {
   @Field(targetType = FieldType.OBJECT_ID)
   private String teamId;
 
-  @Field(name = "project_id")
+  @Field(name = "projectId")
   private String projectId;
 
-  @Field(name = "user_ids")
+  @Field(name = "userIds")
   private List<String> userIds;
 
-  @Field(name = "artifact_ids")
+  @Field(name = "artifactIds")
   private List<String> artifactIds;
 
-  @Field(name = "team_name")
+  @Field(name = "teamName")
   private String teamName;
 
-  @Field(name = "creation_date")
+  @Field(name = "creationDate")
   private Long creationTimeStamp;
 
-  @Field(name = "team_description")
+  @Field(name = "teamDescription")
   private String teamDescription;
 
   /**
