@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     const loginButton = document.getElementById('login-navbar');
     const registerButton = document.getElementById('register-navbar');
     const projectsButton = document.getElementById('projects-navbar');
-    const dropdownButton = document.getElementById('dropdown-button');
+    const refreshUserDataButton = document.getElementById('refreshUserDataButton');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+
+    const profileBigButton = document.getElementById('profile-big-button');
+    const logoutBigButton = document.getElementById('logout-big-button');
 
     // if user-data is older than 1 hour, redirect to login page
     if (localStorage.getItem('user-lastFetch') && (Date.now() - localStorage.getItem('user-lastFetch') > 3600000)) {
@@ -29,37 +33,45 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (!authToken) {
         // user NOT logged in
-        profileLink.style.display = 'none';     // profile link
-        logoutButton.style.display = 'none';    // logout button
-        projectsButton.style.display = 'none';  // my projects button
-        dropdownButton.style.display = 'none';  // dropdown button
+        if (profileLink) profileLink.style.display = 'none';     // profile link
+        if (logoutButton) logoutButton.style.display = 'none';    // logout button
+        if (projectsButton) projectsButton.style.display = 'none';  // my projects button
+        if (refreshUserDataButton) refreshUserDataButton.style.display = 'none'; // refresh user data button
 
-
-        loginButton.style.display = 'block'; // Mostra il bottone
-        registerButton.style.display = 'block'; // Mostra il bottone
+        if (loginButton) loginButton.style.display = 'block'; // Mostra il bottone
+        if (registerButton) registerButton.style.display = 'block'; // Mostra il bottone
     }else {
         // user logged in
-        profileLink.style.display = 'block'; // Mostra il bottone
-        logoutButton.style.display = 'block'; // Mostra il bottone
-        projectsButton.style.display = 'block'; // Mostra il bottone
-        dropdownButton.style.display = 'block';  // dropdown button
+        if (profileLink) profileLink.style.display = 'block'; // Mostra il bottone
+        if (logoutButton) logoutButton.style.display = 'block'; // Mostra il bottone
+        if (projectsButton) projectsButton.style.display = 'block'; // Mostra il bottone
+        if (refreshUserDataButton) refreshUserDataButton.style.display = 'block'; // Mostra il bottone
 
-        loginButton.style.display = 'none'; // Nascondi il bottone
-        registerButton.style.display = 'none'; // Nascondi il bottone
+        if (loginButton) loginButton.style.display = 'none'; // Nascondi il bottone
+        if (registerButton) registerButton.style.display = 'none'; // Nascondi il bottone
+    }
+
+    // Hide dropdown menu if on the home page with path "/"
+    if (window.location.pathname === '/') {
+        if (dropdownMenu) {
+            dropdownMenu.style.display = 'none';
+        }
+
+        if (!authToken) {
+            // not logged --> hide profile and logout buttons
+            if (profileBigButton) profileBigButton.style.display = 'none';
+            if (logoutBigButton) logoutBigButton.style.display = 'none';
+        }else {
+            // logged --> show profile and logout buttons
+            if (profileBigButton) profileBigButton.style.display = 'block';
+            if (logoutBigButton) logoutBigButton.style.display = 'block';
+        }
     }
 
 
     // Profile redirect
-    document.getElementById('profileLink').addEventListener('click', function (event) {
-        const username = localStorage.getItem('username');
-        if (username) {
-            this.setAttribute('href', '/user/' + username);
-        } else {
-            event.preventDefault(); // Prevent the default behavior
-            alert('Please login to access the profile page');
-            window.location.href = '/signin';
-        }
-    });
+    profileLink.addEventListener('click', profileRedirectHandler);
+    profileBigButton.addEventListener('click', profileRedirectHandler);
 
     // projects redirect
     document.getElementById('projects-navbar').addEventListener('click', function (event) {
@@ -74,25 +86,41 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     // logout button logic
-    document.getElementById('logoutbutton').addEventListener('click', function (event) {
-        event.preventDefault(); // Prevent the default behavior
-        if (confirm('Are you sure you want to log out?')) {
-            alert('User ' + localStorage.getItem('username') + ' has been logged out successfully.\n' + 'You can now register or login again.');
-            localStorage.removeItem('username');
-            localStorage.removeItem('authToken');
-            location.reload(); // Reload the current page
-        }
-    });
+    logoutButton.addEventListener('click', logoutHandler);
+    logoutBigButton.addEventListener('click', logoutHandler);
+
 
     // refresh user data
-    document.getElementById('refreshUserDataButton').addEventListener('click', async function (event) {
-        event.preventDefault(); // Prevent the default behavior
-        console.log('Refreshing user data...');
-        await refreshUserData();
-    });
+    refreshUserDataButton.addEventListener('click', refreshHandler);
+
         
 });
+function profileRedirectHandler(event) {
+    const username = localStorage.getItem('username');
+    if (username) {
+        this.setAttribute('href', '/user/' + username);
+    } else {
+        event.preventDefault(); // Prevent the default behavior
+        alert('Please login to access the profile page');
+        window.location.href = '/signin';
+    }
+}
 
+function logoutHandler(event) {
+    event.preventDefault(); // Prevent the default behavior
+    if (confirm('Are you sure you want to log out?')) {
+        alert('User ' + localStorage.getItem('username') + ' has been logged out successfully.\n' + 'You can now register or login again.');
+        localStorage.removeItem('username');
+        localStorage.removeItem('authToken');
+        location.reload(); // Reload the current page
+    }
+}
+
+function refreshHandler(event) {
+    event.preventDefault(); // Prevent the default behavior
+    console.log('Refreshing user data...');
+    refreshUserData();
+}
 
 async function checkToken() {
     const authToken = localStorage.getItem('authToken');
