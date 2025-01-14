@@ -166,7 +166,7 @@ public class ArtifactService {
    * @param dto the DTO containing the artifact id and the list of tag ids to add
    * @return the response entity
    */
-  public ResponseEntity<?> addTags(AddTagsToArtifactDto dto) {
+  public ResponseEntity<?> addTags(String artifactId, AddTagsToArtifactDto dto) {
     Map<String, Object> response = new HashMap<>();
 
     // Validate the DTO
@@ -175,9 +175,6 @@ public class ArtifactService {
       response.put("msg", "Invalid data");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-
-    String artifactId = dto.artifactId();
-    List<String> tagIds = dto.tagIds();
 
     // Check artifact
     if (artifactId == null || artifactId.isEmpty()) {
@@ -192,7 +189,7 @@ public class ArtifactService {
     }
 
     // Check tags
-    for (String tagId : tagIds) {
+    for (String tagId : dto.tagIds()) {
       // Check if the tag id is null or empty
       if (tagId == null || tagId.isEmpty()) {
         response.put("msg", "Tag id is null or empty");
@@ -231,7 +228,7 @@ public class ArtifactService {
     }
 
     // If all checks pass, add the tags to the artifact
-    for (String tagId : tagIds) {
+    for (String tagId : dto.tagIds()) {
       artifact.getTags().add(tagId);
       artifactRepository.save(artifact);
     }

@@ -52,9 +52,10 @@ public class ArtifactController {
    * @param dto the dto containing the artifact id and the list of tag ids to add
    * @return the response entity
    */
-  @PostMapping("/tag")
-  public ResponseEntity<?> addTags(@RequestBody AddTagsToArtifactDto dto) {
-    return this.artifactService.addTags(dto);
+  @PostMapping("/{artifactId}/tag")
+  public ResponseEntity<?> addTags(@PathVariable String artifactId,
+      @RequestBody AddTagsToArtifactDto dto) {
+    return this.artifactService.addTags(artifactId, dto);
   }
 
   // GET Methods
@@ -64,7 +65,7 @@ public class ArtifactController {
   /**
    * Updates an artifact.
    *
-   * @param artifactId        the id of the artifact to update
+   * @param artifactId the id of the artifact to update
    * @param artifactCreateDto the updated artifact
    * @return the response entity
    */
@@ -90,7 +91,7 @@ public class ArtifactController {
    * Removes the associated tag.
    *
    * @param artifactId the id of the artifact to remove the tag from
-   * @param tagId      the id of the tag to remove
+   * @param tagId the id of the tag to remove
    * @return the response entity
    */
   @DeleteMapping("/{artifactId}/tag/{tagId}")
