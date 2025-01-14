@@ -66,6 +66,14 @@ document.addEventListener('navbarLoaded', async function () {
             if (profileBigButton) profileBigButton.style.display = 'block';
             if (logoutBigButton) logoutBigButton.style.display = 'block';
         }
+    }else {
+        // show dropdown menu
+        if (dropdownMenu) {
+            dropdownMenu.style.display = 'block';
+        }
+        // hide profile and logout buttons
+        if (profileBigButton) profileBigButton.style.display = 'none';
+        if (logoutBigButton) logoutBigButton.style.display = 'none';
     }
 
 
