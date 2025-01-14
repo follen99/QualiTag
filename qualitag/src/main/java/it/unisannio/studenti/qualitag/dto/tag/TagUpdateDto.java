@@ -5,9 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 /**
  * DTO used for creating a new tag in the system.
  */
-public record TagCreateDto(
+public record TagUpdateDto(
     @NotBlank String tagValue, 
-    @NotBlank String createdBy,
     @NotBlank String colorHex) {
 
 }
