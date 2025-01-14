@@ -70,8 +70,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 
     // Profile redirect
-    profileLink.addEventListener('click', profileRedirectHandler);
-    profileBigButton.addEventListener('click', profileRedirectHandler);
+    if (profileLink) profileLink.addEventListener('click', profileRedirectHandler);
+    if (profileBigButton) profileBigButton.addEventListener('click', profileRedirectHandler);
 
     // projects redirect
     document.getElementById('projects-navbar').addEventListener('click', function (event) {
@@ -86,12 +86,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     // logout button logic
-    logoutButton.addEventListener('click', logoutHandler);
-    logoutBigButton.addEventListener('click', logoutHandler);
+    if (logoutButton) logoutButton.addEventListener('click', logoutHandler);
+    if (logoutBigButton) logoutBigButton.addEventListener('click', logoutHandler);
 
 
     // refresh user data
-    refreshUserDataButton.addEventListener('click', refreshHandler);
+    if (refreshUserDataButton) refreshUserDataButton.addEventListener('click', refreshHandler);
 
         
 });
