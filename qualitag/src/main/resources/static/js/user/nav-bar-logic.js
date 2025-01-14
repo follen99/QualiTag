@@ -8,7 +8,7 @@
 import { refreshUserData } from './refresh-user-data.js';
 
 // If user is logged in, show the profile link and logout button
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener('navbarLoaded', async function () {
     const profileLink = document.getElementById('profileLink');
     const logoutButton = document.getElementById('logoutbutton');
     const loginButton = document.getElementById('login-navbar');

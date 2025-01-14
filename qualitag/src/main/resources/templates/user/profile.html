@@ -10,68 +10,64 @@
   <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
   <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
   <link rel="stylesheet" href="/css/homepage/custom-button.css">
+
+  <!-- script to reuse the navbar -->
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
   <script src="/js/auth/token-validation.js"></script>
 </head>
 
 <body>
-<!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
-<nav class="navbar navbar-expand-md sticky-top py-3 navbar-dark" id="mainNav">
-  <div class="container"><a class="navbar-brand d-flex align-items-center" href="/"><span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-tag">
-                        <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0"></path>
-                        <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586 7 7L13.586 9l-7-7H2z"></path>
-                    </svg></span><span>QualiTag</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-    <div class="collapse navbar-collapse" id="navcol-1">
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
-        <li id="login-navbar" class="nav-item"><a class="nav-link" href="/signin">Log in</a></li>
-        <li id="register-navbar" class="nav-item"><a class="nav-link" href="/signup">Register</a></li>
-        <li class="nav-item"><a id="projects-navbar" class="nav-link" href="/myprojects">My Projects</a></li>
-      </ul>
-      <!--            PROFILE BUTTON -->
-      <a id="profileLink" class="btn btn-primary shadow custom-margin" role="button" href="signup">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
-          <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
-          <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
-        </svg>
-      </a>
-      <!--            LOG OUT BUTTON-->
-      <a id="logoutbutton" class="btn btn-primary shadow custom-margin" role="button" href="home.html" style="margin-left: 10pt">Log Out</a>
-    </div>
-  </div>
-</nav>
+  <!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
+  <div id="nav-placeholder"></div>
+  <script>
+    $(function(){
+      // Carica dinamicamente il contenuto
+      $("#nav-placeholder").load("/assets/html/nav.html", function() {
+        // Il contenuto è stato caricato, ora esegui il codice JavaScript
+        const navBarEvent = new Event('navbarLoaded');
+        console.log("navbar event dispatched");
+        document.dispatchEvent(navBarEvent);
 
-<!-- USER INFORMATIONS -->
-<div class="container py-4 py-xl-5">
-  <div class="row row-cols-1 row-cols-md-2">
-<!--    <div class="col"><img class="rounded w-100 h-100 fit-cover" style="min-height: 300px;" src="assets/img/jabba.jpg"></div>-->
-    <div class="col d-flex flex-column justify-content-center p-4">
-      <div class="text-center text-md-start d-flex flex-column align-items-center align-items-md-start mb-5">
-        <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-3 bs-icon md">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person">
-            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z"></path>
-          </svg>
-        </div>
+        // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+        // Esegui eventuali altre operazioni JavaScript per la navbar qui
+      });
+    });
+  </script>
+  <!--end of Navigation bar-->
 
-        <div>
-          <p>Username: <span id="username"></span></p>
-          <p>Email: <span id="email"></span></p>
-          <p>First name: <span id="name"></span></p>
-          <p>Last name: <span id="surname"></span></p>
-          <a class="btn btn-warning mb-3" th:href="@{/user/{username}/update(username=${username})}">Update Profile</a>
-          <a class="btn btn-warning mb-3" th:href="@{/user/{username}/password/update(username=${username})}">Change Password</a>
-          <button class="btn btn-danger" id="deleteAccount">Delete Account</button>
+  <!-- USER INFORMATIONS -->
+  <div class="container py-4 py-xl-5">
+    <div class="row row-cols-1 row-cols-md-2">
+  <!--    <div class="col"><img class="rounded w-100 h-100 fit-cover" style="min-height: 300px;" src="assets/img/jabba.jpg"></div>-->
+      <div class="col d-flex flex-column justify-content-center p-4">
+        <div class="text-center text-md-start d-flex flex-column align-items-center align-items-md-start mb-5">
+          <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-3 bs-icon md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person">
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z"></path>
+            </svg>
+          </div>
+
+          <div>
+            <p>Username: <span id="username"></span></p>
+            <p>Email: <span id="email"></span></p>
+            <p>First name: <span id="name"></span></p>
+            <p>Last name: <span id="surname"></span></p>
+            <a class="btn btn-warning mb-3" th:href="@{/user/{username}/update(username=${username})}">Update Profile</a>
+            <a class="btn btn-warning mb-3" th:href="@{/user/{username}/password/update(username=${username})}">Change Password</a>
+            <button class="btn btn-danger" id="deleteAccount">Delete Account</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
-<script src="/assets/js/bold-and-dark.js"></script>
-<!--<script src="/js/user/get-user-data-script.js"></script>-->
-<script src="/js/user/user-profile-population.js"></script>
-<script src="/js/user/delete-user-script.js"></script>
+  <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/assets/js/bold-and-dark.js"></script>
+  <!--<script src="/js/user/get-user-data-script.js"></script>-->
+  <script src="/js/user/user-profile-population.js"></script>
+  <script src="/js/user/delete-user-script.js"></script>
 
-<script type="module" src="/js/user/nav-bar-logic.js"></script>
+  <script type="module" src="/js/user/nav-bar-logic.js"></script>
 
 </body>
 
