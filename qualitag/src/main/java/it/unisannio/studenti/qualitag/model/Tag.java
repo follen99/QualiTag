@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.model;
 
+import java.util.List;
 import java.util.Objects;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -26,6 +27,9 @@ public class Tag {
 
   @Field(name = "colorHex")
   private String colorHex;
+
+  @Field(name = "artifactIds")
+  private List<String> artifactIds;
 
   /**
    * Default constructor.
@@ -88,6 +92,7 @@ public class Tag {
       + ", createdBy='" + createdBy + '\'' 
       + ", tagValue='" + tagValue.toUpperCase() + '\'' 
       + ", colorHex='" + colorHex + '\'' 
+      + ", artifactIds=" + artifactIds
       + '}';
   }
 }

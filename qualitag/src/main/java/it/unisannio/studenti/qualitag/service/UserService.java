@@ -45,8 +45,9 @@ public class UserService {
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
   
-  private final ProjectService projectService;
   private final JwtService jwtService;
+  private final ProjectService projectService;
+  private final TagService tagService;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -303,7 +304,10 @@ public class UserService {
       teamRepository.save(team);
     }
 
-    // TODO: Delete the user's tags (?)
+    // Delete the user's tags
+    for (String tagId : user.getTagIds()) {
+      tagService.deleteTag(tagId);
+    }
 
     // Delete the user
     userRepository.deleteByUsername(username);

@@ -6,8 +6,10 @@ import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagUpdateDto;
 import it.unisannio.studenti.qualitag.exception.TagValidationException;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
+import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.User;
+import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
@@ -36,6 +38,7 @@ public class TagService {
 
   private final TagMapper tagMapper;
 
+  private final ArtifactRepository artifactRepository;
   private final TagRepository tagRepository;
   private final UserRepository userRepository;
 
@@ -131,7 +134,6 @@ public class TagService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  // TODO: Delete reference from artifacts
   /**
    * Deletes a tag by its id.
    *
@@ -139,19 +141,49 @@ public class TagService {
    * @return The response entity.
    */
   public ResponseEntity<?> deleteTag(String id) {
+    Map<String, Object> response = new HashMap<>();
+
+    // ID check
     if (id == null || id.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null");
+      response.put("msg", "Tag id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    if (!tagRepository.existsById(id)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found");
+    // Retrieve tag
+    Tag tag = tagRepository.findTagByTagId(id);
+    if (tag == null) {
+      response.put("msg", "Tag not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // Check if the logged user is the creator of the tag
+    if (!tag.getCreatedBy().equals(getLoggedInUserId())) {
+      response.put("msg", "You are not the creator of the tag");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Remove tag from user
+    User user = userRepository.findByUserId(tag.getCreatedBy());
+    user.getTagIds().remove(tag.getTagId());
+    userRepository.save(user);
+
+    // Remove tag from artifacts
+    for (String artifactId : tag.getArtifactIds()) {
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+      artifact.getTags().remove(tag.getTagId());
+      artifactRepository.save(artifact);
+    }
+
+    // Delete the tag
     tagRepository.deleteById(id);
+
+    // Check if the tag has been properly deleted
     if (!tagRepository.existsById(id)) {
-      return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
+      response.put("msg", "Tag deleted successfully");
+      return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Tag not deleted");
+    response.put("msg", "Tag not deleted");
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 
   /**

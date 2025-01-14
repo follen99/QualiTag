@@ -229,6 +229,10 @@ public class ArtifactService {
 
     // If all checks pass, add the tags to the artifact
     for (String tagId : dto.tagIds()) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      tag.getArtifactIds().add(artifact.getArtifactId());
+      tagRepository.save(tag);
+
       artifact.getTags().add(tagId);
       artifactRepository.save(artifact);
     }
@@ -288,6 +292,13 @@ public class ArtifactService {
     // Remove the artifact from the team
     team.getArtifactIds().remove(artifact.getArtifactId());
     teamRepository.save(team);
+
+    // Remove the artifact from the tags
+    for (String tagId : artifact.getTags()) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      tag.getArtifactIds().remove(artifact.getArtifactId());
+      tagRepository.save(tag);
+    }
 
     // Delete the artifact from the database
     artifactRepository.deleteArtifactByArtifactId(id);
@@ -358,6 +369,11 @@ public class ArtifactService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // Remove the artifact from the tag
+    tag.getArtifactIds().remove(artifactId);
+    tagRepository.save(tag);
+
+    // Remove the tag from the artifact
     artifact.getTags().remove(tagId);
     artifactRepository.save(artifact);
 

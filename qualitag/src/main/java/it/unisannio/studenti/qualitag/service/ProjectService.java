@@ -457,8 +457,6 @@ public class ProjectService {
       userRepository.save(user);
     }
 
-    // TODO: Delete tags using the proper service
-
     // Delete teams using the proper service
     List<String> teamIds = projectToDelete.getTeamIds();
     for (String teamId : teamIds) {
@@ -468,7 +466,6 @@ public class ProjectService {
     // Delete artifacts using the proper service
     List<String> artifactIds = projectToDelete.getArtifactIds();
     for (String artifactId : artifactIds) {
-      System.out.println("Deleting artifact with ID: " + artifactId);
       artifactService.deleteArtifact(artifactId);
     }
 
