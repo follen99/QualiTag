@@ -1,93 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <title>Project details</title>
-  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-  <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
-  <link rel="stylesheet" href="/css/homepage/custom-button.css">
-  <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
-  <link rel="stylesheet" href="/css/project/styles.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Project details</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
+    <link rel="stylesheet" href="/css/homepage/custom-button.css">
+    <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
+    <link rel="stylesheet" href="/css/project/styles.css">
 
-  <!-- script to reuse the navbar -->
-  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-  <title>My Projects</title>
+    <!-- script to reuse the navbar -->
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <title>My Projects</title>
 
 
-  <!-- Token validation -->
-  <script src="/js/auth/token-validation.js"></script>
-  <!-- Fetch projects -->
-  <script src="/js/project/project-info.js"></script>
+    <!-- Token validation -->
+    <script src="/js/auth/token-validation.js"></script>
+    <!-- Fetch projects -->
+    <script src="/js/project/project-info.js"></script>
 </head>
 <body>
 <!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
 <div id="nav-placeholder"></div>
 <script>
-  $(function(){
-    // Carica dinamicamente il contenuto
-    $("#nav-placeholder").load("/assets/html/nav.html", function() {
-      // Il contenuto è stato caricato, ora esegui il codice JavaScript
-      const navBarEvent = new Event('navbarLoaded');
-      console.log("navbar event dispatched");
-      document.dispatchEvent(navBarEvent);
+    $(function () {
+        // Carica dinamicamente il contenuto
+        $("#nav-placeholder").load("/assets/html/nav.html", function () {
+            // Il contenuto è stato caricato, ora esegui il codice JavaScript
+            const navBarEvent = new Event('navbarLoaded');
+            console.log("navbar event dispatched");
+            document.dispatchEvent(navBarEvent);
 
-      // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
-      // Esegui eventuali altre operazioni JavaScript per la navbar qui
+            // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+            // Esegui eventuali altre operazioni JavaScript per la navbar qui
+        });
     });
-  });
 </script>
 <!--end of Navigation bar-->
 
 <section class="py-5">
-  <div class="container py-5">
-    <div class="row mb-4 mb-lg-5">
-      <div class="col-md-8 col-xl-6 text-center mx-auto">
-        <h2 class="fw-bold">Project Details</h2>
-      </div>
-    </div>
-    <div class="row d-flex justify-content-center">
-      <div class="col-md-6 col-xl-4">
-        <div class="card">
-          <div class="card-body text-center d-flex flex-column align-items-center">
-            <h5 class="card-title" id="projectName">Project Name</h5>
-            <p class="card-text" id="projectDescription">Project Description</p>
-            <p class="card-text text-muted" id="projectDeadline">Deadline: YYYY-MM-DD</p>
-          </div>
+    <div class="container py-5">
+        <div class="row mb-4 mb-lg-5">
+            <div class="col-md-8 col-xl-6 text-center mx-auto">
+                <h2 class="fw-bold">Project Details</h2>
+            </div>
         </div>
-      </div>
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-6 col-xl-4">
+                <div class="card">
+                    <div class="card-body text-center d-flex flex-column align-items-center">
+                        <h5 class="card-title" id="projectName">Project Name</h5>
+                        <p class="card-text" id="projectDescription">Project Description</p>
+                        <p class="card-text text-muted" id="projectDeadline">Deadline: YYYY-MM-DD</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </section>
 
 <script>
-    document.addEventListener('navbarLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Token validation
         const token = localStorage.getItem('authToken');
         if (!token) {
-          alert('You are not logged in. Please log in first.');
-          window.location.href = '/signin';
+            alert('You are not logged in. Please log in first.');
+            window.location.href = '/signin';
         }
 
         // Fetch project details
         const urlParams = new URLSearchParams(window.location.search);
         const projectId = urlParams.get('id');
-        fetch(`/api/project/${projectId}`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
+
+        console.log("from url" + projectId);
+        fetch(`/api/v1/projects/${projectId}/status`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         })
-        .then(response => response.json())
-        .then(data => {
-        document.getElementById('projectName').innerText = data.name;
-        document.getElementById('projectDescription').innerText = data.description;
-        document.getElementById('projectDeadline').innerText = `Deadline: ${data.deadline}`;
-        })
-        .catch(error => {
-        console.error('Error:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log("data: " + data);
+                document.getElementById('projectName').innerText = data.name;
+                document.getElementById('projectDescription').innerText = data.description;
+                document.getElementById('projectDeadline').innerText = `Deadline: ${data.deadline}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     });
 </script>
 

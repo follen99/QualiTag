@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The ProjectViewController class is a controller
@@ -35,8 +36,9 @@ public class ProjectViewController {
    * @param model     The model.
    * @return the project details view
    */
-  @GetMapping("/detail/{projectId}")
-  public String project(@PathVariable("projectId") String projectId, Model model) {
+  @GetMapping("/detail")
+  public String project(@RequestParam(name = "id") String projectId, Model model) {
+    System.out.println("projectId da url: " + projectId);
     model.addAttribute("projectId", projectId);
     return "project/project_details";
   }

@@ -69,7 +69,7 @@ function displayProjects(projects) {
 
         // Add click event listener
         projectCard.addEventListener('click', () => {
-            window.location.href = `/project/detail/${project.projectId}`;
+            window.location.href = `/project/detail?id=${project.projectId}`;
         });
     });
 }
