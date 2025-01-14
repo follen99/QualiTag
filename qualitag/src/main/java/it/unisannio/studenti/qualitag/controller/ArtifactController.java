@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,13 +49,12 @@ public class ArtifactController {
   /**
    * Adds a tag to an artifact.
    *
-   * @param artifactId the id of the artifact
-   * @param tagId      the id of the tag
+   * @param dto the dto containing the artifact id and the list of tag ids to add
    * @return the response entity
    */
-  @PostMapping("/{artifactId}/tag/{tagId}")
-  public ResponseEntity<?> addTag(@PathVariable String artifactId, @PathVariable String tagId) {
-    return this.artifactService.addTag(artifactId, tagId);
+  @PostMapping("/tag")
+  public ResponseEntity<?> addTags(@RequestBody AddTagsToArtifactDto dto) {
+    return this.artifactService.addTags(dto);
   }
 
   // GET Methods

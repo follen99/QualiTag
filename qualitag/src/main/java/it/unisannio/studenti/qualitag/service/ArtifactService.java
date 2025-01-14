@@ -1,13 +1,16 @@
 package it.unisannio.studenti.qualitag.service;
 
+import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.Team;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
+import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
@@ -42,6 +45,7 @@ public class ArtifactService {
 
   private final ArtifactRepository artifactRepository;
   private final ProjectRepository projectRepository;
+  private final TagRepository tagRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
 
@@ -159,33 +163,83 @@ public class ArtifactService {
   /**
    * Adds a tag to an artifact.
    *
-   * @param artifactId the id of the artifact to add the tag
-   * @param tagId the id of the tag to add
+   * @param dto the DTO containing the artifact id and the list of tag ids to add
    * @return the response entity
    */
-  public ResponseEntity<?> addTag(String artifactId, String tagId) {
-    if (artifactId == null || artifactId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
-    }
-    if (tagId == null || tagId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
+  public ResponseEntity<?> addTags(AddTagsToArtifactDto dto) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Validate the DTO
+    Set<ConstraintViolation<AddTagsToArtifactDto>> violations = validator.validate(dto);
+    if (!violations.isEmpty()) {
+      response.put("msg", "Invalid data");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    String artifactId = dto.artifactId();
+    List<String> tagIds = dto.tagIds();
+
+    // Check artifact
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+    // Retrieve the artifact
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    List<String> tagIds = artifact.getTags();
-    if (tagIds.contains(tagId)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag already exists in artifact");
+    // Check tags
+    for (String tagId : tagIds) {
+      // Check if the tag id is null or empty
+      if (tagId == null || tagId.isEmpty()) {
+        response.put("msg", "Tag id is null or empty");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
+
+      // Retrieve the tag
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      if (tag == null) {
+        response.put("msg", "Tag not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      // Check if the tag is already in the artifact
+      if (artifact.getTags().contains(tagId)) {
+        response.put("msg", "Tag already exists in artifact");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
+
+      // Check on the user adding the tag
+      User user = userRepository.findByUserId(getLoggedInUserId());
+      Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+      Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
+
+      if (!(project.getOwnerId().equals(user.getUserId())
+          || (team.getUserIds().contains(user.getUserId())
+              && tag.getCreatedBy().equals(user.getUserId())))) {
+        if (!project.getOwnerId().equals(user.getUserId())) {
+          response.put("msg", "User is not the project owner");
+          return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        } else {
+          response.put("msg", "User is not authorized to add this tag to the artifact");
+          return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+      }
     }
 
-    tagIds.add(tagId);
-    artifact.setTags(tagIds);
-    artifactRepository.save(artifact);
+    // If all checks pass, add the tags to the artifact
+    for (String tagId : tagIds) {
+      artifact.getTags().add(tagId);
+      artifactRepository.save(artifact);
+    }
 
-    return ResponseEntity.status(HttpStatus.OK).body("Tag added successfully");
+    // TODO: Calculate IRR after adding tags and add the result to the response
+    
+    response.put("msg", "Tags added successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   /**
