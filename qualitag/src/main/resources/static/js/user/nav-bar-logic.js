@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const loginButton = document.getElementById('login-navbar');
     const registerButton = document.getElementById('register-navbar');
     const projectsButton = document.getElementById('projects-navbar');
+    const dropdownButton = document.getElementById('dropdown-button');
 
     // if user-data is older than 1 hour, redirect to login page
     if (localStorage.getItem('user-lastFetch') && (Date.now() - localStorage.getItem('user-lastFetch') > 3600000)) {
@@ -27,16 +28,21 @@ document.addEventListener('DOMContentLoaded', async function () {
     const authToken = localStorage.getItem('authToken');
 
     if (!authToken) {
-        profileLink.style.display = 'none'; // Nascondi il bottone
-        logoutButton.style.display = 'none'; // Nascondi il bottone
-        projectsButton.style.display = 'none'; // Nascondi il bottone
+        // user NOT logged in
+        profileLink.style.display = 'none';     // profile link
+        logoutButton.style.display = 'none';    // logout button
+        projectsButton.style.display = 'none';  // my projects button
+        dropdownButton.style.display = 'none';  // dropdown button
+
 
         loginButton.style.display = 'block'; // Mostra il bottone
         registerButton.style.display = 'block'; // Mostra il bottone
     }else {
+        // user logged in
         profileLink.style.display = 'block'; // Mostra il bottone
         logoutButton.style.display = 'block'; // Mostra il bottone
         projectsButton.style.display = 'block'; // Mostra il bottone
+        dropdownButton.style.display = 'block';  // dropdown button
 
         loginButton.style.display = 'none'; // Nascondi il bottone
         registerButton.style.display = 'none'; // Nascondi il bottone
