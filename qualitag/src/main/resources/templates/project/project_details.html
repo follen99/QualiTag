@@ -1,80 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Details</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Project details</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
+  <link rel="stylesheet" href="/css/homepage/custom-button.css">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
+  <link rel="stylesheet" href="/css/project/styles.css">
+
+  <!-- script to reuse the navbar -->
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <title>My Projects</title>
+
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+  <!-- Fetch projects -->
+  <script src="/js/project/project-info.js"></script>
 </head>
 <body>
-<h2>Project Details</h2>
-<div id="projectDetails">
-  <p><strong>Project Name:</strong> <span id="projectName"></span></p>
-  <p><strong>Description:</strong> <span id="projectDescription"></span></p>
-  <p><strong>Creation Date:</strong> <span id="creationDate"></span></p>
-  <p><strong>Deadline:</strong> <span id="deadline"></span></p>
-</div>
+<!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
+<div id="nav-placeholder"></div>
+<script>
+  $(function(){
+    // Carica dinamicamente il contenuto
+    $("#nav-placeholder").load("/assets/html/nav.html", function() {
+      // Il contenuto è stato caricato, ora esegui il codice JavaScript
+      const navBarEvent = new Event('navbarLoaded');
+      console.log("navbar event dispatched");
+      document.dispatchEvent(navBarEvent);
+
+      // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+      // Esegui eventuali altre operazioni JavaScript per la navbar qui
+    });
+  });
+</script>
+<!--end of Navigation bar-->
+
+<section class="py-5">
+  <div class="container py-5">
+    <div class="row mb-4 mb-lg-5">
+      <div class="col-md-8 col-xl-6 text-center mx-auto">
+        <h2 class="fw-bold">Project Details</h2>
+      </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-6 col-xl-4">
+        <div class="card">
+          <div class="card-body text-center d-flex flex-column align-items-center">
+            <h5 class="card-title" id="projectName">Project Name</h5>
+            <p class="card-text" id="projectDescription">Project Description</p>
+            <p class="card-text text-muted" id="projectDeadline">Deadline: YYYY-MM-DD</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function (){
-    const wholeProject = localStorage.getItem('wholeproject');
-    if (wholeProject) {
-      const project = JSON.parse(wholeProject);
-      document.getElementById('projectName').textContent = project.projectName;
-      document.getElementById('projectDescription').textContent = project.projectDescription;
+    document.addEventListener('navbarLoaded', function() {
+        // Token validation
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          alert('You are not logged in. Please log in first.');
+          window.location.href = '/signin';
+        }
 
-      const creationDate = new Date(project.projectCreationDate * 1000);
-      const deadline = new Date(project.projectDeadline * 1000);
-      const secondsElapsed = (project.projectDeadline - project.projectCreationDate);
-      console.log('Seconds elapsed:', secondsElapsed);
-      const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-
-      document.getElementById('creationDate').textContent = creationDate.toLocaleString('it-IT', dateOptions);
-      document.getElementById('deadline').textContent = deadline.toLocaleString('it-IT', dateOptions) + " (" + getTimeElapsedString(secondsElapsed) + ")";
-    }
-  })
-
-  function getTimeElapsedString(secondsElapsed){
-    switch (true) {
-      case (secondsElapsed < 60):
-        return secondsElapsed + ' seconds';
-      case (secondsElapsed >= 60 && secondsElapsed < 3600):
-        return '~ ' + Math.floor(secondsElapsed / 60) + ' minutes';
-      case (secondsElapsed >= 3600 && secondsElapsed < 86400):
-        return '~ ' + Math.floor(secondsElapsed / 3600) + ' hours';
-      case (secondsElapsed >= 86400 && secondsElapsed < 604800):
-        return '~ ' + Math.floor(secondsElapsed / 86400) + ' days';
-      case (secondsElapsed >= 604800 && secondsElapsed < 2592000):
-        return '~ ' + Math.floor(secondsElapsed / 604800) + ' weeks';
-      case (secondsElapsed >= 2592000 && secondsElapsed < 31536000):
-        return '~ ' + Math.floor(secondsElapsed / 2592000) + ' months';
-      case (secondsElapsed >= 31536000):
-        return '~ ' + Math.floor(secondsElapsed / 31536000) + ' years';
-    }
-  }
+        // Fetch project details
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('id');
+        fetch(`/api/project/${projectId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+        })
+        .then(response => response.json())
+        .then(data => {
+        document.getElementById('projectName').innerText = data.name;
+        document.getElementById('projectDescription').innerText = data.description;
+        document.getElementById('projectDeadline').innerText = `Deadline: ${data.deadline}`;
+        })
+        .catch(error => {
+        console.error('Error:', error);
+        });
+    });
 </script>
-<!--<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const projectId = window.location.pathname.split('/').pop();
-    const authToken = localStorage.getItem('authToken');
-    fetch(`/api/v1/projects/${projectId}`, {
-      headers: {
-        'Authorization': 'Bearer ' + authToken
-      }
-    })
-    .then(response => {
-      if (response.status === 403 || response.status === 404) {
-        window.location.href = '/404'; // Redirect to 404 page
-        throw new Error('Unauthorized access or project not found');
-      }
-      return response.json();
-    })
-    .then(project => {
-      document.getElementById('projectName').textContent = project.projectName;
-      document.getElementById('projectDescription').textContent = project.projectDescription;
-      document.getElementById('projectStatus').textContent = project.projectStatus;
-    })
-    .catch(error => console.error('Error fetching project data:', error));
-  });
-</script>-->
+
+<script type="module" src="/js/user/nav-bar-logic.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/bold-and-dark.js"></script>
+
 </body>
 </html>

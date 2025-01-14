@@ -8,5 +8,6 @@ import java.util.List;
 public record ProjectInfoDto(
         String projectName,
         String projectDescription,
-        String projectStatus) {
+        String projectStatus,
+        String projectId) {
 }

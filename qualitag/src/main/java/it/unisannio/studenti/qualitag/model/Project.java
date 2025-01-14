@@ -188,10 +188,12 @@ public class Project {
         if (this.projectName == null) {
             this.projectName = "";
         }
+
         return new ProjectInfoDto(
                 this.projectName,
                 this.projectDescription,
-                this.projectStatus.name()
+                this.projectStatus.name(),
+                this.projectId
         );
     }
 }

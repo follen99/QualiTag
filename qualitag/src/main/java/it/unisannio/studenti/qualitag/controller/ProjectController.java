@@ -85,14 +85,18 @@ public class ProjectController {
     return projectService.getProjectsByIds(projectIds);
   }
 
-  @PostMapping("/test")
-  public ResponseEntity<?> getTest() {
-    System.out.println("SONO QUIII");
-    return ResponseEntity.ok("CIAO");
+  /**
+   * Gets a project by its id.
+   *
+   * @param projectId the id of the project to find
+   * @return the response entity
+   */
+  @GetMapping("/{projectId}/status")
+  public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
+    System.out.println(projectId);
+    return projectService.getProjectById(projectId);
   }
 
-
-  // GET
   /**
    * Gets all the projects.
    *
@@ -114,18 +118,6 @@ public class ProjectController {
   @GetMapping("/get/{ownerId}/status")
   public ResponseEntity<?> getProjectsByOwnerId(@PathVariable String ownerId) {
     return projectService.getProjectsByOwner(ownerId);
-  }
-
-  /**
-   * Gets a project by its id.
-   *
-   * @param projectId the id of the project to find
-   * @return the response entity
-   */
-  @GetMapping("/{projectId}/status")
-  public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
-    System.out.println(projectId);
-    return projectService.getProjectById(projectId);
   }
 
   /**

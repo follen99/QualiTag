@@ -306,8 +306,15 @@ public class ProjectService {
     if (!projectRepository.existsById(projectId)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
     }
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+    }
+
+    WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
+
     return ResponseEntity.status(HttpStatus.OK)
-        .body(projectRepository.findProjectByProjectId(projectId));
+        .body(wholeProjectDto);
   }
 
   /**

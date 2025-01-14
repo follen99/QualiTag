@@ -66,6 +66,11 @@ function displayProjects(projects) {
         projectCard.appendChild(projectStatus);
 
         projectListContainer.appendChild(projectCard);
+
+        // Add click event listener
+        projectCard.addEventListener('click', () => {
+            window.location.href = `/project/detail/${project.projectId}`;
+        });
     });
 }
 
