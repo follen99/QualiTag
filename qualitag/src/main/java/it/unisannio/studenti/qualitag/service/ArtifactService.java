@@ -312,7 +312,6 @@ public class ArtifactService {
   }
 
 
-  // TODO: Add check on user removing tag
   /**
    * Removss a tag of an artifact.
    *
@@ -340,14 +339,26 @@ public class ArtifactService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // Check if the user is allowed to remove the tag (project owner or tag creator)
+    User user = userRepository.findByUserId(getLoggedInUserId());
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
+    Tag tag = tagRepository.findTagByTagId(tagId);
+    if (!(project.getOwnerId().equals(user.getUserId())
+        || (team.getUserIds().contains(user.getUserId())
+            && tag.getCreatedBy().equals(user.getUserId())))) {
+      response.put("msg", "User is not authorized to remove this tag from the artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Check if the tag is in the artifact
     List<String> tagIds = artifact.getTags();
     if (!tagIds.contains(tagId)) {
       response.put("msg", "Tag not found in artifact");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    tagIds.remove(tagId);
-    artifact.setTags(tagIds);
+    artifact.getTags().remove(tagId);
     artifactRepository.save(artifact);
 
     response.put("msg", "Tag removed successfully");
