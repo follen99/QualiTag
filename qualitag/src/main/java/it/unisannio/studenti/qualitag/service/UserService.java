@@ -5,9 +5,11 @@ import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.Team;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
+import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
@@ -17,7 +19,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -37,6 +41,7 @@ public class UserService {
   private final UserMapper userMapper;
 
   private final ProjectRepository projectRepository;
+  private final TagRepository tagRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
   
@@ -226,6 +231,38 @@ public class UserService {
   }
 
   /**
+   * Gets the tags of a user.
+   *
+   * @param username The username of the user to get the tags.
+   * @return A response entity with the tags of the user.
+   */
+  public ResponseEntity<?> getUserTags(String username) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the user is trying to get info of another user
+    if (AuthenticationService.getAuthority(username)) {
+      response.put("msg", "You are not authorized to access to this user.");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
+      response.put("msg", "User not found.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<Tag> tags = new ArrayList<>();
+    for (String tagId : user.getTagIds()) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      tags.add(tag);
+    }
+
+    response.put("msg", "Tags retrieved successfully.");
+    response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
    * Deletes a user.
    *
    * @param username The username of the user to delete.
@@ -315,15 +352,4 @@ public class UserService {
     response.put("msg", "Password updated successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
-
-  /**
-   * Gets all users.
-   *
-   * @return A response entity with all users.
-   */
-  public ResponseEntity<?> getAllUsers() {
-    return ResponseEntity.status(HttpStatus.OK).body(userRepository.findAll());
-  }
-
-
 }

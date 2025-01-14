@@ -35,16 +35,6 @@ public class UserController {
   }
 
   /**
-   * Gets all users.
-   *
-   * @return The response entity.
-   */
-  @GetMapping("/admin/users")
-  public ResponseEntity<?> getAllUsers() {
-    return userService.getAllUsers();
-  }
-
-  /**
    * Gets a user by its username.
    *
    * @param username The username of the user to get.
@@ -53,6 +43,17 @@ public class UserController {
   @GetMapping("/user/{username}")
   public ResponseEntity<?> getUser(@PathVariable String username) {
     return userService.getUser(username);
+  }
+
+  /**
+   * Gets the tags of a user by its username.
+   *
+   * @param username The username of the user to get the tags.
+   * @return The response entity.
+   */
+  @GetMapping("/user/{username}/tags")
+  public ResponseEntity<?> getUserTags(@PathVariable String username) {
+    return userService.getUserTags(username);
   }
 
   /**

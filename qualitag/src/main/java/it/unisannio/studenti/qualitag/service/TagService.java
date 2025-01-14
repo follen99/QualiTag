@@ -155,34 +155,6 @@ public class TagService {
   }
 
   /**
-   * Gets a tag by its creator username.
-   *
-   * @param createdBy The username of the user that created the tag.
-   * @return The response entity.
-   */
-  public ResponseEntity<?> getTagsByCreatedByUsername(String createdBy) {
-    if (createdBy == null || createdBy.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("User information is null or empty");
-    }
-
-    if (!userRepository.existsByUsername(createdBy)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
-    }
-
-    List<TagResponseDto> tags =
-        tagMapper.getResponseDtoList(tagRepository.findTagByCreatedBy(createdBy));
-    if (tags.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body("No tags found for the given creator");
-    }
-
-    return ResponseEntity.status(HttpStatus.OK).body(tags);
-  }
-
-
-  // TODO: Move to user
-  /**
    * Gets tags by their value.
    *
    * @param value The value to search for.

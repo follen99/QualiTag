@@ -53,18 +53,6 @@ public class TagController {
     return this.tagService.getTagById(id);
   }
 
-  // TODO:Move to user
-  /**
-   * Get tags by the username of their creator.
-   *
-   * @param username The username of creator of the tags.
-   * @return The response entity.
-   */
-  @GetMapping("/get/createdby/username/{username}")
-  public ResponseEntity<?> getTagsByCreatedByUsername(@PathVariable String username) {
-    return this.tagService.getTagsByCreatedByUsername(username);
-  }
-
   /**
    * Gets tags by their value.
    *
