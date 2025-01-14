@@ -83,11 +83,12 @@
             }
         })
             .then(response => response.json())
-            .then(data => {
-                console.log("data: " + data);
-                document.getElementById('projectName').innerText = data.name;
-                document.getElementById('projectDescription').innerText = data.description;
-                document.getElementById('projectDeadline').innerText = `Deadline: ${data.deadline}`;
+            .then(project => {
+                console.log(project.projectName);
+
+                document.getElementById('projectName').innerText = project.projectName;
+                document.getElementById('projectDescription').innerText = project.projectDescription;
+                document.getElementById('projectDeadline').innerText = `Deadline: ${new Date(project.projectDeadline).toLocaleDateString()}`;
             })
             .catch(error => {
                 console.error('Error:', error);
