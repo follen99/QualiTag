@@ -47,12 +47,12 @@ public class UserController {
   /**
    * Gets a user by its username.
    *
-   * @param username The username of the user to get.
+   * @param identifier The username OR the userId OR the email of the user to find.
    * @return The response entity.
    */
-  @GetMapping("/user/{username}")
-  public ResponseEntity<?> getUser(@PathVariable String username) {
-    return userService.getUser(username);
+  @GetMapping("/user/{identifier}")
+  public ResponseEntity<?> getUser(@PathVariable String identifier) {
+    return userService.getUser(identifier);
   }
 
   /**

@@ -90,7 +90,9 @@
                                 </div>
                                 <!--users-->
                                 <div class="dropdown">
-                                    <button class="button-custom dropdown-toggle" type="button" id="dropdownMenuButtonUsers" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="button-custom dropdown-toggle" type="button"
+                                            id="dropdownMenuButtonUsers" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
                                         Users
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="ddmenuUsers">
@@ -102,7 +104,9 @@
 
                                 <!--teams-->
                                 <div class="dropdown">
-                                    <button class="button-custom dropdown-toggle" type="button" id="dropdownMenuButtonTeams" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="button-custom dropdown-toggle" type="button"
+                                            id="dropdownMenuButtonTeams" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
                                         Teams
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="ddmenuTeams">
@@ -114,7 +118,9 @@
 
                                 <!--artifacts-->
                                 <div class="dropdown">
-                                    <button class="button-custom dropdown-toggle" type="button" id="dropdownMenuButtonArtifacts" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="button-custom dropdown-toggle" type="button"
+                                            id="dropdownMenuButtonArtifacts" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
                                         Artifacts
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="ddmenuArtifacts">
@@ -154,15 +160,49 @@
         })
             .then(response => response.json())
             .then(project => {
-                console.log(project.projectName);
+                /**
+                 * ESEMPIO PROJECT:
+                 * {"projectName":"TestProject",
+                 * "projectDescription":"This is an example project description.",
+                 * "projectCreationDate":1733765196271,
+                 * "projectDeadline":1733766196271,
+                 * "ownerId":"67536ef2fa84d0533c3a577d",
+                 * "projectStatus":"NO_INFO",
+                 * "users":["67536ef2fa84d0533c3a577c",
+                 * "67536ef2fa84d0533c3a577d"],
+                 * "artifacts":["675722b683828100658177c1"],
+                 * "teams":["6753782aebf3c97069ad69a4"]}
+                 */
 
                 document.getElementById('projectName').innerText = project.projectName;
                 document.getElementById('projectDescription').innerText = project.projectDescription;
                 document.getElementById('projectDeadline').innerText = `Deadline: ${new Date(project.projectDeadline).toLocaleDateString()}`;
+
+                const ownerId = project.ownerId;
+                console.log("progetto intero" + JSON.stringify(project));
+                fetch(`/api/v1/user/${ownerId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                    .then(response => {
+                        if (response.ok){
+                            return response.json()
+                        }else {
+                            document.getElementById('projectOwner').innerText = "User not found!";
+                        }
+                    })
+                    .then(user => {
+                        document.getElementById('projectOwner').innerText = user.username;
+                    });
             })
             .catch(error => {
                 console.error('Error:', error);
             });
+
+
+
     });
 </script>
 
