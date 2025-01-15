@@ -21,6 +21,23 @@
     <script src="/js/auth/token-validation.js"></script>
     <!-- Fetch projects -->
     <script src="/js/project/project-info.js"></script>
+
+    <style>
+        .button-custom {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5em 1.5em;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 2em;
+            width: 8em;
+        }
+    </style>
 </head>
 <body>
 <!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
@@ -50,11 +67,64 @@
         </div>
         <div class="row d-flex justify-content-center">
             <div class="col-md-6 col-xl-4">
-                <div class="card">
-                    <div class="card-body text-center d-flex flex-column align-items-center">
-                        <h5 class="card-title" id="projectName">Project Name</h5>
-                        <p class="card-text" id="projectDescription">Project Description</p>
-                        <p class="card-text text-muted" id="projectDeadline">Deadline: YYYY-MM-DD</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center d-flex flex-column align-items-center">
+                                <h5 class="card-title" id="projectName">Project Name</h5>
+                                <p class="card-text" id="projectDescription">Project Description</p>
+                                <p class="card-text text-muted" id="projectDeadline">Deadline: YYYY-MM-DD</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center d-flex flex-column align-items-center">
+                                <div class="row">
+                                    <div class="col">
+                                        <h5 class="card-title">Owner:</h5>
+                                    </div>
+                                    <div class="col">
+                                        <p class="card-text text-muted" id="projectOwner">####</p>
+                                    </div>
+                                </div>
+                                <!--users-->
+                                <div class="dropdown">
+                                    <button class="button-custom dropdown-toggle" type="button" id="dropdownMenuButtonUsers" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Users
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="ddmenuUsers">
+                                        <li><a class="dropdown-item" href="#">Action 1</a></li>
+                                        <li><a class="dropdown-item" href="#">Action 2</a></li>
+                                        <li><a class="dropdown-item" href="#">Action 3</a></li>
+                                    </ul>
+                                </div>
+
+                                <!--teams-->
+                                <div class="dropdown">
+                                    <button class="button-custom dropdown-toggle" type="button" id="dropdownMenuButtonTeams" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Teams
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="ddmenuTeams">
+                                        <li><a class="dropdown-item" href="#">Action 1</a></li>
+                                        <li><a class="dropdown-item" href="#">Action 2</a></li>
+                                        <li><a class="dropdown-item" href="#">Action 3</a></li>
+                                    </ul>
+                                </div>
+
+                                <!--artifacts-->
+                                <div class="dropdown">
+                                    <button class="button-custom dropdown-toggle" type="button" id="dropdownMenuButtonArtifacts" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Artifacts
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="ddmenuArtifacts">
+                                        <li><a class="dropdown-item" href="#">Action 1</a></li>
+                                        <li><a class="dropdown-item" href="#">Action 2</a></li>
+                                        <li><a class="dropdown-item" href="#">Action 3</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
