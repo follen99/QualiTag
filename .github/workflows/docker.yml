@@ -1,28 +1,28 @@
 name: Deploy with Docker
 
-permissions:
-  contents: read
+# on:
+#   push:
+#     paths:
+#       - '.github/workflows/docker.yml'
+#       - 'docker-compose.yaml'
+#   workflow_run:
+#     workflows: [ "Python CI", "Java CI" ]
+#     types:
+#       - completed
+#   pull_request:
+#     branches:
+#       - '**'
 
 on:
   push:
-    paths:
-      - '.github/workflows/docker.yml'
-      - 'docker-compose.yaml'
-  workflow_run:
-    workflows: [ "Python CI", "Java CI" ]
-    types:
-      - completed
 
-concurrency:
-  group: deploy-main
-  cancel-in-progress: true
+# concurrency:
+#   group: deploy-main
+#   cancel-in-progress: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    if: > 
-      github.event_name == 'push' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     
     steps:
       - name: Checkout code
