@@ -49,8 +49,8 @@ jobs:
         
       - name: Run tests
         run: |
-          docker compose exec -T qualitag_java ./gradlew test
-          docker compose exec -T qualitag_python pytest
+          docker compose exec -T qualitag-java ./gradlew test
+          docker compose exec -T qualitag-python pytest
   
       - name: Tear down Docker environment
         run: docker compose down
