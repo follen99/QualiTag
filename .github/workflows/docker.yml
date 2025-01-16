@@ -1,5 +1,8 @@
 name: Deploy with Docker
 
+permissions:
+  contents: read
+
 on:
   push:
     paths:
