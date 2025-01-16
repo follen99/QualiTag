@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
-  qualitag:
-    image: qualitag
+  qualitag_java:
+    image: qualitag_java
     container_name: qualitag_java
     build:
       context: ./qualitag
@@ -13,6 +11,7 @@ services:
     environment:
       - JAVA_OPTS=-Xmx512m
       - SERVER_PORT=8443 # Specify HTTPS port
+      - SPRING_PROFILES_ACTIVE=docker
     env_file:
       - .env
     volumes:
@@ -23,6 +22,25 @@ services:
       - qualitag-network
     depends_on:
       - mongodb
+      - qualitag_python
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  qualitag_python:
+    image: qualitag_python
+    container_name: qualitag_python
+    build:
+      context: ./qualitag_python
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - qualitag-network
+    environment:
+      - FLASK_RUN_HOST=qualitag_python
     logging:
       driver: "json-file"
       options:

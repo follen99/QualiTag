@@ -5,10 +5,14 @@ import it.unisannio.studenti.qualitag.dto.team.CompletedTeamCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.TeamMapper;
+import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.Team;
 import it.unisannio.studenti.qualitag.model.User;
+import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
+import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
@@ -36,11 +40,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TeamService {
 
+  private final ArtifactRepository artifactRepository;
   private final ProjectRepository projectRepository;
+  private final TagRepository tagRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
 
   private final ArtifactService artifactService;
+  private final PythonClientService pythonClientService;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -234,6 +241,58 @@ public class TeamService {
     }
     return ResponseEntity.status(HttpStatus.OK)
         .body(teamRepository.findTeamsByProjectId(projectId));
+  }
+
+  /**
+   * Gets a team's IRR (Inter-Rater Reliability) given its ID.
+   *
+   * @param teamId The team ID.
+   * @return The response entity containing the IRR.
+   */
+  public ResponseEntity<?> getTeamIrr(String teamId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Given a team ID, get the team
+    Team team = teamRepository.findTeamByTeamId(teamId);
+    if (team == null) {
+      response.put("msg", "Team not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<List<List<String>>> data = new ArrayList<>();
+    for (String artifactId : team.getArtifactIds()) {
+      List<List<String>> innerData = new ArrayList<>();
+
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+      if (artifact == null) {
+        response.put("msg", "Artifact not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      List<Tag> tags = new ArrayList<>();
+      for (String tagId : artifact.getTags()) {
+        Tag tag = tagRepository.findTagByTagId(tagId);
+        if (tag != null) {
+          tags.add(tag);
+        }
+      }
+
+      for (String userId : team.getUserIds()) {
+        List<String> tagValues = new ArrayList<>();
+        for (Tag tag : tags) {
+          if (tag.getCreatedBy().equals(userId)) {
+            tagValues.add(tag.getTagValue());
+          }
+        }
+
+        innerData.add(tagValues);
+      }
+      data.add(innerData);
+    }
+
+    response.put("msg", "Successfully retrieved Krippendorff's alpha");
+    response.put("irr", Double.parseDouble(pythonClientService.getKrippendorffAlpha(data)));
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   /**
