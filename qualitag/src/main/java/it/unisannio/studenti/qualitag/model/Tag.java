@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.Data;
@@ -34,7 +35,9 @@ public class Tag {
   /**
    * Default constructor.
    */
-  public Tag() {}
+  public Tag() {
+    this.artifactIds = new ArrayList<>();
+  }
 
   /**
    * Constructor with a specific tag color (hex).
@@ -47,6 +50,8 @@ public class Tag {
     this.tagValue = tagValue.toUpperCase(); // tag values are always uppercase
     this.createdBy = createdBy;
     this.colorHex = tagColorHex;
+
+    this.artifactIds = new ArrayList<>();
   }
 
   /**

@@ -1,7 +1,7 @@
 services:
-  qualitag_java:
-    image: qualitag_java
-    container_name: qualitag_java
+  qualitag-java:
+    image: qualitag-java
+    container_name: qualitag-java
     build:
       context: ./qualitag
       dockerfile: Dockerfile
@@ -22,16 +22,16 @@ services:
       - qualitag-network
     depends_on:
       - mongodb
-      - qualitag_python
+      - qualitag-python
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
 
-  qualitag_python:
-    image: qualitag_python
-    container_name: qualitag_python
+  qualitag-python:
+    image: qualitag-python
+    container_name: qualitag-python
     build:
       context: ./qualitag_python
       dockerfile: Dockerfile
@@ -40,7 +40,7 @@ services:
     networks:
       - qualitag-network
     environment:
-      - FLASK_RUN_HOST=qualitag_python
+      - FLASK_RUN_HOST=qualitag-python
     logging:
       driver: "json-file"
       options:

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -290,8 +291,12 @@ public class TeamService {
       data.add(innerData);
     }
 
+    String jsonAlpha = pythonClientService.getKrippendorffAlpha(data);
+    JSONObject jsonObject = new JSONObject(jsonAlpha);
+    double alphaValue = jsonObject.getDouble("alpha");
+
     response.put("msg", "Successfully retrieved Krippendorff's alpha");
-    response.put("irr", Double.parseDouble(pythonClientService.getKrippendorffAlpha(data)));
+    response.put("irr", alphaValue);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
