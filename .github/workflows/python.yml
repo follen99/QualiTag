@@ -1,0 +1,51 @@
+name: Python CI
+
+on:
+  push:
+    paths:
+      - 'qualitag_python/**'
+      - '.github/workflows/python.yml'
+  pull_request:
+    paths:
+      - 'qualitag_python/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        working-directory: qualitag_python
+
+      - name: Run tests
+        run: pytest --junitxml=pytest-report.xml
+        working-directory: qualitag_python
+        continue-on-error: false
+      
+      - name: Store test reports in case of failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-python
+          path: |
+            **/pytest-report.xml
+
+      - name: Lint with pylint
+        run: find . -name "*.py" | xargs pylint | tee pylint-report.txt || true
+        working-directory: qualitag_python
+        continue-on-error: true
+      
+      - name: Store lint reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: |
+            **/pylint-report.txt

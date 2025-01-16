@@ -1,23 +1,14 @@
-FROM ubuntu:latest
-LABEL authors="mattia"
-
-ENTRYPOINT ["top", "-b"]
-
+# Stage 1: Build the application
 # Use an official OpenJDK 21 runtime as a parent image
-FROM openjdk:21-jdk-slim
+FROM openjdk:21-jdk-slim AS build
+LABEL authors="Mattia Marino"
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the build.gradle and settings.gradle files
-COPY build.gradle settings.gradle ./
-
-# Copy the gradle wrapper files
-COPY gradlew gradlew.bat ./
+# Copy Gradle wrapper and configuration files
+COPY gradlew gradlew.bat build.gradle settings.gradle ./
 COPY gradle ./gradle
-
-# Ensure the gradlew script is executable
-RUN chmod +x gradlew
 
 # Copy the .env file
 COPY .env .env
@@ -25,17 +16,30 @@ COPY .env .env
 # Copy the source code
 COPY src ./src
 
-# Copy the scripts directory
-COPY scripts ./scripts
-
 # Copy the config directory
 COPY config ./config
 
+# Ensure the gradlew script is executable
+RUN chmod +x gradlew
+
+# Download dependencies
+RUN ./gradlew dependencies --no-daemon
+
 # Run the gradle build to download dependencies and build the project
-RUN ./gradlew build
+RUN ./gradlew build --no-daemon
+
+# Stage 2: Runtime
+FROM build
+
+# Set working directory
+WORKDIR /app
+
+# Copy the built JAR file from the build stage
+COPY --from=build /app/build/libs/qualitag-0.0.1-SNAPSHOT.jar /app/qualitag.jar
 
 # Expose the port the application runs on
 EXPOSE 8080 8443
 
-# Define the command to run the application
-CMD ["java", "-jar", "build/libs/qualitag-0.0.1-SNAPSHOT.jar"]
+# Set the default command to run the application
+ENTRYPOINT ["java", "-jar"]
+CMD [ "qualitag.jar" ]
