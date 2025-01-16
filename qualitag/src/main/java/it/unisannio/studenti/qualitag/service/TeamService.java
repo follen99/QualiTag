@@ -237,6 +237,19 @@ public class TeamService {
   }
 
   /**
+   * Gets a team's IRR (Inter-Rater Reliability) given its ID.
+   *
+   * @param teamId The team ID.
+   * @return The response entity containing the IRR.
+   */
+  public ResponseEntity<?> getTeamIrr(String teamId) {
+    Map<String, Object> response = new HashMap<>();
+
+    response.put("msg", "Not implemented");
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
+  }
+
+  /**
    * Deletes a team by its ID.
    *
    * @param teamId The team ID.

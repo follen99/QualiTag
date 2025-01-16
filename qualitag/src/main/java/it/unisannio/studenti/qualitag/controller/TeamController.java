@@ -63,6 +63,17 @@ public class TeamController {
   }
 
   /**
+   * Gets the IRR of a team.
+   *
+   * @param teamId The team ID.
+   * @return The response entity.
+   */
+  @GetMapping("/{teamId}/irr")
+  public ResponseEntity<?> getTeamIrr(@PathVariable String teamId) {
+    return this.teamService.getTeamIrr(teamId);
+  }
+
+  /**
    * Deletes a team by its ID.
    *
    * @param teamId The team ID.
