@@ -236,8 +236,6 @@ public class ArtifactService {
       artifact.getTags().add(tagId);
       artifactRepository.save(artifact);
     }
-
-    // TODO: Calculate IRR after adding tags and add the result to the response
     
     response.put("msg", "Tags added successfully");
     return ResponseEntity.status(HttpStatus.OK).body(response);

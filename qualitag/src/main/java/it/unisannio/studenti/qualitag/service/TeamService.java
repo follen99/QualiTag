@@ -5,10 +5,14 @@ import it.unisannio.studenti.qualitag.dto.team.CompletedTeamCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.TeamMapper;
+import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.Team;
 import it.unisannio.studenti.qualitag.model.User;
+import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.ProjectRepository;
+import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
@@ -36,11 +40,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TeamService {
 
+  private final ArtifactRepository artifactRepository;
   private final ProjectRepository projectRepository;
+  private final TagRepository tagRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
 
   private final ArtifactService artifactService;
+  private final PythonClientService pythonClientService;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -245,8 +252,45 @@ public class TeamService {
   public ResponseEntity<?> getTeamIrr(String teamId) {
     Map<String, Object> response = new HashMap<>();
 
-    response.put("msg", "Not implemented");
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
+    // Given a team ID, get the team
+    Team team = teamRepository.findTeamByTeamId(teamId);
+    if (team == null) {
+      response.put("msg", "Team not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<List<List<String>>> data = new ArrayList<>();
+    List<List<String>> innerData = new ArrayList<>();
+    for (String artifactId : team.getArtifactIds()) {
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+      if (artifact == null) {
+        response.put("msg", "Artifact not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      for (String userId : team.getUserIds()) {
+        List<Tag> tags = tagRepository.findTagsByArtifactIdAndUserId(artifactId, userId);
+        if (tags.isEmpty()) {
+          // If the user didn't tag the artifact yet, add null to the list
+          innerData.add(null);
+        } else {
+          // Add list of tag values to the list
+          List<String> tagValues = new ArrayList<>();
+
+          for (Tag tag : tags) {
+            tagValues.add(tag.getTagValue());
+          }
+
+          innerData.add(tagValues);
+        }
+      }
+
+      data.add(innerData);
+    }
+
+    response.put("msg", "Successfully retrieved Krippendorff's alpha");
+    response.put("alpha", Double.parseDouble(pythonClientService.getKrippendorffAlpha(data)));
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   /**
