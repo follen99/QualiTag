@@ -8,6 +8,7 @@ Test Functions:
     test_process_data(test_client): Tests the /api/process endpoint 
         to ensure it processes data correctly.
 """
+import json
 import pytest
 from main import app
 
@@ -18,8 +19,16 @@ def test_client():
     yield client
 
 
-def test_process_data(test_client):  # pylint: disable=redefined-outer-name
-  resp = test_client.get("/api/process?data=hello")
+def test_krippendorff_compute(test_client):  # pylint: disable=redefined-outer-name
+  test_payload = [
+      [["A", "B"], ["A", "C"], ["A"], ["B", "D"]],  # Item 1
+      [["B", "C", "E"], ["B", "E"], ["C"], ["B", "C", "D"]],  # Item 2
+      [["A", "D"], ["D"], ["A", "B"], ["A", "C", "D"]],  # Item 3
+  ]
+  resp = test_client.post("/api/krippendorff",
+                          data=json.dumps(test_payload),
+                          content_type="application/json")
   assert resp.status_code == 200
   data = resp.get_json()
-  assert "Processed data: HELLO" in data["result"]
+  assert "alpha" in data
+  assert data["alpha"] == -0.12673611111111116
