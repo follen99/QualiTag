@@ -8,10 +8,13 @@ on:
   pull_request:
     paths:
       - 'qualitag_python/**'
+      - '.github/workflows/python.yml'
 
 jobs:
   build-and-test:
+    name: Build and Test Python Application
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

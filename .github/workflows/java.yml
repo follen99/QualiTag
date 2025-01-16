@@ -2,13 +2,17 @@ name: Java CI
 
 on:
   push:
-   paths:
-     - "qualitag/**"
-     - ".github/workflows/gradle.yml"
+    paths:
+      - "qualitag/**"
+      - ".github/workflows/gradle.yml"
+  pull_request:
+    paths:
+      - "qualitag/**"
+      - ".github/workflows/gradle.yml"
 
 jobs:
-  build:
-    name: Build Java Application
+  build-and-test:
+    name: Build and Test Java Application
     runs-on: ubuntu-latest
 
     steps:
