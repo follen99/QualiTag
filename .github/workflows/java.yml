@@ -4,11 +4,11 @@ on:
   push:
     paths:
       - "qualitag/**"
-      - ".github/workflows/gradle.yml"
+      - ".github/workflows/java.yml"
   pull_request:
     paths:
       - "qualitag/**"
-      - ".github/workflows/gradle.yml"
+      - ".github/workflows/java.yml"
 
 jobs:
   build-and-test:
