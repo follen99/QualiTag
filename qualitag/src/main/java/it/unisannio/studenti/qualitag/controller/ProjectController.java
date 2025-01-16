@@ -22,152 +22,152 @@ import java.util.List;
 @RequestMapping("/api/v1/projects")
 public class ProjectController {
 
-  private final ProjectService projectService;
+    private final ProjectService projectService;
 
-  // POST
+    // POST
 
-  /**
-   * Constructs a new ProjectController.
-   *
-   * @param projectService the project service
-   */
-  @Autowired
-  public ProjectController(ProjectService projectService) {
-    this.projectService = projectService;
-  }
-
-  /**
-   * Adds a project to the repository.
-   *
-   * @param projectCreateDto the project to add to the repository
-   */
-  @PostMapping("/add")
-  public ResponseEntity<?> createProject(@RequestBody ProjectCreateDto projectCreateDto) {
-    return projectService.createProject(projectCreateDto);
-  }
-
-  /**
-   * Adds an artifact to a project.
-   *
-   * @param projectId  the id of the project
-   * @param artifactId the id of the artifact
-   * @return the response entity
-   */
-  @PostMapping("/add/{projectId}/artifact/{artifactId}")
-  public ResponseEntity<?> addArtifact(@PathVariable String projectId,
-      @PathVariable String artifactId) {
-    return projectService.addArtifact(projectId, artifactId);
-  }
-
-  /**
-   * Close a project.
-   *
-   * @param projectId the id of the project to close
-   * @return the response entity
-   */
-  @PostMapping("/{projectId}/close")
-  public ResponseEntity<?> closeProject(@PathVariable String projectId) {
-    return projectService.closeProject(projectId);
-  }
-
-  /**
- * Gets projects by their IDs.
- *
- * @param projectIds The list of project IDs.
- * @return The response entity with the list of project DTOs.
- */
-  @PostMapping("/get-by-ids")
-  public ResponseEntity<?> getProjectsByIds(@RequestBody List<String> projectIds) {
-    if (projectIds == null || projectIds.isEmpty()) {
-      return ResponseEntity.badRequest().body("Project IDs cannot be null or empty");
+    /**
+     * Constructs a new ProjectController.
+     *
+     * @param projectService the project service
+     */
+    @Autowired
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
     }
-    return projectService.getProjectsByIds(projectIds);
-  }
 
-  /**
-   * Gets a project by its id.
-   *
-   * @param projectId the id of the project to find
-   * @return the response entity
-   */
-  @GetMapping("/{projectId}/status")
-  public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
-    return projectService.getProjectById(projectId);
-  }
+    /**
+     * Adds a project to the repository.
+     *
+     * @param projectCreateDto the project to add to the repository
+     */
+    @PostMapping("/add")
+    public ResponseEntity<?> createProject(@RequestBody ProjectCreateDto projectCreateDto) {
+        return projectService.createProject(projectCreateDto);
+    }
 
-  @GetMapping("/{projectId}/status/whole")
+    /**
+     * Adds an artifact to a project.
+     *
+     * @param projectId  the id of the project
+     * @param artifactId the id of the artifact
+     * @return the response entity
+     */
+    @PostMapping("/add/{projectId}/artifact/{artifactId}")
+    public ResponseEntity<?> addArtifact(@PathVariable String projectId,
+                                         @PathVariable String artifactId) {
+        return projectService.addArtifact(projectId, artifactId);
+    }
+
+    /**
+     * Close a project.
+     *
+     * @param projectId the id of the project to close
+     * @return the response entity
+     */
+    @PostMapping("/{projectId}/close")
+    public ResponseEntity<?> closeProject(@PathVariable String projectId) {
+        return projectService.closeProject(projectId);
+    }
+
+    /**
+     * Gets projects by their IDs.
+     *
+     * @param projectIds The list of project IDs.
+     * @return The response entity with the list of project DTOs.
+     */
+    @PostMapping("/get-by-ids")
+    public ResponseEntity<?> getProjectsByIds(@RequestBody List<String> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            return ResponseEntity.badRequest().body("Project IDs cannot be null or empty");
+        }
+        return projectService.getProjectsByIds(projectIds);
+    }
+
+    /**
+     * Gets a project by its id.
+     *
+     * @param projectId the id of the project to find
+     * @return the response entity
+     */
+    @GetMapping("/{projectId}/status")
+    public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
+        return projectService.getProjectById(projectId);
+    }
+
+    @GetMapping("/{projectId}/status/whole")
     public ResponseEntity<?> getHumanReadableProjectStatus(@PathVariable String projectId) {
         return projectService.getHumanReadableProjectStatus(projectId);
     }
 
-  /**
-   * Gets all the projects.
-   *
-   * @return the response entity
-   */
-  @GetMapping("/get")
-  public ResponseEntity<?> getAllProjects() {
-    return projectService.getAllProjects();
-  }
+    /**
+     * Gets all the projects.
+     *
+     * @return the response entity
+     */
+    @GetMapping("/get")
+    public ResponseEntity<?> getAllProjects() {
+        return projectService.getAllProjects();
+    }
 
-  /**
-   * Gets all the projects created by a user with a given id.
-   *
-   * @param ownerId the id of the user to find the projects of
-   * @return the response entity
-   */
+    /**
+     * Gets all the projects created by a user with a given id.
+     *
+     * @param ownerId the id of the user to find the projects of
+     * @return the response entity
+     */
 
-  @GetMapping("/get/{ownerId}/status")
-  public ResponseEntity<?> getProjectsByOwnerId(@PathVariable String ownerId) {
-    return projectService.getProjectsByOwner(ownerId);
-  }
+    @GetMapping("/get/{ownerId}/status")
+    public ResponseEntity<?> getProjectsByOwnerId(@PathVariable String ownerId) {
+        return projectService.getProjectsByOwner(ownerId);
+    }
 
-  /**
-   * Gets all the tags of the artifacts of a project.
-   *
-   * @param projectId the id of the project to find the tags of
-   * @return the response entity
-   */
-  @GetMapping("/{projectId}/tags")
-  public ResponseEntity<?> getProjectTags(@PathVariable String projectId) {
-    return projectService.getProjectsTags(projectId);
-  }
+    /**
+     * Gets all the tags of the artifacts of a project.
+     *
+     * @param projectId the id of the project to find the tags of
+     * @return the response entity
+     */
+    @GetMapping("/{projectId}/tags")
+    public ResponseEntity<?> getProjectTags(@PathVariable String projectId) {
+        return projectService.getProjectsTags(projectId);
+    }
 
-  /**
-   * Gets all the artifacts of a project.
-   *
-   * @param projectId the id of the project to find the artifacts of
-   * @return the response entity
-   */
-  @GetMapping("/{projectId}/artifacts")
-  public ResponseEntity<?> getProjectArtifacts(@PathVariable String projectId) {
-    return projectService.getProjectsArtifacts(projectId);
-  }
+    /**
+     * Gets all the artifacts of a project.
+     *
+     * @param projectId the id of the project to find the artifacts of
+     * @return the response entity
+     */
+    @GetMapping("/{projectId}/artifacts")
+    public ResponseEntity<?> getProjectArtifacts(@PathVariable String projectId) {
+        return projectService.getProjectsArtifacts(projectId);
+    }
 
-  // PUT
+    // PUT
 
-  /**
-   * Updates a project.
-   *
-   * @param projectId        the id of the project to update
-   * @param projectCreateDto the updated project
-   * @return the response entity
-   */
-  @PutMapping("/update/{projectId}")
-  public ResponseEntity<?> updateProject(@PathVariable String projectId,
-      @RequestBody ProjectCreateDto projectCreateDto) {
-    return projectService.updateProject(projectCreateDto, projectId);
-  }
+    /**
+     * Updates a project.
+     *
+     * @param projectId        the id of the project to update
+     * @param projectCreateDto the updated project
+     * @return the response entity
+     */
+    @PutMapping("/update/{projectId}")
+    public ResponseEntity<?> updateProject(@PathVariable String projectId,
+                                           @RequestBody ProjectCreateDto projectCreateDto) {
+        return projectService.updateProject(projectCreateDto, projectId);
+    }
 
-  // DELETE
+    // DELETE
 
-  /**
-   * Deletes a project from the repository.
-   *
-   * @param projectId the id of the project to delete
-   */
-  @DeleteMapping("/delete/{projectId}")
-  public ResponseEntity<?> deleteProject(@PathVariable String projectId) {
-    return projectService.deleteProject(projectId);
-  }
+    /**
+     * Deletes a project from the repository.
+     *
+     * @param projectId the id of the project to delete
+     */
+    @DeleteMapping("/delete/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable String projectId) {
+        return projectService.deleteProject(projectId);
+    }
 }
