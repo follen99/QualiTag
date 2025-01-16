@@ -95,6 +95,11 @@ public class ProjectController {
     return projectService.getProjectById(projectId);
   }
 
+  @GetMapping("/{projectId}/status/whole")
+    public ResponseEntity<?> getHumanReadableProjectStatus(@PathVariable String projectId) {
+        return projectService.getHumanReadableProjectStatus(projectId);
+    }
+
   /**
    * Gets all the projects.
    *
@@ -102,7 +107,6 @@ public class ProjectController {
    */
   @GetMapping("/get")
   public ResponseEntity<?> getAllProjects() {
-    System.out.println("test");
     return projectService.getAllProjects();
   }
 

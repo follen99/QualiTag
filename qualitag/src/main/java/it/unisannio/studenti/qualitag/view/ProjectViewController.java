@@ -24,7 +24,6 @@ public class ProjectViewController {
    */
   @GetMapping("/{username}/projects")
   public String myProjects(@PathVariable("username") String username, Model model) {
-    System.out.println("username: " + username);
     model.addAttribute("username", username);
     return "project/my_projects";
   }
@@ -38,7 +37,6 @@ public class ProjectViewController {
    */
   @GetMapping("/detail")
   public String project(@RequestParam(name = "id") String projectId, Model model) {
-    System.out.println("projectId da url: " + projectId);
     model.addAttribute("projectId", projectId);
     return "project/project_details";
   }

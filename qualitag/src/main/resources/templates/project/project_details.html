@@ -150,14 +150,24 @@
         const projectId = urlParams.get('id');
 
         console.log("from url" + projectId);
-        fetch(`/api/v1/projects/${projectId}/status`, {
+        fetch(`/api/v1/projects/${projectId}/status/whole`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        // get error message
+                        console.log("Error message: " + errorData.msg);
+                        alert(errorData.msg);
+                    });
+                }
+                return response.json(); // Se la risposta è ok, continua con il parsing dei dati
+            })
             .then(project => {
+
                 /**
                  * ESEMPIO PROJECT:
                  * {"projectName":"TestProject",
