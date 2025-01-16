@@ -188,7 +188,10 @@ public class UserService {
         // Return the OK status and the JWT token
         response.put("msg", "User updated successfully.");
         response.put("token", jwt);
-        response.put("username", existingUser.getUsername());
+        User user = userRepository.findByUsername(username);
+        UserInfoDisplayDto dto = userMapper.toDisplayDto(user);
+        response.put("wholeuser", dto);
+
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

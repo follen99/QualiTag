@@ -15,15 +15,8 @@ export async function refreshUserData() {
   
       if (response.ok) {
         const user = responseData;
-  
-        localStorage.setItem('username', user.username);
-        localStorage.setItem('user-email', user.email);
-        localStorage.setItem('user-projectRoles', JSON.stringify(user.projectRoles));
-        localStorage.setItem('user-name', user.name);
-        localStorage.setItem('user-surname', user.surname);
-        localStorage.setItem('user-projectIds', JSON.stringify(user.projectIds));
-        localStorage.setItem('user-tagIds', JSON.stringify(user.teamIds));
-        localStorage.setItem('user-lastFetch', Date.now());
+        refreshLocally(user.username, user.email, user.projectRoles, user.name, user.surname, user.projectIds, user.teamIds);
+
       } else {
         console.error('Failed to refresh user data:', responseData.message);
       }
@@ -31,4 +24,15 @@ export async function refreshUserData() {
       console.error('Error refreshing user data:', error);
     }
     window.location.reload();
+  }
+
+  export async function refreshLocally(username, email, projectRoles, name, surname, projectIds, teamIds) {
+    localStorage.setItem('username', username);
+    localStorage.setItem('user-email', email);
+    localStorage.setItem('user-projectRoles', JSON.stringify(projectRoles));
+    localStorage.setItem('user-name', name);
+    localStorage.setItem('user-surname', surname);
+    localStorage.setItem('user-projectIds', JSON.stringify(projectIds));
+    localStorage.setItem('user-tagIds', JSON.stringify(teamIds));
+    localStorage.setItem('user-lastFetch', Date.now());
   }
