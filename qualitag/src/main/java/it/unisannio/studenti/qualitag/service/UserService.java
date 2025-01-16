@@ -200,7 +200,6 @@ public class UserService {
      */
     public ResponseEntity<?> getUser(String userIdentifier) {
         Map<String, Object> response = new HashMap<>();
-        System.out.println("userIdentifier: " + userIdentifier);
         // Check if the user is trying to get info of another user
         // TODO: CHECK IF IS SAFE TO REMOVE THIS (ask Mattia, since he added this)
         /*if (AuthenticationService.getAuthority(username)) {

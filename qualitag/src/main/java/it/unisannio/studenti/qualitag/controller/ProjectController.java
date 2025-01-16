@@ -78,7 +78,6 @@ public class ProjectController {
  */
   @PostMapping("/get-by-ids")
   public ResponseEntity<?> getProjectsByIds(@RequestBody List<String> projectIds) {
-    System.out.println("SONO QUIII" + projectIds);
     if (projectIds == null || projectIds.isEmpty()) {
       return ResponseEntity.badRequest().body("Project IDs cannot be null or empty");
     }
@@ -93,7 +92,6 @@ public class ProjectController {
    */
   @GetMapping("/{projectId}/status")
   public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
-    System.out.println(projectId);
     return projectService.getProjectById(projectId);
   }
 
