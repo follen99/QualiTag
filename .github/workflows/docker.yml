@@ -1,24 +1,21 @@
 name: Deploy with Docker
 
-# on:
-#   push:
-#     paths:
-#       - '.github/workflows/docker.yml'
-#       - 'docker-compose.yaml'
-#   workflow_run:
-#     workflows: [ "Python CI", "Java CI" ]
-#     types:
-#       - completed
-#   pull_request:
-#     branches:
-#       - '**'
-
 on:
   push:
+    paths:
+      - '.github/workflows/docker.yml'
+      - 'docker-compose.yaml'
+  workflow_run:
+    workflows: [ "Python CI", "Java CI" ]
+    types:
+      - completed
+  pull_request:
+    branches:
+      - '**'
 
-# concurrency:
-#   group: deploy-main
-#   cancel-in-progress: true
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:

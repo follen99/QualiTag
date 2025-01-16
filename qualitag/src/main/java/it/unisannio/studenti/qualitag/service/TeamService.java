@@ -260,36 +260,38 @@ public class TeamService {
     }
 
     List<List<List<String>>> data = new ArrayList<>();
-    List<List<String>> innerData = new ArrayList<>();
     for (String artifactId : team.getArtifactIds()) {
+      List<List<String>> innerData = new ArrayList<>();
+
       Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
         response.put("msg", "Artifact not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
 
-      for (String userId : team.getUserIds()) {
-        List<Tag> tags = tagRepository.findTagsByArtifactIdAndUserId(artifactId, userId);
-        if (tags.isEmpty()) {
-          // If the user didn't tag the artifact yet, add null to the list
-          innerData.add(null);
-        } else {
-          // Add list of tag values to the list
-          List<String> tagValues = new ArrayList<>();
-
-          for (Tag tag : tags) {
-            tagValues.add(tag.getTagValue());
-          }
-
-          innerData.add(tagValues);
+      List<Tag> tags = new ArrayList<>();
+      for (String tagId : artifact.getTags()) {
+        Tag tag = tagRepository.findTagByTagId(tagId);
+        if (tag != null) {
+          tags.add(tag);
         }
       }
 
+      for (String userId : team.getUserIds()) {
+        List<String> tagValues = new ArrayList<>();
+        for (Tag tag : tags) {
+          if (tag.getCreatedBy().equals(userId)) {
+            tagValues.add(tag.getTagValue());
+          }
+        }
+
+        innerData.add(tagValues);
+      }
       data.add(innerData);
     }
 
     response.put("msg", "Successfully retrieved Krippendorff's alpha");
-    response.put("alpha", Double.parseDouble(pythonClientService.getKrippendorffAlpha(data)));
+    response.put("irr", Double.parseDouble(pythonClientService.getKrippendorffAlpha(data)));
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 

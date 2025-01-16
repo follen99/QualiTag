@@ -32,13 +32,4 @@ public interface TagRepository extends MongoRepository<Tag, String> {
    * @return The tag with the specified ID.
    */
   Tag findTagByTagId(String tagId);
-
-  /**
-   * Finds tags by artifact ID and User ID.
-   *
-   * @param artifactId The ID of the artifact to find tags for.
-   * @param userId The ID of the user to find tags for.
-   * @return A list of tags associated with the specified artifact.
-   */
-  List<Tag> findTagsByArtifactIdAndUserId(String artifactId, String userId);
 }
