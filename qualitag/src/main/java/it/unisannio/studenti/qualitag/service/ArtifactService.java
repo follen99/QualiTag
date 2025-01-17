@@ -54,29 +54,7 @@ public class ArtifactService {
 
   private static final String UPLOAD_DIR = "artifacts/";
 
-  /**
-   * Saves the provided multipart file to the server's file system.
-   *
-   * @param file the multipart file to be saved
-   * @return the path to the saved file as a string, or null if an error occurs
-   */
-  public String saveFile(MultipartFile file) throws IOException {
-    // Generate a unique file name by appending a UUID to the original file name.
-    String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-
-    // Construct the path where the file will be saved using the upload directory
-    // and the unique file name.
-    Path path = Paths.get(System.getProperty("user.dir"), "..", UPLOAD_DIR, uniqueFileName);
-
-    // Create any necessary directories in the path if they do not already exist.
-    Files.createDirectories(path.getParent());
-
-    // Transfer the contents of the multipart file to the target file on the file system.
-    file.transferTo(path.toFile());
-
-    // Return the path to the saved file as a string.
-    return path.toString();
-  }
+  // POST
 
   /**
    * Creates a new artifact.
@@ -160,6 +138,69 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
+  // GET
+
+  /**
+   * Retrieves the file of the artifact given its ID.
+   *
+   * @param artifactId the ID of the artifact to retrieve
+   * @return the response entity with the file of the artifact
+   */
+  public ResponseEntity<?> getArtifact(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    response.put("msg", "Method not implemented yet");
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
+  }
+
+  /**
+   * Retrieves the metadata on an artifact given its ID.
+   *
+   * @param artifactId the ID of the artifact to retrieve
+   * @return the response entity with the metadata of the artifact
+   */
+  public ResponseEntity<?> getArtifactMetadata(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    response.put("msg", "Method not implemented yet");
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
+  }
+
+  // PUT
+
+  // TODO: Properly implement update method
+  /**
+   * Modifies an existing artifact.
+   *
+   * @param artifactModifyDto the dto used to modify the artifact
+   * @param artifactId the id of the artifact to modify
+   * @return the response entity
+   */
+  public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
+    /*
+     * // ID check if (artifactId == null || artifactId.isEmpty()) { return
+     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty"); }
+     * 
+     * // Artifact validation try { ArtifactCreateDto correctDto =
+     * validateArtifact(artifactModifyDto);
+     * 
+     * Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId); if (artifact ==
+     * null) { return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found"); }
+     * 
+     * artifact.setArtifactName(correctDto.artifactName());
+     * artifact.setContent(correctDto.content()); artifact.setTags(correctDto.tags());
+     * 
+     * artifactRepository.save(artifact);
+     * 
+     * return ResponseEntity.status(HttpStatus.OK).body("Artifact updated successfully");
+     * 
+     * } catch (ArtifactValidationException e) { return
+     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
+     */
+
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
+  }
+
   /**
    * Adds a tag to an artifact.
    *
@@ -241,6 +282,8 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
+  // DELETE
+
   /**
    * Deletes an artifact by its id.
    *
@@ -320,7 +363,6 @@ public class ArtifactService {
     }
   }
 
-
   /**
    * Removss a tag of an artifact.
    *
@@ -379,38 +421,7 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  // TODO: Properly implement update method
-  /**
-   * Modifies an existing artifact.
-   *
-   * @param artifactModifyDto the dto used to modify the artifact
-   * @param artifactId the id of the artifact to modify
-   * @return the response entity
-   */
-  public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
-    /*
-     * // ID check if (artifactId == null || artifactId.isEmpty()) { return
-     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty"); }
-     * 
-     * // Artifact validation try { ArtifactCreateDto correctDto =
-     * validateArtifact(artifactModifyDto);
-     * 
-     * Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId); if (artifact ==
-     * null) { return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found"); }
-     * 
-     * artifact.setArtifactName(correctDto.artifactName());
-     * artifact.setContent(correctDto.content()); artifact.setTags(correctDto.tags());
-     * 
-     * artifactRepository.save(artifact);
-     * 
-     * return ResponseEntity.status(HttpStatus.OK).body("Artifact updated successfully");
-     * 
-     * } catch (ArtifactValidationException e) { return
-     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
-     */
-
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
-  }
+  // UTILITY METHODS
 
   private String getLoggedInUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -425,4 +436,23 @@ public class ArtifactService {
     throw new IllegalStateException(
         "Unexpected authentication principal type: " + principal.getClass());
   }
+
+  private String saveFile(MultipartFile file) throws IOException {
+    // Generate a unique file name by appending a UUID to the original file name.
+    String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+
+    // Construct the path where the file will be saved using the upload directory
+    // and the unique file name.
+    Path path = Paths.get(System.getProperty("user.dir"), "..", UPLOAD_DIR, uniqueFileName);
+
+    // Create any necessary directories in the path if they do not already exist.
+    Files.createDirectories(path.getParent());
+
+    // Transfer the contents of the multipart file to the target file on the file system.
+    file.transferTo(path.toFile());
+
+    // Return the path to the saved file as a string.
+    return path.toString();
+  }
+
 }

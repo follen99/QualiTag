@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,19 +47,29 @@ public class ArtifactController {
     return this.artifactService.addArtifact(artifactCreateDto);
   }
 
+  // GET Methods
+
   /**
-   * Adds a tag to an artifact.
+   * Gets the artifact file when given the ID.
    *
-   * @param dto the dto containing the artifact id and the list of tag ids to add
+   * @param artifactId the id of the artifact to get
    * @return the response entity
    */
-  @PostMapping("/{artifactId}/tag")
-  public ResponseEntity<?> addTags(@PathVariable String artifactId,
-      @RequestBody AddTagsToArtifactDto dto) {
-    return this.artifactService.addTags(artifactId, dto);
+  @GetMapping("/{artifactId}")
+  public ResponseEntity<?> getArtifact(@PathVariable String artifactId) {
+    return this.artifactService.getArtifact(artifactId);
   }
 
-  // GET Methods
+  /**
+   * Gets the metadata of an artifact.
+   *
+   * @param artifactId the id of the artifact to get the metadata of
+   * @return the response entity
+   */
+  @GetMapping("metadata/{artifactId}")
+  public ResponseEntity<?> getArtifactMetadata(@PathVariable String artifactId) {
+    return this.artifactService.getArtifactMetadata(artifactId);
+  }
 
   // PUT Methods
 
@@ -73,6 +84,18 @@ public class ArtifactController {
   public ResponseEntity<?> updateArtifact(@PathVariable String artifactId,
       @RequestBody ArtifactCreateDto artifactCreateDto) {
     return this.artifactService.updateArtifact(artifactCreateDto, artifactId);
+  }
+
+  /**
+   * Adds a tag to an artifact.
+   *
+   * @param dto the dto containing the artifact id and the list of tag ids to add
+   * @return the response entity
+   */
+  @PostMapping("/{artifactId}/tag")
+  public ResponseEntity<?> addTags(@PathVariable String artifactId,
+      @RequestBody AddTagsToArtifactDto dto) {
+    return this.artifactService.addTags(artifactId, dto);
   }
 
   // DELETE Methods
