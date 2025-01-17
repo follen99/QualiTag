@@ -253,6 +253,7 @@ public class ArtifactService {
    * @return the response entity
    */
   public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
+    Map<String, Object> response = new HashMap<>();
     /*
      * // ID check if (artifactId == null || artifactId.isEmpty()) { return
      * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty"); }
@@ -274,7 +275,8 @@ public class ArtifactService {
      * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
      */
 
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Method not implemented yet");
+    response.put("msg", "Method not implemented yet");
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
   }
 
   /**

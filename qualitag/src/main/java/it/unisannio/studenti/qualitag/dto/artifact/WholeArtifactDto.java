@@ -16,5 +16,3 @@ public record WholeArtifactDto(
         List<String> tags) {
 
 }
-
-

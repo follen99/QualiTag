@@ -66,7 +66,7 @@ public class ArtifactController {
    * @param artifactId the id of the artifact to get the metadata of
    * @return the response entity
    */
-  @GetMapping("metadata/{artifactId}")
+  @GetMapping("/{artifactId}/metadata")
   public ResponseEntity<?> getArtifactMetadata(@PathVariable String artifactId) {
     return this.artifactService.getArtifactMetadata(artifactId);
   }
@@ -92,7 +92,7 @@ public class ArtifactController {
    * @param dto the dto containing the artifact id and the list of tag ids to add
    * @return the response entity
    */
-  @PostMapping("/{artifactId}/tag")
+  @PutMapping("/{artifactId}/tag")
   public ResponseEntity<?> addTags(@PathVariable String artifactId,
       @RequestBody AddTagsToArtifactDto dto) {
     return this.artifactService.addTags(artifactId, dto);
