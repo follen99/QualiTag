@@ -22,29 +22,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class UserController {
 
-  private final UserService userService;
+    private final UserService userService;
 
-  /**
-   * Constructs a new UserController.
-   *
-   * @param userService The user service.
-   */
-  @Autowired
-  public UserController(UserService userService) {
-    this.userService = userService;
-  }
+    /**
+     * Constructs a new UserController.
+     *
+     * @param userService The user service.
+     */
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
-  /**
-   * Gets a user by its username.
-   *
-   * @param username The username of the user to get.
-   * @return The response entity.
-   */
-  @GetMapping("/user/{username}")
-  public ResponseEntity<?> getUser(@PathVariable String username) {
-    return userService.getUser(username);
-  }
-
+    /**
+     * Gets a user by its username.
+     *
+     * @param identifier The username OR the userId OR the email of the user to find.
+     * @return The response entity.
+     */
+    @GetMapping("/user/{identifier}")
+    public ResponseEntity<?> getUser(@PathVariable String identifier) {
+        return userService.getUser(identifier);
+    }
+    
   /**
    * Gets the tags of a user by its username.
    *
@@ -56,39 +56,39 @@ public class UserController {
     return userService.getUserTags(username);
   }
 
-  /**
-   * Modifies the user given the username.
-   *
-   * @param username The username of the user to get.
-   * @return The response entity.
-   */
-  @PutMapping("/user/{username}")
-  public ResponseEntity<?> updateUser(@RequestBody UserModifyDto userModifyDto,
-      @PathVariable String username) {
-    return userService.updateUser(userModifyDto, username);
-  }
+    /**
+     * Modifies the user given the username.
+     *
+     * @param username The username of the user to get.
+     * @return The response entity.
+     */
+    @PutMapping("/user/{username}")
+    public ResponseEntity<?> updateUser(@RequestBody UserModifyDto userModifyDto,
+                                        @PathVariable String username) {
+        return userService.updateUser(userModifyDto, username);
+    }
 
-  /**
-   * Updates the password of a user by its username.
-   *
-   * @param passwordUpdateDto The password update data.
-   * @param username The username of the user to update the password.
-   * @return The response entity.
-   */
-  @PutMapping("/user/{username}/password")
-  public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto,
-      @PathVariable String username) {
-    return userService.updatePassword(passwordUpdateDto, username);
-  }
+    /**
+     * Updates the password of a user by its username.
+     *
+     * @param passwordUpdateDto The password update data.
+     * @param username          The username of the user to update the password.
+     * @return The response entity.
+     */
+    @PutMapping("/user/{username}/password")
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto,
+                                            @PathVariable String username) {
+        return userService.updatePassword(passwordUpdateDto, username);
+    }
 
-  /**
-   * Deletes a user by its username.
-   *
-   * @param username The username of the user to delete.
-   * @return The response entity.
-   */
-  @DeleteMapping("/user/{username}")
-  public ResponseEntity<?> deleteUser(@PathVariable String username) {
-    return userService.deleteUser(username);
-  }
+    /**
+     * Deletes a user by its username.
+     *
+     * @param username The username of the user to delete.
+     * @return The response entity.
+     */
+    @DeleteMapping("/user/{username}")
+    public ResponseEntity<?> deleteUser(@PathVariable String username) {
+        return userService.deleteUser(username);
+    }
 }

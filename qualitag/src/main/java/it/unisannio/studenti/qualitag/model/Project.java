@@ -3,6 +3,9 @@ package it.unisannio.studenti.qualitag.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import it.unisannio.studenti.qualitag.dto.project.ProjectInfoDto;
+import it.unisannio.studenti.qualitag.dto.project.WholeProjectDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,27 +21,27 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Document(collection = "project")
 public class Project {
 
-  @MongoId
-  @Field(targetType = FieldType.OBJECT_ID)
-  private String projectId;
+    @MongoId
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String projectId;
 
-  @Field(name = "projectName")
-  private String projectName;
+    @Field(name = "projectName")
+    private String projectName;
 
-  @Field(name = "projectDescription")
-  private String projectDescription;
+    @Field(name = "projectDescription")
+    private String projectDescription;
 
-  @Field(name = "projectCreationDate")
-  private Long projectCreationDate;
+    @Field(name = "projectCreationDate")
+    private Long projectCreationDate;
 
-  @Field(name = "projectDeadline")
-  private Long projectDeadline;
+    @Field(name = "projectDeadline")
+    private Long projectDeadline;
 
   @Field(name = "ownerId")
   private String ownerId;
 
-  @Field(name = "projectStatus")
-  private ProjectStatus projectStatus;
+    @Field(name = "projectStatus")
+    private ProjectStatus projectStatus;
 
   @Field(name = "usersIds")
   private List<String> userIds;
@@ -72,36 +75,86 @@ public class Project {
   
   // EQUALS AND HASHCODE
 
-  /**
-   * Checks if two projects are equal.
-   *
-   * @param o The object to compare
-   * @return true if the projects are equal, false otherwise
-   */
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    /**
+     * Checks if two projects are equal.
+     *
+     * @param o The object to compare
+     * @return true if the projects are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Project project = (Project) o;
+        return Objects.equals(projectId, project.projectId);
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    /**
+     * Generates the hash code for the project.
+     *
+     * @return the hash code
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectId);
     }
-    Project project = (Project) o;
-    return Objects.equals(projectId, project.projectId);
-  }
 
-  /**
-   * Generates the hash code for the project.
-   *
-   * @return the hash code
-   */
-  @Override
-  public int hashCode() {
-    return Objects.hash(projectId);
-  }
+    /**
+     * Converts this Project entity to a ResponseProjectDto.
+     *
+     * @return the ResponseProjectDto
+     */
+    public WholeProjectDto toResponseProjectDto() {
+        if (this.projectStatus == null) {
+            this.projectStatus = ProjectStatus.NO_INFO;
+        }
+        if (this.projectDescription == null) {
+            this.projectDescription = "";
+        }
+        if (this.projectName == null) {
+            this.projectName = "";
+        }
 
-  // TO STRING
+        return new WholeProjectDto(
+                this.projectName,
+                this.projectDescription,
+                this.projectCreationDate,
+                this.projectDeadline,
+                this.ownerId,
+                this.projectStatus.name(),
+                this.users,
+                this.artifacts,
+                this.teams
+        );
+    }
 
+    /**
+     * Converts this Project entity to a ProjectInfoDto.
+     *
+     * @return the ProjectInfoDto
+     */
+    public ProjectInfoDto toProjectInfoDto() {
+        if (this.projectStatus == null) {
+            this.projectStatus = ProjectStatus.NO_INFO;
+        }
+        if (this.projectDescription == null) {
+            this.projectDescription = "";
+        }
+        if (this.projectName == null) {
+            this.projectName = "";
+        }
+
+        return new ProjectInfoDto(
+                this.projectName,
+                this.projectDescription,
+                this.projectStatus.name(),
+                this.projectId
+        );
+    }
   /**
    * Gets the project as a string.
    *

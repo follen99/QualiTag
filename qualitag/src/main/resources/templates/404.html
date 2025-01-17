@@ -1,13 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html data-bs-theme="light" lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Not Found</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>404 - not found</title>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/Team-Horizontal-icons.css">
+  <link rel="stylesheet" href="assets/css/Team-Horizontal-images.css">
+  <link rel="stylesheet" href="/css/homepage/custom-button.css">
+
+  <!-- script to reuse the navbar -->
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
 </head>
+
 <body>
-<h1>404 - Page Not Found</h1>
-<p>The page you are looking for does not exist, or you do not have access to it.</p>
-<a href="/">Go to Homepage</a>
+<!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
+<div id="nav-placeholder"></div>
+<script>
+  $(function(){
+    // Carica dinamicamente il contenuto
+    $("#nav-placeholder").load("/assets/html/nav.html", function() {
+      // Il contenuto è stato caricato, ora esegui il codice JavaScript
+      const navBarEvent = new Event('navbarLoaded');
+      console.log("navbar event dispatched");
+      document.dispatchEvent(navBarEvent);
+
+      // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+      // Esegui eventuali altre operazioni JavaScript per la navbar qui
+    });
+  });
+</script>
+<!--end of Navigation bar-->
+
+<section class="py-5 text-center">
+  <div class="container">
+    <h1 class="display-1">404</h1>
+    <p class="lead">Oops! The page you're looking for doesn't exist.</p>
+    <img src="/assets/img/404-transparent.png" alt="Funny 404 Image" class="img-fluid my-4" style="max-width: 400px;">
+    <p class="lead">But don't worry, you can go back to the homepage.</p>
+    <a href="/" class="btn btn-primary btn-lg">Take Me Home</a>
+  </div>
+</section>
+
+
+<script src = "/assets/bootstrap/js/bootstrap.min.js"> </script>
+<script src="/assets/js/bold-and-dark.js"></script>
+<script type="module" src="/js/user/nav-bar-logic.js"></script>
+
 </body>
+
 </html>

@@ -13,26 +13,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * The ProjectController class is a REST controller that handles requests related to projects.
  */
 @RestController
 @RequestMapping("/api/v1/project")
 public class ProjectController {
+    
+    private final ProjectService projectService;
 
-  private final ProjectService projectService;
-
-  // POST
-
-  /**
-   * Constructs a new ProjectController.
-   *
-   * @param projectService the project service
-   */
-  @Autowired
-  public ProjectController(ProjectService projectService) {
-    this.projectService = projectService;
-  }
+    /**
+     * Constructs a new ProjectController.
+     *
+     * @param projectService the project service
+     */
+    @Autowired
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
+    }
 
   /**
    * Adds a project to the repository.
@@ -54,20 +54,36 @@ public class ProjectController {
   public ResponseEntity<?> closeProject(@PathVariable String projectId) {
     return projectService.closeProject(projectId);
   }
+  
+    /**
+     * Gets projects by their IDs.
+     *
+     * @param projectIds The list of project IDs.
+     * @return The response entity with the list of project DTOs.
+     */
+    @PostMapping("/get-by-ids")
+    public ResponseEntity<?> getProjectsByIds(@RequestBody List<String> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            return ResponseEntity.badRequest().body("Project IDs cannot be null or empty");
+        }
+        return projectService.getProjectsByIds(projectIds);
+    }
 
-  // GET
+    /**
+     * Gets a project by its id.
+     *
+     * @param projectId the id of the project to find
+     * @return the response entity
+     */
+    @GetMapping("/{projectId}/status")
+    public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
+        return projectService.getProjectById(projectId);
+    }
 
-  /**
-   * Gets all the projects created by a user with a given id.
-   *
-   * @param ownerId the id of the user to find the projects of
-   * @return the response entity
-   */
-
-  @GetMapping("/get/{ownerId}/status")
-  public ResponseEntity<?> getProjectsByOwnerId(@PathVariable String ownerId) {
-    return projectService.getProjectsByOwner(ownerId);
-  }
+    @GetMapping("/{projectId}/status/whole")
+    public ResponseEntity<?> getHumanReadableProjectStatus(@PathVariable String projectId) {
+        return projectService.getHumanReadableProjectStatus(projectId);
+    }
 
   /**
    * Gets a project by its id.
@@ -80,30 +96,28 @@ public class ProjectController {
     return projectService.getProjectById(projectId);
   }
 
-  /**
-   * Gets all the tags of the artifacts of a project.
-   *
-   * @param projectId the id of the project to find the tags of
-   * @return the response entity
-   */
-  @GetMapping("/{projectId}/tags")
-  public ResponseEntity<?> getProjectTags(@PathVariable String projectId) {
-    return projectService.getProjectsTags(projectId);
-  }
+    /**
+     * Gets all the tags of the artifacts of a project.
+     *
+     * @param projectId the id of the project to find the tags of
+     * @return the response entity
+     */
+    @GetMapping("/{projectId}/tags")
+    public ResponseEntity<?> getProjectTags(@PathVariable String projectId) {
+        return projectService.getProjectsTags(projectId);
+    }
 
-  /**
-   * Gets all the artifacts of a project.
-   *
-   * @param projectId the id of the project to find the artifacts of
-   * @return the response entity
-   */
-  @GetMapping("/{projectId}/artifacts")
-  public ResponseEntity<?> getProjectArtifacts(@PathVariable String projectId) {
-    return projectService.getProjectsArtifacts(projectId);
-  }
-
-  // PUT
-
+    /**
+     * Gets all the artifacts of a project.
+     *
+     * @param projectId the id of the project to find the artifacts of
+     * @return the response entity
+     */
+    @GetMapping("/{projectId}/artifacts")
+    public ResponseEntity<?> getProjectArtifacts(@PathVariable String projectId) {
+        return projectService.getProjectsArtifacts(projectId);
+    }
+    
   /**
    * Updates a project.
    *
@@ -116,8 +130,6 @@ public class ProjectController {
       @RequestBody ProjectCreateDto projectCreateDto) {
     return projectService.updateProject(projectCreateDto, projectId);
   }
-
-  // DELETE
 
   /**
    * Deletes a project from the repository.

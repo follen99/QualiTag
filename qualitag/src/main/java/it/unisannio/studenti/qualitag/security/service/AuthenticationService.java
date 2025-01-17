@@ -1,10 +1,7 @@
 package it.unisannio.studenti.qualitag.security.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import it.unisannio.studenti.qualitag.dto.user.ForgotPasswordDto;
-import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
-import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
-import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
+import it.unisannio.studenti.qualitag.dto.user.*;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
@@ -189,10 +186,33 @@ public class AuthenticationService {
     // Generate a JWT token
     String jwt = jwtService.generateToken(new CustomUserDetails(user));
 
-    // Return the OK status and the JWT token
-    response.put("msg", "User logged in successfully.");
+    // Return all the user data
+    /*response.put("msg", "User logged in successfully.");
     response.put("token", jwt);
     response.put("username", user.getUsername());
+    response.put("user-email", user.getEmail());
+    response.put("user-role", user.getProjectRoles());
+    response.put("user-firstname", user.getName());
+    response.put("user-lastname", user.getSurname());
+    response.put("user-projectIds", user.getProjectIds());
+    response.put("user-teamIds", user.getTeamIds());
+    response.put("user-tagIds", user.getTeamIds());*/
+    UserResponseDTO returnDto = new UserResponseDTO(
+            user.getUsername(),
+            user.getEmail(),
+            user.getName(),
+            user.getSurname(),
+            user.getProjectIds(),
+            user.getTeamIds(),
+            user.getTagIds(),
+            user.getProjectRolesAsString());
+
+    response.put("msg", "User logged in successfully.");
+    response.put("token", jwt);
+    response.put("user", returnDto);
+
+
+
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 

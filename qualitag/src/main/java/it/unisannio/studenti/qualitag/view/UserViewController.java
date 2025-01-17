@@ -46,8 +46,9 @@ public class UserViewController {
    * @param model    The model.
    * @return the update password view
    */
-  @GetMapping("/{username}/password")
+  @GetMapping("/{username}/password/update")
   public String updatePassword(@PathVariable("username") String username, Model model) {
+    System.out.println("username: " + username);
     model.addAttribute("username", username);
     return "user/update_password";
   }

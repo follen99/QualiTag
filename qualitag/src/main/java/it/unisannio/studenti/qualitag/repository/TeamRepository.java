@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.repository;
 
+import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import it.unisannio.studenti.qualitag.model.Team;
 import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -9,21 +10,21 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  */
 public interface TeamRepository extends MongoRepository<Team, String> {
 
-  /**
-   * Finds teams by project ID.
-   *
-   * @param projectId The project ID.
-   * @return A list of teams associated with the specified project ID.
-   */
-  List<Team> findTeamsByProjectId(String projectId);
+    /**
+     * Finds teams by project ID.
+     *
+     * @param projectId The project ID.
+     * @return A list of teams associated with the specified project ID.
+     */
+    List<Team> findTeamsByProjectId(String projectId);
 
-  /**
-   * Checks if a team exists by project ID.
-   *
-   * @param projectId The project ID.
-   * @return true if a team exists with the specified project ID, false otherwise.
-   */
-  boolean existsByProjectId(String projectId);
+    /**
+     * Checks if a team exists by project ID.
+     *
+     * @param projectId The project ID.
+     * @return true if a team exists with the specified project ID, false otherwise.
+     */
+    boolean existsByProjectId(String projectId);
 
   /**
    * Checks if a team exists by user ID.
