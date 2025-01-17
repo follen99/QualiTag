@@ -63,6 +63,7 @@ public class ProjectService {
   private final Validator validator = factory.getValidator();
 
   // POST
+
   /**
    * Creates a new project.
    *
@@ -83,9 +84,9 @@ public class ProjectService {
       projectRepository.save(project);
 
       // Create a default team for the project
-      TeamCreateDto teamCreateDto =
-          new TeamCreateDto("Default team", "Default team for project " + project.getProjectName(),
-              project.getProjectId(), projectCreateDto.userEmails());
+      TeamCreateDto teamCreateDto = new TeamCreateDto("Default team",
+          "Default team for project " + project.getProjectName(), project.getProjectId(),
+          projectCreateDto.userEmails());
       ResponseEntity<?> teamResponse = teamService.addTeam(teamCreateDto);
       if (teamResponse.getStatusCode() != HttpStatus.CREATED) {
         // If there's a problem, rollback the project creation
@@ -117,6 +118,7 @@ public class ProjectService {
   // GET
 
   // TODO: It might be possible to implement this method using the role of the user
+
   /**
    * Returns all the projects created by a specific owner.
    *
@@ -227,6 +229,7 @@ public class ProjectService {
   }
 
   // TODO: Change to actually retrieve the files
+
   /**
    * Gets all the artifacts of a project.
    *
@@ -318,6 +321,14 @@ public class ProjectService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    System.out.println(project);
+    User owner = userRepository.findByUserId(project.getOwnerId());
+    if (owner == null) {
+      response.put("msg", "Owner not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    UserShortResponseDto ownerDto = owner.toUserShortResponseDto();
+
     // users
     List<UserShortResponseDto> shorResponseUserDtos = new ArrayList<>();
     for (String userId : project.getUserIds()) {
@@ -346,38 +357,27 @@ public class ProjectService {
         response.put("msg", "Artifact with ID " + artifactId + " not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      wholeArtifactDtos.add(ArtifactMapper.toDto(artifact));
+      wholeArtifactDtos.add(ArtifactMapper.toWholeArtifactDto(artifact));
     }
 
-    User owner = userRepository.findByUserId(project.getOwnerId());
-    if (owner == null) {
-      response.put("msg", "Owner not found");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-    UserShortResponseDto ownerDto = owner.toUserShortResponseDto();
+    System.out.println("artifacts: " + wholeArtifactDtos);
 
-    // TODO: Use WholeProjectDto too
-    // WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
+    WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
 
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(new WholeProjectHeavyDto(
-                project.getProjectName(), 
-                project.getProjectDescription(),
-                project.getProjectCreationDate(),
-                project.getProjectDeadline(), 
-                ownerDto,
-                project.getProjectStatus().name(), 
-                shorResponseUserDtos, 
-                wholeArtifactDtos,
-                wholeTeamDtos));
+    return ResponseEntity.status(HttpStatus.OK).body(
+        new WholeProjectHeavyDto(project.getProjectName(), project.getProjectDescription(),
+            project.getProjectCreationDate(), project.getProjectDeadline(), ownerDto,
+            project.getProjectStatus().name(), shorResponseUserDtos, wholeArtifactDtos,
+            wholeTeamDtos));
   }
 
   // PUT
+
   /**
    * Modifies an existing projects.
    *
    * @param projectModifyDto the DTO used to modify the project
-   * @param projectId the id of the project to modify
+   * @param projectId        the id of the project to modify
    * @return the response entity
    */
   public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
@@ -425,7 +425,7 @@ public class ProjectService {
   /**
    * Adds a list of users to the project.
    *
-   * @param projectId the id of the project to add the user to
+   * @param projectId  the id of the project to add the user to
    * @param userEmails the list of emails of the users to add
    * @throws Exception if there's a problem with the user or the project
    */
@@ -460,17 +460,17 @@ public class ProjectService {
 
         // Send email to user
         String emailMessage = String.format("""
-            Dear %s,
-
-            You have been invited to join the project: %s.
-
-            Project Description: %s
-
-            We look forward to your valuable contributions.
-
-            Best regards,
-            %s
-            """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+                Dear %s,
+                
+                You have been invited to join the project: %s.
+                
+                Project Description: %s
+                
+                We look forward to your valuable contributions.
+                
+                Best regards,
+                %s
+                """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
             userRepository.findByUserId(project.getOwnerId()).getName() + " "
                 + userRepository.findByUserId(project.getOwnerId()).getSurname());
         new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
@@ -518,6 +518,7 @@ public class ProjectService {
   }
 
   // DELETE
+
   /**
    * Deletes a project.
    *
@@ -607,17 +608,17 @@ public class ProjectService {
 
       // Send email to user
       String emailMessage = String.format("""
-          Dear %s,
-
-          You have been invited to join the project: %s.
-
-          Project Description: %s
-
-          We look forward to your valuable contributions.
-
-          Best regards,
-          %s
-          """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+              Dear %s,
+              
+              You have been invited to join the project: %s.
+              
+              Project Description: %s
+              
+              We look forward to your valuable contributions.
+              
+              Best regards,
+              %s
+              """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
           owner.getName() + " " + owner.getSurname());
       new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
     }
@@ -644,7 +645,7 @@ public class ProjectService {
 
     return null;
   }
-  
+
   private String getLoggedInUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
@@ -677,18 +678,19 @@ public class ProjectService {
     }
 
     // Validate the deadline date and set creation date
-    ZonedDateTime deadlineDate =
-        ZonedDateTime.parse(projectCreateDto.deadlineDate(), DateTimeFormatter.ISO_DATE_TIME);
+    ZonedDateTime deadlineDate = ZonedDateTime.parse(projectCreateDto.deadlineDate(),
+        DateTimeFormatter.ISO_DATE_TIME);
     ZonedDateTime creationDate = ZonedDateTime.now();
     if (deadlineDate.isBefore(creationDate)) {
       throw new ProjectValidationException("Deadline date cannot be before the creation date");
     }
 
-    ZonedDateTime maxDeadline =
-        ZonedDateTime.now().plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
+    ZonedDateTime maxDeadline = ZonedDateTime.now()
+        .plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
     if (deadlineDate.isAfter(maxDeadline)) {
-      throw new ProjectValidationException("Deadline date cannot be after "
-          + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS + " years from now");
+      throw new ProjectValidationException(
+          "Deadline date cannot be after " + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS
+              + " years from now");
     }
 
     // Validate the owner
@@ -736,23 +738,24 @@ public class ProjectService {
 
     // Validate the project name
     String name = projectCreateDto.projectName();
-    if (projectRepository.existsByProjectName(name)
-        && !projectCreateDto.projectName().equals(name)) {
+    if (projectRepository.existsByProjectName(name) && !projectCreateDto.projectName()
+        .equals(name)) {
       throw new ProjectValidationException("Project with name " + name + " already exists");
     }
 
     // Validate the deadline date and set creation date
-    ZonedDateTime deadlineDate =
-        ZonedDateTime.parse(projectCreateDto.deadlineDate(), DateTimeFormatter.ISO_DATE_TIME);
+    ZonedDateTime deadlineDate = ZonedDateTime.parse(projectCreateDto.deadlineDate(),
+        DateTimeFormatter.ISO_DATE_TIME);
     if (deadlineDate.isBefore(ZonedDateTime.now())) {
       throw new ProjectValidationException("Deadline date cannot be before the creation date");
     }
 
-    ZonedDateTime maxDeadline =
-        ZonedDateTime.now().plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
+    ZonedDateTime maxDeadline = ZonedDateTime.now()
+        .plusYears(ProjectConstants.MAX_PROJECT_DEADLINE_YEARS);
     if (deadlineDate.isAfter(maxDeadline)) {
-      throw new ProjectValidationException("Deadline date cannot be after "
-          + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS + " years from now");
+      throw new ProjectValidationException(
+          "Deadline date cannot be after " + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS
+              + " years from now");
     }
 
     // Owner must not be part of users

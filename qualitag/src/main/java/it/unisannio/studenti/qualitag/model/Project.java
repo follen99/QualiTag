@@ -36,27 +36,27 @@ public class Project {
   @Field(name = "projectDeadline")
   private Long projectDeadline;
 
-  @Field(name = "ownerId")
+  @Field(name = "projectOwnerId")
   private String ownerId;
 
   @Field(name = "projectStatus")
   private ProjectStatus projectStatus;
 
-  @Field(name = "usersIds")
+  @Field(name = "projectUsersIds")
   private List<String> userIds;
 
-  @Field(name = "teamsIds")
+  @Field(name = "projectTeamsIds")
   private List<String> teamIds;
 
-  @Field(name = "artifactsIds")
+  @Field(name = "projectArtifactsIds")
   private List<String> artifactIds;
 
   /**
    * Constructor for Project with no users, teams or artifacts.
    *
-   * @param projectName The project's name
+   * @param projectName        The project's name
    * @param projectDescription The project's description
-   * @param projectDeadline The project's deadline
+   * @param projectDeadline    The project's deadline
    */
   public Project(String projectName, String projectDescription, Long projectCreationDate,
       Long projectDeadline, String ownerId, List<String> userIds) {
@@ -118,16 +118,9 @@ public class Project {
       this.projectName = "";
     }
 
-    return new WholeProjectDto(
-            this.projectName, 
-            this.projectDescription, 
-            this.projectCreationDate,
-            this.projectDeadline, 
-            this.ownerId, 
-            this.projectStatus.name(), 
-            this.userIds, 
-            this.artifactIds,
-            this.teamIds);
+    return new WholeProjectDto(this.projectName, this.projectDescription, this.projectCreationDate,
+        this.projectDeadline, this.ownerId, this.projectStatus.name(), this.userIds,
+        this.artifactIds, this.teamIds);
   }
 
   /**

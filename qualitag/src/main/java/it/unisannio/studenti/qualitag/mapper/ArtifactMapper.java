@@ -30,7 +30,7 @@ public class ArtifactMapper {
    * @param entity the entity to convert
    * @return the converted DTO
    */
-  public static WholeArtifactDto toDto(Artifact entity) {
+  public static WholeArtifactDto toWholeArtifactDto(Artifact entity) {
     return new WholeArtifactDto(
         entity.getArtifactId(),
         entity.getArtifactName(),

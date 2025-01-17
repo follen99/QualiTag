@@ -115,7 +115,7 @@ public class ProjectController {
   /**
    * Updates a project.
    *
-   * @param projectId the id of the project to update
+   * @param projectId        the id of the project to update
    * @param projectCreateDto the updated project
    * @return the response entity
    */

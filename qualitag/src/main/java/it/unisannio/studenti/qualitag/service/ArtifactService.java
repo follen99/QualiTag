@@ -72,8 +72,8 @@ public class ArtifactService {
 
     try {
       // Validate the DTO
-      Set<ConstraintViolation<ArtifactCreateDto>> violations =
-          validator.validate(artifactCreateDto);
+      Set<ConstraintViolation<ArtifactCreateDto>> violations = validator.validate(
+          artifactCreateDto);
       if (!violations.isEmpty()) {
         response.put("msg", "Invalid artifact data");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -168,8 +168,8 @@ public class ArtifactService {
       response.put("msg", "User not found");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    if (!(project.getOwnerId().equals(user.getUserId())
-        || user.getTeamIds().contains(artifact.getTeamId()))) {
+    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
+        .contains(artifact.getTeamId()))) {
       response.put("msg", "User is not authorized to view this artifact");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -228,14 +228,14 @@ public class ArtifactService {
       response.put("msg", "User not found");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    if (!(project.getOwnerId().equals(user.getUserId())
-        || user.getTeamIds().contains(artifact.getTeamId()))) {
+    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
+        .contains(artifact.getTeamId()))) {
       response.put("msg", "User is not authorized to view this artifact");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // Convert the entity to a DTO
-    WholeArtifactDto artifactDto = ArtifactMapper.toDto(artifact);
+    WholeArtifactDto artifactDto = ArtifactMapper.toWholeArtifactDto(artifact);
 
     response.put("msg", "Artifact metadata retrieved successfully");
     response.put("artifact", artifactDto);
@@ -245,11 +245,12 @@ public class ArtifactService {
   // PUT
 
   // TODO: Properly implement update method
+
   /**
    * Modifies an existing artifact.
    *
    * @param artifactModifyDto the dto used to modify the artifact
-   * @param artifactId the id of the artifact to modify
+   * @param artifactId        the id of the artifact to modify
    * @return the response entity
    */
   public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
@@ -257,20 +258,20 @@ public class ArtifactService {
     /*
      * // ID check if (artifactId == null || artifactId.isEmpty()) { return
      * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty"); }
-     * 
+     *
      * // Artifact validation try { ArtifactCreateDto correctDto =
      * validateArtifact(artifactModifyDto);
-     * 
+     *
      * Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId); if (artifact ==
      * null) { return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found"); }
-     * 
+     *
      * artifact.setArtifactName(correctDto.artifactName());
      * artifact.setContent(correctDto.content()); artifact.setTags(correctDto.tags());
-     * 
+     *
      * artifactRepository.save(artifact);
-     * 
+     *
      * return ResponseEntity.status(HttpStatus.OK).body("Artifact updated successfully");
-     * 
+     *
      * } catch (ArtifactValidationException e) { return
      * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
      */
@@ -333,9 +334,9 @@ public class ArtifactService {
       Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
       Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
 
-      if (!(project.getOwnerId().equals(user.getUserId())
-          || (team.getUserIds().contains(user.getUserId())
-              && tag.getCreatedBy().equals(user.getUserId())))) {
+      if (!(project.getOwnerId().equals(user.getUserId()) || (
+          team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
+              .equals(user.getUserId())))) {
         if (!project.getOwnerId().equals(user.getUserId())) {
           response.put("msg", "User is not the project owner");
           return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
@@ -445,7 +446,7 @@ public class ArtifactService {
    * Removss a tag of an artifact.
    *
    * @param artifactId the id of the artifact which tag we want to remove
-   * @param tagId the id of the tag to remove
+   * @param tagId      the id of the tag to remove
    * @return the response entity
    */
   public ResponseEntity<?> removeTag(String artifactId, String tagId) {
@@ -473,9 +474,9 @@ public class ArtifactService {
     Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
     Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
     Tag tag = tagRepository.findTagByTagId(tagId);
-    if (!(project.getOwnerId().equals(user.getUserId())
-        || (team.getUserIds().contains(user.getUserId())
-            && tag.getCreatedBy().equals(user.getUserId())))) {
+    if (!(project.getOwnerId().equals(user.getUserId()) || (
+        team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
+            .equals(user.getUserId())))) {
       response.put("msg", "User is not authorized to remove this tag from the artifact");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
