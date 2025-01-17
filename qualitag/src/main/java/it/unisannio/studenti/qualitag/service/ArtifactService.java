@@ -30,7 +30,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -150,8 +154,55 @@ public class ArtifactService {
   public ResponseEntity<?> getArtifact(String artifactId) {
     Map<String, Object> response = new HashMap<>();
 
-    response.put("msg", "Method not implemented yet");
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
+    // Retrieve the artifact data
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the user is authorized to view the artifact
+    User user = userRepository.findByUserId(getLoggedInUserId());
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    if (!(project.getOwnerId().equals(user.getUserId())
+        || user.getTeamIds().contains(artifact.getTeamId()))) {
+      response.put("msg", "User is not authorized to view this artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Check if the file exists
+    Path filePath = Paths.get(artifact.getFilePath());
+    if (!Files.exists(filePath)) {
+      response.put("msg", "File not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Retrieve and return the file
+    try {
+      Resource file = new FileSystemResource(filePath);
+      String contentType = Files.probeContentType(filePath);
+
+      // Fallback if cannot determine the content type
+      if (contentType == null) {
+        contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+      }
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.add(HttpHeaders.CONTENT_DISPOSITION,
+          "attachment; filename=" + file.getFilename() + "\"");
+      headers.setContentType(MediaType.parseMediaType(contentType));
+      headers.setContentLength(Files.size(filePath));
+
+      return new ResponseEntity<>(file, headers, HttpStatus.OK);
+    } catch (IOException e) {
+      // Log the exception properly
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   /**
@@ -302,7 +353,7 @@ public class ArtifactService {
       artifact.getTags().add(tagId);
       artifactRepository.save(artifact);
     }
-    
+
     response.put("msg", "Tags added successfully");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
