@@ -72,6 +72,7 @@ public class ProjectService {
    */
   @Transactional
   public ResponseEntity<?> createProject(ProjectCreateDto projectCreateDto) {
+    System.out.println("progetto: " + projectCreateDto);
     Map<String, Object> response = new HashMap<>();
 
     // Project validation

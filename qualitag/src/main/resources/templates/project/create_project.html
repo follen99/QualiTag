@@ -97,6 +97,46 @@
   </div>
 </section>
 
+```html
+<script>
+  document.getElementById('createProjectForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const projectName = document.getElementById('projectName').value;
+    const projectDescription = document.getElementById('projectDescription').value;
+    const deadline = new Date(document.getElementById('deadline').value).toISOString();
+    const userEmails = document.getElementById('userEmails').value.split(',');
+
+    fetch('/api/v1/project', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      },
+      body: JSON.stringify({
+        projectName: projectName,
+        projectDescription: projectDescription,
+        deadlineDate: deadline,
+        userEmails: userEmails
+      })
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          alert(errorData.msg);
+        });
+      }
+    })
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  });
+</script>
+```
+
 
 <script type="module" src="/js/user/nav-bar-logic.js"></script>
 <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
