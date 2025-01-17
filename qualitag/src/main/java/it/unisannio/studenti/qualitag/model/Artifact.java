@@ -1,10 +1,9 @@
 package it.unisannio.studenti.qualitag.model;
 
+import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -132,12 +131,19 @@ public class Artifact {
         + '}';
   }
 
+  // FIXME
   /**
    * Converts the artifact to a WholeArtifactDto.
    *
    * @return the WholeArtifactDto
    */
-  public WholeArtifactDto toWholeArtifactDto() {
-    return new WholeArtifactDto(artifactId, artifactName, content, tags);
-  }
+  // public WholeArtifactDto toWholeArtifactDto() {
+  //   return new WholeArtifactDto(
+  //           artifactId, 
+  //           artifactName, 
+  //           description, 
+  //           projectId,
+  //           teamId, 
+  //           tags);
+  // }
 }

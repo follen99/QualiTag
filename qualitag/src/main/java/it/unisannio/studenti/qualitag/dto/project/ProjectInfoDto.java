@@ -1,7 +1,5 @@
 package it.unisannio.studenti.qualitag.dto.project;
 
-import java.util.List;
-
 /**
  * DTO used for project creation in the system.
  */

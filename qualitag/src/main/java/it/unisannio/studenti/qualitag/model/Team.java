@@ -1,10 +1,9 @@
 package it.unisannio.studenti.qualitag.model;
 
+import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -128,8 +127,14 @@ public class Team {
         + ", team_description='" + teamDescription + '\'' + '}';
   }
 
+  // TODO: Add javadoc
   public WholeTeamDto toWholeTeamDto() {
-    return new WholeTeamDto(this.teamId, this.projectId, this.users, this.teamName,
-        this.creationTimeStamp, this.teamDescription);
+    return new WholeTeamDto(
+            this.teamId, 
+            this.projectId, 
+            this.userIds, 
+            this.teamName,
+            this.creationTimeStamp, 
+            this.teamDescription);
   }
 }

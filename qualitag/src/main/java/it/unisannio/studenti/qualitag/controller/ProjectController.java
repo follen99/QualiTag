@@ -2,6 +2,7 @@ package it.unisannio.studenti.qualitag.controller;
 
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
 import it.unisannio.studenti.qualitag.service.ProjectService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,26 +14,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 /**
  * The ProjectController class is a REST controller that handles requests related to projects.
  */
 @RestController
 @RequestMapping("/api/v1/project")
 public class ProjectController {
-    
-    private final ProjectService projectService;
 
-    /**
-     * Constructs a new ProjectController.
-     *
-     * @param projectService the project service
-     */
-    @Autowired
-    public ProjectController(ProjectService projectService) {
-        this.projectService = projectService;
-    }
+  private final ProjectService projectService;
+
+  /**
+   * Constructs a new ProjectController.
+   *
+   * @param projectService the project service
+   */
+  @Autowired
+  public ProjectController(ProjectService projectService) {
+    this.projectService = projectService;
+  }
 
   /**
    * Adds a project to the repository.
@@ -54,36 +53,26 @@ public class ProjectController {
   public ResponseEntity<?> closeProject(@PathVariable String projectId) {
     return projectService.closeProject(projectId);
   }
-  
-    /**
-     * Gets projects by their IDs.
-     *
-     * @param projectIds The list of project IDs.
-     * @return The response entity with the list of project DTOs.
-     */
-    @PostMapping("/get-by-ids")
-    public ResponseEntity<?> getProjectsByIds(@RequestBody List<String> projectIds) {
-        if (projectIds == null || projectIds.isEmpty()) {
-            return ResponseEntity.badRequest().body("Project IDs cannot be null or empty");
-        }
-        return projectService.getProjectsByIds(projectIds);
-    }
 
-    /**
-     * Gets a project by its id.
-     *
-     * @param projectId the id of the project to find
-     * @return the response entity
-     */
-    @GetMapping("/{projectId}/status")
-    public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
-        return projectService.getProjectById(projectId);
+  /**
+   * Gets projects by their IDs.
+   *
+   * @param projectIds The list of project IDs.
+   * @return The response entity with the list of project DTOs.
+   */
+  @PostMapping("/get-by-ids")
+  public ResponseEntity<?> getProjectsByIds(@RequestBody List<String> projectIds) {
+    if (projectIds == null || projectIds.isEmpty()) {
+      return ResponseEntity.badRequest().body("Project IDs cannot be null or empty");
     }
+    return projectService.getProjectsByIds(projectIds);
+  }
 
-    @GetMapping("/{projectId}/status/whole")
-    public ResponseEntity<?> getHumanReadableProjectStatus(@PathVariable String projectId) {
-        return projectService.getHumanReadableProjectStatus(projectId);
-    }
+  // TODO: Add javadoc
+  @GetMapping("/{projectId}/status/whole")
+  public ResponseEntity<?> getHumanReadableProjectStatus(@PathVariable String projectId) {
+    return projectService.getHumanReadableProjectStatus(projectId);
+  }
 
   /**
    * Gets a project by its id.
@@ -96,32 +85,32 @@ public class ProjectController {
     return projectService.getProjectById(projectId);
   }
 
-    /**
-     * Gets all the tags of the artifacts of a project.
-     *
-     * @param projectId the id of the project to find the tags of
-     * @return the response entity
-     */
-    @GetMapping("/{projectId}/tags")
-    public ResponseEntity<?> getProjectTags(@PathVariable String projectId) {
-        return projectService.getProjectsTags(projectId);
-    }
+  /**
+   * Gets all the tags of the artifacts of a project.
+   *
+   * @param projectId the id of the project to find the tags of
+   * @return the response entity
+   */
+  @GetMapping("/{projectId}/tags")
+  public ResponseEntity<?> getProjectTags(@PathVariable String projectId) {
+    return projectService.getProjectsTags(projectId);
+  }
 
-    /**
-     * Gets all the artifacts of a project.
-     *
-     * @param projectId the id of the project to find the artifacts of
-     * @return the response entity
-     */
-    @GetMapping("/{projectId}/artifacts")
-    public ResponseEntity<?> getProjectArtifacts(@PathVariable String projectId) {
-        return projectService.getProjectsArtifacts(projectId);
-    }
-    
+  /**
+   * Gets all the artifacts of a project.
+   *
+   * @param projectId the id of the project to find the artifacts of
+   * @return the response entity
+   */
+  @GetMapping("/{projectId}/artifacts")
+  public ResponseEntity<?> getProjectArtifacts(@PathVariable String projectId) {
+    return projectService.getProjectsArtifacts(projectId);
+  }
+
   /**
    * Updates a project.
    *
-   * @param projectId        the id of the project to update
+   * @param projectId the id of the project to update
    * @param projectCreateDto the updated project
    * @return the response entity
    */
