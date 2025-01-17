@@ -114,36 +114,6 @@ public class ProjectService {
     }
   }
 
-  private String checkEmails(List<String> userEmails) {
-    List<String> missingUserEmails = new ArrayList<>();
-    for (String email : userEmails) {
-      // Check if the email is null
-      if (email == null) {
-        return "There is an empty email in the list. Please remove it.";
-      }
-
-      // Check if the email is duplicated in the list
-      if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
-        return "User with email " + email + " is mentioned more than once";
-      }
-
-      // Check if the email is registered. If not, add to a list of missing emails
-      if (!userRepository.existsByEmail(email)) {
-        missingUserEmails.add(email);
-      }
-    }
-
-    return null;
-  }
-
-  // TODO: Where does this code belong to?
-  // User owner = usersRepository.findByUserId(project.getOwnerId());if(owner==null)
-  // {
-  // response.put("msg", "Owner not found");
-  // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-  // }
-  // UserShortResponseDTO ownerDto = owner.toUserShortResponseDTO();
-
   // GET
 
   // TODO: It might be possible to implement this method using the role of the user
@@ -653,6 +623,28 @@ public class ProjectService {
     }
   }
 
+  private String checkEmails(List<String> userEmails) {
+    List<String> missingUserEmails = new ArrayList<>();
+    for (String email : userEmails) {
+      // Check if the email is null
+      if (email == null) {
+        return "There is an empty email in the list. Please remove it.";
+      }
+
+      // Check if the email is duplicated in the list
+      if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
+        return "User with email " + email + " is mentioned more than once";
+      }
+
+      // Check if the email is registered. If not, add to a list of missing emails
+      if (!userRepository.existsByEmail(email)) {
+        missingUserEmails.add(email);
+      }
+    }
+
+    return null;
+  }
+  
   private String getLoggedInUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
