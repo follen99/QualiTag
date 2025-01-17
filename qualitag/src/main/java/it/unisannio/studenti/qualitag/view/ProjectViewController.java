@@ -40,4 +40,9 @@ public class ProjectViewController {
     model.addAttribute("projectId", projectId);
     return "project/project_details";
   }
+
+  @GetMapping("/create")
+  public String createProject() {
+    return "project/create_project";
+  }
 }
