@@ -68,7 +68,12 @@ public class ProjectController {
     return projectService.getProjectsByIds(projectIds);
   }
 
-  // TODO: Add javadoc
+  /**
+   * Retrieve a comprehensive DTO regarding the status of the whole project.
+   *
+   * @param projectId The ID of the project
+   * @return The DTO
+   */
   @GetMapping("/{projectId}/status/whole")
   public ResponseEntity<?> getHumanReadableProjectStatus(@PathVariable String projectId) {
     return projectService.getHumanReadableProjectStatus(projectId);

@@ -131,12 +131,12 @@ public class Artifact {
         + '}';
   }
 
-  // FIXME
-  /**
-   * Converts the artifact to a WholeArtifactDto.
-   *
-   * @return the WholeArtifactDto
-   */
+  // FIXME: Move in mapper and implement the method
+  // /**
+  //  * Converts the artifact to a WholeArtifactDto.
+  //  *
+  //  * @return the WholeArtifactDto
+  //  */
   // public WholeArtifactDto toWholeArtifactDto() {
   //   return new WholeArtifactDto(
   //           artifactId, 

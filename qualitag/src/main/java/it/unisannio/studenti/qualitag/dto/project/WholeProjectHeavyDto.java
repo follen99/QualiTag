@@ -3,7 +3,6 @@ package it.unisannio.studenti.qualitag.dto.project;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
-
 import java.util.List;
 
 /**

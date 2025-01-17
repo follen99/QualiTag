@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.model;
 
+import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -154,7 +153,7 @@ public class User {
    *
    * @return The UserSortResponseDTO.
    */
-  public UserShortResponseDto toUserShortResponseDTO() {
+  public UserShortResponseDto toUserShortResponseDto() {
     if (projectRoles == null) {
       projectRoles = new HashMap<>();
     }

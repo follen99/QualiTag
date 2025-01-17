@@ -61,6 +61,7 @@ public class ProjectService {
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
 
+  // POST
   /**
    * Creates a new project.
    *
@@ -112,102 +113,6 @@ public class ProjectService {
     }
   }
 
-  // TODO: Add roles to users
-  private void addProjectToUsers(Project project) throws Exception {
-    User owner = userRepository.findByUserId(project.getOwnerId());
-    if (owner == null) {
-      throw new ProjectValidationException("User with ID " + project.getOwnerId() + " not found");
-    }
-
-    // Add project to owner
-    owner.getProjectIds().add(project.getProjectId());
-    userRepository.save(owner);
-
-    // Add project to users
-    List<String> userList = project.getUserIds();
-    for (String userId : userList) {
-      User user = userRepository.findByUserId(userId);
-
-      // Add the project to the user
-      user.getProjectIds().add(project.getProjectId());
-      userRepository.save(user);
-
-      // Send email to user
-      String emailMessage = String.format("""
-          Dear %s,
-
-          You have been invited to join the project: %s.
-
-          Project Description: %s
-
-          We look forward to your valuable contributions.
-
-          Best regards,
-          %s
-          """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
-          owner.getName() + " " + owner.getSurname());
-      new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
-    }
-  }
-
-  /**
-   * Adds a list of users to the project.
-   *
-   * @param projectId the id of the project to add the user to
-   * @param userEmails the list of emails of the users to add
-   * @throws Exception if there's a problem with the user or the project
-   */
-  public void addUsersToProject(String projectId, List<String> userEmails) throws Exception {
-    // Check if the project exists and retrieve it
-    Project project = projectRepository.findProjectByProjectId(projectId);
-    if (project == null) {
-      throw new ProjectValidationException("Project with ID " + projectId + " not found");
-    }
-
-    // Check that the logged-in user is the owner
-    if (!getLoggedInUserId().equals(project.getOwnerId())) {
-      throw new ProjectValidationException("Only the owner can add users to the project");
-    }
-
-    // Validate emails
-    String msg = this.checkEmails(userEmails);
-    if (msg != null) {
-      throw new ProjectValidationException(msg);
-    }
-
-    for (String email : userEmails) {
-      User user = userRepository.findByEmail(email);
-      if (!project.getUserIds().contains(user.getUserId())) {
-        // Add the project to the user
-        user.getProjectIds().add(project.getProjectId());
-        userRepository.save(user);
-
-        // Add the user to the project
-        project.getUserIds().add(user.getUserId());
-        projectRepository.save(project);
-
-        // Send email to user
-        String emailMessage = String.format("""
-            Dear %s,
-
-            You have been invited to join the project: %s.
-
-            Project Description: %s
-
-            We look forward to your valuable contributions.
-
-            Best regards,
-            %s
-            """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
-            userRepository.findByUserId(project.getOwnerId()).getName() + " "
-                + userRepository.findByUserId(project.getOwnerId()).getSurname());
-        new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
-      }
-
-      // If the user is already in the project, do nothing
-    }
-  }
-
   private String checkEmails(List<String> userEmails) {
     List<String> missingUserEmails = new ArrayList<>();
     for (String email : userEmails) {
@@ -230,49 +135,15 @@ public class ProjectService {
     return null;
   }
 
-  /**
-   * Close a project.
-   *
-   * @param projectId the id of the project to close
-   */
-  public ResponseEntity<?> closeProject(String projectId) {
-    Map<String, Object> response = new HashMap<>();
-
-    if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    Project project = projectRepository.findProjectByProjectId(projectId);
-    if (project == null) {
-      response.put("msg", "Project not found");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    if (project.getProjectStatus() == ProjectStatus.CLOSED) {
-      response.put("msg", "Project is already closed");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    String currentUserId = getLoggedInUserId();
-    if (!project.getOwnerId().equals(currentUserId)) {
-      response.put("msg", "Only the project owner can close the project");
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
-
-    project.setProjectStatus(ProjectStatus.CLOSED);
-    projectRepository.save(project);
-
-    response.put("msg", "Project closed successfully");
-    return ResponseEntity.status(HttpStatus.OK).body(response);
-  }
-
+  // TODO: Where does this code belong to?
   // User owner = usersRepository.findByUserId(project.getOwnerId());if(owner==null)
   // {
   // response.put("msg", "Owner not found");
   // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
   // }
   // UserShortResponseDTO ownerDto = owner.toUserShortResponseDTO();
+
+  // GET
 
   // TODO: It might be possible to implement this method using the role of the user
   /**
@@ -427,6 +298,257 @@ public class ProjectService {
   }
 
   /**
+   * Retrieves a list of projects by their IDs.
+   *
+   * @param projectIds the list of project IDs to retrieve
+   * @return the response entity containing the list of projects or an error message
+   */
+  public ResponseEntity<?> getProjectsByIds(List<String> projectIds) {
+    if (projectIds == null || projectIds.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Project IDs cannot be null or empty");
+    }
+
+    // new ArrayList to store the projects
+    List<ProjectInfoDto> projects = new ArrayList<>();
+
+    // for every id passed, check if the project exists and add it to the list
+    for (String projectId : projectIds) {
+      Project project = projectRepository.findProjectByProjectId(projectId);
+      if (project == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body("Project with ID " + projectId + " not found");
+      }
+      projects.add(project.toProjectInfoDto());
+    }
+    return ResponseEntity.status(HttpStatus.OK).body(projects);
+  }
+
+  /**
+   * Retrieves a human-readable status of a project.
+   *
+   * @param projectId the ID of the project to retrieve the status for
+   * @return the response entity containing the human-readable project status or an error message
+   */
+  public ResponseEntity<?> getHumanReadableProjectStatus(String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (projectId == null || projectId.isEmpty()) {
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+    if (!projectRepository.existsById(projectId)) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // users
+    List<UserShortResponseDto> shorResponseUserDtos = new ArrayList<>();
+    for (String userId : project.getUserIds()) {
+      User user = userRepository.findByUserId(userId);
+      if (user == null) {
+        response.put("msg", "User with ID " + userId + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      shorResponseUserDtos.add(user.toUserShortResponseDto());
+    }
+    List<WholeTeamDto> wholeTeamDtos = new ArrayList<>();
+    for (String teamId : project.getTeamIds()) {
+      Team team = teamsRepository.findTeamByTeamId(teamId);
+      if (team == null) {
+        response.put("msg", "Team with ID " + teamId + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      wholeTeamDtos.add(team.toWholeTeamDto());
+    }
+
+    // artifacts
+    List<WholeArtifactDto> wholeArtifactDtos = new ArrayList<>();
+    for (String artifactId : project.getArtifactIds()) {
+      Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
+      if (artifact == null) {
+        response.put("msg", "Artifact with ID " + artifactId + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      // FIXME: WholeArtifactDto
+      // wholeArtifactDtos.add(artifact.toWholeArtifactDto());
+    }
+
+    User owner = userRepository.findByUserId(project.getOwnerId());
+    if (owner == null) {
+      response.put("msg", "Owner not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    UserShortResponseDto ownerDto = owner.toUserShortResponseDto();
+
+    // TODO: Use WholeProjectDto too
+    // WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(new WholeProjectHeavyDto(
+                project.getProjectName(), 
+                project.getProjectDescription(),
+                project.getProjectCreationDate(),
+                project.getProjectDeadline(), 
+                ownerDto,
+                project.getProjectStatus().name(), 
+                shorResponseUserDtos, 
+                wholeArtifactDtos,
+                wholeTeamDtos));
+  }
+
+  // PUT
+  /**
+   * Modifies an existing projects.
+   *
+   * @param projectModifyDto the DTO used to modify the project
+   * @param projectId the id of the project to modify
+   * @return the response entity
+   */
+  public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the project ID is null or empty
+    if (projectId == null || projectId.isEmpty()) {
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Retrieve the project to modify
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the logged user is the owner of the project
+    String currentUserId = getLoggedInUserId();
+    if (!currentUserId.equals(project.getOwnerId())) {
+      response.put("msg", "Only the owner can modify the project!");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Project validation
+    try {
+      CompletedProjectUpdateDto correctProjectUpdateDto = validateUpdate(projectModifyDto);
+
+      project.setProjectName(correctProjectUpdateDto.projectName());
+      project.setProjectDescription(correctProjectUpdateDto.projectDescription());
+      project.setProjectDeadline(correctProjectUpdateDto.projectDeadline());
+      project.setUserIds(correctProjectUpdateDto.userIds());
+
+      projectRepository.save(project);
+
+      response.put("msg", "Project updated successfully");
+      return ResponseEntity.status(HttpStatus.OK).body(response);
+    } catch (ProjectValidationException e) {
+      response.put("msg", e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+  }
+
+  /**
+   * Adds a list of users to the project.
+   *
+   * @param projectId the id of the project to add the user to
+   * @param userEmails the list of emails of the users to add
+   * @throws Exception if there's a problem with the user or the project
+   */
+  public void addUsersToProject(String projectId, List<String> userEmails) throws Exception {
+    // Check if the project exists and retrieve it
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      throw new ProjectValidationException("Project with ID " + projectId + " not found");
+    }
+
+    // Check that the logged-in user is the owner
+    if (!getLoggedInUserId().equals(project.getOwnerId())) {
+      throw new ProjectValidationException("Only the owner can add users to the project");
+    }
+
+    // Validate emails
+    String msg = this.checkEmails(userEmails);
+    if (msg != null) {
+      throw new ProjectValidationException(msg);
+    }
+
+    for (String email : userEmails) {
+      User user = userRepository.findByEmail(email);
+      if (!project.getUserIds().contains(user.getUserId())) {
+        // Add the project to the user
+        user.getProjectIds().add(project.getProjectId());
+        userRepository.save(user);
+
+        // Add the user to the project
+        project.getUserIds().add(user.getUserId());
+        projectRepository.save(project);
+
+        // Send email to user
+        String emailMessage = String.format("""
+            Dear %s,
+
+            You have been invited to join the project: %s.
+
+            Project Description: %s
+
+            We look forward to your valuable contributions.
+
+            Best regards,
+            %s
+            """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+            userRepository.findByUserId(project.getOwnerId()).getName() + " "
+                + userRepository.findByUserId(project.getOwnerId()).getSurname());
+        new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
+      }
+
+      // If the user is already in the project, do nothing
+    }
+  }
+
+  /**
+   * Close a project.
+   *
+   * @param projectId the id of the project to close
+   */
+  public ResponseEntity<?> closeProject(String projectId) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (projectId == null || projectId.isEmpty()) {
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    Project project = projectRepository.findProjectByProjectId(projectId);
+    if (project == null) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    if (project.getProjectStatus() == ProjectStatus.CLOSED) {
+      response.put("msg", "Project is already closed");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    String currentUserId = getLoggedInUserId();
+    if (!project.getOwnerId().equals(currentUserId)) {
+      response.put("msg", "Only the project owner can close the project");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    project.setProjectStatus(ProjectStatus.CLOSED);
+    projectRepository.save(project);
+
+    response.put("msg", "Project closed successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  // DELETE
+  /**
    * Deletes a project.
    *
    * @param projectId the id of the project to delete
@@ -491,58 +613,45 @@ public class ProjectService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  // UPDATE
+  // UTILITY METHODS
 
-  /**
-   * Modifies an existing projects.
-   *
-   * @param projectModifyDto the DTO used to modify the project
-   * @param projectId the id of the project to modify
-   * @return the response entity
-   */
-  public ResponseEntity<?> updateProject(ProjectCreateDto projectModifyDto, String projectId) {
-    Map<String, Object> response = new HashMap<>();
-
-    // Check if the project ID is null or empty
-    if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  // TODO: Add roles to users
+  private void addProjectToUsers(Project project) throws Exception {
+    User owner = userRepository.findByUserId(project.getOwnerId());
+    if (owner == null) {
+      throw new ProjectValidationException("User with ID " + project.getOwnerId() + " not found");
     }
 
-    // Retrieve the project to modify
-    Project project = projectRepository.findProjectByProjectId(projectId);
-    if (project == null) {
-      response.put("msg", "Project not found");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
+    // Add project to owner
+    owner.getProjectIds().add(project.getProjectId());
+    userRepository.save(owner);
 
-    // Check if the logged user is the owner of the project
-    String currentUserId = getLoggedInUserId();
-    if (!currentUserId.equals(project.getOwnerId())) {
-      response.put("msg", "Only the owner can modify the project!");
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
+    // Add project to users
+    List<String> userList = project.getUserIds();
+    for (String userId : userList) {
+      User user = userRepository.findByUserId(userId);
 
-    // Project validation
-    try {
-      CompletedProjectUpdateDto correctProjectUpdateDto = validateUpdate(projectModifyDto);
+      // Add the project to the user
+      user.getProjectIds().add(project.getProjectId());
+      userRepository.save(user);
 
-      project.setProjectName(correctProjectUpdateDto.projectName());
-      project.setProjectDescription(correctProjectUpdateDto.projectDescription());
-      project.setProjectDeadline(correctProjectUpdateDto.projectDeadline());
-      project.setUserIds(correctProjectUpdateDto.userIds());
+      // Send email to user
+      String emailMessage = String.format("""
+          Dear %s,
 
-      projectRepository.save(project);
+          You have been invited to join the project: %s.
 
-      response.put("msg", "Project updated successfully");
-      return ResponseEntity.status(HttpStatus.OK).body(response);
-    } catch (ProjectValidationException e) {
-      response.put("msg", e.getMessage());
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+          Project Description: %s
+
+          We look forward to your valuable contributions.
+
+          Best regards,
+          %s
+          """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+          owner.getName() + " " + owner.getSurname());
+      new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
     }
   }
-
-  // UTILITY METHODS
 
   private String getLoggedInUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -564,12 +673,6 @@ public class ProjectService {
     return violations.isEmpty();
   }
 
-  /**
-   * Validates a project.
-   *
-   * @param projectCreateDto the dto used to create the project
-   * @return the validated project
-   */
   private CompletedProjectCreationDto validateProject(ProjectCreateDto projectCreateDto) {
     if (!isValidProjectCreateDto(projectCreateDto)) {
       throw new ProjectValidationException("All fields must be filled");
@@ -707,95 +810,4 @@ public class ProjectService {
         deadlineDate.toInstant().toEpochMilli(), userIds);
   }
 
-  public ResponseEntity<?> getProjectsByIds(List<String> projectIds) {
-    if (projectIds == null || projectIds.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Project IDs cannot be null or empty");
-    }
-
-    // new ArrayList to store the projects
-    List<ProjectInfoDto> projects = new ArrayList<>();
-
-    // for every id passed, check if the project exists and add it to the list
-    for (String projectId : projectIds) {
-      Project project = projectRepository.findProjectByProjectId(projectId);
-      if (project == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("Project with ID " + projectId + " not found");
-      }
-      projects.add(project.toProjectInfoDto());
-    }
-    return ResponseEntity.status(HttpStatus.OK).body(projects);
-  }
-
-  public ResponseEntity<?> getHumanReadableProjectStatus(String projectId) {
-    Map<String, Object> response = new HashMap<>();
-
-    if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-    if (!projectRepository.existsById(projectId)) {
-      response.put("msg", "Project not found");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-    Project project = projectRepository.findProjectByProjectId(projectId);
-    if (project == null) {
-      response.put("msg", "Project not found");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    User owner = userRepository.findByUserId(project.getOwnerId());
-    if (owner == null) {
-      response.put("msg", "Owner not found");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-    UserShortResponseDto ownerDto = owner.toUserShortResponseDTO();
-
-    // users
-    List<UserShortResponseDto> shorResponseUserDtos = new ArrayList<>();
-    for (String userId : project.getUserIds()) {
-      User user = userRepository.findByUserId(userId);
-      if (user == null) {
-        response.put("msg", "User with ID " + userId + " not found");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-      }
-      shorResponseUserDtos.add(user.toUserShortResponseDTO());
-    }
-    List<WholeTeamDto> wholeTeamDtos = new ArrayList<>();
-    for (String teamId : project.getTeamIds()) {
-      Team team = teamsRepository.findTeamByTeamId(teamId);
-      if (team == null) {
-        response.put("msg", "Team with ID " + teamId + " not found");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-      }
-      wholeTeamDtos.add(team.toWholeTeamDto());
-    }
-
-    // artifacts
-    List<WholeArtifactDto> wholeArtifactDtos = new ArrayList<>();
-    for (String artifactId : project.getArtifactIds()) {
-      Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
-      if (artifact == null) {
-        response.put("msg", "Artifact with ID " + artifactId + " not found");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-      }
-      // FIXME: WholeArtifactDto
-      // wholeArtifactDtos.add(artifact.toWholeArtifactDto());
-    }
-
-    WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
-
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(new WholeProjectHeavyDto(
-                project.getProjectName(), 
-                project.getProjectDescription(),
-                project.getProjectCreationDate(),
-                project.getProjectDeadline(), 
-                ownerDto,
-                project.getProjectStatus().name(), 
-                shorResponseUserDtos, 
-                wholeArtifactDtos,
-                wholeTeamDtos));
-  }
 }

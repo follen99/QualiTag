@@ -127,7 +127,12 @@ public class Team {
         + ", team_description='" + teamDescription + '\'' + '}';
   }
 
-  // TODO: Add javadoc
+  // TODO: Move to mapper
+  /**
+   * Convert to DTO.
+   *
+   * @return The DTO
+   */
   public WholeTeamDto toWholeTeamDto() {
     return new WholeTeamDto(
             this.teamId, 
