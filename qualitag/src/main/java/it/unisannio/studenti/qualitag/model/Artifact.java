@@ -1,6 +1,5 @@
 package it.unisannio.studenti.qualitag.model;
 
-import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -131,20 +130,4 @@ public class Artifact {
         + '}';
   }
 
-  // FIXME: Move in mapper and implement the method
-  /**
-   * Converts the artifact to a WholeArtifactDto.
-   *
-   * @return the WholeArtifactDto
-   */
-  public WholeArtifactDto toWholeArtifactDto() {
-    return new WholeArtifactDto(
-            artifactId, 
-            artifactName, 
-            description, 
-            projectId,
-            teamId, 
-            filePath,
-            tags);
-  }
 }

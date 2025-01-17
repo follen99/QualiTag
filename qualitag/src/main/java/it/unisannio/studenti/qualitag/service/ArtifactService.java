@@ -2,6 +2,7 @@ package it.unisannio.studenti.qualitag.service;
 
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
+import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
@@ -162,8 +163,32 @@ public class ArtifactService {
   public ResponseEntity<?> getArtifactMetadata(String artifactId) {
     Map<String, Object> response = new HashMap<>();
 
-    response.put("msg", "Method not implemented yet");
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
+    // Retrieve the artifact
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the user is authorized to view the artifact
+    User user = userRepository.findByUserId(getLoggedInUserId());
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    if (!(project.getOwnerId().equals(user.getUserId())
+        || user.getTeamIds().contains(artifact.getTeamId()))) {
+      response.put("msg", "User is not authorized to view this artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Convert the entity to a DTO
+    WholeArtifactDto artifactDto = ArtifactMapper.toDto(artifact);
+
+    response.put("msg", "Artifact metadata retrieved successfully");
+    response.put("artifact", artifactDto);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   // PUT

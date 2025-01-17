@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.mapper;
 
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
+import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.model.Artifact;
 
 /**
@@ -21,5 +22,23 @@ public class ArtifactMapper {
     entity.setDescription(dto.description());
     entity.setProjectId(dto.projectId());
     return entity;
+  }
+
+  /**
+   * Converts an Artifact entity to a WholeArtifactDto.
+   *
+   * @param entity the entity to convert
+   * @return the converted DTO
+   */
+  public static WholeArtifactDto toDto(Artifact entity) {
+    return new WholeArtifactDto(
+        entity.getArtifactId(),
+        entity.getArtifactName(),
+        entity.getDescription(),
+        entity.getProjectId(),
+        entity.getTeamId(),
+        entity.getFilePath(),
+        entity.getTags()
+    );
   }
 }

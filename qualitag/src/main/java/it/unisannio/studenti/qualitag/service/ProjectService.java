@@ -12,6 +12,7 @@ import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
+import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
@@ -375,7 +376,7 @@ public class ProjectService {
         response.put("msg", "Artifact with ID " + artifactId + " not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      wholeArtifactDtos.add(artifact.toWholeArtifactDto());
+      wholeArtifactDtos.add(ArtifactMapper.toDto(artifact));
     }
 
     User owner = userRepository.findByUserId(project.getOwnerId());
