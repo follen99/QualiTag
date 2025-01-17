@@ -1,36 +1,65 @@
 package it.unisannio.studenti.qualitag.service;
 
+import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
-import it.unisannio.studenti.qualitag.exception.ArtifactValidationException;
+import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
+import it.unisannio.studenti.qualitag.model.Project;
+import it.unisannio.studenti.qualitag.model.Tag;
+import it.unisannio.studenti.qualitag.model.Team;
+import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
+import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
+import it.unisannio.studenti.qualitag.repository.TeamRepository;
+import it.unisannio.studenti.qualitag.repository.UserRepository;
+import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
+import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * The service class for the artifact.
  */
 @Service
+@RequiredArgsConstructor
 public class ArtifactService {
 
   private final ArtifactRepository artifactRepository;
+  private final ProjectRepository projectRepository;
   private final TagRepository tagRepository;
-  private final ArtifactMapper artifactMapper;
+  private final TeamRepository teamRepository;
+  private final UserRepository userRepository;
 
-  /**
-   * Constructs a new ArtifactService.
-   *
-   * @param artifactRepository the artifact repository
-   */
-  public ArtifactService(ArtifactRepository artifactRepository, TagRepository tagRepository) {
-    this.artifactRepository = artifactRepository;
-    this.tagRepository = tagRepository;
-    this.artifactMapper = new ArtifactMapper(this);
-  }
+  private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+  private final Validator validator = factory.getValidator();
+
+  private static final String UPLOAD_DIR = "artifacts/";
+
+  // POST
 
   /**
    * Creates a new artifact.
@@ -39,117 +68,183 @@ public class ArtifactService {
    * @return the response entity with the result of the artifact creation
    */
   public ResponseEntity<?> addArtifact(ArtifactCreateDto artifactCreateDto) {
+    Map<String, Object> response = new HashMap<>();
+
     try {
-      ArtifactCreateDto correctArtifactDto = validateArtifact(artifactCreateDto);
+      // Validate the DTO
+      Set<ConstraintViolation<ArtifactCreateDto>> violations = validator.validate(
+          artifactCreateDto);
+      if (!violations.isEmpty()) {
+        response.put("msg", "Invalid artifact data");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
 
-      Artifact artifact = artifactMapper.toEntity(correctArtifactDto);
-      this.artifactRepository.save(artifact);
-      return ResponseEntity.status(HttpStatus.CREATED).body("Artifact added successfully");
+      // Check if the project exists
+      Project project = projectRepository.findProjectByProjectId(artifactCreateDto.projectId());
+      if (project == null) {
+        response.put("msg", "Project not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
 
-    } catch (ArtifactValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      // Check if the logged in user is the owner of the project
+      User user = userRepository.findByUserId(project.getOwnerId());
+      if (AuthenticationService.getAuthority(user.getUsername())) {
+        response.put("msg", "User is not the project owner");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+      }
+
+      // Save the file to the server's file system
+      String filePath = saveFile(artifactCreateDto.file());
+
+      // Convert the DTO to an entity
+      Artifact artifact = ArtifactMapper.toEntity(artifactCreateDto);
+      artifact.setFilePath(filePath);
+
+      // Find the team with the least artifacts
+      String minTeamId = null;
+      int minSize = Integer.MAX_VALUE;
+      List<String> teamIds = project.getTeamIds();
+
+      for (String teamId : teamIds) {
+        Team team = teamRepository.findTeamByTeamId(teamId);
+        List<String> artifactIds = team.getArtifactIds();
+
+        if (artifactIds.size() < minSize) {
+          minSize = artifactIds.size();
+          minTeamId = teamId;
+        }
+      }
+
+      // Add the artifact to the team with the least artifacts
+      Team team = teamRepository.findTeamByTeamId(minTeamId);
+      artifact.setTeamId(team.getTeamId());
+
+      // Save the artifact to the database
+      artifactRepository.save(artifact);
+
+      // Add the artifact to the project
+      project.getArtifactIds().add(artifact.getArtifactId());
+      projectRepository.save(project);
+
+      // Add the artifact to the team
+      team.getArtifactIds().add(artifact.getArtifactId());
+      teamRepository.save(team);
+    } catch (IOException e) {
+      response.put("msg", "File upload failed");
+      response.put("error_message", e.getMessage());
+      response.put("error", e);
+      return ResponseEntity.status(500).body(response);
+    } catch (Exception e) {
+      response.put("msg", "An error occurred");
+      return ResponseEntity.status(500).body(response);
     }
+
+    response.put("msg", "Artifact created successfully");
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  /**
-   * Adds a tag to an artifact.
-   *
-   * @param artifactId the id of the artifact to add the tag
-   * @param tagId      the id of the tag to add
-   * @return the response entity
-   */
-  public ResponseEntity<?> addTag(String artifactId, String tagId) {
-    if (artifactId == null || artifactId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
-    }
-    if (tagId == null || tagId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
-    }
+  // GET
 
+  /**
+   * Retrieves the file of the artifact given its ID.
+   *
+   * @param artifactId the ID of the artifact to retrieve
+   * @return the response entity with the file of the artifact
+   */
+  public ResponseEntity<?> getArtifact(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Retrieve the artifact data
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    List<String> tagIds = artifact.getTags();
-    if (tagIds.contains(tagId)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag already exists in artifact");
+    // Check if the user is authorized to view the artifact
+    User user = userRepository.findByUserId(getLoggedInUserId());
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
+        .contains(artifact.getTeamId()))) {
+      response.put("msg", "User is not authorized to view this artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
-    tagIds.add(tagId);
-    artifact.setTags(tagIds);
-    artifactRepository.save(artifact);
+    // Check if the file exists
+    Path filePath = Paths.get(artifact.getFilePath());
+    if (!Files.exists(filePath)) {
+      response.put("msg", "File not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 
-    return ResponseEntity.status(HttpStatus.OK).body("Tag added successfully");
+    // Retrieve and return the file
+    try {
+      Resource file = new FileSystemResource(filePath);
+      String contentType = Files.probeContentType(filePath);
+
+      // Fallback if cannot determine the content type
+      if (contentType == null) {
+        contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+      }
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.add(HttpHeaders.CONTENT_DISPOSITION,
+          "attachment; filename=" + file.getFilename() + "\"");
+      headers.setContentType(MediaType.parseMediaType(contentType));
+      headers.setContentLength(Files.size(filePath));
+
+      return new ResponseEntity<>(file, headers, HttpStatus.OK);
+    } catch (IOException e) {
+      // Log the exception properly
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   /**
-   * Gets all the artifacts.
+   * Retrieves the metadata on an artifact given its ID.
    *
-   * @return The response entity
+   * @param artifactId the ID of the artifact to retrieve
+   * @return the response entity with the metadata of the artifact
    */
-  public ResponseEntity<?> getAllArtifacts() {
-    List<Artifact> artifacts = artifactRepository.findAll();
-    return ResponseEntity.status(HttpStatus.OK).body(artifactRepository.findAll());
-  }
+  public ResponseEntity<?> getArtifactMetadata(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
 
-  /**
-   * Deletes an artifact by its id.
-   *
-   * @param id the id of the artifact to delete
-   * @return The response entity
-   */
-  public ResponseEntity<?> deleteArtifact(String id) {
-    if (id == null || id.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id id null");
-    }
-    if (!artifactRepository.existsById(id)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
-    }
-
-    artifactRepository.deleteById(id);
-    if (!artifactRepository.existsById(id)) {
-      return ResponseEntity.status(HttpStatus.OK).body("Artifact deleted successfully");
-    } else {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Artifact not deleted");
-    }
-  }
-
-  /**
-   * Deletes a tag of an artifact.
-   *
-   * @param artifactId the id of the artifact which tag we want to delete
-   * @param tagId      the id of the tag to delete
-   * @return the response entity
-   */
-  public ResponseEntity<?> deleteTag(String artifactId, String tagId) {
-    if (artifactId == null || artifactId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
-    }
-    if (tagId == null || tagId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
-    }
-
+    // Retrieve the artifact
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    List<String> tagIds = artifact.getTags();
-    if (tagIds == null || tagIds.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact has no tags");
+    // Check if the user is authorized to view the artifact
+    User user = userRepository.findByUserId(getLoggedInUserId());
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
+        .contains(artifact.getTeamId()))) {
+      response.put("msg", "User is not authorized to view this artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
-    if (!tagIds.contains(tagId)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found in artifact");
-    }
+    // Convert the entity to a DTO
+    WholeArtifactDto artifactDto = ArtifactMapper.toWholeArtifactDto(artifact);
 
-    tagIds.remove(tagId);
-    artifact.setTags(tagIds);
-    artifactRepository.save(artifact);
-
-    return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
+    response.put("msg", "Artifact metadata retrieved successfully");
+    response.put("artifact", artifactDto);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
+
+  // PUT
+
+  // TODO: Properly implement update method
 
   /**
    * Modifies an existing artifact.
@@ -159,75 +254,284 @@ public class ArtifactService {
    * @return the response entity
    */
   public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
-    // ID check
-    if (artifactId == null || artifactId.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty");
-    }
+    Map<String, Object> response = new HashMap<>();
+    /*
+     * // ID check if (artifactId == null || artifactId.isEmpty()) { return
+     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artifact id is null or empty"); }
+     *
+     * // Artifact validation try { ArtifactCreateDto correctDto =
+     * validateArtifact(artifactModifyDto);
+     *
+     * Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId); if (artifact ==
+     * null) { return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found"); }
+     *
+     * artifact.setArtifactName(correctDto.artifactName());
+     * artifact.setContent(correctDto.content()); artifact.setTags(correctDto.tags());
+     *
+     * artifactRepository.save(artifact);
+     *
+     * return ResponseEntity.status(HttpStatus.OK).body("Artifact updated successfully");
+     *
+     * } catch (ArtifactValidationException e) { return
+     * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
+     */
 
-    // Artifact validation
-    try {
-      ArtifactCreateDto correctDto = validateArtifact(artifactModifyDto);
-
-      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
-      if (artifact == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artifact not found");
-      }
-
-      artifact.setArtifactName(correctDto.artifactName());
-      artifact.setContent(correctDto.content());
-      artifact.setTags(correctDto.tags());
-
-      artifactRepository.save(artifact);
-
-      return ResponseEntity.status(HttpStatus.OK).body("Artifact updated successfully");
-
-    } catch (ArtifactValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
+    response.put("msg", "Method not implemented yet");
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
   }
 
   /**
-   * Validates an artifact.
+   * Adds a tag to an artifact.
    *
-   * @param artifactDto the dto used to create the artifact
-   * @return the validated artifact
+   * @param dto the DTO containing the artifact id and the list of tag ids to add
+   * @return the response entity
    */
-  private ArtifactCreateDto validateArtifact(ArtifactCreateDto artifactDto) {
-    if (artifactDto == null) {
-      throw new ArtifactValidationException("ArtifactCreateDto is null");
-    }
-    String artifactName = artifactDto.artifactName();
-    String artifactContent = artifactDto.content();
-    List<String> artifactTags = artifactDto.tags();
+  public ResponseEntity<?> addTags(String artifactId, AddTagsToArtifactDto dto) {
+    Map<String, Object> response = new HashMap<>();
 
-    //artifact name validation
-    if (artifactName == null || artifactName.isEmpty()) {
-      throw new ArtifactValidationException("Artifact name cannot be null or empty");
+    // Validate the DTO
+    Set<ConstraintViolation<AddTagsToArtifactDto>> violations = validator.validate(dto);
+    if (!violations.isEmpty()) {
+      response.put("msg", "Invalid data");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    //artifact content validation
-    if (artifactContent == null || artifactContent.isEmpty()) {
-      throw new ArtifactValidationException("Artifact content cannot be null or empty");
+    // Check artifact
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+    // Retrieve the artifact
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    //artifact tags validation
-    if (artifactTags == null || artifactTags.isEmpty()) {
-      throw new ArtifactValidationException("Artifact tags cannot be null or empty");
-    }
-
-    for (String currentTagId : artifactTags) {
-      if (currentTagId == null || currentTagId.trim().isEmpty()) {
-        throw new ArtifactValidationException("There is an empty tag in this list. Remove it");
+    // Check tags
+    for (String tagId : dto.tagIds()) {
+      // Check if the tag id is null or empty
+      if (tagId == null || tagId.isEmpty()) {
+        response.put("msg", "Tag id is null or empty");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       }
-      currentTagId = currentTagId.trim(); //remove leading and trailing whitespaces
-      if (!tagRepository.existsById(currentTagId)) {
-        throw new ArtifactValidationException("Tag with id " + currentTagId + " does not exist");
-      }
-      //TODO Checks other constraints about tags
 
+      // Retrieve the tag
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      if (tag == null) {
+        response.put("msg", "Tag not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      // Check if the tag is already in the artifact
+      if (artifact.getTags().contains(tagId)) {
+        response.put("msg", "Tag already exists in artifact");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
+
+      // Check on the user adding the tag
+      User user = userRepository.findByUserId(getLoggedInUserId());
+      Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+      Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
+
+      if (!(project.getOwnerId().equals(user.getUserId()) || (
+          team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
+              .equals(user.getUserId())))) {
+        if (!project.getOwnerId().equals(user.getUserId())) {
+          response.put("msg", "User is not the project owner");
+          return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        } else {
+          response.put("msg", "User is not authorized to add this tag to the artifact");
+          return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+      }
     }
 
-    return new ArtifactCreateDto(artifactName, artifactContent, artifactTags);
+    // If all checks pass, add the tags to the artifact
+    for (String tagId : dto.tagIds()) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      tag.getArtifactIds().add(artifact.getArtifactId());
+      tagRepository.save(tag);
+
+      artifact.getTags().add(tagId);
+      artifactRepository.save(artifact);
+    }
+
+    response.put("msg", "Tags added successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
+
+  // DELETE
+
+  /**
+   * Deletes an artifact by its id.
+   *
+   * @param id the id of the artifact to delete
+   * @return The response entity
+   */
+  public ResponseEntity<?> deleteArtifact(String id) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the id is null or empty
+    if (id == null || id.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Check if the artifact exists and retrieve it
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(id);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Retrieve the project the artifact belongs to
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (project == null) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the project owner is the one deleting the artifact
+    if (!project.getOwnerId().equals(getLoggedInUserId())) {
+      response.put("msg", "User is not the project owner");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Retrieve the team the artifact belongs to
+    Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
+    if (team == null) {
+      response.put("msg", "Team not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Remove the artifact from the project
+    project.getArtifactIds().remove(artifact.getArtifactId());
+    projectRepository.save(project);
+
+    // Remove the artifact from the team
+    team.getArtifactIds().remove(artifact.getArtifactId());
+    teamRepository.save(team);
+
+    // Remove the artifact from the tags
+    for (String tagId : artifact.getTags()) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      tag.getArtifactIds().remove(artifact.getArtifactId());
+      tagRepository.save(tag);
+    }
+
+    // Delete the artifact from the database
+    artifactRepository.deleteArtifactByArtifactId(id);
+
+    // Delete the file from the system
+    try {
+      Path filePath = Paths.get(artifact.getFilePath());
+      Files.delete(filePath);
+    } catch (IOException e) {
+      response.put("msg", "File deletion failed");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    // Check if the artifact was deleted
+    if (!artifactRepository.existsById(id)) {
+      response.put("msg", "Artifact deleted successfully");
+      return ResponseEntity.status(HttpStatus.OK).body(response);
+    } else {
+      response.put("msg", "Artifact not deleted");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+  }
+
+  /**
+   * Removss a tag of an artifact.
+   *
+   * @param artifactId the id of the artifact which tag we want to remove
+   * @param tagId      the id of the tag to remove
+   * @return the response entity
+   */
+  public ResponseEntity<?> removeTag(String artifactId, String tagId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Check if the IDs are null or empty
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+    if (tagId == null || tagId.isEmpty()) {
+      response.put("msg", "Tag id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Retrieve the artifact
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the user is allowed to remove the tag (project owner or tag creator)
+    User user = userRepository.findByUserId(getLoggedInUserId());
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
+    Tag tag = tagRepository.findTagByTagId(tagId);
+    if (!(project.getOwnerId().equals(user.getUserId()) || (
+        team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
+            .equals(user.getUserId())))) {
+      response.put("msg", "User is not authorized to remove this tag from the artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Check if the tag is in the artifact
+    List<String> tagIds = artifact.getTags();
+    if (!tagIds.contains(tagId)) {
+      response.put("msg", "Tag not found in artifact");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Remove the artifact from the tag
+    tag.getArtifactIds().remove(artifactId);
+    tagRepository.save(tag);
+
+    // Remove the tag from the artifact
+    artifact.getTags().remove(tagId);
+    artifactRepository.save(artifact);
+
+    response.put("msg", "Tag removed successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  // UTILITY METHODS
+
+  private String getLoggedInUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new IllegalStateException("No authenticated user found");
+    }
+
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof CustomUserDetails(User user)) {
+      return user.getUserId();
+    }
+    throw new IllegalStateException(
+        "Unexpected authentication principal type: " + principal.getClass());
+  }
+
+  private String saveFile(MultipartFile file) throws IOException {
+    // Generate a unique file name by appending a UUID to the original file name.
+    String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+
+    // Construct the path where the file will be saved using the upload directory
+    // and the unique file name.
+    Path path = Paths.get(System.getProperty("user.dir"), "..", UPLOAD_DIR, uniqueFileName);
+
+    // Create any necessary directories in the path if they do not already exist.
+    Files.createDirectories(path.getParent());
+
+    // Transfer the contents of the multipart file to the target file on the file system.
+    file.transferTo(path.toFile());
+
+    // Return the path to the saved file as a string.
+    return path.toString();
+  }
+
 }

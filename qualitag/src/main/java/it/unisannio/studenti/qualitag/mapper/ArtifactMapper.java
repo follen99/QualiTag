@@ -1,8 +1,8 @@
 package it.unisannio.studenti.qualitag.mapper;
 
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
+import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.model.Artifact;
-import it.unisannio.studenti.qualitag.service.ArtifactService;
 
 /**
  * Mapper for the Artifact entity. Provides methods to convert between Artifact entities and
@@ -10,47 +10,34 @@ import it.unisannio.studenti.qualitag.service.ArtifactService;
  */
 public class ArtifactMapper {
 
-  private final ArtifactService artifactService;
-
   /**
-   * Constructs a new ArtifactMapper.
+   * Converts an ArtifactCreateDto to an Artifact entity.
    *
-   * @param artifactService the artifact service
+   * @param dto the DTO to convert
+   * @return the converted entity
    */
-  public ArtifactMapper(ArtifactService artifactService) {
-    this.artifactService = artifactService;
+  public static Artifact toEntity(ArtifactCreateDto dto) {
+    Artifact entity = new Artifact();
+    entity.setArtifactName(dto.artifactName());
+    entity.setDescription(dto.description());
+    entity.setProjectId(dto.projectId());
+    return entity;
   }
 
   /**
-   * Converts a ArtifactCreationDto to an Artifact entity.
+   * Converts an Artifact entity to a WholeArtifactDto.
    *
-   * @param dto The ArtifactCreationDto to convert
-   * @return The converted Artifact entity
+   * @param entity the entity to convert
+   * @return the converted DTO
    */
-  public Artifact toEntity(ArtifactCreateDto dto) {
-    if (dto == null) {
-      return null;
-    }
-    return new Artifact(
-        dto.artifactName(),
-        dto.content(),
-        dto.tags()
-    );
-  }
-
-  /**
-   * Converts an Artifact entity to a ArtifactCreationDto.
-   *
-   * @param entity The Artifact entity to convert
-   * @return The converted ArtifactCreationDto
-   */
-  public ArtifactCreateDto toDto(Artifact entity) {
-    if (entity == null) {
-      return null;
-    }
-    return new ArtifactCreateDto(
+  public static WholeArtifactDto toWholeArtifactDto(Artifact entity) {
+    return new WholeArtifactDto(
+        entity.getArtifactId(),
         entity.getArtifactName(),
-        entity.getContent(),
+        entity.getDescription(),
+        entity.getProjectId(),
+        entity.getTeamId(),
+        entity.getFilePath(),
         entity.getTags()
     );
   }

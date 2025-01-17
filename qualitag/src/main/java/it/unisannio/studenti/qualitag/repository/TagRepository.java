@@ -15,7 +15,7 @@ public interface TagRepository extends MongoRepository<Tag, String> {
    * @param value The username of the creator.
    * @return A list of tags created by the specified user.
    */
-  List<Tag> findTagByCreatedBy(String value);     // created by username
+  List<Tag> findTagByCreatedBy(String value); // created by username
 
   /**
    * Finds tags that contain the specified value.
@@ -24,4 +24,12 @@ public interface TagRepository extends MongoRepository<Tag, String> {
    * @return A list of tags containing the specified value.
    */
   List<Tag> findByTagValueContaining(String value);
+
+  /**
+   * Finds a tag by its ID.
+   *
+   * @param tagId The ID of the tag to find.
+   * @return The tag with the specified ID.
+   */
+  Tag findTagByTagId(String tagId);
 }

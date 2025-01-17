@@ -6,7 +6,9 @@ import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,8 +68,16 @@ public class AuthenticationController {
    * @return The response entity.
    */
   @PostMapping("/reset-password")
-  public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody
-      PasswordUpdateDto passwordUpdateDto) {
+  public ResponseEntity<?> resetPassword(@RequestParam String token,
+      @RequestBody PasswordUpdateDto passwordUpdateDto) {
     return authenticationService.resetPassword(token, passwordUpdateDto);
+  }
+
+  /**
+   * Checks the token.
+   */
+  @GetMapping("/check-token")
+  public ResponseEntity<?> checkToken() {
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }

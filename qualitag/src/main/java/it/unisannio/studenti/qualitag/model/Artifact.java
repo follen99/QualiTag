@@ -20,11 +20,20 @@ public class Artifact {
   @Field(targetType = FieldType.OBJECT_ID)
   private String artifactId;
 
-  @Field(name = "ArtifactName")
+  @Field(name = "artifactName")
   private String artifactName;
 
-  @Field(name = "ArtifactContent")
-  private String content;
+  @Field(name = "description")
+  private String description;
+
+  @Field(name = "projectId")
+  private String projectId;
+
+  @Field(name = "teamId")
+  private String teamId;
+
+  @Field(name = "filePath")
+  private String filePath;
 
   @Field(name = "artifactTags")
   private List<String> tags;
@@ -37,59 +46,43 @@ public class Artifact {
   }
 
   /**
-   * Constructor for Artifact.
+   * Constructor for Artifact, without description.
    *
-   * @param artifactName the name of the artifact
-   * @param content      the content of the artifact
+   * @param artifactName The name of the artifact
+   * @param projectId The id of the project the artifact belongs to
+   * @param teamId The id of the team the artifact belongs to
+   * @param filePath The path of the file of the artifact in the system
    */
-  public Artifact(String artifactName, String content) {
+  public Artifact(String artifactName, String projectId, String teamId, String filePath) {
     this.artifactName = artifactName;
-    this.content = content;
+    this.projectId = projectId;
+    this.teamId = teamId;
+    this.filePath = filePath;
+
     this.tags = new ArrayList<>();
   }
 
   /**
-   * Constructor for Artifact with tags.
+   * Constructor for Artifact, with description.
    *
-   * @param artifactName the name of the artifact
-   * @param content      the content of the artifact
-   * @param tags         the tags of the artifact
+   * @param artifactName The name of the artifact
+   * @param description The description of the artifact
+   * @param projectId The id of the project the artifact belongs to
+   * @param teamId The id of the team the artifact belongs to
+   * @param filePath The path of the file of the artifact in the system
    */
-  public Artifact(String artifactName, String content, List<String> tags) {
+  public Artifact(String artifactName, String description, String projectId, String teamId,
+      String filePath) {
     this.artifactName = artifactName;
-    this.content = content;
-    this.tags = tags;
+    this.description = description;
+    this.projectId = projectId;
+    this.teamId = teamId;
+    this.filePath = filePath;
+
+    this.tags = new ArrayList<>();
   }
 
-  /**
-   * Adds a tag to the artifact.
-   *
-   * @param tagId the id of the tag to add
-   */
-  public void addTagId(String tagId) {
-    this.tags.add(tagId);
-  }
-
-  /**
-   * Removes a tag from the artifact.
-   *
-   * @param tagId the id of the tag to remove
-   */
-  public void removeTagId(String tagId) {
-    this.tags.remove(tagId);
-  }
-
-  /**
-   * Checks if the artifact has a specific tag.
-   *
-   * @param tagId the id of the tag to check
-   * @return true if the artifact has the tag, false otherwise
-   */
-  public boolean isTagIdInArtifact(String tagId) {
-    return this.tags.contains(tagId);
-  }
-
-  //EQUALS AND HASHCODE
+  // EQUALS AND HASHCODE
 
   /**
    * Checks if two artifacts are equal.
@@ -124,12 +117,17 @@ public class Artifact {
    *
    * @return the string representation of the artifact
    */
+  @Override
   public String toString() {
     return "Artifact{"
         + "artifactId='" + artifactId + '\''
         + ", artifactName='" + artifactName + '\''
-        + ", content='" + content + '\''
-        + ", tagIds=" + tags
+        + ", description='" + description + '\''
+        + ", projectId='" + projectId + '\''
+        + ", teamId='" + teamId + '\''
+        + ", filePath='" + filePath + '\''
+        + ", tags=" + tags
         + '}';
   }
+
 }

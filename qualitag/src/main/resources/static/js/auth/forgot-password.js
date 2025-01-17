@@ -23,9 +23,11 @@ document.getElementById("forgotPasswordForm").addEventListener("submit", async f
 
     if (response.ok) {
       alert(responseData.msg || "Password reset email sent successfully.");
-      window.location.href = "/"; // Redirect to the home page
+      window.location.href = "/signin"; // Redirect to the home page
     } else {
-      alert("Error sending email. Please try again.");
+      if (responseData.msg) {
+        alert(responseData.msg);
+      } else alert("Error sending email. Please try again.");
     }
   } catch (error) {
     alert('An error occurred: ' + error.message);

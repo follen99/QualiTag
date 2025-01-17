@@ -1,0 +1,6 @@
+flask
+krippendorff
+numpy
+pylint
+pytest
+yapf

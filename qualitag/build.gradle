@@ -90,6 +90,12 @@ dependencies {
 
     // Dotenv
     implementation 'io.github.cdimascio:java-dotenv:5.2.1'
+
+    // For making HTTP requests to Python module
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // JSON
+    implementation 'org.json:json:20210307'
 }
 
 // Checkstyle configuration for Google Java Style

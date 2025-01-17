@@ -1,11 +1,14 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * The controller for the artifact endpoints.
  */
 @RestController
-@RequestMapping("/api/v1/artifacts")
+@RequestMapping("/api/v1/artifact")
 public class ArtifactController {
 
   private final ArtifactService artifactService;
@@ -39,33 +42,33 @@ public class ArtifactController {
    *
    * @param artifactCreateDto the artifact to add to the repository
    */
-  @PostMapping("/add")
-  public ResponseEntity<?> createArtifact(@RequestBody ArtifactCreateDto artifactCreateDto) {
+  @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<?> createArtifact(@ModelAttribute ArtifactCreateDto artifactCreateDto) {
     return this.artifactService.addArtifact(artifactCreateDto);
-  }
-
-  /**
-   * Adds a tag to an artifact.
-   *
-   * @param artifactId the id of the artifact
-   * @param tagId      the id of the tag
-   * @return the response entity
-   */
-  @PostMapping("/add/{artifactId}/tag/{tagId}")
-  public ResponseEntity<?> addTag(@PathVariable String artifactId, @PathVariable String tagId) {
-    return this.artifactService.addTag(artifactId, tagId);
   }
 
   // GET Methods
 
   /**
-   * Gets all the artifacts.
+   * Gets the artifact file when given the ID.
    *
+   * @param artifactId the id of the artifact to get
    * @return the response entity
    */
-  @GetMapping("/get")
-  public ResponseEntity<?> getAllArtifacts() {
-    return artifactService.getAllArtifacts();
+  @GetMapping("/{artifactId}")
+  public ResponseEntity<?> getArtifact(@PathVariable String artifactId) {
+    return this.artifactService.getArtifact(artifactId);
+  }
+
+  /**
+   * Gets the metadata of an artifact.
+   *
+   * @param artifactId the id of the artifact to get the metadata of
+   * @return the response entity
+   */
+  @GetMapping("/{artifactId}/metadata")
+  public ResponseEntity<?> getArtifactMetadata(@PathVariable String artifactId) {
+    return this.artifactService.getArtifactMetadata(artifactId);
   }
 
   // PUT Methods
@@ -73,14 +76,26 @@ public class ArtifactController {
   /**
    * Updates an artifact.
    *
-   * @param artifactId        the id of the artifact to update
+   * @param artifactId the id of the artifact to update
    * @param artifactCreateDto the updated artifact
    * @return the response entity
    */
-  @PutMapping("/update/{artifactId}")
+  @PutMapping("/{artifactId}")
   public ResponseEntity<?> updateArtifact(@PathVariable String artifactId,
       @RequestBody ArtifactCreateDto artifactCreateDto) {
     return this.artifactService.updateArtifact(artifactCreateDto, artifactId);
+  }
+
+  /**
+   * Adds a tag to an artifact.
+   *
+   * @param dto the dto containing the artifact id and the list of tag ids to add
+   * @return the response entity
+   */
+  @PutMapping("/{artifactId}/tag")
+  public ResponseEntity<?> addTags(@PathVariable String artifactId,
+      @RequestBody AddTagsToArtifactDto dto) {
+    return this.artifactService.addTags(artifactId, dto);
   }
 
   // DELETE Methods
@@ -90,21 +105,20 @@ public class ArtifactController {
    *
    * @param artifactId the id of the artifact to delete
    */
-  @DeleteMapping("/delete/{artifactId}")
+  @DeleteMapping("/{artifactId}")
   public ResponseEntity<?> deleteArtifact(@PathVariable String artifactId) {
     return this.artifactService.deleteArtifact(artifactId);
   }
 
   /**
-   * Deletes the associated tag.
+   * Removes the associated tag.
    *
-   * @param artifactId the id of the artifact to delete the tag from
-   * @param tagId      the id of the tag to delete
+   * @param artifactId the id of the artifact to remove the tag from
+   * @param tagId the id of the tag to remove
    * @return the response entity
    */
-  @DeleteMapping("/delete/{artifactId}/tag/{tagId}")
-  public ResponseEntity<?> deleteTag(@PathVariable String artifactId, @PathVariable String tagId) {
-    return this.artifactService.deleteTag(artifactId, tagId);
+  @DeleteMapping("/{artifactId}/tag/{tagId}")
+  public ResponseEntity<?> removeTag(@PathVariable String artifactId, @PathVariable String tagId) {
+    return this.artifactService.removeTag(artifactId, tagId);
   }
-
 }

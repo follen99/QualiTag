@@ -1,5 +1,7 @@
 package it.unisannio.studenti.qualitag.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,27 +19,39 @@ public class Tag {
   @MongoId
   @Field(targetType = FieldType.OBJECT_ID)
   private String tagId;
-  private String createdBy;   // user username (not user ID)
+
+  @Field(name = "createdBy")
+  private String createdBy;
+
+  @Field(name = "tagValue")
   private String tagValue;
+
+  @Field(name = "colorHex")
   private String colorHex;
+
+  @Field(name = "artifactIds")
+  private List<String> artifactIds;
 
   /**
    * Default constructor.
    */
   public Tag() {
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
    * Constructor with a specific tag color (hex).
    *
-   * @param tagValue    the value of the tag
-   * @param createdBy   the ID of the user
+   * @param tagValue the value of the tag
+   * @param createdBy the ID of the user
    * @param tagColorHex the color of the tag
    */
   public Tag(String tagValue, String createdBy, String tagColorHex) {
-    this.tagValue = tagValue.toUpperCase();   // tag values are always uppercase
+    this.tagValue = tagValue.toUpperCase(); // tag values are always uppercase
     this.createdBy = createdBy;
     this.colorHex = tagColorHex;
+
+    this.artifactIds = new ArrayList<>();
   }
 
   /**
@@ -54,7 +68,7 @@ public class Tag {
   /**
    * Compares this tag to another object. Ignores tagValue case.
    *
-   * <p>Example: equals(new Tag("tag1", "user1", "color1"), new Tag("TAG1", "user1", "color1"))
+   * <p>Example: equals(new Tag("tag1", "user1", "color1"), new Tag("TAG1", "user1", "color1")) 
    * returns true.
    *
    * @param o The object to compare to.
@@ -66,21 +80,24 @@ public class Tag {
       return false;
     }
     Tag tag = (Tag) o;
-    return Objects.equals(tagId, tag.tagId) && Objects.equals(createdBy, tag.createdBy)
-        && Objects.equals(tagValue.toUpperCase(), tag.tagValue.toUpperCase()) && Objects.equals(
-        colorHex, tag.colorHex);
+    return Objects.equals(tagId, tag.tagId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(tagId, createdBy, tagValue, colorHex);
+    return Objects.hash(tagId);
   }
 
 
   // TO STRING
   @Override
   public String toString() {
-    return "Tag{" + "tagId='" + tagId + '\'' + ", createdBy='" + createdBy + '\'' + ", tagValue='"
-        + tagValue.toUpperCase() + '\'' + ", colorHex='" + colorHex + '\'' + '}';
+    return "Tag{" 
+      + "tagId='" + tagId + '\'' 
+      + ", createdBy='" + createdBy + '\'' 
+      + ", tagValue='" + tagValue.toUpperCase() + '\'' 
+      + ", colorHex='" + colorHex + '\'' 
+      + ", artifactIds=" + artifactIds
+      + '}';
   }
 }

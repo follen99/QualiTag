@@ -2,6 +2,7 @@ package it.unisannio.studenti.qualitag.controller;
 
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
 import it.unisannio.studenti.qualitag.service.ProjectService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,12 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
  * The ProjectController class is a REST controller that handles requests related to projects.
  */
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/api/v1/project")
 public class ProjectController {
 
   private final ProjectService projectService;
-
-  // POST
 
   /**
    * Constructs a new ProjectController.
@@ -39,22 +38,9 @@ public class ProjectController {
    *
    * @param projectCreateDto the project to add to the repository
    */
-  @PostMapping("/add")
+  @PostMapping()
   public ResponseEntity<?> createProject(@RequestBody ProjectCreateDto projectCreateDto) {
     return projectService.createProject(projectCreateDto);
-  }
-
-  /**
-   * Adds an artifact to a project.
-   *
-   * @param projectId  the id of the project
-   * @param artifactId the id of the artifact
-   * @return the response entity
-   */
-  @PostMapping("/add/{projectId}/artifact/{artifactId}")
-  public ResponseEntity<?> addArtifact(@PathVariable String projectId,
-      @PathVariable String artifactId) {
-    return projectService.addArtifact(projectId, artifactId);
   }
 
   /**
@@ -68,27 +54,29 @@ public class ProjectController {
     return projectService.closeProject(projectId);
   }
 
-  // GET
   /**
-   * Gets all the projects.
+   * Gets projects by their IDs.
    *
-   * @return the response entity
+   * @param projectIds The list of project IDs.
+   * @return The response entity with the list of project DTOs.
    */
-  @GetMapping("/get")
-  public ResponseEntity<?> getAllProjects() {
-    return projectService.getAllProjects();
+  @PostMapping("/get-by-ids")
+  public ResponseEntity<?> getProjectsByIds(@RequestBody List<String> projectIds) {
+    if (projectIds == null || projectIds.isEmpty()) {
+      return ResponseEntity.badRequest().body("Project IDs cannot be null or empty");
+    }
+    return projectService.getProjectsByIds(projectIds);
   }
 
   /**
-   * Gets all the projects created by a user with a given id.
+   * Retrieve a comprehensive DTO regarding the status of the whole project.
    *
-   * @param ownerId the id of the user to find the projects of
-   * @return the response entity
+   * @param projectId The ID of the project
+   * @return The DTO
    */
-
-  @GetMapping("/get/{ownerId}/status")
-  public ResponseEntity<?> getProjectsByOwnerId(@PathVariable String ownerId) {
-    return projectService.getProjectsByOwner(ownerId);
+  @GetMapping("/{projectId}/status/whole")
+  public ResponseEntity<?> getHumanReadableProjectStatus(@PathVariable String projectId) {
+    return projectService.getHumanReadableProjectStatus(projectId);
   }
 
   /**
@@ -97,7 +85,7 @@ public class ProjectController {
    * @param projectId the id of the project to find
    * @return the response entity
    */
-  @GetMapping("/{projectId}/status")
+  @GetMapping("/{projectId}")
   public ResponseEntity<?> getProjectByProjectId(@PathVariable String projectId) {
     return projectService.getProjectById(projectId);
   }
@@ -124,8 +112,6 @@ public class ProjectController {
     return projectService.getProjectsArtifacts(projectId);
   }
 
-  // PUT
-
   /**
    * Updates a project.
    *
@@ -133,20 +119,18 @@ public class ProjectController {
    * @param projectCreateDto the updated project
    * @return the response entity
    */
-  @PutMapping("/update/{projectId}")
+  @PutMapping("/{projectId}")
   public ResponseEntity<?> updateProject(@PathVariable String projectId,
       @RequestBody ProjectCreateDto projectCreateDto) {
     return projectService.updateProject(projectCreateDto, projectId);
   }
-
-  // DELETE
 
   /**
    * Deletes a project from the repository.
    *
    * @param projectId the id of the project to delete
    */
-  @DeleteMapping("/delete/{projectId}")
+  @DeleteMapping("/{projectId}")
   public ResponseEntity<?> deleteProject(@PathVariable String projectId) {
     return projectService.deleteProject(projectId);
   }

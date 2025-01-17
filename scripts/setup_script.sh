@@ -12,8 +12,8 @@ echo "Setup directory unzipped."
 
 # Copy all content of the directory setup to the current directory
 cp -r -f setup/* setup/.* .
-echo "Contents of setup directory copied to current directory."
+echo -e "\nContents of setup directory copied to current directory."
 
 # Delete the directory setup
 rm -rf setup
-echo "Setup directory deleted."
+echo -e "\nSetup directory deleted."

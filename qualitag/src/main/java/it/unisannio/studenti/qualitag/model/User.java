@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.model;
 
+import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,14 +78,13 @@ public class User {
   /**
    * Constructs a new User.
    *
-   * @param username     The username of the user
-   * @param email        The email address of the user
+   * @param username The username of the user
+   * @param email The email address of the user
    * @param passwordHash The hashed password of the user
-   * @param name         The first name of the user
-   * @param surname      The last name of the user
+   * @param name The first name of the user
+   * @param surname The last name of the user
    */
-  public User(String username, String email, String passwordHash, String name,
-      String surname) {
+  public User(String username, String email, String passwordHash, String name, String surname) {
     this.username = username;
     this.email = email;
     this.passwordHash = passwordHash;
@@ -120,16 +120,9 @@ public class User {
 
   @Override
   public String toString() {
-    return "User{"
-        + "userId='" + userId + '\''
-        + ", username='" + username + '\''
-        + ", email='" + email + '\''
-        + ", name='" + name + '\''
-        + ", surname='" + surname + '\''
-        + ", projectIds=" + projectIds
-        + ", teamIds=" + teamIds
-        + ", tagIds=" + tagIds
-        + ", roles=" + projectRoles
+    return "User{" + "userId='" + userId + '\'' + ", username='" + username + '\'' + ", email='"
+        + email + '\'' + ", name='" + name + '\'' + ", surname='" + surname + '\'' + ", projectIds="
+        + projectIds + ", teamIds=" + teamIds + ", tagIds=" + tagIds + ", roles=" + projectRoles
         + '}';
   }
 
@@ -141,8 +134,29 @@ public class User {
    */
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return projectRoles.entrySet().stream()
-        .map(entry -> new SimpleGrantedAuthority(
-            entry.getKey() + ":" + entry.getValue()))
+        .map(entry -> new SimpleGrantedAuthority(entry.getKey() + ":" + entry.getValue()))
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Returns a map of project IDs to roles as strings.
+   *
+   * @return Map of project IDs to roles.
+   */
+  public Map<String, String> getProjectRolesAsString() {
+    return projectRoles.entrySet().stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().name()));
+  }
+
+  /**
+   * Converts the user to a UserSortResponseDTO.
+   *
+   * @return The UserSortResponseDTO.
+   */
+  public UserShortResponseDto toUserShortResponseDto() {
+    if (projectRoles == null) {
+      projectRoles = new HashMap<>();
+    }
+    return new UserShortResponseDto(username, email, name, surname, getProjectRolesAsString());
   }
 }

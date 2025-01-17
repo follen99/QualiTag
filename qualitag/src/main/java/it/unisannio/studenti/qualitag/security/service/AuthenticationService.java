@@ -5,6 +5,7 @@ import it.unisannio.studenti.qualitag.dto.user.ForgotPasswordDto;
 import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserLoginDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
+import it.unisannio.studenti.qualitag.dto.user.UserResponseDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
@@ -52,8 +53,8 @@ public class AuthenticationService {
    * @return true if the user registration data is valid, false otherwise.
    */
   public boolean isValidUserRegistration(UserRegistrationDto userRegistrationDto) {
-    Set<ConstraintViolation<UserRegistrationDto>> violations = validator.validate(
-        userRegistrationDto);
+    Set<ConstraintViolation<UserRegistrationDto>> violations =
+        validator.validate(userRegistrationDto);
 
     return violations.isEmpty();
   }
@@ -64,7 +65,7 @@ public class AuthenticationService {
    *
    * @param username The username of the user to check.
    * @return true if the currently authenticated user has the authority to access the user with the
-   *      specified username, false otherwise.
+   *         specified username, false otherwise.
    */
   public static boolean getAuthority(String username) {
     // Get the currently authenticated user
@@ -82,8 +83,7 @@ public class AuthenticationService {
    * @return true if the user login data is valid, false otherwise.
    */
   public boolean isValidUserLogin(UserLoginDto userLoginDto) {
-    Set<ConstraintViolation<UserLoginDto>> violations = validator.validate(
-        userLoginDto);
+    Set<ConstraintViolation<UserLoginDto>> violations = validator.validate(userLoginDto);
 
     return violations.isEmpty();
   }
@@ -134,8 +134,7 @@ public class AuthenticationService {
     }
 
     // Send email
-    new GmailService().sendMail("QualiTag Registration",
-        request.email(),
+    new GmailService().sendMail("QualiTag Registration", request.email(),
         "Thank you for registering to QualiTag!");
 
     // Map the new user from the request
@@ -179,8 +178,8 @@ public class AuthenticationService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(),
-        request.usernameOrEmail());
+    User user =
+        userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
     if (user == null) {
       response.put("msg", "Invalid email or password.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -189,10 +188,25 @@ public class AuthenticationService {
     // Generate a JWT token
     String jwt = jwtService.generateToken(new CustomUserDetails(user));
 
-    // Return the OK status and the JWT token
+    // Return all the user data
+    /*
+     * response.put("msg", "User logged in successfully."); response.put("token", jwt);
+     * response.put("username", user.getUsername()); response.put("user-email", user.getEmail());
+     * response.put("user-role", user.getProjectRoles()); response.put("user-firstname",
+     * user.getName()); response.put("user-lastname", user.getSurname());
+     * response.put("user-projectIds", user.getProjectIds()); response.put("user-teamIds",
+     * user.getTeamIds()); response.put("user-tagIds", user.getTeamIds());
+     */
+    UserResponseDto returnDto = new UserResponseDto(user.getUsername(), user.getEmail(),
+        user.getName(), user.getSurname(), user.getProjectIds(), user.getTeamIds(),
+        user.getTagIds(), user.getProjectRolesAsString());
+
     response.put("msg", "User logged in successfully.");
     response.put("token", jwt);
-    response.put("username", user.getUsername());
+    response.put("user", returnDto);
+
+
+
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -220,8 +234,7 @@ public class AuthenticationService {
 
     // Send email with reset link
     String resetLink = "http://localhost:8080/reset-password?token=" + resetToken;
-    new GmailService().sendMail("QualiTag Password Reset",
-        dto.email(),
+    new GmailService().sendMail("QualiTag Password Reset", dto.email(),
         "Click the following link to reset your password: " + resetLink);
 
     response.put("msg", "Password reset email sent successfully.");

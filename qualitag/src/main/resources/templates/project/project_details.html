@@ -1,80 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Details</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Project details</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
+  <link rel="stylesheet" href="/css/homepage/custom-button.css">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
+  <link rel="stylesheet" href="/css/project/styles.css">
+
+  <!-- script to reuse the navbar -->
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <title>My Projects</title>
+
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+
+  <style>
+    .button-custom {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5em 1.5em;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border: none;
+      border-radius: 2em;
+      width: 8em;
+    }
+
+    .adaptive-dropdown-menu {
+      width: auto; /* Allow the dropdown to adjust its width based on content */
+      min-width: 300px; /* Optional: Set a minimum width */
+    }
+  </style>
 </head>
 <body>
-<h2>Project Details</h2>
-<div id="projectDetails">
-  <p><strong>Project Name:</strong> <span id="projectName"></span></p>
-  <p><strong>Description:</strong> <span id="projectDescription"></span></p>
-  <p><strong>Creation Date:</strong> <span id="creationDate"></span></p>
-  <p><strong>Deadline:</strong> <span id="deadline"></span></p>
-</div>
+<!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
+<div id="nav-placeholder"></div>
+<script>
+  $(function () {
+    // Carica dinamicamente il contenuto
+    $("#nav-placeholder").load("/assets/html/nav.html", function () {
+      // Il contenuto è stato caricato, ora esegui il codice JavaScript
+      const navBarEvent = new Event('navbarLoaded');
+      console.log("navbar event dispatched");
+      document.dispatchEvent(navBarEvent);
+
+      // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+      // Esegui eventuali altre operazioni JavaScript per la navbar qui
+    });
+  });
+</script>
+<!--end of Navigation bar-->
+
+<section class="py-5">
+  <div class="container py-5">
+    <div class="row mb-4 mb-lg-5">
+      <div class="col-md-8 col-xl-6 text-center mx-auto">
+        <h2 class="fw-bold">Project Details</h2>
+      </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-8 col-xl-10">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body text-center d-flex flex-column align-items-center">
+                <h5 class="card-title" id="projectName">Project Name</h5>
+                <p class="card-text" id="projectDescription">Project Description</p>
+                <p class="card-text text-muted" id="projectStartingDate">Starting date:
+                  YYYY-MM-DD</p>
+                <p class="card-text text-muted" id="projectDeadline">Deadline: YYYY-MM-DD</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body text-center d-flex flex-column align-items-center">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title">Owner:</h5>
+                  </div>
+                  <div class="col">
+                    <p class="card-text text-muted" id="projectOwner">####</p>
+                  </div>
+                </div>
+                <!--users-->
+                <div class="dropdown">
+                  <button class="button-custom dropdown-toggle" type="button"
+                          id="dropdownMenuButtonUsers" data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                    Users
+                  </button>
+                  <ul class="adaptive-dropdown-menu dropdown-menu" aria-labelledby="ddmenuUsers">
+                    <!-- list of users-->
+                  </ul>
+                </div>
+
+                <!--teams-->
+                <div class="dropdown">
+                  <button class="button-custom dropdown-toggle" type="button"
+                          id="dropdownMenuButtonTeams" data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                    Teams
+                  </button>
+                  <ul class="adaptive-dropdown-menu dropdown-menu" aria-labelledby="ddmenuTeams">
+                    <!-- list of teams -->
+                  </ul>
+                </div>
+
+                <!--artifacts-->
+                <div class="dropdown">
+                  <button class="button-custom dropdown-toggle" type="button"
+                          id="dropdownMenuButtonArtifacts" data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                    Artifacts
+                  </button>
+                  <ul class="adaptive-dropdown-menu dropdown-menu"
+                      aria-labelledby="ddmenuArtifacts">
+                    <!--list of artifacts-->
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function (){
-    const wholeProject = localStorage.getItem('wholeproject');
-    if (wholeProject) {
-      const project = JSON.parse(wholeProject);
-      document.getElementById('projectName').textContent = project.projectName;
-      document.getElementById('projectDescription').textContent = project.projectDescription;
-
-      const creationDate = new Date(project.projectCreationDate * 1000);
-      const deadline = new Date(project.projectDeadline * 1000);
-      const secondsElapsed = (project.projectDeadline - project.projectCreationDate);
-      console.log('Seconds elapsed:', secondsElapsed);
-      const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-
-      document.getElementById('creationDate').textContent = creationDate.toLocaleString('it-IT', dateOptions);
-      document.getElementById('deadline').textContent = deadline.toLocaleString('it-IT', dateOptions) + " (" + getTimeElapsedString(secondsElapsed) + ")";
-    }
-  })
-
-  function getTimeElapsedString(secondsElapsed){
-    switch (true) {
-      case (secondsElapsed < 60):
-        return secondsElapsed + ' seconds';
-      case (secondsElapsed >= 60 && secondsElapsed < 3600):
-        return '~ ' + Math.floor(secondsElapsed / 60) + ' minutes';
-      case (secondsElapsed >= 3600 && secondsElapsed < 86400):
-        return '~ ' + Math.floor(secondsElapsed / 3600) + ' hours';
-      case (secondsElapsed >= 86400 && secondsElapsed < 604800):
-        return '~ ' + Math.floor(secondsElapsed / 86400) + ' days';
-      case (secondsElapsed >= 604800 && secondsElapsed < 2592000):
-        return '~ ' + Math.floor(secondsElapsed / 604800) + ' weeks';
-      case (secondsElapsed >= 2592000 && secondsElapsed < 31536000):
-        return '~ ' + Math.floor(secondsElapsed / 2592000) + ' months';
-      case (secondsElapsed >= 31536000):
-        return '~ ' + Math.floor(secondsElapsed / 31536000) + ' years';
-    }
-  }
-</script>
-<!--<script>
   document.addEventListener('DOMContentLoaded', function () {
-    const projectId = window.location.pathname.split('/').pop();
-    const authToken = localStorage.getItem('authToken');
-    fetch(`/api/v1/projects/${projectId}`, {
+    // Token validation
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert('You are not logged in. Please log in first.');
+      window.location.href = '/signin';
+    }
+
+    // Fetch project details
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('id');
+
+    fetch(`/api/v1/project/${projectId}/status/whole`, {
+      method: 'GET',
       headers: {
-        'Authorization': 'Bearer ' + authToken
+        'Authorization': `Bearer ${token}`
       }
     })
     .then(response => {
-      if (response.status === 403 || response.status === 404) {
-        window.location.href = '/404'; // Redirect to 404 page
-        throw new Error('Unauthorized access or project not found');
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          // get error message
+          console.log("Error message: " + errorData.msg);
+          alert(errorData.msg);
+        });
       }
-      return response.json();
+      return response.json(); // Se la risposta è ok, continua con il parsing dei dati
     })
     .then(project => {
-      document.getElementById('projectName').textContent = project.projectName;
-      document.getElementById('projectDescription').textContent = project.projectDescription;
-      document.getElementById('projectStatus').textContent = project.projectStatus;
+      console.log("fetched project" + JSON.stringify(project));
+
+      /**
+       * ESEMPIO PROJECT:
+       * {"projectName":"TestProject",
+       * "projectDescription":"This is an example project description.",
+       * "projectCreationDate":1733765196271,
+       * "projectDeadline":1733766196271,
+       * "ownerId":"67536ef2fa84d0533c3a577d",
+       * "projectStatus":"NO_INFO",
+       * "users":["67536ef2fa84d0533c3a577c",
+       * "67536ef2fa84d0533c3a577d"],
+       * "artifacts":["675722b683828100658177c1"],
+       * "teams":["6753782aebf3c97069ad69a4"]}
+       */
+
+      document.getElementById('projectName').innerText = project.projectName;
+      document.getElementById('projectDescription').innerText = project.projectDescription;
+      document.getElementById('projectDeadline').innerText = `Deadline: ${new Date(
+          project.projectDeadline).toLocaleDateString()}`;
+      document.getElementById('projectStartingDate').innerText = `Deadline: ${new Date(
+          project.projectCreationDate).toLocaleDateString()}`;
+
+      // TODO add a card to display more infos about the owner
+      document.getElementById('projectOwner').innerText = project.owner.username;
+
+      // adding user list
+      const usersDropdown = document.querySelector('#dropdownMenuButtonUsers + .dropdown-menu');
+      usersDropdown.innerHTML = ''; // Clear existing items
+
+      project.users.forEach(user => {
+        // Creating an element <li> for each user
+        const userItem = document.createElement('li');
+
+        // Creating SVG icon
+        const icon = document.createElement('span');
+        icon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                        </svg>
+                    `;
+        icon.style.marginLeft = '1em';
+
+        // Adding SVG icon to <li>
+        userItem.appendChild(icon);
+
+        // Adding username
+        const username = document.createElement('span');
+        username.textContent = user.username;
+        username.style.marginLeft = '0.3em';
+
+        // adding username to <li>
+        userItem.appendChild(username);
+
+        // adding <li> to dropdown
+        usersDropdown.appendChild(userItem);
+      });
+
+      // adding team list
+      const teamsDropdown = document.querySelector('#dropdownMenuButtonTeams + .dropdown-menu');
+      teamsDropdown.innerHTML = ''; // Clear existing items
+
+      project.teams.forEach(team => {
+        // Creating an element <li> for each team
+        const teamItem = document.createElement('li');
+
+        // Creating SVG icon
+        const icon = document.createElement('span');
+        icon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-microsoft-teams" viewBox="0 0 16 16">
+                          <path d="M9.186 4.797a2.42 2.42 0 1 0-2.86-2.448h1.178c.929 0 1.682.753 1.682 1.682zm-4.295 7.738h2.613c.929 0 1.682-.753 1.682-1.682V5.58h2.783a.7.7 0 0 1 .682.716v4.294a4.197 4.197 0 0 1-4.093 4.293c-1.618-.04-3-.99-3.667-2.35Zm10.737-9.372a1.674 1.674 0 1 1-3.349 0 1.674 1.674 0 0 1 3.349 0m-2.238 9.488-.12-.002a5.2 5.2 0 0 0 .381-2.07V6.306a1.7 1.7 0 0 0-.15-.725h1.792c.39 0 .707.317.707.707v3.765a2.6 2.6 0 0 1-2.598 2.598z"/>
+                          <path d="M.682 3.349h6.822c.377 0 .682.305.682.682v6.822a.68.68 0 0 1-.682.682H.682A.68.68 0 0 1 0 10.853V4.03c0-.377.305-.682.682-.682Zm5.206 2.596v-.72h-3.59v.72h1.357V9.66h.87V5.945z"/>
+                        </svg>
+                    `;
+        icon.style.marginLeft = '1em';
+
+        // Adding SVG icon to <li>
+        teamItem.appendChild(icon);
+
+        // Adding team
+        const teamName = document.createElement('span');
+        teamName.textContent = team.teamName;
+        teamName.style.marginLeft = '0.3em';
+
+        // adding teamName to <li>
+        teamItem.appendChild(teamName);
+
+        // adding <li> to dropdown
+        teamsDropdown.appendChild(teamItem);
+      });
+
+      // adding team list
+      const artifactsDropdown = document.querySelector(
+          '#dropdownMenuButtonArtifacts + .dropdown-menu');
+      artifactsDropdown.innerHTML = ''; // Clear existing items
+
+      project.artifacts.forEach(artifact => {
+        // Creating an element <li> for each team
+        const teamItem = document.createElement('li');
+
+        // Creating SVG icon
+        const icon = document.createElement('span');
+        icon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-card-text" viewBox="0 0 16 16">
+                          <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
+                          <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8m0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/>
+                        </svg>
+                    `;
+        icon.style.marginLeft = '1em';
+
+        // Adding SVG icon to <li>
+        teamItem.appendChild(icon);
+
+        // Adding team
+        const artifactName = document.createElement('span');
+        artifactName.textContent = artifact.artifactName;
+        artifactName.style.marginLeft = '0.3em';
+
+        // adding artifactName to <li>
+        teamItem.appendChild(artifactName);
+
+        // adding <li> to dropdown
+        artifactsDropdown.appendChild(teamItem);
+      });
+
     })
-    .catch(error => console.error('Error fetching project data:', error));
+    .catch(error => {
+      console.error('Error:', error);
+    });
+
   });
-</script>-->
+</script>
+
+<script type="module" src="/js/user/nav-bar-logic.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/bold-and-dark.js"></script>
+
 </body>
 </html>

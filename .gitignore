@@ -44,3 +44,16 @@ qualitag/config/mongo/*
 
 # Zip files
 *.zip
+
+# Folder of artifacts
+artifacts/
+
+# Ignore vim
+*~
+*.swp
+*.swo
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/

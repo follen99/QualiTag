@@ -1,0 +1,56 @@
+name: Deploy with Docker
+
+on:
+  push:
+    paths:
+      - '.github/workflows/docker.yml'
+      - 'docker-compose.yaml'
+  workflow_run:
+    workflows: [ "Python CI", "Java CI" ]
+    types:
+      - completed
+  pull_request:
+    branches:
+      - '**'
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        run: |
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+  
+      - name: Copy .env in qualitag directory
+        run: cp .env qualitag/.env
+  
+      - name: Create certificate files for HTTPS
+        run: |
+          mkdir -p qualitag/src/main/resources/credentials/certs
+          echo "${{ secrets.KEYSTORE_CONTENT }}" | base64 -d > qualitag/src/main/resources/credentials/certs/keystore.p12
+
+      - name: Build Docker image
+        run: docker compose build
+  
+      - name: Run Docker Compose
+        run: docker compose up -d
+        
+      - name: Run tests
+        run: |
+          docker compose exec -T qualitag-java ./gradlew test
+          docker compose exec -T qualitag-python pytest
+  
+      - name: Tear down Docker environment
+        run: docker compose down

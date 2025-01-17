@@ -1,8 +1,15 @@
+/*
+* ATTENTION!
+* This script was used to fetch user data from the server, but it is no longer needed,
+* since the user data is now stored in the localStorage object after login.
+* */
+
 document.addEventListener('DOMContentLoaded', function () {
   const authToken = localStorage.getItem('authToken');
 
   // if we don't handle this case, an exception will be thrown
   if (!authToken) {
+    alert('You must be logged in to access this page.');
     window.location.href = '/signin';
     return;
   }

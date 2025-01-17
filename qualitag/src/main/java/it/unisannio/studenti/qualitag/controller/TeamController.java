@@ -35,20 +35,9 @@ public class TeamController {
    * @param teamCreateDto the DTO containing the team's information
    * @return a ResponseEntity containing the result of the operation
    */
-  @PostMapping("/add/{projectId}")
-  public ResponseEntity<?> addTeam(@RequestBody TeamCreateDto teamCreateDto,
-      @PathVariable String projectId) {
-    return this.teamService.addTeam(teamCreateDto, projectId);
-  }
-
-  /**
-   * Retrieves all teams from the database.
-   *
-   * @return a ResponseEntity containing the result of the operation
-   */
-  @GetMapping("/get/all")
-  public ResponseEntity<?> getAllTeams() {
-    return this.teamService.getAllTeams();
+  @PostMapping()
+  public ResponseEntity<?> addTeam(@RequestBody TeamCreateDto teamCreateDto) {
+    return this.teamService.addTeam(teamCreateDto);
   }
 
   /**
@@ -74,12 +63,23 @@ public class TeamController {
   }
 
   /**
+   * Gets the IRR of a team.
+   *
+   * @param teamId The team ID.
+   * @return The response entity.
+   */
+  @GetMapping("/{teamId}/irr")
+  public ResponseEntity<?> getTeamIrr(@PathVariable String teamId) {
+    return this.teamService.getTeamIrr(teamId);
+  }
+
+  /**
    * Deletes a team by its ID.
    *
    * @param teamId The team ID.
    * @return The response entity.
    */
-  @DeleteMapping("/delete/{teamId}")
+  @DeleteMapping("/{teamId}")
   public ResponseEntity<?> deleteTeam(@PathVariable String teamId) {
     return this.teamService.deleteTeam(teamId);
   }

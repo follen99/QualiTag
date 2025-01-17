@@ -1,5 +1,7 @@
 package it.unisannio.studenti.qualitag.model;
 
+import it.unisannio.studenti.qualitag.dto.project.ProjectInfoDto;
+import it.unisannio.studenti.qualitag.dto.project.WholeProjectDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,20 +36,20 @@ public class Project {
   @Field(name = "projectDeadline")
   private Long projectDeadline;
 
-  @Field(name = "projectOwner")
+  @Field(name = "projectOwnerId")
   private String ownerId;
 
   @Field(name = "projectStatus")
   private ProjectStatus projectStatus;
 
-  @Field(name = "projectUsers")
-  private List<String> users;
+  @Field(name = "projectUsersIds")
+  private List<String> userIds;
 
-  @Field(name = "projectTeams")
-  private List<String> teams;
+  @Field(name = "projectTeamsIds")
+  private List<String> teamIds;
 
-  @Field(name = "projectArtifacts")
-  private List<String> artifacts;
+  @Field(name = "projectArtifactsIds")
+  private List<String> artifactIds;
 
   /**
    * Constructor for Project with no users, teams or artifacts.
@@ -56,8 +58,8 @@ public class Project {
    * @param projectDescription The project's description
    * @param projectDeadline    The project's deadline
    */
-  public Project(String projectName, String projectDescription,
-      Long projectCreationDate, Long projectDeadline, String ownerId, List<String> users) {
+  public Project(String projectName, String projectDescription, Long projectCreationDate,
+      Long projectDeadline, String ownerId, List<String> userIds) {
     this.projectName = projectName;
     this.projectDescription = projectDescription;
     this.projectCreationDate = projectCreationDate;
@@ -65,38 +67,9 @@ public class Project {
     this.ownerId = ownerId;
     this.projectStatus = ProjectStatus.OPEN;
 
-    this.users = users;
-    this.teams = new ArrayList<>();
-    this.artifacts = new ArrayList<>();
-  }
-
-  // TODO: Constructor with all args is never used, probably should be removed
-
-  /**
-   * Constructor for Project with a list of users, teams and artifacts as well as the ownerId.
-   *
-   * @param projectName        The project's name
-   * @param projectDescription The project's description
-   * @param projectDeadline    The project's deadline
-   * @param ownerId            The id of the owner of the project
-   * @param users              The ids of the users in the project
-   * @param teams              The ids of the teams in the project
-   * @param artifacts          The ids of the artifacts in the project
-   */
-  public Project(String projectName, String projectDescription,
-      Long projectCreationDate, Long projectDeadline, String ownerId,
-      List<String> users, List<String> teams, List<String> artifacts) {
-    this.projectName = projectName;
-    this.projectDescription = projectDescription;
-    this.projectCreationDate = projectCreationDate;
-    this.projectDeadline = projectDeadline;
-    this.ownerId = ownerId;
-
-    this.projectStatus = ProjectStatus.OPEN;
-
-    this.users = users;
-    this.teams = teams;
-    this.artifacts = artifacts;
+    this.userIds = userIds;
+    this.teamIds = new ArrayList<>();
+    this.artifactIds = new ArrayList<>();
   }
 
   // EQUALS AND HASHCODE
@@ -129,7 +102,46 @@ public class Project {
     return Objects.hash(projectId);
   }
 
-  // TO STRING
+  /**
+   * Converts this Project entity to a ResponseProjectDto.
+   *
+   * @return the ResponseProjectDto
+   */
+  public WholeProjectDto toResponseProjectDto() {
+    if (this.projectStatus == null) {
+      this.projectStatus = ProjectStatus.NO_INFO;
+    }
+    if (this.projectDescription == null) {
+      this.projectDescription = "";
+    }
+    if (this.projectName == null) {
+      this.projectName = "";
+    }
+
+    return new WholeProjectDto(this.projectName, this.projectDescription, this.projectCreationDate,
+        this.projectDeadline, this.ownerId, this.projectStatus.name(), this.userIds,
+        this.artifactIds, this.teamIds);
+  }
+
+  /**
+   * Converts this Project entity to a ProjectInfoDto.
+   *
+   * @return the ProjectInfoDto
+   */
+  public ProjectInfoDto toProjectInfoDto() {
+    if (this.projectStatus == null) {
+      this.projectStatus = ProjectStatus.NO_INFO;
+    }
+    if (this.projectDescription == null) {
+      this.projectDescription = "";
+    }
+    if (this.projectName == null) {
+      this.projectName = "";
+    }
+
+    return new ProjectInfoDto(this.projectName, this.projectDescription, this.projectStatus.name(),
+        this.projectId);
+  }
 
   /**
    * Gets the project as a string.
@@ -138,16 +150,9 @@ public class Project {
    */
   @Override
   public String toString() {
-    return "Project{"
-        + "projectId='" + projectId
-        + ", projectName='" + projectName
-        + ", projectDescription='" + projectDescription
-        + ", projectCreationDate=" + projectCreationDate
-        + ", projectDeadline=" + projectDeadline
-        + ", ownerId=" + ownerId
-        + ", usersIds=" + users
-        + ", teamsIds=" + teams
-        + ", artifactsIds=" + artifacts
-        + '}';
+    return "Project{" + "projectId='" + projectId + ", projectName='" + projectName
+        + ", projectDescription='" + projectDescription + ", projectCreationDate="
+        + projectCreationDate + ", projectDeadline=" + projectDeadline + ", ownerId=" + ownerId
+        + ", usersIds=" + userIds + ", teamsIds=" + teamIds + ", artifactsIds=" + artifactIds + '}';
   }
 }

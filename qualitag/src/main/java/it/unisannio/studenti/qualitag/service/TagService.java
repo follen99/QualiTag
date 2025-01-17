@@ -3,17 +3,29 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.constants.TagConstants;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagUpdateDto;
 import it.unisannio.studenti.qualitag.exception.TagValidationException;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
+import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Tag;
 import it.unisannio.studenti.qualitag.model.User;
+import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
 import it.unisannio.studenti.qualitag.repository.TagRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
-import java.util.ArrayList;
+import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,24 +33,17 @@ import org.springframework.transaction.annotation.Transactional;
  * Service to manage tags.
  */
 @Service
+@RequiredArgsConstructor
 public class TagService {
 
-  private final TagRepository tagRepository;
   private final TagMapper tagMapper;
+
+  private final ArtifactRepository artifactRepository;
+  private final TagRepository tagRepository;
   private final UserRepository userRepository;
 
-  /**
-   * Constructs a new TagService.
-   *
-   * @param tagRepository The tag repository.
-   * @param tagMapper     The tag mapper.
-   */
-  public TagService(TagRepository tagRepository, TagMapper tagMapper,
-      UserRepository userRepository) {
-    this.tagRepository = tagRepository;
-    this.tagMapper = tagMapper;
-    this.userRepository = userRepository;
-  }
+  private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+  private final Validator validator = factory.getValidator();
 
   /**
    * Adds a tag.
@@ -47,22 +52,27 @@ public class TagService {
    * @return The response entity.
    */
   @Transactional
-  public ResponseEntity<?> addTag(TagCreateDto tagCreateDto) {
-    // tag validation
-    //Map<String, Object> response = new HashMap<>();
+  public ResponseEntity<?> createTag(TagCreateDto tagCreateDto) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Tag validation
     try {
       TagCreateDto correctTagDto = validateTag(tagCreateDto);
       Tag tag = tagMapper.toEntity(correctTagDto);
 
       this.tagRepository.save(tag);
       if (this.addTagToUser(tag)) {
-        return ResponseEntity.status(HttpStatus.CREATED).body("Tag added successfully");
+        response.put("msg", "Tag added successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
       }
-      this.tagRepository.delete(tag); // rollback
 
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag already exists");
+      // If it was impossible to add the tag to the user, rollback
+      this.tagRepository.delete(tag);
+      response.put("msg", "Tag already exists");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     } catch (TagValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      response.put("msg", e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
   }
 
@@ -73,54 +83,55 @@ public class TagService {
    * @return True if the tag was added, false otherwise.
    */
   private boolean addTagToUser(Tag tag) {
-    User user = userRepository.findByUsername(tag.getCreatedBy());
+    // Retrieve user. Already validated earlier.
+    User user = userRepository.findByUserId(tag.getCreatedBy());
 
-    // if user is not found, try to find it by id
-    if (user == null) {
-      Optional<User> optionalUser = userRepository.findById(tag.getCreatedBy());
-      if (optionalUser.isPresent()) {
-        user = optionalUser.get();
-      } else {
-        // if we cannot find user even by id, return false
-        return false;                               // user does not exist
-      }
-    }
+    // Check if the user already has a tag with the same value
     List<String> userTagIds = user.getTagIds();
-
-    // simple check
-    if (userTagIds == null) {
-      return false;
-    }
-
-    if (userTagIds.contains(tag.getTagId())) {
-      return false;                               // tag ID already exists
-    }
-
-    List<String> userTagsValues = new ArrayList<>();
     for (String tagId : userTagIds) {
-      tagRepository.findById(tagId).ifPresent(userTag -> userTagsValues.add(userTag.getTagValue()));
-      if (userTagsValues.contains(tag.getTagValue())) {
-        return false;                             // tag value already exists
+      Tag userTag = tagRepository.findTagByTagId(tagId);
+      if (userTag.getTagValue().equals(tag.getTagValue())) {
+        return false;
       }
     }
 
-    userTagIds.add(tag.getTagId());             // add new tag to user
-    user.setTagIds(userTagIds);                 // set new tag list
-
-    // TODO: use a DTO instead of the entity
-    userRepository.save(user);                  // save user
+    // If all checks are passed, add the tag to the user
+    user.getTagIds().add(tag.getTagId());
+    userRepository.save(user);
     return true;
   }
 
 
   /**
-   * Gets all tags.
+   * Get a tag by its id.
    *
-   * @return The response entity.
+   * @param id The id of the tag to retrieve.
    */
-  public ResponseEntity<?> getAllTags() {
-    List<Tag> tags = tagRepository.findAll();
-    return ResponseEntity.status(HttpStatus.OK).body(tags);
+  public ResponseEntity<?> getTagById(String id) {
+    Map<String, Object> response = new HashMap<>();
+
+    // ID check
+    if (id == null || id.isEmpty()) {
+      response.put("msg", "Tag id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Retrieve tag
+    Tag tag = tagRepository.findById(id).orElse(null);
+    if (tag == null) {
+      response.put("msg", "Tag not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the logged user is the creator of the tag
+    if (!tag.getCreatedBy().equals(getLoggedInUserId())) {
+      response.put("msg", "You are not the creator of the tag");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    response.put("msg", "Tag found");
+    response.put("tag", tag);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   /**
@@ -130,48 +141,50 @@ public class TagService {
    * @return The response entity.
    */
   public ResponseEntity<?> deleteTag(String id) {
+    Map<String, Object> response = new HashMap<>();
+
+    // ID check
     if (id == null || id.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null");
+      response.put("msg", "Tag id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    if (!tagRepository.existsById(id)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found");
+    // Retrieve tag
+    Tag tag = tagRepository.findTagByTagId(id);
+    if (tag == null) {
+      response.put("msg", "Tag not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // Check if the logged user is the creator of the tag
+    if (!tag.getCreatedBy().equals(getLoggedInUserId())) {
+      response.put("msg", "You are not the creator of the tag");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Remove tag from user
+    User user = userRepository.findByUserId(tag.getCreatedBy());
+    user.getTagIds().remove(tag.getTagId());
+    userRepository.save(user);
+
+    // Remove tag from artifacts
+    for (String artifactId : tag.getArtifactIds()) {
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+      artifact.getTags().remove(tag.getTagId());
+      artifactRepository.save(artifact);
+    }
+
+    // Delete the tag
     tagRepository.deleteById(id);
+
+    // Check if the tag has been properly deleted
     if (!tagRepository.existsById(id)) {
-      return ResponseEntity.status(HttpStatus.OK).body("Tag deleted successfully");
+      response.put("msg", "Tag deleted successfully");
+      return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Tag not deleted");
+    response.put("msg", "Tag not deleted");
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
-
-  /**
-   * Gets a tag by its creator username.
-   *
-   * @param createdBy The username of the user that created the tag.
-   * @return The response entity.
-   */
-  public ResponseEntity<?> getTagsByCreatedByUsername(String createdBy) {
-    if (createdBy == null || createdBy.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("User information is null or empty");
-    }
-
-    if (!userRepository.existsByUsername(createdBy)) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
-    }
-
-    List<TagResponseDto> tags = tagMapper.getResponseDtoList(
-        tagRepository.findTagByCreatedBy(createdBy)
-    );
-    if (tags.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body("No tags found for the given creator");
-    }
-
-    return ResponseEntity.status(HttpStatus.OK).body(tags);
-  }
-
 
   /**
    * Gets tags by their value.
@@ -184,8 +197,8 @@ public class TagService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag value is null or empty");
     }
 
-    List<TagResponseDto> responseDtos = tagMapper.getResponseDtoList(
-        tagRepository.findByTagValueContaining(value.toUpperCase()));
+    List<TagResponseDto> responseDtos =
+        tagMapper.getResponseDtoList(tagRepository.findByTagValueContaining(value.toUpperCase()));
     if (responseDtos.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tags found for the given value");
     }
@@ -195,35 +208,58 @@ public class TagService {
   /**
    * Updates a tag.
    *
-   * @param tagModifyDto The tag to update.
-   * @param id           The id of the tag to update.
+   * @param tagUpdateDto The tag to update.
+   * @param id The id of the tag to update.
    * @return The response entity.
    */
-  public ResponseEntity<?> updateTag(TagCreateDto tagModifyDto, String id) {
+  public ResponseEntity<?> updateTag(TagUpdateDto tagUpdateDto, String id) {
+    Map<String, Object> response = new HashMap<>();
+
     // ID check
     if (id == null || id.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag id is null or empty");
+      response.put("msg", "Tag id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Tag validation
-    try {
-      TagCreateDto correctDto = validateTag(tagModifyDto);
+    Tag tag = tagRepository.findTagByTagId(id);
+    if (tag == null) {
+      response.put("msg", "Tag not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 
-      Tag tag = tagRepository.findById(id).orElse(null);
-      if (tag == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tag not found");
+    // Check if the logged user is the creator of the tag
+    if (!tag.getCreatedBy().equals(getLoggedInUserId())) {
+      response.put("msg", "You are not the creator of the tag");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    try {
+      // Validate DTO
+      TagUpdateDto correctedDto = validateUpdate(tagUpdateDto);
+
+      // Check that the user doesn't already have a tag with the same value
+      User user = userRepository.findByUserId(tag.getCreatedBy());
+      List<String> userTagIds = user.getTagIds();
+      for (String tagId : userTagIds) {
+        Tag userTag = tagRepository.findTagByTagId(tagId);
+        if (userTag.getTagValue().equals(correctedDto.tagValue())) {
+          throw new TagValidationException("User already has a tag with the same value");
+        }
       }
 
-      tag.setTagValue(correctDto.tagValue());
-      tag.setColorHex(correctDto.colorHex());
-      tag.setCreatedBy(correctDto.createdBy());
+      // Update tag
+      tag.setTagValue(correctedDto.tagValue());
+      tag.setColorHex(correctedDto.colorHex());
 
+      // Save tag
       tagRepository.save(tag);
 
-      return ResponseEntity.status(HttpStatus.OK).body("Tag updated successfully");
+      response.put("msg", "Tag updated successfully");
+      return ResponseEntity.status(HttpStatus.OK).body(response);
 
     } catch (TagValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      response.put("msg", e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
   }
 
@@ -234,19 +270,13 @@ public class TagService {
    * @return The corrected tag.
    */
   private TagCreateDto validateTag(TagCreateDto tagDto) {
-    if (tagDto == null) {
-      throw new TagValidationException("TagCreateDto is null");
+    // Validate DTO
+    if (!isValidTagCreateDto(tagDto)) {
+      throw new TagValidationException("Tag information is not valid");
     }
 
+    // Validate tag value length
     String tagValue = tagDto.tagValue();
-    if (tagDto.tagValue() == null || tagDto.tagValue().isEmpty()) {
-      throw new TagValidationException("Tag name is null");
-    }
-
-    // tag value validation
-    if (!tagValue.matches("\\w+")) {
-      throw new TagValidationException("Tag value must be a single word");
-    }
     if (tagValue.length() > TagConstants.MAX_TAG_VALUE_LENGTH) {
       throw new TagValidationException(
           "Tag value cannot be longer than " + TagConstants.MAX_TAG_VALUE_LENGTH + " characters");
@@ -256,13 +286,9 @@ public class TagService {
           "Tag value must be at least " + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long");
     }
 
-    // tag color validation
+    // Tag color validation
     // TODO color can be null or empty, just choose randomly, get from the TagMapper
     String tagColor = tagDto.colorHex();
-    if (tagColor == null || tagColor.isEmpty()) {
-      throw new TagValidationException("Tag color cannot be null or empty");
-    }
-
     int dynamicTagColorLength = TagConstants.TAG_COLOR_LENGTH;
     if (tagColor.startsWith("#")) {
       dynamicTagColorLength++;
@@ -270,9 +296,13 @@ public class TagService {
       tagColor = "#" + tagColor;
     }
 
-    tagColor = tagColor.toUpperCase();      // tag colors are always uppercase
-    tagColor = tagColor.replaceAll("\\s+", ""); // remove whitespaces
+    // Tag colour are always in uppercase
+    tagColor = tagColor.toUpperCase();
 
+    // Remove whitespaces
+    tagColor = tagColor.replaceAll("\\s+", "");
+
+    // Check if the tag color is a valid hexadecimal value
     if (tagColor.length() != dynamicTagColorLength) {
       throw new TagValidationException("Tag color cannot be longer than " + dynamicTagColorLength
           + " characters including '#' symbol.");
@@ -281,7 +311,7 @@ public class TagService {
       throw new TagValidationException("Tag color must be a hexadecimal value");
     }
 
-    // user validation
+    // User validation
     String createdBy = tagDto.createdBy();
     if (createdBy == null || createdBy.isEmpty()) {
       throw new TagValidationException("User information is null or empty");
@@ -291,5 +321,71 @@ public class TagService {
     }
 
     return new TagCreateDto(tagValue, createdBy, tagColor);
+  }
+
+  private TagUpdateDto validateUpdate(TagUpdateDto tagDto) {
+    Set<ConstraintViolation<TagUpdateDto>> violations = validator.validate(tagDto);
+
+    if (!violations.isEmpty()) {
+      throw new TagValidationException("Tag information is not valid");
+    }
+
+    // Validate tag value length
+    String tagValue = tagDto.tagValue();
+    if (tagValue.length() > TagConstants.MAX_TAG_VALUE_LENGTH) {
+      throw new TagValidationException(
+          "Tag value cannot be longer than " + TagConstants.MAX_TAG_VALUE_LENGTH + " characters");
+    }
+    if (tagValue.length() < TagConstants.MIN_TAG_VALUE_LENGTH) {
+      throw new TagValidationException(
+          "Tag value must be at least " + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long");
+    }
+
+    // Tag color validation
+    // TODO color can be null or empty, just choose randomly, get from the TagMapper
+    String tagColor = tagDto.colorHex();
+    int dynamicTagColorLength = TagConstants.TAG_COLOR_LENGTH;
+    if (tagColor.startsWith("#")) {
+      dynamicTagColorLength++;
+    } else {
+      tagColor = "#" + tagColor;
+    }
+
+    // Tag colour are always in uppercase
+    tagColor = tagColor.toUpperCase();
+
+    // Remove whitespaces
+    tagColor = tagColor.replaceAll("\\s+", "");
+
+    // Check if the tag color is a valid hexadecimal value
+    if (tagColor.length() != dynamicTagColorLength) {
+      throw new TagValidationException("Tag color cannot be longer than " + dynamicTagColorLength
+          + " characters including '#' symbol.");
+    }
+    if (!tagColor.matches("^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")) {
+      throw new TagValidationException("Tag color must be a hexadecimal value");
+    }
+
+    return new TagUpdateDto(tagValue, tagColor);
+  }
+
+  private boolean isValidTagCreateDto(TagCreateDto tagCreateDto) {
+    Set<ConstraintViolation<TagCreateDto>> violations = validator.validate(tagCreateDto);
+
+    return violations.isEmpty();
+  }
+
+  private String getLoggedInUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new IllegalStateException("No authenticated user found");
+    }
+
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof CustomUserDetails(User user)) {
+      return user.getUserId();
+    }
+    throw new IllegalStateException(
+        "Unexpected authentication principal type: " + principal.getClass());
   }
 }

@@ -8,8 +8,9 @@ import java.util.List;
  */
 public record CompletedTeamCreateDto(
     @NotBlank String teamName,
+    @NotBlank String projectId,
     @NotBlank Long creationDate,
     @NotBlank String teamDescription,
-    List<String> users) {
+    List<String> userIds) {
 
 }

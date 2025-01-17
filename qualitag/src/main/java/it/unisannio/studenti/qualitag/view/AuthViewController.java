@@ -48,4 +48,5 @@ public class AuthViewController {
   public String resetPassword() {
     return "auth/reset_password";
   }
+
 }
