@@ -320,15 +320,7 @@ public class ProjectService {
       response.put("msg", "Project not found");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-
-    System.out.println(project);
-    User owner = userRepository.findByUserId(project.getOwnerId());
-    if (owner == null) {
-      response.put("msg", "Owner not found");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-    UserShortResponseDto ownerDto = owner.toUserShortResponseDto();
-
+    
     // users
     List<UserShortResponseDto> shorResponseUserDtos = new ArrayList<>();
     for (String userId : project.getUserIds()) {
@@ -360,9 +352,12 @@ public class ProjectService {
       wholeArtifactDtos.add(ArtifactMapper.toWholeArtifactDto(artifact));
     }
 
-    System.out.println("artifacts: " + wholeArtifactDtos);
-
-    WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
+    User owner = userRepository.findByUserId(project.getOwnerId());
+    if (owner == null) {
+      response.put("msg", "Owner not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    UserShortResponseDto ownerDto = owner.toUserShortResponseDto();
 
     return ResponseEntity.status(HttpStatus.OK).body(
         new WholeProjectHeavyDto(project.getProjectName(), project.getProjectDescription(),
