@@ -375,8 +375,7 @@ public class ProjectService {
         response.put("msg", "Artifact with ID " + artifactId + " not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      // FIXME: WholeArtifactDto
-      // wholeArtifactDtos.add(artifact.toWholeArtifactDto());
+      wholeArtifactDtos.add(artifact.toWholeArtifactDto());
     }
 
     User owner = userRepository.findByUserId(project.getOwnerId());
