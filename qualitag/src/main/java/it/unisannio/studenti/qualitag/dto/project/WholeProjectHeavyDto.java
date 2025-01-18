@@ -9,6 +9,7 @@ import java.util.List;
  * DTO used for project creation in the system.
  */
 public record WholeProjectHeavyDto(
+        String projectId,
         String projectName,
         String projectDescription,
         long projectCreationDate,

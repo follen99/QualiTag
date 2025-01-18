@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Create Project</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
+  <link rel="stylesheet" href="/css/homepage/custom-button.css">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
+  <link rel="stylesheet" href="/css/project/styles.css">
+
+  <!-- script to reuse the navbar -->
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <title>My Projects</title>
+
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+
+  <style>
+    .button-custom {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5em 1.5em;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border: none;
+      border-radius: 2em;
+      width: 8em;
+    }
+
+    .adaptive-dropdown-menu {
+      width: auto; /* Allow the dropdown to adjust its width based on content */
+      min-width: 300px; /* Optional: Set a minimum width */
+    }
+  </style>
+</head>
+<body>
+<!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
+<div id="nav-placeholder"></div>
+<script>
+  $(function () {
+    // Carica dinamicamente il contenuto
+    $("#nav-placeholder").load("/assets/html/nav.html", function () {
+      // Il contenuto è stato caricato, ora esegui il codice JavaScript
+      const navBarEvent = new Event('navbarLoaded');
+      console.log("navbar event dispatched");
+      document.dispatchEvent(navBarEvent);
+
+      // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+      // Esegui eventuali altre operazioni JavaScript per la navbar qui
+    });
+  });
+</script>
+<!--end of Navigation bar-->
+
+<section class="py-5">
+  <div class="container py-5">
+    <div class="row mb-4 mb-lg-5">
+      <div class="col-md-8 col-xl-6 text-center mx-auto">
+        <h2 class="fw-bold">Create new team</h2>
+      </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-8 col-xl-10">
+
+        <form id="createProjectForm">
+          <div class="mb-3">
+            <input type="text" class="form-control" id="teamName" name="teamName" placeholder="Team Name" required>
+          </div>
+          <div class="mb-3">
+            <textarea class="form-control" id="teamDescription" name="teamDescription" rows="3" placeholder="Team Description"></textarea>
+          </div>
+          <div class="mb-3">
+            <input type="email" class="form-control" id="userEmails" name="userEmails" placeholder="User Emails" multiple required>
+            <small class="form-text text-muted">Separate emails with commas.</small>
+          </div>
+          <button type="submit" class="btn btn-primary">Create Team</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+```html
+<script>
+  document.getElementById('createProjectForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const projectName = document.getElementById('teamName').value;
+    const projectDescription = document.getElementById('teamDescription').value;
+    const userEmails = document.getElementById('userEmails').value.split(',');
+    const teamId = window.location.href.split('/').slice(-2, -1)[0];
+
+    /*fetch('/api/v1/project', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      },
+      body: JSON.stringify({
+        projectName: projectName,
+        projectDescription: projectDescription,
+        deadlineDate: deadline,
+        userEmails: userEmails
+      })
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          alert(errorData.msg);
+        });
+      }
+    })
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });*/
+
+  });
+</script>
+```
+
+
+<script type="module" src="/js/user/nav-bar-logic.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/bold-and-dark.js"></script>
+
+</body>
+</html>

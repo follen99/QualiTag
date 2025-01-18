@@ -1,3 +1,5 @@
+let globalProjectData;
+
 document.addEventListener('DOMContentLoaded', function () {
   // Token validation
   const token = localStorage.getItem('authToken');
@@ -27,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return response.json(); // Se la risposta è ok, continua con il parsing dei dati
   })
   .then(project => {
+    globalProjectData = project;
     console.log("fetched project" + JSON.stringify(project));
 
     /**
@@ -37,8 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * "projectDeadline":1733766196271,
      * "ownerId":"67536ef2fa84d0533c3a577d",
      * "projectStatus":"NO_INFO",
-     * "users":["67536ef2fa84d0533c3a577c",
-     * "67536ef2fa84d0533c3a577d"],
+     * "users":["67536ef2fa84d0533c3a577c", "67536ef2fa84d0533c3a577d"],
      * "artifacts":["675722b683828100658177c1"],
      * "teams":["6753782aebf3c97069ad69a4"]}
      */
@@ -155,6 +157,15 @@ document.addEventListener('DOMContentLoaded', function () {
   })
   .catch(error => {
     console.error('Error:', error);
+  });
+
+  document.getElementById('newTeamButton').addEventListener('click', () => {
+    // Supponiamo che l'ID del team sia presente nel path attuale come ultimo segmento
+    // const currentPath = window.location.pathname;
+    // const teamId = currentPath.substring(currentPath.lastIndexOf('/') + 1);
+
+    // Reindirizza alla schermata di aggiunta del nuovo team con l'ID del team attuale come parametro
+    window.location.href = `/team/${globalProjectData.projectId}/create`;
   });
 
 });

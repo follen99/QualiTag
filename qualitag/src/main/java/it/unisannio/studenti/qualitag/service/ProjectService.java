@@ -361,7 +361,7 @@ public class ProjectService {
     UserShortResponseDto ownerDto = owner.toUserShortResponseDto();
 
     return ResponseEntity.status(HttpStatus.OK).body(
-        new WholeProjectHeavyDto(project.getProjectName(), project.getProjectDescription(),
+        new WholeProjectHeavyDto(projectId, project.getProjectName(), project.getProjectDescription(),
             project.getProjectCreationDate(), project.getProjectDeadline(), ownerDto,
             project.getProjectStatus().name(), shorResponseUserDtos, wholeArtifactDtos,
             wholeTeamDtos));
