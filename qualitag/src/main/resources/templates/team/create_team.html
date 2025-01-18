@@ -95,22 +95,22 @@
   document.getElementById('createProjectForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const projectName = document.getElementById('teamName').value;
-    const projectDescription = document.getElementById('teamDescription').value;
+    const teamName = document.getElementById('teamName').value;
+    const teamDescription = document.getElementById('teamDescription').value;
     const userEmails = document.getElementById('userEmails').value.split(',');
-    const teamId = window.location.href.split('/').slice(-2, -1)[0];
+    const projectId = window.location.href.split('/').slice(-2, -1)[0];
 
-    /*fetch('/api/v1/project', {
+    fetch('/api/v1/team', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.getItem('authToken')
       },
       body: JSON.stringify({
-        projectName: projectName,
-        projectDescription: projectDescription,
-        deadlineDate: deadline,
-        userEmails: userEmails
+        teamName: teamName,
+        teamDescription: teamDescription,
+        userEmails: userEmails,
+        projectId: projectId
       })
     })
     .then(response => {
@@ -118,14 +118,14 @@
         return response.json().then(errorData => {
           alert(errorData.msg);
         });
+      }else {
+        alert('Team created successfully!');
+        window.location.href = `/project/detail?id=${projectId}`;
       }
-    })
-    .then(data => {
-      console.log('Success:', data);
     })
     .catch((error) => {
       console.error('Error:', error);
-    });*/
+    });
 
   });
 </script>

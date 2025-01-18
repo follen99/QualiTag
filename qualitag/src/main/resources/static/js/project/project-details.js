@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const projectId = urlParams.get('id');
 
   fetch(`/api/v1/project/${projectId}/status/whole`, {
-    method: 'GET',
-    headers: {
+    method: 'GET', headers: {
       'Authorization': `Bearer ${token}`
     }
   })
@@ -46,17 +45,21 @@ document.addEventListener('DOMContentLoaded', function () {
      */
 
     document.getElementById('projectName').innerText = project.projectName;
-    document.getElementById('projectDescription').innerText = project.projectDescription;
-    document.getElementById('projectDeadline').innerText = `Deadline: ${new Date(
+    document.getElementById(
+        'projectDescription').innerText = project.projectDescription;
+    document.getElementById(
+        'projectDeadline').innerText = `Deadline: ${new Date(
         project.projectDeadline).toLocaleDateString()}`;
-    document.getElementById('projectStartingDate').innerText = `Deadline: ${new Date(
+    document.getElementById(
+        'projectStartingDate').innerText = `Deadline: ${new Date(
         project.projectCreationDate).toLocaleDateString()}`;
 
     // TODO add a card to display more infos about the owner
     document.getElementById('projectOwner').innerText = project.owner.username;
 
     // adding user list
-    const usersDropdown = document.querySelector('#dropdownMenuButtonUsers + .dropdown-menu');
+    const usersDropdown = document.querySelector(
+        '#dropdownMenuButtonUsers + .dropdown-menu');
     usersDropdown.innerHTML = ''; // Clear existing items
 
     project.users.forEach(user => {
@@ -88,7 +91,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // adding team list
-    const teamsDropdown = document.querySelector('#dropdownMenuButtonTeams + .dropdown-menu');
+    const teamsDropdown = document.querySelector(
+        '#dropdownMenuButtonTeams + .dropdown-menu');
     teamsDropdown.innerHTML = ''; // Clear existing items
 
     project.teams.forEach(team => {
@@ -160,11 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   document.getElementById('newTeamButton').addEventListener('click', () => {
-    // Supponiamo che l'ID del team sia presente nel path attuale come ultimo segmento
-    // const currentPath = window.location.pathname;
-    // const teamId = currentPath.substring(currentPath.lastIndexOf('/') + 1);
-
-    // Reindirizza alla schermata di aggiunta del nuovo team con l'ID del team attuale come parametro
+    // redirecting to create team page, passing the project id which is needed to link the team to the project
     window.location.href = `/team/${globalProjectData.projectId}/create`;
   });
 
