@@ -361,10 +361,17 @@ public class ProjectService {
     UserShortResponseDto ownerDto = owner.toUserShortResponseDto();
 
     return ResponseEntity.status(HttpStatus.OK).body(
-        new WholeProjectHeavyDto(projectId, project.getProjectName(), project.getProjectDescription(),
-            project.getProjectCreationDate(), project.getProjectDeadline(), ownerDto,
-            project.getProjectStatus().name(), shorResponseUserDtos, wholeArtifactDtos,
-            wholeTeamDtos));
+        new WholeProjectHeavyDto(
+                projectId, 
+                project.getProjectName(), 
+                project.getProjectDescription(),
+                project.getProjectCreationDate(), 
+                project.getProjectDeadline(), 
+                ownerDto,
+                project.getProjectStatus().name(), 
+                shorResponseUserDtos, 
+                wholeArtifactDtos,
+                wholeTeamDtos));
   }
 
   // PUT
@@ -560,6 +567,7 @@ public class ProjectService {
     // Delete teams using the proper service
     List<String> teamIds = projectToDelete.getTeamIds();
     for (String teamId : teamIds) {
+      System.out.println("Deleting teamId: " + teamId);
       teamService.deleteTeam(teamId);
     }
 

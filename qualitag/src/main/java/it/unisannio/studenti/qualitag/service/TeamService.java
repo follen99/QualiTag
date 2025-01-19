@@ -329,12 +329,6 @@ public class TeamService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // Check if the team is the only team in the project
-    if (project.getTeamIds().size() == 1) {
-      response.put("msg", "Cannot delete the only team in the project");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
     // Remove team from project
     project.getTeamIds().remove(teamId);
     projectRepository.save(project);
@@ -363,6 +357,7 @@ public class TeamService {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Team not deleted");
     }
 
+    System.out.println("Team deleted successfully.");
     return ResponseEntity.status(HttpStatus.OK).body("Team deleted successfully.");
   }
 
