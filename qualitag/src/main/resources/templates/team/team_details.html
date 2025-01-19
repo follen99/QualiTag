@@ -128,6 +128,7 @@
               <!-- dialog to edit mails              -->
 
               <!-- Bottone per aprire il dialog -->
+<!-- TODO: visualizzare o meno questo bottone nel caso in cui l'utente che visualizza la pagina puo effettivamente modificare la lista degli utenti del progetto.-->
               <button id="openDialogBtn" class="btn btn-primary" style="margin-bottom: 2em">Edit users</button>
 
 
@@ -186,6 +187,7 @@
 <script th:inline="javascript">
   // Lista di email da modificare
   let users = /*[[${team.users}]]*/ "";
+  let teamId = /*[[${team.teamId}]]*/ "";
 
   let emailList = users.map(user => user.email);
 
@@ -216,6 +218,23 @@
           + "\n\nPlease use the pattern:\nmail1, \nmail2, \nmailN.");
     } else {
       console.log("Nuova lista email:", emailList); // Log for testing
+
+      fetch("/api/v1/team/" + teamId + "/updateusers", {
+        method: 'PUT', headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
+          'Content-Type': 'application/json'
+        }, body: JSON.stringify(emailList)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("Emails updated successfully!");
+          emailDialog.hide(); // close the dialog
+        } else {
+          alert("Error updating emails: " + response.msg);
+        }
+      })
+      .catch(error => console.error('Error fetching user projects:', error));
+
       emailDialog.hide(); // Close the dialog
     }
   });

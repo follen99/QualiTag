@@ -3,6 +3,7 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.constants.TeamConstants;
 import it.unisannio.studenti.qualitag.dto.team.CompletedTeamCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
+import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.TeamMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
@@ -52,6 +53,42 @@ public class TeamService {
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
+
+
+  /**
+   * Updates the users of a team using the team ID and a list of user emails.
+   *
+   * @param teamId The team ID.
+   * @param userEmails The list of user emails.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> updateTeamUsers(String teamId, List<String> userEmails) {
+    Team team = this.teamRepository.findTeamByTeamId(teamId);
+    if (team == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Team not found");
+    }
+
+    List<String> userIds = new ArrayList<>();
+    for (String email : userEmails) {
+      User user = userRepository.findByEmail(email);
+      if (user == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with email " + email + " not found");
+      }
+      userIds.add(user.getUserId());
+    }
+
+    // updating user ids
+    team.setUserIds(userIds);
+
+    // saving on db
+    teamRepository.save(team);
+
+    // TODO: update the references in the users
+    // idea di implementazione per salvare computazione: fare una differenza tra gli id vecchi e i nuovi
+    // e fare un update solo per quelli che sono cambiati
+    return ResponseEntity.status(HttpStatus.OK).body("Team users updated successfully");
+  }
+
 
   private boolean validateTeamCreateDto(TeamCreateDto dto) {
     Set<ConstraintViolation<TeamCreateDto>> violations = validator.validate(dto);
