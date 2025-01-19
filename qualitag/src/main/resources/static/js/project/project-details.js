@@ -122,6 +122,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // adding <li> to dropdown
       teamsDropdown.appendChild(teamItem);
+
+      // adding click event listener on each team
+      /*teamItem.addEventListener('click', () => {
+        alert('fetching from: ' + `/team/${team.teamId}/details`);
+        fetch(`/team/${team.teamId}/details`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(team)
+        })
+        .then(response => response.text())
+        .then(html => {
+          document.open();
+          document.write(html);
+          document.close();
+        })
+        .catch(error => console.error('Error:', error));
+      });*/
+
+      teamItem.addEventListener('click', () => {
+        window.location.href = `/team/${team.teamId}/details`;
+      });
     });
 
     // adding team list

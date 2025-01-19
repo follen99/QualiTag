@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Team details</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
+  <link rel="stylesheet" href="/css/homepage/custom-button.css">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
+  <link rel="stylesheet" href="/css/project/styles.css">
+
+  <!-- script to reuse the navbar -->
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <title>Team Details</title>
+
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+
+  <style>
+    .button-custom {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5em 1.5em;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border: none;
+      border-radius: 2em;
+
+      /* text align center */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .common-button-size{
+      width: 10em;
+      height: 2.5em;
+      white-space: nowrap;  /* Avoid multiline */
+    }
+
+    .adaptive-dropdown-menu {
+      width: auto; /* Allow the dropdown to adjust its width based on content */
+      min-width: 300px; /* Optional: Set a minimum width */
+    }
+  </style>
+
+
+</head>
+<body>
+<!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
+<div id="nav-placeholder"></div>
+<script>
+  $(function () {
+    // Carica dinamicamente il contenuto
+    $("#nav-placeholder").load("/assets/html/nav.html", function () {
+      // Il contenuto è stato caricato, ora esegui il codice JavaScript
+      const navBarEvent = new Event('navbarLoaded');
+      console.log("navbar event dispatched");
+      document.dispatchEvent(navBarEvent);
+
+      // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+      // Esegui eventuali altre operazioni JavaScript per la navbar qui
+    });
+  });
+</script>
+<!--end of Navigation bar-->
+
+<section class="py-5">
+  <div class="container py-5">
+    <div class="row mb-4 mb-lg-5">
+      <div class="row">
+        <div class="col-md-8 col-xl-6 text-center mx-auto">
+          <h2 class="fw-bold">Team Details</h2>
+        </div>
+      </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-12 col-xl-12">
+        <div class="card">
+          <!--<div class="card-body">
+            <h5 class="card-title" th:text="${team.teamName}">Team Name</h5>
+            <p class="card-text"><strong>Team ID:</strong> <span th:text="${team.teamId}">teamId</span></p>
+            <p class="card-text"><strong>Project ID:</strong> <span th:text="${team.projectId}">projectId</span></p>
+            <p class="card-text"><strong>Creation Timestamp:</strong> <span th:text="${team.creationTimeStamp}">creationTimeStamp</span></p>
+            <p class="card-text"><strong>Team Description:</strong> <span th:text="${team.teamDescription}">teamDescription</span></p>
+            <h6>Users:</h6>
+            <ul>
+              <li th:each="user : ${team.users}" th:text="${user}">user</li>
+            </ul>
+          </div>-->
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script type="module" src="/js/user/nav-bar-logic.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/bold-and-dark.js"></script>
+
+<!--<script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>-->
+
+</body>
+</html>

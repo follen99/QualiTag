@@ -4,7 +4,10 @@ import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
+import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.model.User;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +22,23 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
   private final PasswordEncoder passwordEncoder;
+
+  /**
+   * Converts the user to a UserSortResponseDTO.
+   *
+   * @return The UserSortResponseDTO.
+   */
+  public static UserShortResponseDto toUserShortResponseDto(User user) {
+    Map<String, String> projectRoles = new HashMap<>();
+    if (user.getProjectRoles() != null) {
+      projectRoles = user.getProjectRolesAsString();
+    }
+    return new UserShortResponseDto(user.getUsername(),
+        user.getEmail(),
+        user.getName(),
+        user.getSurname(),
+        user.getProjectRolesAsString());
+  }
 
   /**
    * Converts a UserRegistrationDto to a User entity.
@@ -42,7 +62,7 @@ public class UserMapper {
   /**
    * Updates a User entity with the data from a UserModifyDto.
    *
-   * @param dto The UserRegistrationDto with the new data.
+   * @param dto    The UserRegistrationDto with the new data.
    * @param entity The User entity to update.
    */
   public void updateEntity(UserModifyDto dto, User entity) {
@@ -58,7 +78,7 @@ public class UserMapper {
   /**
    * Updates a User entity with the data from a PasswordUpdateDto.
    *
-   * @param dto The PasswordUpdateDto with the new password.
+   * @param dto    The PasswordUpdateDto with the new password.
    * @param entity The User entity to update.
    */
   public void updateEntity(PasswordUpdateDto dto, User entity) {
