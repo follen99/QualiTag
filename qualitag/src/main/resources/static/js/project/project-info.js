@@ -41,7 +41,19 @@ document.addEventListener('DOMContentLoaded', async function () {
 function displayProjects(projects) {
   const projectListContainer = document.getElementById('projectsList');
   projects.forEach(project => {
-    console.log('project:', project);
+    // encapsulate project data in a button so that it can be clicked
+    // make the button look like a card
+    const projectButton = document.createElement('button');
+    projectButton.className = 'project-button';
+    projectButton.style.border = 'none';
+    projectButton.style.background = 'none';
+    projectButton.style.padding = '0';
+    projectButton.style.margin = '0';
+    projectButton.style.width = '100%';
+    projectButton.style.textAlign = 'left';
+    projectButton.style.cursor = 'pointer';
+    projectButton.style.color = 'white';
+
     const projectCard = document.createElement('div');
     projectCard.className = 'project-card';
 
@@ -61,14 +73,16 @@ function displayProjects(projects) {
     projectCard.appendChild(projectDescription);
     projectCard.appendChild(projectStatus);
 
-    projectListContainer.appendChild(projectCard);
+    projectButton.appendChild(projectCard);
+    projectListContainer.appendChild(projectButton);
 
-    // Add click event listener
-    projectCard.addEventListener('click', () => {
+// Add click event listener
+    projectButton.addEventListener('click', () => {
       window.location.href = `/project/detail?id=${project.projectId}`;
     });
   });
 }
+
 
 function thereAreNoProjects() {
   const projectListContainer = document.getElementById('projectsList');

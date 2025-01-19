@@ -112,6 +112,7 @@
 
             <h6>Users:</h6>
             <ul>
+              <li th:if="${team.users.isEmpty()}">No users available</li>
               <li th:each="user : ${team.users}">
                 <span th:text="${user.username}">username</span> -
                 <span th:text="${user.email}">email</span> -
@@ -122,6 +123,7 @@
 
             <h6>Artifacts:</h6>
             <ul>
+              <li th:if="${team.artifacts.isEmpty()}">No artifacts available</li>
               <li th:each="artifact : ${team.artifacts}">
                 <span th:text="${artifact.artifactName}">artifactName</span>
               </li>

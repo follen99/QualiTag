@@ -97,7 +97,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     project.teams.forEach(team => {
       // Creating an element <li> for each team
+
       const teamItem = document.createElement('li');
+
+      // using a button so that the user can click on the team to see the details
+      // making the button look like a list item
+      const teamButton = document.createElement('button');
+      teamButton.style.display = 'list-item';
+      teamButton.style.listStyleType = 'none';
+      teamButton.style.padding = '0';
+      teamButton.style.margin = '0';
+      teamButton.style.border = 'none';
+      teamButton.style.background = 'none';
+      teamButton.style.textAlign = 'left';
+      teamButton.style.width = '100%';
+      teamButton.style.color = 'white';
 
       // Creating SVG icon
       const icon = document.createElement('span');
@@ -110,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
       icon.style.marginLeft = '1em';
 
       // Adding SVG icon to <li>
-      teamItem.appendChild(icon);
+      teamButton.appendChild(icon);
 
       // Adding team
       const teamName = document.createElement('span');
@@ -118,32 +132,14 @@ document.addEventListener('DOMContentLoaded', function () {
       teamName.style.marginLeft = '0.3em';
 
       // adding teamName to <li>
-      teamItem.appendChild(teamName);
+      teamButton.appendChild(teamName);
+      teamItem.appendChild(teamButton);
 
       // adding <li> to dropdown
       teamsDropdown.appendChild(teamItem);
 
-      // adding click event listener on each team
-      /*teamItem.addEventListener('click', () => {
-        alert('fetching from: ' + `/team/${team.teamId}/details`);
-        fetch(`/team/${team.teamId}/details`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(team)
-        })
-        .then(response => response.text())
-        .then(html => {
-          document.open();
-          document.write(html);
-          document.close();
-        })
-        .catch(error => console.error('Error:', error));
-      });*/
 
-      teamItem.addEventListener('click', () => {
+      teamButton.addEventListener('click', () => {
         window.location.href = `/team/${team.teamId}/details`;
       });
     });
