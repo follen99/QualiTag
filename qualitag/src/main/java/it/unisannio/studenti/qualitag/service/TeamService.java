@@ -23,6 +23,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,30 +64,61 @@ public class TeamService {
    * @return The response entity.
    */
   public ResponseEntity<?> updateTeamUsers(String teamId, List<String> userEmails) {
+    Map<String, Object> response = new HashMap<>();
+
     Team team = this.teamRepository.findTeamByTeamId(teamId);
     if (team == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Team not found");
+      response.put("msg", "Team not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    List<String> userIds = new ArrayList<>();
+    List<String> previousUserIds = new ArrayList<>(team.getUserIds());
+    List<String> newUserIds = new ArrayList<>();
+
     for (String email : userEmails) {
       User user = userRepository.findByEmail(email);
       if (user == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with email " + email + " not found");
+        response.put("msg", "User with email " + email + " not found");
+        System.out.println("Resp: " + response.get("msg"));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      userIds.add(user.getUserId());
+      newUserIds.add(user.getUserId());
     }
 
     // updating user ids
-    team.setUserIds(userIds);
+    team.setUserIds(newUserIds);
 
     // saving on db
     teamRepository.save(team);
 
-    // TODO: update the references in the users
-    // idea di implementazione per salvare computazione: fare una differenza tra gli id vecchi e i nuovi
-    // e fare un update solo per quelli che sono cambiati
-    return ResponseEntity.status(HttpStatus.OK).body("Team users updated successfully");
+    // Find and add team to new users
+    Set<String> addedUserIds = new HashSet<>(newUserIds);
+    previousUserIds.forEach(addedUserIds::remove);        // addedUserIds = newUserIds - previousUserIds
+    for (String userId : addedUserIds) {
+      User user = userRepository.findByUserId(userId);
+      if (user == null) {
+        response.put("msg", "User with ID " + userId + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      user.getTeamIds().add(teamId);
+      userRepository.save(user);
+    }
+
+    // find and remove team from old users
+    Set<String> removedUserIds = new HashSet<>(previousUserIds);
+    newUserIds.forEach(removedUserIds::remove);           // removedUserIds = previousUserIds - newUserIds
+    for (String userId : removedUserIds) {
+      User user = userRepository.findByUserId(userId);
+      if (user == null) {
+        response.put("msg", "User with ID " + userId + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      user.getTeamIds().remove(teamId);
+      userRepository.save(user);
+    }
+
+    response.put("msg", "Team users updated successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
 
