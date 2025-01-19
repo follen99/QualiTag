@@ -123,8 +123,6 @@
 
                       <!-- Button Edit Users -->
                       <div>
-                        <button id="openDialogButton" class="common-button-size button-custom me-2" style="background-color: #0d6efd;">Edit Users</button>
-
                         <!-- Modal -->
                         <div class="modal fade" id="textDialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                           <div class="modal-dialog">
@@ -212,21 +210,5 @@
 <script src="/assets/js/bold-and-dark.js"></script>
 <script src="/js/project/project-details.js"></script>
 
-<!--<script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>-->
-<script>
-  const openDialogButton = document.getElementById('openDialogButton');
-  const textDialog = new bootstrap.Modal(document.getElementById('textDialog'));
-  const confirmButton = document.getElementById('confirmButton');
-
-  openDialogButton.addEventListener('click', () => {
-    textDialog.show();
-  });
-
-  confirmButton.addEventListener('click', () => {
-    const userInput = document.getElementById('userInput').value;
-    console.log('User input:', userInput);
-    textDialog.hide();
-  });
-</script>
 </body>
 </html>
