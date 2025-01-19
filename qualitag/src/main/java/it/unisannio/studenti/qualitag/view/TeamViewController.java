@@ -1,15 +1,18 @@
 package it.unisannio.studenti.qualitag.view;
 
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
+import it.unisannio.studenti.qualitag.dto.project.ProjectInfoDto;
 import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import it.unisannio.studenti.qualitag.dto.team.WholeTeamHeavyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
+import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.model.Team;
 import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
+import it.unisannio.studenti.qualitag.repository.ProjectRepository;
 import it.unisannio.studenti.qualitag.repository.TeamRepository;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ public class TeamViewController {
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
   private final ArtifactRepository artifactRepository;
+  private final ProjectRepository projectRepository;
 
   /**
    * Returns the create team view.
@@ -68,6 +72,9 @@ public class TeamViewController {
       Team team = teamRepository.findById(teamId)
           .orElseThrow(() -> new NoSuchElementException("Team not found"));
 
+      Project project = projectRepository.findById(team.getProjectId())
+          .orElseThrow(() -> new NoSuchElementException("Project not found"));
+
       List<UserShortResponseDto> users = new ArrayList<>();
       List<WholeArtifactDto> artifacts = new ArrayList<>();
 
@@ -85,7 +92,10 @@ public class TeamViewController {
 
       responseTeam = new WholeTeamHeavyDto(
           teamId,
-          team.getProjectId(),
+          new ProjectInfoDto(project.getProjectName(),
+              project.getProjectDescription(),
+              project.getProjectStatus().name(),
+              project.getProjectId()),
           users,
           artifacts,
           team.getTeamName(),

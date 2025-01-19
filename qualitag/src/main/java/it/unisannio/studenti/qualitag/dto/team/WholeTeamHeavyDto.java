@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.dto.team;
 
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
+import it.unisannio.studenti.qualitag.dto.project.ProjectInfoDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public record WholeTeamHeavyDto(
         @NotBlank String teamId,
-        @NotBlank String projectId,
+        @NotBlank ProjectInfoDto project,
         @NotBlank List<UserShortResponseDto> users,
         List<WholeArtifactDto> artifacts,
         @NotBlank String teamName,

@@ -96,6 +96,37 @@
               <li th:each="user : ${team.users}" th:text="${user}">user</li>
             </ul>
           </div>-->
+          <div class="card-body">
+            <p class="card-text"><strong>Team Name:</strong> <span th:text="${team.teamName}">teamName</span></p>
+            <p class="card-text"><strong>Creation date:</strong> <span th:text="${#dates.format(team.creationTimeStamp, 'dd/MM/yyyy')}">creationTimeStamp</span></p>
+            <p class="card-text"><strong>Team Description:</strong> <span th:text="${team.teamDescription}">teamDescription</span></p>
+
+
+            <h6>Linked Team:</h6>
+            <p class="card-text">
+              <strong>Project Name:</strong> <span th:text="${team.project.projectName}">projectName</span> -
+              <strong>Project Description:</strong> <span th:text="${team.project.projectDescription}">projectDescription</span> -
+              <strong>Project Status:</strong> <span th:text="${team.project.projectStatus}">projectStatus</span>
+            </p>
+
+
+            <h6>Users:</h6>
+            <ul>
+              <li th:each="user : ${team.users}">
+                <span th:text="${user.username}">username</span> -
+                <span th:text="${user.email}">email</span> -
+                <span th:text="${user.name}">name</span>
+                <span th:text="${user.surname}">surname</span>
+              </li>
+            </ul>
+
+            <h6>Artifacts:</h6>
+            <ul>
+              <li th:each="artifact : ${team.artifacts}">
+                <span th:text="${artifact.artifactName}">artifactName</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
       </div>
@@ -109,6 +140,9 @@
 <script src="/assets/js/bold-and-dark.js"></script>
 
 <!--<script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>-->
+<script>
+
+</script>
 
 </body>
 </html>
