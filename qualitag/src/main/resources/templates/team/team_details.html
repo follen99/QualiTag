@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Team details</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
+  <link rel="stylesheet" href="/css/homepage/custom-button.css">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
+  <link rel="stylesheet" href="/css/project/styles.css">
+
+  <!-- script to reuse the navbar -->
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <title>Team Details</title>
+
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+
+  <style>
+    .button-custom {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5em 1.5em;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border: none;
+      border-radius: 2em;
+
+      /* text align center */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .common-button-size {
+      width: 10em;
+      height: 2.5em;
+      white-space: nowrap; /* Avoid multiline */
+    }
+
+    .adaptive-dropdown-menu {
+      width: auto; /* Allow the dropdown to adjust its width based on content */
+      min-width: 300px; /* Optional: Set a minimum width */
+    }
+  </style>
+
+
+</head>
+<body>
+<!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
+<div id="nav-placeholder"></div>
+<script>
+  $(function () {
+    // Carica dinamicamente il contenuto
+    $("#nav-placeholder").load("/assets/html/nav.html", function () {
+      // Il contenuto è stato caricato, ora esegui il codice JavaScript
+      const navBarEvent = new Event('navbarLoaded');
+      console.log("navbar event dispatched");
+      document.dispatchEvent(navBarEvent);
+
+      // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+      // Esegui eventuali altre operazioni JavaScript per la navbar qui
+    });
+  });
+</script>
+<!--end of Navigation bar-->
+
+<section class="py-5">
+  <div class="container py-5">
+    <div class="row mb-4 mb-lg-5">
+      <div class="row">
+        <div class="col-md-8 col-xl-6 text-center mx-auto">
+          <h2 class="fw-bold">Team Details</h2>
+        </div>
+      </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-12 col-xl-12">
+        <div class="card">
+          <div class="card-body">
+            <p class="card-text"><strong>Team Name:</strong> <span th:text="${team.teamName}">teamName</span>
+            </p>
+            <p class="card-text"><strong>Creation date:</strong> <span
+                th:text="${#dates.format(team.creationTimeStamp, 'dd/MM/yyyy')}">creationTimeStamp</span>
+            </p>
+            <p class="card-text"><strong>Team Description:</strong> <span
+                th:text="${team.teamDescription}">teamDescription</span></p>
+
+
+            <h6>Linked Team:</h6>
+            <p class="card-text">
+              <strong>Project Name:</strong> <span
+                th:text="${team.project.projectName}">projectName</span> -
+
+              <!--<script th:inline="javascript">
+                // var showtext = [[${team.project.projectName}]];
+                var showtext = /*[[${team.project.projectName}]]*/ "";
+                console.log("data from thymeleaf: " + showtext);
+              </script>-->
+
+              <strong>Project Description:</strong> <span
+                th:text="${team.project.projectDescription}">projectDescription</span> -
+              <strong>Project Status:</strong> <span th:text="${team.project.projectStatus}">projectStatus</span>
+            </p>
+
+
+            <div>
+              <h6>Users:</h6>
+
+              <ul>
+                <li th:if="${team.users.isEmpty()}">No users available</li>
+                <li th:each="user : ${team.users}">
+                  <span th:text="${user.username}">username</span> -
+                  <span th:text="${user.email}">email</span> -
+                  <span th:text="${user.name}">name</span>
+                  <span th:text="${user.surname}">surname</span>
+                </li>
+              </ul>
+
+              <!-- dialog to edit mails              -->
+
+              <!-- Bottone per aprire il dialog -->
+<!-- TODO: visualizzare o meno questo bottone nel caso in cui l'utente che visualizza la pagina puo effettivamente modificare la lista degli utenti del progetto.-->
+              <button id="openDialogBtn" class="btn btn-primary" style="margin-bottom: 2em">Edit users</button>
+
+
+              <!-- Dialog Bootstrap -->
+              <div class="modal fade" id="emailDialog" tabindex="-1"
+                   aria-labelledby="emailDialogLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="emailDialogLabel">
+                        Edit users who are part of the project
+                      </h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"
+                              aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                      <label for="emailList" class="form-label">
+                        Enter the email list (separate emails with a comma):
+                      </label>
+                      <textarea id="emailList" class="form-control" rows="5"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                        Cancel
+                      </button>
+                      <button id="saveEmailsBtn" type="button" class="btn btn-primary">
+                        Confirm
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+
+            <h6>Artifacts:</h6>
+            <ul>
+              <li th:if="${team.artifacts.isEmpty()}">No artifacts available</li>
+              <li th:each="artifact : ${team.artifacts}">
+                <span th:text="${artifact.artifactName}">artifactName</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- dialog to edit users -->
+<!-- do not move the script source otherwise it will not work (dk why) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+
+  let users = /*[[${team.users}]]*/ "";       // Array of users using thymeleaf
+  let teamId = /*[[${team.teamId}]]*/ "";     // Team ID using thymeleaf
+
+  let emailList = users.map(user => user.email);
+
+  // HTML elements
+  const openDialogBtn = document.getElementById("openDialogBtn");
+  const emailDialog = new bootstrap.Modal(document.getElementById("emailDialog"));
+  const emailTextArea = document.getElementById("emailList");
+
+  const saveEmailsBtn = document.getElementById("saveEmailsBtn");
+
+  // Opening the dialog
+  openDialogBtn.addEventListener("click", () => {
+    emailTextArea.value = emailList.join(",\n");
+    emailDialog.show(); // Mostra il dialog
+  });
+
+  // Saving the emails
+  saveEmailsBtn.addEventListener("click", () => {
+    // Update the email list from the textarea
+    emailList = emailTextArea.value.split(",").map(email => email.replace(/\s+/g, '')).filter(email => email);
+    // Check if all emails are correctly formatted
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const invalidEmails = emailList.filter(email => !emailPattern.test(email));
+
+    if (invalidEmails.length > 0) {
+      alert("Following emails are not correctly formatted:\n"
+          + invalidEmails.join(",")
+          + "\n\nPlease use the pattern:\nmail1, \nmail2, \nmailN.");
+    } else {
+      console.log("Nuova lista email:", emailList); // Log for testing
+
+      fetch("/api/v1/team/" + teamId + "/updateusers", {
+        method: 'PUT', headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
+          'Content-Type': 'application/json'
+        }, body: JSON.stringify(emailList)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("Users updated successfully!");
+          emailDialog.hide();   // close the dialog
+          location.reload();    // reload the page to show the updated emails
+        } else {
+          response.json().then(body => {
+            console.log("response: " + body.msg);
+            alert("Error updating emails: " + body.msg);
+          });
+        }
+      })
+      .catch(error => console.error('Error fetching user projects:', error));
+
+      emailDialog.hide(); // Close the dialog
+    }
+  });
+</script>
+
+<script type="module" src="/js/user/nav-bar-logic.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/bold-and-dark.js"></script>
+
+
+<!--<script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>-->
+
+<script>
+
+</script>
+
+</body>
+</html>
+
+
+<!--
+THYMELEAF USEFUL STUFF:
+[(${team.project.projectName})]; &ndash;&gt; --» thymeleaf just replaces the variable with the value (without quotes)
+[[${team.project.projectName}]]; &ndash;&gt; --» surrouds the value with quotes
+
+/*[[${team.project.projectName}]]*/ ""; --» usa un commento js per sintassi thymeleaf:
+tutto quello dopo il commento e prima del punto e virgola viene ignorato. il vantaggio è che non
+da errore.
+
+https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#javascript-inlining
+-->

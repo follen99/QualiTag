@@ -96,7 +96,7 @@
           </div>
           <div class="col-md-6">
             <div class="card">
-              <div class="card-body text-center d-flex flex-column align-items-center">
+              <div class="card-body text-start">
                 <div class="row">
                   <div class="col">
                     <h5 class="card-title">Owner:</h5>
@@ -106,21 +106,56 @@
                   </div>
                 </div>
                 <!--users-->
-                <div class="dropdown">
-                  <button class="common-button-size button-custom dropdown-toggle" type="button"
-                          id="dropdownMenuButtonUsers" data-bs-toggle="dropdown"
-                          aria-expanded="false">
-                    Users
-                  </button>
-                  <ul class="adaptive-dropdown-menu dropdown-menu" aria-labelledby="ddmenuUsers">
-                    <!-- list of users-->
-                  </ul>
+                <div class="row">
+                  <div class="col text-center">
+                    <div class="d-flex text-start">
+                      <!-- Bottone Users -->
+                      <div class="dropdown">
+                        <button class="common-button-size button-custom dropdown-toggle me-2" type="button"
+                                id="dropdownMenuButtonUsers" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                          Users
+                        </button>
+                        <ul class="adaptive-dropdown-menu dropdown-menu" aria-labelledby="ddmenuUsers">
+                          <!-- list of users-->
+                        </ul>
+                      </div>
+
+                      <!-- Button Edit Users -->
+                      <div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="textDialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Enter some text</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form id="dialogForm">
+                                  <div class="mb-3">
+                                    <label for="userInput" class="form-label">Text</label>
+                                    <input type="text" class="form-control" id="userInput" name="userInput">
+                                  </div>
+                                </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="confirmButton">Confirm</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
 
                 <!--teams-->
                 <div class="row">
                   <div class="col text-center">
-                    <div class="d-flex justify-content-center align-items-center">
+                    <div class="d-flex text-start">
                       <!-- Bottone Teams -->
                       <div>
                         <button class="common-button-size button-custom dropdown-toggle me-2" type="button"
@@ -135,7 +170,7 @@
 
                       <!-- Bottone New Team -->
                       <div>
-                        <button id="newTeamButton" type="button" class="common-button-size button-custom me-2">
+                        <button id="newTeamButton" type="button" class="common-button-size button-custom me-2" style="background-color: #0d6efd;">
                           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16" style="margin-right: 0.5em;">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
