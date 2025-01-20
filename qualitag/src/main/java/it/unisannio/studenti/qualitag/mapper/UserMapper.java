@@ -6,8 +6,6 @@ import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserRegistrationDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.model.User;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,10 +27,6 @@ public class UserMapper {
    * @return The UserSortResponseDTO.
    */
   public static UserShortResponseDto toUserShortResponseDto(User user) {
-    Map<String, String> projectRoles = new HashMap<>();
-    if (user.getProjectRoles() != null) {
-      projectRoles = user.getProjectRolesAsString();
-    }
     return new UserShortResponseDto(user.getUsername(),
         user.getEmail(),
         user.getName(),

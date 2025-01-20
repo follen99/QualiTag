@@ -1,7 +1,6 @@
 package it.unisannio.studenti.qualitag.controller;
 
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
-import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import it.unisannio.studenti.qualitag.service.TeamService;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -76,8 +75,16 @@ public class TeamController {
     return this.teamService.getTeamIrr(teamId);
   }
 
+  /**
+   * Updates the users of a team.
+   *
+   * @param teamId The team ID.
+   * @param userEmails The list of user emails.
+   * @return The response entity.
+   */
   @PutMapping("/{teamId}/updateusers")
-  public ResponseEntity<?> updateTeamUsers(@PathVariable String teamId, @RequestBody List<String> userEmails) {
+  public ResponseEntity<?> updateTeamUsers(@PathVariable String teamId,
+      @RequestBody List<String> userEmails) {
     return this.teamService.updateTeamUsers(teamId, userEmails);
   }
 

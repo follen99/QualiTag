@@ -3,7 +3,6 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.constants.TeamConstants;
 import it.unisannio.studenti.qualitag.dto.team.CompletedTeamCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
-import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import it.unisannio.studenti.qualitag.exception.TeamValidationException;
 import it.unisannio.studenti.qualitag.mapper.TeamMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
@@ -72,7 +71,6 @@ public class TeamService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    List<String> previousUserIds = new ArrayList<>(team.getUserIds());
     List<String> newUserIds = new ArrayList<>();
 
     for (String email : userEmails) {
@@ -93,7 +91,10 @@ public class TeamService {
 
     // Find and add team to new users
     Set<String> addedUserIds = new HashSet<>(newUserIds);
-    previousUserIds.forEach(addedUserIds::remove);        // addedUserIds = newUserIds - previousUserIds
+    List<String> previousUserIds = new ArrayList<>(team.getUserIds());
+
+    // addedUserIds = newUserIds - previousUserIds
+    previousUserIds.forEach(addedUserIds::remove);
     for (String userId : addedUserIds) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
@@ -106,7 +107,9 @@ public class TeamService {
 
     // find and remove team from old users
     Set<String> removedUserIds = new HashSet<>(previousUserIds);
-    newUserIds.forEach(removedUserIds::remove);           // removedUserIds = previousUserIds - newUserIds
+
+    // removedUserIds = previousUserIds - newUserIds
+    newUserIds.forEach(removedUserIds::remove);
     for (String userId : removedUserIds) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {

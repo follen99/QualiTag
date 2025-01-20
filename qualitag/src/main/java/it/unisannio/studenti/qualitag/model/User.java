@@ -1,6 +1,5 @@
 package it.unisannio.studenti.qualitag.model;
 
-import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;

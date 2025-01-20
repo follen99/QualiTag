@@ -2,7 +2,6 @@ package it.unisannio.studenti.qualitag.view;
 
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.dto.project.ProjectInfoDto;
-import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import it.unisannio.studenti.qualitag.dto.team.WholeTeamHeavyDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
@@ -23,10 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controller for the user views.
@@ -56,14 +52,6 @@ public class TeamViewController {
    *
    * @return the team details view
    */
-  /*@PostMapping("/{teamid}/details")
-  public String getTeamDetails(@PathVariable("teamid") String teamId,
-      @RequestBody WholeTeamDto team,
-      Model model) {
-    System.out.println("Team: " + team);
-    model.addAttribute("team", team);
-    return "team/team_details";
-  }*/
   @GetMapping("/{teamid}/details")
   public String getTeamDetails(@PathVariable("teamid") String teamId,
       Model model) {
