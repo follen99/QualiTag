@@ -17,22 +17,33 @@ unversioned_files=$(git ls-files --others --exclude-standard --ignored --directo
 echo -e "\nCopying unversioned files to the 'setup' directory..."
 for file in $unversioned_files;
 do
-    # Skip files in the .github directory
+    # Skip files in the .github directory and other specified patterns
     if [[ $file == .github* || \
             $file == .idea* || \
             $file == .vscode* || \
             $file == qualitag/.gradle* || \
             $file == qualitag/bin* || \
             $file == qualitag/build* || \
+            $file == qualitag_python/__pycache__* || \
+            $file == qualitag_python/.pytest_cache* || \
+            $file == qualitag_python/.venv* || \
             $file == artifacts* || \
-            $file == setup.zip* ]]; then
+            $file == setup.zip* || \
+            $file == *~ || \
+            $file == *.swp || \
+            $file == *.swo ]]; then
         continue
     fi
 
-    # Create the directory structure in "setup" if necessary
-    mkdir -p "setup/$(dirname "$file")"
-    # Copy the file or directory
-    cp -r "$file" "setup/$file"
+    if [ -d "$file" ]; then
+        echo -e "\nRecursively copying directory $file to setup/$file"
+        mkdir -p "setup/$(dirname "$file")"  # Ensure parent structure exists
+        cp -r "$file" "setup/$(dirname "$file")/"
+    elif [ -f "$file" ]; then
+        echo -e "\nCopying file $file to setup/$file"
+        mkdir -p "setup/$(dirname "$file")"  # Ensure parent structure exists
+        cp "$file" "setup/$file"
+    fi
 done
 
 echo -e  "\nUnversioned files have been copied to the 'setup' directory."
