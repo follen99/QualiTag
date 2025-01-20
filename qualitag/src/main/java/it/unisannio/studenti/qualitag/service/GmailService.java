@@ -26,10 +26,8 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -76,8 +74,12 @@ public class GmailService {
 
     // Create a temporary directory to store the credentials
     Path tempDir = Files.createTempDirectory("tokens");
-    try (InputStream in = getClass().getResourceAsStream("/credentials/tokens/StoredCredential")) {
-      Files.copy(in, tempDir.resolve("StoredCredential"), StandardCopyOption.REPLACE_EXISTING);
+
+    String resourcePath = "/credentials/tokens/StoredCredential";
+    if (isResourceFileExists(resourcePath)) {
+      try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
+        Files.copy(in, tempDir.resolve("StoredCredential"), StandardCopyOption.REPLACE_EXISTING);
+      }
     }
 
     // Build the authorization flow
@@ -94,18 +96,26 @@ public class GmailService {
     Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
     // Delete the temporary directory
-    try (Stream<Path> walk = Files.walk(tempDir)) {
-      walk.sorted(Comparator.reverseOrder())
-          .forEach(p -> {
-            try {
-              Files.delete(p);
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-          });
-    }
+    // try (Stream<Path> walk = Files.walk(tempDir)) {
+    //   walk.sorted(Comparator.reverseOrder())
+    //       .forEach(p -> {
+    //         try {
+    //           Files.delete(p);
+    //         } catch (IOException e) {
+    //           e.printStackTrace();
+    //         }
+    //       });
+    // }
 
     return credential;
+  }
+
+  private boolean isResourceFileExists(String resourcePath) {
+    try (InputStream resourceStream = getClass().getResourceAsStream(resourcePath)) {
+      return resourceStream != null;
+    } catch (IOException e) {
+      return false;
+    }
   }
 
   /**
