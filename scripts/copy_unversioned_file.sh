@@ -20,7 +20,6 @@ do
     # Skip files in the .github directory and other specified patterns
     if [[ $file == .github* || \
             $file == .idea* || \
-            $file == .vscode* || \
             $file == qualitag/.gradle* || \
             $file == qualitag/bin* || \
             $file == qualitag/build* || \
