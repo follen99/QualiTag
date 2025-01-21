@@ -73,6 +73,8 @@ export class LoadingModal {
     this.modalMessage.innerText = message || this.defaultMessage;
     this.loadingModal.show();
   }
+
+
   hideModal() {
     this.loadingModal.hide();
 

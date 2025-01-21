@@ -9,7 +9,7 @@ document.getElementById('registrationForm').addEventListener('submit',
       const formData = new FormData(event.target);
       const data = Object.fromEntries(formData.entries());
 
-      loadingModal.showModal(true);
+      loadingModal.showModal(null, true, false, false);
       try {
         // TODO: if mail system does not work, tell to user
         const response = await fetch('/api/v1/auth/register', {
