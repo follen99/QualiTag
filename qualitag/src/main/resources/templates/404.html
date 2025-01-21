@@ -23,7 +23,7 @@
 <script>
   $(function(){
     // Carica dinamicamente il contenuto
-    $("#nav-placeholder").load("/assets/html/nav.html", function() {
+    $("#nav-placeholder").load("/html/nav.html", function() {
       // Il contenuto è stato caricato, ora esegui il codice JavaScript
       const navBarEvent = new Event('navbarLoaded');
       console.log("navbar event dispatched");
