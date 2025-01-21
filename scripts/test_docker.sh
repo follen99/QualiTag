@@ -28,7 +28,7 @@ docker compose up -d
 
 # Run the tests
 echo -e "\n\nRunning the Java tests..."
-docker compose exec -T qualitag_java ./gradlew test
+docker compose exec -T qualitag-java ./gradlew test
 
 echo -e "\n\nRunning the Python tests..."
-docker compose exec -T qualitag_python pytest
+docker compose exec -T qualitag-python pytest

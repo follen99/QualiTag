@@ -5,7 +5,7 @@
  * - userProjects
  * - profileLink
  */
-import { refreshUserData } from './refresh-user-data.js';
+import { refreshUserData } from '../user/refresh-user-data.js';
 
 // If user is logged in, show the profile link and logout button
 document.addEventListener('navbarLoaded', async function () {

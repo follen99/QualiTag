@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Create Project</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-icons.css">
+  <link rel="stylesheet" href="/css/homepage/custom-button.css">
+  <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
+  <link rel="stylesheet" href="/css/project/styles.css">
+
+  <!-- script to reuse the navbar -->
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <title>My Projects</title>
+
+
+  <!-- Token validation -->
+  <script src="/js/auth/token-validation.js"></script>
+
+  <style>
+    .button-custom {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.5em 1.5em;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border: none;
+      border-radius: 2em;
+      width: 8em;
+    }
+
+    .adaptive-dropdown-menu {
+      width: auto; /* Allow the dropdown to adjust its width based on content */
+      min-width: 300px; /* Optional: Set a minimum width */
+    }
+  </style>
+</head>
+<body>
+<!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
+<div id="nav-placeholder"></div>
+<script>
+  $(function () {
+    // Carica dinamicamente il contenuto
+    $("#nav-placeholder").load("/assets/html/nav.html", function () {
+      // Il contenuto è stato caricato, ora esegui il codice JavaScript
+      const navBarEvent = new Event('navbarLoaded');
+      console.log("navbar event dispatched");
+      document.dispatchEvent(navBarEvent);
+
+      // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
+      // Esegui eventuali altre operazioni JavaScript per la navbar qui
+    });
+  });
+</script>
+<!--end of Navigation bar-->
+
+<section class="py-5">
+  <div class="container py-5">
+    <div class="row mb-4 mb-lg-5">
+      <div class="col-md-8 col-xl-6 text-center mx-auto">
+        <h2 class="fw-bold">Create new project</h2>
+      </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-8 col-xl-10">
+
+        <form id="createProjectForm">
+          <div class="mb-3">
+<!--            <label for="projectName" class="form-label">Project Name</label>-->
+            <input type="text" class="form-control" id="projectName" name="projectName" placeholder="Project Name" required>
+          </div>
+          <div class="mb-3">
+<!--            <label for="projectDescription" class="form-label">Project Description</label>-->
+            <textarea class="form-control" id="projectDescription" name="projectDescription" rows="3" placeholder="Project Description" required></textarea>
+          </div>
+          <div class="mb-3">
+<!--            <label for="deadline" class="form-label">Deadline</label>-->
+            <input type="date" class="form-control" id="deadline" name="deadline" placeholder="Deadline" required>
+          </div>
+          <div class="mb-3">
+<!--            <label for="userEmails" class="form-label">User Emails</label>-->
+            <input type="email" class="form-control" id="userEmails" name="userEmails" placeholder="User Emails" multiple required>
+            <small class="form-text text-muted">Separate emails with commas.</small>
+          </div>
+          <button type="submit" class="btn btn-primary">Create Project</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading modal -->
+<!--  TODO: usare questo modal per sostituire tutti gli alert predefiniti (nice to have) -->
+  <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center">
+          <div class="d-flex justify-content-center">
+            <div id="loadingWheel" class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <p id="modalMessage">Saving project and sending emails...</p>
+        </div>
+
+        <button type="button" class="btn button-custom mx-auto" id="closeModalButton" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+  <!-- end of loading modal -->
+</section>
+
+<script>
+  document.getElementById('createProjectForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var done = false;
+
+    // show loading modal
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    const modalMessage = document.getElementById('modalMessage');
+    const loadingWheel = document.getElementById('loadingWheel');
+    const closeModalButton = document.getElementById('closeModalButton');
+    closeModalButton.style.display = 'none';
+    closeModalButton.addEventListener('click', function() {
+      loadingModal.hide();
+
+      if (done) {
+        window.location.href = '/project/' + localStorage.getItem('username') + "/projects";
+        return;
+      }
+
+      // restoring default values
+      loadingWheel.style.display = 'block';     // showing loading wheel
+      closeModalButton.style.display = 'none';  // hiding close button
+
+      modalMessage.innerText = "Saving project and sending emails..."; // setting default message
+
+    });
+
+    loadingModal.show();
+
+    const projectName = document.getElementById('projectName').value;
+    const projectDescription = document.getElementById('projectDescription').value;
+    const deadline = new Date(document.getElementById('deadline').value).toISOString();
+    const userEmails = document.getElementById('userEmails').value.split(',');
+
+
+    fetch('/api/v1/project', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+      },
+      body: JSON.stringify({
+        projectName: projectName,
+        projectDescription: projectDescription,
+        deadlineDate: deadline,
+        userEmails: userEmails
+      })
+    })
+    .then(response => {
+      // loadingModal.hide();
+      if (!response.ok) {
+        loadingWheel.style.display = 'none';                // hiding loading wheel
+        closeModalButton.style.display = 'block';           // showing close button
+        return response.json().then(errorData => {
+          modalMessage.innerText = "Error: " + errorData.msg; // setting error message
+        });
+      }
+      else{
+        loadingWheel.style.display = 'none';                // hiding loading wheel
+        closeModalButton.style.display = 'block';           // showing close button
+        modalMessage.innerText = "Project created successfully!"; // setting success message
+        done = true;
+      }
+    })
+    .catch((error) => {
+      loadingModal.hide();
+      console.error('Error:', error);
+    });
+  });
+</script>
+
+
+<script type="module" src="/js/navbar/nav-bar-logic.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/bold-and-dark.js"></script>
+
+</body>
+</html>

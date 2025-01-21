@@ -76,7 +76,7 @@ public class ArtifactController {
   /**
    * Updates an artifact.
    *
-   * @param artifactId the id of the artifact to update
+   * @param artifactId        the id of the artifact to update
    * @param artifactCreateDto the updated artifact
    * @return the response entity
    */
@@ -114,7 +114,7 @@ public class ArtifactController {
    * Removes the associated tag.
    *
    * @param artifactId the id of the artifact to remove the tag from
-   * @param tagId the id of the tag to remove
+   * @param tagId      the id of the tag to remove
    * @return the response entity
    */
   @DeleteMapping("/{artifactId}/tag/{tagId}")

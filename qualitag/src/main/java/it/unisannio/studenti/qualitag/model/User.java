@@ -1,6 +1,5 @@
 package it.unisannio.studenti.qualitag.model;
 
-import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,11 +77,11 @@ public class User {
   /**
    * Constructs a new User.
    *
-   * @param username The username of the user
-   * @param email The email address of the user
+   * @param username     The username of the user
+   * @param email        The email address of the user
    * @param passwordHash The hashed password of the user
-   * @param name The first name of the user
-   * @param surname The last name of the user
+   * @param name         The first name of the user
+   * @param surname      The last name of the user
    */
   public User(String username, String email, String passwordHash, String name, String surname) {
     this.username = username;
@@ -146,17 +145,5 @@ public class User {
   public Map<String, String> getProjectRolesAsString() {
     return projectRoles.entrySet().stream()
         .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().name()));
-  }
-
-  /**
-   * Converts the user to a UserSortResponseDTO.
-   *
-   * @return The UserSortResponseDTO.
-   */
-  public UserShortResponseDto toUserShortResponseDto() {
-    if (projectRoles == null) {
-      projectRoles = new HashMap<>();
-    }
-    return new UserShortResponseDto(username, email, name, surname, getProjectRolesAsString());
   }
 }

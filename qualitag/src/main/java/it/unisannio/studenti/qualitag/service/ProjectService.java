@@ -14,6 +14,7 @@ import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
+import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.model.ProjectStatus;
@@ -72,6 +73,7 @@ public class ProjectService {
    */
   @Transactional
   public ResponseEntity<?> createProject(ProjectCreateDto projectCreateDto) {
+    System.out.println("progetto: " + projectCreateDto);
     Map<String, Object> response = new HashMap<>();
 
     // Project validation
@@ -329,7 +331,7 @@ public class ProjectService {
         response.put("msg", "User with ID " + userId + " not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      shorResponseUserDtos.add(user.toUserShortResponseDto());
+      shorResponseUserDtos.add(UserMapper.toUserShortResponseDto(user));
     }
     List<WholeTeamDto> wholeTeamDtos = new ArrayList<>();
     for (String teamId : project.getTeamIds()) {
@@ -357,13 +359,20 @@ public class ProjectService {
       response.put("msg", "Owner not found");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    UserShortResponseDto ownerDto = owner.toUserShortResponseDto();
+    UserShortResponseDto ownerDto = UserMapper.toUserShortResponseDto(owner);
 
     return ResponseEntity.status(HttpStatus.OK).body(
-        new WholeProjectHeavyDto(project.getProjectName(), project.getProjectDescription(),
-            project.getProjectCreationDate(), project.getProjectDeadline(), ownerDto,
-            project.getProjectStatus().name(), shorResponseUserDtos, wholeArtifactDtos,
-            wholeTeamDtos));
+        new WholeProjectHeavyDto(
+                projectId, 
+                project.getProjectName(), 
+                project.getProjectDescription(),
+                project.getProjectCreationDate(), 
+                project.getProjectDeadline(), 
+                ownerDto,
+                project.getProjectStatus().name(), 
+                shorResponseUserDtos, 
+                wholeArtifactDtos,
+                wholeTeamDtos));
   }
 
   // PUT
@@ -559,6 +568,7 @@ public class ProjectService {
     // Delete teams using the proper service
     List<String> teamIds = projectToDelete.getTeamIds();
     for (String teamId : teamIds) {
+      System.out.println("Deleting teamId: " + teamId);
       teamService.deleteTeam(teamId);
     }
 
@@ -669,7 +679,7 @@ public class ProjectService {
     // Validate the project name
     String name = projectCreateDto.projectName();
     if (projectRepository.existsByProjectName(name)) {
-      throw new ProjectValidationException("Project with name " + name + " already exists");
+      throw new ProjectValidationException("Project with name '" + name + "' already exists");
     }
 
     // Validate the deadline date and set creation date

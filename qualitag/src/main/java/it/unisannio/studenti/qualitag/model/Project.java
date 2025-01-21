@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 /**
- * Represents a project in the system. Created by Raffaele Izzo on 14/11/2024
+ * The Project entity.
  */
 @Data
 @NoArgsConstructor
@@ -150,9 +150,10 @@ public class Project {
    */
   @Override
   public String toString() {
-    return "Project{" + "projectId='" + projectId + ", projectName='" + projectName
-        + ", projectDescription='" + projectDescription + ", projectCreationDate="
-        + projectCreationDate + ", projectDeadline=" + projectDeadline + ", ownerId=" + ownerId
-        + ", usersIds=" + userIds + ", teamsIds=" + teamIds + ", artifactsIds=" + artifactIds + '}';
+    return "Project{" + "projectId='" + projectId + "', projectName='" + projectName
+        + "', projectDescription='" + projectDescription + "', projectCreationDate="
+        + projectCreationDate + ", projectDeadline=" + projectDeadline + ", ownerId='" + ownerId
+        + "', usersIds=" + userIds + ", teamsIds=" + teamIds + ", artifactsIds=" + artifactIds
+        + '}';
   }
 }

@@ -22,6 +22,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +53,77 @@ public class TeamService {
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
+
+
+  /**
+   * Updates the users of a team using the team ID and a list of user emails.
+   *
+   * @param teamId The team ID.
+   * @param userEmails The list of user emails.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> updateTeamUsers(String teamId, List<String> userEmails) {
+    Map<String, Object> response = new HashMap<>();
+
+    Team team = this.teamRepository.findTeamByTeamId(teamId);
+    if (team == null) {
+      response.put("msg", "Team not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<String> newUserIds = new ArrayList<>();
+
+    for (String email : userEmails) {
+      User user = userRepository.findByEmail(email);
+      if (user == null) {
+        response.put("msg", "User with email " + email + " not found");
+        System.out.println("Resp: " + response.get("msg"));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      newUserIds.add(user.getUserId());
+    }
+
+    // updating user ids
+    team.setUserIds(newUserIds);
+
+    // saving on db
+    teamRepository.save(team);
+
+    // Find and add team to new users
+    Set<String> addedUserIds = new HashSet<>(newUserIds);
+    List<String> previousUserIds = new ArrayList<>(team.getUserIds());
+
+    // addedUserIds = newUserIds - previousUserIds
+    previousUserIds.forEach(addedUserIds::remove);
+    for (String userId : addedUserIds) {
+      User user = userRepository.findByUserId(userId);
+      if (user == null) {
+        response.put("msg", "User with ID " + userId + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      user.getTeamIds().add(teamId);
+      userRepository.save(user);
+    }
+
+    // find and remove team from old users
+    Set<String> removedUserIds = new HashSet<>(previousUserIds);
+
+    // removedUserIds = previousUserIds - newUserIds
+    newUserIds.forEach(removedUserIds::remove);
+    for (String userId : removedUserIds) {
+      User user = userRepository.findByUserId(userId);
+      if (user == null) {
+        response.put("msg", "User with ID " + userId + " not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      user.getTeamIds().remove(teamId);
+      userRepository.save(user);
+    }
+
+    response.put("msg", "Team users updated successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
 
   private boolean validateTeamCreateDto(TeamCreateDto dto) {
     Set<ConstraintViolation<TeamCreateDto>> violations = validator.validate(dto);
@@ -329,12 +401,6 @@ public class TeamService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // Check if the team is the only team in the project
-    if (project.getTeamIds().size() == 1) {
-      response.put("msg", "Cannot delete the only team in the project");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
     // Remove team from project
     project.getTeamIds().remove(teamId);
     projectRepository.save(project);
@@ -363,6 +429,7 @@ public class TeamService {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Team not deleted");
     }
 
+    System.out.println("Team deleted successfully.");
     return ResponseEntity.status(HttpStatus.OK).body("Team deleted successfully.");
   }
 

@@ -19,7 +19,7 @@ public class ProjectViewController {
    * Returns the projects view.
    *
    * @param username The username of the user.
-   * @param model The model.
+   * @param model    The model.
    * @return the projects view
    */
   @GetMapping("/{username}/projects")
@@ -32,12 +32,22 @@ public class ProjectViewController {
    * Returns the project details view.
    *
    * @param projectId The id of the project.
-   * @param model The model.
+   * @param model     The model.
    * @return the project details view
    */
   @GetMapping("/detail")
   public String project(@RequestParam(name = "id") String projectId, Model model) {
     model.addAttribute("projectId", projectId);
     return "project/project_details";
+  }
+
+  /**
+   * Returns the create project view.
+   *
+   * @return the create project view
+   */
+  @GetMapping("/create")
+  public String createProject() {
+    return "project/create_project";
   }
 }

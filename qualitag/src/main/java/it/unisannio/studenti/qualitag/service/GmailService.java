@@ -21,8 +21,11 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
@@ -61,7 +64,7 @@ public class GmailService {
    * @return the Gmail service instance.
    * @throws IOException if an error occurs while loading the credentials.
    */
-  private static Credential getCredentials(final NetHttpTransport httpTransport,
+  private Credential getCredentials(final NetHttpTransport httpTransport,
       GsonFactory jsonFactory)
       throws IOException {
     // Load client secrets from the credentials file
@@ -69,17 +72,50 @@ public class GmailService {
         new InputStreamReader(GmailService.class.getResourceAsStream(
             "/credentials/credentials_email_service.json")));
 
+    // Create a temporary directory to store the credentials
+    Path tempDir = Files.createTempDirectory("tokens");
+
+    String resourcePath = "/credentials/tokens/StoredCredential";
+    if (isResourceFileExists(resourcePath)) {
+      try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
+        Files.copy(in, tempDir.resolve("StoredCredential"), StandardCopyOption.REPLACE_EXISTING);
+      }
+    }
+
     // Build the authorization flow
     GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
         httpTransport, jsonFactory, clientSecrets, Set.of(GMAIL_SEND))
-        .setDataStoreFactory(new FileDataStoreFactory(
-            Paths.get("src/main/resources/credentials/tokens").toFile()))
+        .setDataStoreFactory(new FileDataStoreFactory(tempDir.toFile()))
         .setAccessType("offline")
         .build();
 
     // Set up a local server receiver to handle the authorization
     LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-    return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+    
+    // Authorize the credentials
+    Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+
+    // Delete the temporary directory
+    // try (Stream<Path> walk = Files.walk(tempDir)) {
+    //   walk.sorted(Comparator.reverseOrder())
+    //       .forEach(p -> {
+    //         try {
+    //           Files.delete(p);
+    //         } catch (IOException e) {
+    //           e.printStackTrace();
+    //         }
+    //       });
+    // }
+
+    return credential;
+  }
+
+  private boolean isResourceFileExists(String resourcePath) {
+    try (InputStream resourceStream = getClass().getResourceAsStream(resourcePath)) {
+      return resourceStream != null;
+    } catch (IOException e) {
+      return false;
+    }
   }
 
   /**
