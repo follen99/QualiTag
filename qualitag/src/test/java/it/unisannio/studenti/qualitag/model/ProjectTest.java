@@ -2,10 +2,8 @@ package it.unisannio.studenti.qualitag.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
@@ -270,7 +268,9 @@ public class ProjectTest {
    */
   @Test
   public void testToString() {
-    String expected = "Project{projectId='null', projectName='projectName', projectDescription='projectDescription', projectCreationDate=0, projectDeadline=0, ownerId='ownerId', usersIds=[], teamsIds=[], artifactsIds=[]}";
+    String expected = "Project{projectId='null', projectName='projectName', "
+        + "projectDescription='projectDescription', projectCreationDate=0, "
+        + "projectDeadline=0, ownerId='ownerId', usersIds=[], teamsIds=[], artifactsIds=[]}";
     assertEquals(expected, project.toString());
   }
 }

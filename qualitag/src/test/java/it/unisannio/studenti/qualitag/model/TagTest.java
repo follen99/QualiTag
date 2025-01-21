@@ -18,7 +18,7 @@ class TagTest {
   private Tag differentTag;
 
   /**
-   * Sets up a tag for the test
+   * Sets up a tag for the test.
    */
   @BeforeEach
   public void setUp() {
@@ -36,7 +36,7 @@ class TagTest {
   }
 
   /**
-   * Test the default constructor
+   * Test the default constructor.
    */
   @Test
   void testDefaultConstructor() {
@@ -49,7 +49,7 @@ class TagTest {
   }
 
   /**
-   * Test the constructor with parameters
+   * Test the constructor with parameters.
    */
   @Test
   void testConstructorWithParameters() {
@@ -62,7 +62,7 @@ class TagTest {
   }
 
   /**
-   * Test the getTagValue method
+   * Test the getTagValue method.
    */
   @Test
   void testGetTagValue() {
@@ -70,7 +70,7 @@ class TagTest {
   }
 
   /**
-   * Test the setTagValue method
+   * Test the setTagValue method.
    */
   @Test
   void testSetTagValue() {
@@ -80,7 +80,7 @@ class TagTest {
 
 
   /**
-   * Test the getTagId method
+   * Test the getTagId method.
    */
   @Test
   void testGetTagId() {
@@ -88,7 +88,7 @@ class TagTest {
   }
 
   /**
-   * Test the setTagId method
+   * Test the setTagId method.
    */
   @Test
   void testGetCreatedBy() {
@@ -96,7 +96,7 @@ class TagTest {
   }
 
   /**
-   * Test the setCreatedBy method
+   * Test the setCreatedBy method.
    */
   @Test
   void testSetCreatedBy() {
@@ -105,7 +105,7 @@ class TagTest {
   }
 
   /**
-   * Test the getColorHex method
+   * Test the getColorHex method.
    */
   @Test
   void testGetColorHex() {
@@ -113,7 +113,7 @@ class TagTest {
   }
 
   /**
-   * Test the setColorHex method
+   * Test the setColorHex method.
    */
   @Test
   void testSetColorHex() {
@@ -122,7 +122,7 @@ class TagTest {
   }
 
   /**
-   * Test the getArtifactIds method
+   * Test the getArtifactIds method.
    */
   @Test
   void testGetArtifactIds() {
@@ -131,7 +131,7 @@ class TagTest {
   }
 
   /**
-   * Test the setArtifactIds method
+   * Test the setArtifactIds method.
    */
   @Test
   void testSetArtifactIds() {
@@ -141,7 +141,7 @@ class TagTest {
   }
 
   /**
-   * Test the addArtifactId method
+   * Test the addArtifactId method.
    */
   @Test
   void testAddArtifactId() {
@@ -150,7 +150,7 @@ class TagTest {
   }
 
   /**
-   * Test the removeArtifactId method
+   * Test the removeArtifactId method.
    */
   @Test
   void testRemoveArtifactId() {
@@ -159,7 +159,7 @@ class TagTest {
   }
 
   /**
-   * Test if a newly created tag has an empty list of artifactIds
+   * Test if a newly created tag has an empty list of artifactIds.
    */
   @Test
   void testEmptyArtifactIdsList() {
@@ -168,7 +168,7 @@ class TagTest {
   }
 
   /**
-   * Test if the tag value is always uppercase
+   * Test if the tag value is always uppercase.
    */
   @Test
   void testCaseInsensitiveTagValueComparison() {
@@ -178,7 +178,7 @@ class TagTest {
   }
 
   /**
-   * Test if two tags are equal
+   * Test if two tags are equal.
    */
   @Test
   void testEquals() {
@@ -186,7 +186,7 @@ class TagTest {
   }
 
   /**
-   * test if two different tags are not equal
+   * test if two different tags are not equal.
    */
   @Test
   void testNotEquals() {
@@ -194,7 +194,7 @@ class TagTest {
   }
 
   /**
-   * Test if two equal tags have the same hashcode
+   * Test if two equal tags have the same hashcode.
    */
   @Test
   void testHashCode() {
@@ -202,8 +202,8 @@ class TagTest {
     assertEquals(tag.hashCode(), equalTag.hashCode());
   }
 
-  /*+
-   * Test the toString method
+  /**
+   * Test the toString method.
    */
   @Test
   void testToString() {
@@ -215,7 +215,7 @@ class TagTest {
   }
 
   /**
-   * Test if two tags are different if one of them is null
+   * Test if two tags are different if one of them is null.
    */
   @Test
   void testEqualsWithNull() {
@@ -224,7 +224,7 @@ class TagTest {
   }
 
   /**
-   * Test if a tag is equal to an object of a different class
+   * Test if a tag is equal to an object of a different class.
    */
   @Test
   void testEqualsWithDifferentClass() {
@@ -234,7 +234,7 @@ class TagTest {
 
   /**
    * test if two tags with different tagId are different TagId is the only field compares by the
-   * equal method of the Tag class
+   * equal method of the Tag class.
    */
   @Test
   void testEqualsWithDifferentTagId() {

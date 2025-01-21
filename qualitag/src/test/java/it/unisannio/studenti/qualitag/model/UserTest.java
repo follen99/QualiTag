@@ -31,7 +31,7 @@ public class UserTest {
   }
 
   /**
-   * Test if the id of a newly created user is null
+   * Test if the id of a newly created user is null.
    */
   @Test
   public void testGetInitialUserId() {
@@ -40,7 +40,7 @@ public class UserTest {
   }
 
   /**
-   * Test the get method for the userId
+   * Test the get method for the userId.
    */
   @Test
   public void testGetUserId() {
@@ -48,7 +48,7 @@ public class UserTest {
   }
 
   /**
-   * Test the get method for the username
+   * Test the get method for the username.
    */
   @Test
   public void testGetUsername() {
@@ -56,7 +56,7 @@ public class UserTest {
   }
 
   /**
-   * Test the set method for the username
+   * Test the set method for the username.
    */
   @Test
   public void testSetUsername() {
@@ -65,7 +65,7 @@ public class UserTest {
   }
 
   /**
-   * Test the get method for the email
+   * Test the get method for the email.
    */
   @Test
   public void testGetEmail() {
@@ -73,7 +73,7 @@ public class UserTest {
   }
 
   /**
-   * Test the set method for the email
+   * Test the set method for the email.
    */
   @Test
   public void testSetEmail() {
@@ -82,7 +82,7 @@ public class UserTest {
   }
 
   /**
-   * Test the get method for the passwordHash
+   * Test the get method for the passwordHash.
    */
   @Test
   public void testGetPasswordHash() {
@@ -90,7 +90,7 @@ public class UserTest {
   }
 
   /**
-   * Test the set method for the passwordHash
+   * Test the set method for the passwordHash.
    */
   @Test
   public void testSetPasswordHash() {
@@ -99,7 +99,7 @@ public class UserTest {
   }
 
   /**
-   * Test the get method for the name
+   * Test the get method for the name.
    */
   @Test
   public void testGetName() {
@@ -107,7 +107,7 @@ public class UserTest {
   }
 
   /**
-   * Test the set method for the name
+   * Test the set method for the name.
    */
   @Test
   public void testSetName() {
@@ -116,7 +116,7 @@ public class UserTest {
   }
 
   /**
-   * Test the get method for the surname
+   * Test the get method for the surname.
    */
   @Test
   public void testGetSurname() {
@@ -124,7 +124,7 @@ public class UserTest {
   }
 
   /**
-   * Test the set method for the surname
+   * Test the set method for the surname.
    */
   @Test
   public void testSetSurname() {
@@ -133,7 +133,7 @@ public class UserTest {
   }
 
   /**
-   * Test the equals method
+   * Test the equals method.
    */
   @Test
   public void testEquals() {

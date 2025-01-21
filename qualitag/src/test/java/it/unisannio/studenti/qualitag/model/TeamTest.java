@@ -251,7 +251,9 @@ class TeamTest {
    */
   @Test
   void testToString() {
-    String expected = "Team{team_id='teamId1', project_id='projectId', users=[user1, user2], team_name='TeamName', creation_date=123456789, team_description='Description'}";
+    String expected = "Team{team_id='teamId1', project_id='projectId', "
+        + "users=[user1, user2], team_name='TeamName', creation_date=123456789, "
+        + "team_description='Description'}";
     assertEquals(expected, team.toString());
   }
 

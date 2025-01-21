@@ -195,7 +195,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the equals method with null
+   * Test the equals method with null.
    */
   @Test
   public void testEqualsWithNull() {
@@ -203,7 +203,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the equals method with a different object
+   * Test the equals method with a different object.
    */
   @Test
   public void testNotEquals() {
@@ -219,7 +219,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the hashcode method with a different object
+   * Test the hashcode method with a different object.
    */
   @Test
   public void testNotEqualsHashCode() {
@@ -231,13 +231,15 @@ public class ArtifactTest {
    */
   @Test
   public void testToString() {
-    String expected = "Artifact{artifactId='null', artifactName='artifactName', description='description', projectId='projectId', teamId='teamId', filePath='filePath', tags=[]}";
+    String expected = "Artifact{artifactId='null', "
+        + "artifactName='artifactName', description='description', "
+        + "projectId='projectId', teamId='teamId', filePath='filePath', tags=[]}";
     assertEquals(expected, artifact.toString());
   }
 
 
   /**
-   * Test equals with different cases
+   * Test equals with different cases.
    */
   @Test
   public void testEqualsWithDifferentCase() {
@@ -248,7 +250,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test hashcode with different cases
+   * Test hashcode with different cases.
    */
   @Test
   public void testHashCodeWithDifferentCase() {

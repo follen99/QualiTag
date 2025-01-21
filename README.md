@@ -1,4 +1,4 @@
-[![Build QualiTag Java](https://github.com/follen99/QualiTag/actions/workflows/gradle.yml/badge.svg?branch=main&event=push)](https://github.com/follen99/QualiTag/actions/workflows/gradle.yml)
+[![Build QualiTag Java](https://github.com/follen99/QualiTag/actions/workflows/java.yml/badge.svg?branch=main&event=push)](https://github.com/follen99/QualiTag/actions/workflows/java.yml)
 [![License](https://img.shields.io/github/license/follen99/QualiTag)](https://github.com/follen99/QualiTag/blob/main/LICENSE)
 # QualiTag
 GitHub repository dedicated to SoftwareEngineering project exam
