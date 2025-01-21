@@ -679,7 +679,7 @@ public class ProjectService {
     // Validate the project name
     String name = projectCreateDto.projectName();
     if (projectRepository.existsByProjectName(name)) {
-      throw new ProjectValidationException("Project with name " + name + " already exists");
+      throw new ProjectValidationException("Project with name '" + name + "' already exists");
     }
 
     // Validate the deadline date and set creation date
