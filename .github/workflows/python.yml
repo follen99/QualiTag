@@ -5,10 +5,6 @@ on:
     paths:
       - 'qualitag_python/**'
       - '.github/workflows/python.yml'
-  pull_request:
-    paths:
-      - 'qualitag_python/**'
-      - '.github/workflows/python.yml'
 
 jobs:
   build-and-test:
