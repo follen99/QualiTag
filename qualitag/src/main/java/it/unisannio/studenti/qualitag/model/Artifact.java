@@ -49,9 +49,9 @@ public class Artifact {
    * Constructor for Artifact, without description.
    *
    * @param artifactName The name of the artifact
-   * @param projectId The id of the project the artifact belongs to
-   * @param teamId The id of the team the artifact belongs to
-   * @param filePath The path of the file of the artifact in the system
+   * @param projectId    The id of the project the artifact belongs to
+   * @param teamId       The id of the team the artifact belongs to
+   * @param filePath     The path of the file of the artifact in the system
    */
   public Artifact(String artifactName, String projectId, String teamId, String filePath) {
     this.artifactName = artifactName;
@@ -66,10 +66,10 @@ public class Artifact {
    * Constructor for Artifact, with description.
    *
    * @param artifactName The name of the artifact
-   * @param description The description of the artifact
-   * @param projectId The id of the project the artifact belongs to
-   * @param teamId The id of the team the artifact belongs to
-   * @param filePath The path of the file of the artifact in the system
+   * @param description  The description of the artifact
+   * @param projectId    The id of the project the artifact belongs to
+   * @param teamId       The id of the team the artifact belongs to
+   * @param filePath     The path of the file of the artifact in the system
    */
   public Artifact(String artifactName, String description, String projectId, String teamId,
       String filePath) {

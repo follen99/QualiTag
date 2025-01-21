@@ -9,187 +9,341 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TeamTest {
 
-  // @Test
-  // void testDefaultConstructor() {
-  //   Team team = new Team();
-  //   assertNull(team.getTeamId());
-  //   assertNull(team.getProjectId());
-  //   assertNotNull(team.getUserIds());
-  //   assertTrue(team.getUserIds().isEmpty());
-  //   assertNull(team.getTeamName());
-  //   assertNull(team.getCreationTimeStamp());
-  //   assertNull(team.getTeamDescription());
-  // }
+  private Team team;
+  private Team equalTeam;
+  private Team differentTeam;
 
-  // @Test
-  // void testConstructorWithParameters() {
-  //   List<String> users = Arrays.asList("user1", "user2");
-  //   Team team = new Team("TeamName", 123456789L, "Description", users);
-  //   assertNull(team.getTeamId());
-  //   assertNull(team.getProjectId());
-  //   assertEquals("TeamName", team.getTeamName());
-  //   assertEquals(123456789L, team.getCreationTimeStamp());
-  //   assertEquals("Description", team.getTeamDescription());
-  //   assertEquals(users, team.getUserIds());
-  // }
+  /**
+   * Sets up a team for the tests.
+   */
+  @BeforeEach
+  public void setUp() {
+    team = new Team("TeamName", "projectId", 123456789L, "Description",
+        new ArrayList<>(Arrays.asList("user1", "user2")));
+    team.setTeamId("teamId1");
+    List<String> artifactIds = new ArrayList<>(Arrays.asList("artifactId1", "artifactId2"));
+    team.setArtifactIds(artifactIds);
 
-  // @Test
-  // void testSettersAndGetters() {
-  //   Team team = new Team();
-  //   team.setTeamId("1");
-  //   team.setProjectId("project1");
-  //   team.setTeamName("TeamName");
-  //   team.setCreationTimeStamp(123456789L);
-  //   team.setTeamDescription("Description");
-  //   List<String> users = new ArrayList<>(Arrays.asList("user1", "user2"));
-  //   team.setUserIds(users);
+    equalTeam = new Team("TeamName", "projectId", 123456789L, "Description",
+        new ArrayList<>(Arrays.asList("user1", "user2")));
+    equalTeam.setTeamId("teamId1");
+    equalTeam.setArtifactIds(artifactIds);
 
-  //   assertEquals("1", team.getTeamId());
-  //   assertEquals("project1", team.getProjectId());
-  //   assertEquals("TeamName", team.getTeamName());
-  //   assertEquals(123456789L, team.getCreationTimeStamp());
-  //   assertEquals("Description", team.getTeamDescription());
-  //   assertEquals(users, team.getUserIds());
-  // }
+    differentTeam = new Team("DifferentTeamName", "differentProjectId", 987654321L,
+        "DifferentDescription", new ArrayList<>(Arrays.asList("user3", "user4")));
+    differentTeam.setTeamId("teamId2");
+    List<String> artifactIds2 = new ArrayList<>(Arrays.asList("artifactId3", "artifactId4"));
+    differentTeam.setArtifactIds(artifactIds2);
+  }
 
-  // @Test
-  // void testAddUser() {
-  //   Team team = new Team();
-  //   User user = new User();
-  //   user.setUserId("user1");
-  //   team.addUser(user);
-  //   assertEquals(1, team.getUserIds().size());
-  //   assertEquals("user1", team.getUserIds().getFirst());
-  // }
+  /**
+   * Test the default constructor.
+   */
+  @Test
+  void testDefaultConstructor() {
+    Team defaultTeam = new Team();
+    assertNull(defaultTeam.getTeamId());
+    assertNull(defaultTeam.getProjectId());
+    assertNotNull(defaultTeam.getUserIds());
+    assertTrue(defaultTeam.getUserIds().isEmpty());
+    assertNotNull(defaultTeam.getArtifactIds());
+    assertTrue(defaultTeam.getArtifactIds().isEmpty());
+    assertNull(defaultTeam.getTeamName());
+    assertNull(defaultTeam.getCreationTimeStamp());
+    assertNull(defaultTeam.getTeamDescription());
+  }
 
-  // @Test
-  // void testEquals() {
-  //   List<String> users = Arrays.asList("user1", "user2");
-  //   Team team1 = new Team("TeamName", 123456789L, "Description", users);
-  //   team1.setTeamId("1");
-  //   team1.setProjectId("project1");
+  /**
+   * Test the constructor with parameters.
+   */
+  @Test
+  void testConstructorWithParameters() {
+    List<String> users = Arrays.asList("user1", "user2");
+    Team teamWithParams = new Team("TeamName", "projectId", 123456789L, "Description", users);
+    assertNull(teamWithParams.getTeamId());
+    assertEquals("projectId", teamWithParams.getProjectId());
+    assertEquals("TeamName", teamWithParams.getTeamName());
+    assertEquals(123456789L, teamWithParams.getCreationTimeStamp());
+    assertEquals("Description", teamWithParams.getTeamDescription());
+    assertEquals(users, teamWithParams.getUserIds());
+    assertTrue(teamWithParams.getArtifactIds().isEmpty());
+  }
 
-  //   Team team2 = new Team("TeamName", 123456789L, "Description", users);
-  //   team2.setTeamId("1");
-  //   team2.setProjectId("project1");
+  /**
+   * Test the getTeamId method.
+   */
+  @Test
+  void testGetTeamId() {
+    assertEquals("teamId1", team.getTeamId());
+  }
 
-  //   assertEquals(team1, team2);
-  // }
+  /**
+   * Test the setTeamId method.
+   */
+  @Test
+  void testGetProjectId() {
+    assertEquals("projectId", team.getProjectId());
+  }
 
-  // @Test
-  // void testNotEquals() {
-  //   List<String> users1 = Arrays.asList("user1", "user2");
-  //   List<String> users2 = Arrays.asList("user3", "user4");
-  //   Team team1 = new Team("TeamName1", 123456789L, "Description1", users1);
-  //   team1.setTeamId("1");
-  //   team1.setProjectId("project1");
+  /**
+   * Test the setProjectId method.
+   */
+  @Test
+  void testSetProjectId() {
+    team.setProjectId("newProjectId");
+    assertEquals("newProjectId", team.getProjectId());
+  }
 
-  //   Team team2 = new Team("TeamName2", 987654321L, "Description2", users2);
-  //   team2.setTeamId("2");
-  //   team2.setProjectId("project2");
+  /**
+   * Test the getUserIds method.
+   */
+  @Test
+  void testGetUserIds() {
+    assertEquals(Arrays.asList("user1", "user2"), team.getUserIds());
+  }
 
-  //   assertNotEquals(team1, team2);
-  // }
+  /**
+   * Test the setUserIds method.
+   */
+  @Test
+  void testSetUserIds() {
+    List<String> users = Arrays.asList("user3", "user4");
+    team.setUserIds(users);
+    assertEquals(users, team.getUserIds());
+  }
 
-  // @Test
-  // void testHashCode() {
-  //   List<String> users = Arrays.asList("user1", "user2");
-  //   Team team1 = new Team("TeamName", 123456789L, "Description", users);
-  //   team1.setTeamId("1");
-  //   team1.setProjectId("project1");
+  /**
+   * Test the getArtifactIds method.
+   */
+  @Test
+  void testGetArtifactIds() {
+    assertEquals(Arrays.asList("artifactId1", "artifactId2"), team.getArtifactIds());
+  }
 
-  //   Team team2 = new Team("TeamName", 123456789L, "Description", users);
-  //   team2.setTeamId("1");
-  //   team2.setProjectId("project1");
+  /**
+   * Test the setArtifactIds method.
+   */
+  @Test
+  void testSetArtifactIds() {
+    List<String> artifacts = Arrays.asList("artifactId3", "artifactId4");
+    team.setArtifactIds(artifacts);
+    assertEquals(artifacts, team.getArtifactIds());
+  }
 
-  //   assertEquals(team1.hashCode(), team2.hashCode());
-  // }
+  /**
+   * Test the setTeamId method.
+   */
+  @Test
+  void testGetTeamName() {
+    assertEquals("TeamName", team.getTeamName());
+  }
 
-  // @Test
-  // void testToString() {
-  //   List<String> users = Arrays.asList("user1", "user2");
-  //   Team team = new Team("TeamName", 123456789L, "Description", users);
-  //   team.setTeamId("1");
-  //   team.setProjectId("project1");
-  //   String expected = "Team{team_id='1', project_id='project1', users=[user1, user2], "
-  //       + "team_name='TeamName', creation_date=123456789, team_description='Description'}";
-  //   assertEquals(expected, team.toString());
-  // }
+  /**
+   * Test the setTeamName method.
+   */
+  @Test
+  void testSetTeamName() {
+    team.setTeamName("newTeamName");
+    assertEquals("newTeamName", team.getTeamName());
+  }
 
-  // @Test
-  // void testEqualsWithNull() {
-  //   Team team1 = new Team();
-  //   assertNotEquals(team1, null);
-  // }
+  /**
+   * Test the getCreationTimeStamp method.
+   */
+  @Test
+  void testGetCreationTimeStamp() {
+    assertEquals(123456789L, team.getCreationTimeStamp());
+  }
 
-  // @Test
-  // void testEqualsWithDifferentClass() {
-  //   Team team1 = new Team();
-  //   String notateam = "Not a Team";
-  //   assertNotEquals(team1, notateam);
-  // }
+  /**
+   * Test the setCreationTimeStamp method.
+   */
+  @Test
+  void testSetCreationTimeStamp() {
+    team.setCreationTimeStamp(987654321L);
+    assertEquals(987654321L, team.getCreationTimeStamp());
+  }
 
-  // @Test
-  // void testEqualsWithSameObject() {
-  //   Team team1 = new Team();
-  //   assertEquals(team1, team1);
-  // }
+  /**
+   * Test the getTeamDescription method.
+   */
+  @Test
+  void testGetTeamDescription() {
+    assertEquals("Description", team.getTeamDescription());
+  }
 
-  // @Test
-  // void testEqualsWithDifferentTeamId() {
-  //   Team team1 = new Team();
-  //   team1.setTeamId("1");
-  //   Team team2 = new Team();
-  //   team2.setTeamId("2");
-  //   assertNotEquals(team1, team2);
-  // }
+  /**
+   * Test the setTeamDescription method.
+   */
+  @Test
+  void testSetTeamDescription() {
+    team.setTeamDescription("newDescription");
+    assertEquals("newDescription", team.getTeamDescription());
+  }
 
-  // @Test
-  // void testEqualsWithDifferentProjectId() {
-  //   Team team1 = new Team();
-  //   team1.setProjectId("project1");
-  //   Team team2 = new Team();
-  //   team2.setProjectId("project2");
-  //   assertNotEquals(team1, team2);
-  // }
+  /**
+   * Test the addUser method.
+   */
+  @Test
+  void testAddUser() {
+    team.getUserIds().add("user3");
+    assertTrue(team.getUserIds().contains("user3"));
+  }
 
-  // @Test
-  // void testEqualsWithDifferentUsers() {
-  //   Team team1 = new Team();
-  //   team1.setUserIds(Arrays.asList("user1", "user2"));
-  //   Team team2 = new Team();
-  //   team2.setUserIds(Arrays.asList("user3", "user4"));
-  //   assertNotEquals(team1, team2);
-  // }
+  /**
+   * Test the removeUser method.
+   */
+  @Test
+  void testRemoveUser() {
+    team.getUserIds().remove("user1");
+    assertNotEquals(Arrays.asList("user1", "user2"), team.getUserIds());
+  }
 
-  // @Test
-  // void testEqualsWithDifferentTeamName() {
-  //   Team team1 = new Team();
-  //   team1.setTeamName("Team1");
-  //   Team team2 = new Team();
-  //   team2.setTeamName("Team2");
-  //   assertNotEquals(team1, team2);
-  // }
+  /**
+   * Test the addArtifactId method.
+   */
+  @Test
+  void testAddArtifactId() {
+    team.getArtifactIds().add("artifactId3");
+    assertTrue(team.getArtifactIds().contains("artifactId3"));
+  }
 
-  // @Test
-  // void testEqualsWithDifferentCreationTimeStamp() {
-  //   Team team1 = new Team();
-  //   team1.setCreationTimeStamp(123456789L);
-  //   Team team2 = new Team();
-  //   team2.setCreationTimeStamp(987654321L);
-  //   assertNotEquals(team1, team2);
-  // }
+  /**
+   * Test the removeArtifactId method.
+   */
+  @Test
+  void testRemoveArtifactId() {
+    team.getArtifactIds().remove("artifactId1");
+    assertNotEquals(Arrays.asList("artifactId1", "artifactId2"), team.getArtifactIds());
+  }
 
-  // @Test
-  // void testEqualsWithDifferentTeamDescription() {
-  //   Team team1 = new Team();
-  //   team1.setTeamDescription("Description1");
-  //   Team team2 = new Team();
-  //   team2.setTeamDescription("Description2");
-  //   assertNotEquals(team1, team2);
-  // }
+  /**
+   * Test the equals' method.
+   */
+  @Test
+  void testEquals() {
+    assertEquals(team, equalTeam);
+  }
+
+  /**
+   * Test the equals method with different objects.
+   */
+  @Test
+  void testNotEquals() {
+    assertNotEquals(team, differentTeam);
+  }
+
+  /**
+   * Test the hashCode method.
+   */
+  @Test
+  void testHashCode() {
+    assertEquals(team.hashCode(), equalTeam.hashCode());
+  }
+
+  /**
+   * Test the toString method.
+   */
+  @Test
+  void testToString() {
+    String expected = "Team{team_id='teamId1', project_id='projectId', "
+        + "users=[user1, user2], team_name='TeamName', creation_date=123456789, "
+        + "team_description='Description'}";
+    assertEquals(expected, team.toString());
+  }
+
+  /**
+   * Test equals with different cases.
+   */
+  @Test
+  void testEqualsWithNull() {
+    assertNotEquals(team, null);
+  }
+
+  /**
+   * Test equals with different class.
+   */
+  @Test
+  void testEqualsWithDifferentClass() {
+    assertNotEquals(team, "I am a string");
+  }
+
+  /**
+   * Test equals with the same object.
+   */
+  @Test
+  void testEqualsWithSameObject() {
+    assertEquals(team, team);
+  }
+
+  /**
+   * Test equals with different teamId.
+   */
+  @Test
+  void testEqualsWithDifferentTeamId() {
+    Team team2 = new Team("TeamName", "projectId", 123456789L, "Description",
+        new ArrayList<>(Arrays.asList("user1", "user2")));
+    team2.setTeamId("teamId2");
+    assertNotEquals(team, team2);
+  }
+
+  /**
+   * Test equals with different projectId.
+   */
+  @Test
+  void testEqualsWithDifferentProjectId() {
+    Team team2 = new Team("TeamName", "differentProjectId", 123456789L, "Description",
+        new ArrayList<>(Arrays.asList("user1", "user2")));
+    team2.setTeamId("teamId1");
+    assertNotEquals(team, team2);
+  }
+
+  /**
+   * Test equals with different users.
+   */
+  @Test
+  void testEqualsWithDifferentUsers() {
+    Team team2 = new Team("TeamName", "projectId", 123456789L, "Description",
+        new ArrayList<>(Arrays.asList("user3", "user4")));
+    team2.setTeamId("teamId1");
+    assertNotEquals(team, team2);
+  }
+
+  /**
+   * Test equals with different teamName.
+   */
+  @Test
+  void testEqualsWithDifferentTeamName() {
+    Team team2 = new Team("DifferentTeamName", "projectId", 123456789L, "Description",
+        new ArrayList<>(Arrays.asList("user1", "user2")));
+    team2.setTeamId("teamId1");
+    assertNotEquals(team, team2);
+  }
+
+  /**
+   * Test equals with different creationTimeStamp.
+   */
+  @Test
+  void testEqualsWithDifferentCreationTimeStamp() {
+    Team team2 = new Team("TeamName", "projectId", 987654321L, "Description",
+        new ArrayList<>(Arrays.asList("user1", "user2")));
+    team2.setTeamId("teamId1");
+    assertNotEquals(team, team2);
+  }
+
+  /**
+   * Test equals with different teamDescription.
+   */
+  @Test
+  void testEqualsWithDifferentTeamDescription() {
+    Team team2 = new Team("TeamName", "projectId", 123456789L, "DifferentDescription",
+        new ArrayList<>(Arrays.asList("user1", "user2")));
+    team2.setTeamId("teamId1");
+    assertNotEquals(team, team2);
+  }
 }

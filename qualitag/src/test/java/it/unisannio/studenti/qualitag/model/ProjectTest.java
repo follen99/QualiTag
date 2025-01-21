@@ -2,12 +2,10 @@ package it.unisannio.studenti.qualitag.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,158 +14,266 @@ import org.junit.jupiter.api.Test;
  */
 public class ProjectTest {
 
-//  private Project project;
-//
-//  /**
-//   * Set up a project object for the tests.
-//   */
-//  @BeforeEach
-//  public void setUp() {
-//    LocalDate localDate = LocalDate.of(2025, 12, 31);
-//    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault())
-//        .toInstant().toEpochMilli();
-//
-//    project = new Project("ProjectName", "ProjectDescription", projectDeadline);
-//  }
-//
-//  /**
-//   * Test the getProjectId method.
-//   */
-//  @Test
-//  public void testGetProjectId() {
-//    assertNull(project.getProjectId()); //Initially, projectId should be null
-//  }
-//
-//  /**
-//   * Test the getProjectName method.
-//   */
-//  @Test
-//  public void testGetProjectName() {
-//    assertEquals("ProjectName", project.getProjectName());
-//  }
-//
-//  /**
-//   * Test the setProjectName method.
-//   */
-//  @Test
-//  public void testSetProjectName() {
-//    project.setProjectName("NewProjectName");
-//    assertEquals("NewProjectName", project.getProjectName());
-//  }
-//
-//  /**
-//   * Test the getProjectDescription method.
-//   */
-//  @Test
-//  public void testGetProjectDescription() {
-//    assertEquals("ProjectDescription", project.getProjectDescription());
-//  }
-//
-//  /**
-//   * Test the setProjectDescription method.
-//   */
-//  @Test
-//  public void testSetProjectDescription() {
-//    project.setProjectDescription("NewProjectDescription");
-//    assertEquals("NewProjectDescription", project.getProjectDescription());
-//  }
-//
-//  /**
-//   * Test the getProjectCreationDate method.
-//   */
-//  @Test
-//  public void testGetProjectCreationDate() {
-//    assertNotNull(project.getProjectCreationDate());
-//  }
-//
-//  /**
-//   * Test the getProjectDeadline method.
-//   */
-//  @Test
-//  public void testGetProjectDeadline() {
-//    LocalDate localDate = LocalDate.of(2025, 12, 31);
-//    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault())
-//        .toInstant().toEpochMilli();
-//
-//    this.project.setProjectDeadline(projectDeadline);
-//    assertEquals(projectDeadline, project.getProjectDeadline());
-//  }
-//
-//  /**
-//   * Test the setProjectDeadline method.
-//   */
-//  @Test
-//  public void testSetProjectDeadline() {
-//    LocalDate localDate = LocalDate.of(2026, 12, 31);
-//    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault())
-//        .toInstant().toEpochMilli();
-//
-//    project.setProjectDeadline(projectDeadline);
-//    assertEquals(projectDeadline, project.getProjectDeadline());
-//  }
-//
-//  /**
-//   * Test the add and remove methods for the user, team and artifact ids.
-//   */
-//  @Test
-//  public void testAddAndRemoveUserId() {
-//    project.addUserId("userId");
-//    assertTrue(project.getUsers().contains("userId"));
-//    project.removeUserId("userId");
-//    assertFalse(project.getUsers().contains("userId"));
-//  }
-//
-//  /**
-//   * Test the add and remove methods for the team ids.
-//   */
-//  @Test
-//  public void testAddAndRemoveTeamId() {
-//    project.addTeamId("teamId");
-//    assertTrue(project.getTeams().contains("teamId"));
-//    project.removeTeamId("teamId");
-//    assertFalse(project.getTeams().contains("teamId"));
-//  }
-//
-//  /**
-//   * Test the add and remove methods for the artifact ids.
-//   */
-//  @Test
-//  public void testAddAndRemoveArtifactId() {
-//    project.addArtifactId("artifactId");
-//    assertTrue(project.getArtifacts().contains("artifactId"));
-//    project.removeArtifactId("artifactId");
-//    assertFalse(project.getArtifacts().contains("artifactId"));
-//  }
-//
-//  /**
-//   * Test the isUserIdInProject method.
-//   */
-//  @Test
-//  public void testGetOwnerId() {
-//    assertNull(project.getOwnerId());
-//  }
-//
-//  /**
-//   * Test the setOwnerId method.
-//   */
-//  @Test
-//  public void testSetOwnerId() {
-//    project.setOwnerId("ownerId");
-//    assertEquals("ownerId", project.getOwnerId());
-//  }
-//
-//  /**
-//   * Test the isUserIdInProject method.
-//   */
-//  @Test
-//  public void testEqualsAndHashCode() {
-//    LocalDate localDate = LocalDate.of(2025, 12, 31);
-//    Long projectDeadline = localDate.atStartOfDay(ZoneId.systemDefault())
-//        .toInstant().toEpochMilli();
-//
-//    Project anotherProject = new Project("ProjectName", "ProjectDescription",
-//        projectDeadline);
-//    assertEquals(project, anotherProject);
-//    assertEquals(project.hashCode(), anotherProject.hashCode());
-//  }
+  private Project project;
+  private Project equalProject;
+  private Project differentProject;
+
+  /**
+   * Sets up a project for the tests.
+   */
+  @BeforeEach
+  public void setUp() {
+    project = new Project("projectName",
+        "projectDescription", 0L, 0L,
+        "ownerId", new ArrayList<>());
+    equalProject = new Project("projectName", "projectDescription", 0L, 0L, "ownerId",
+        new ArrayList<>());
+    differentProject = new Project("differentProjectName", "differentProjectDescription", 1L, 1L,
+        "differentOwnerId",
+        new ArrayList<>());
+    differentProject.setProjectId("differentProjectId");
+  }
+
+  /**
+   * Test the constructor with no users, teams or artifacts.
+   */
+  @Test
+  public void testConstructor() {
+    assertEquals("projectName", project.getProjectName());
+    assertEquals("projectDescription", project.getProjectDescription());
+    assertEquals(0L, project.getProjectCreationDate());
+    assertEquals(0L, project.getProjectDeadline());
+    assertEquals("ownerId", project.getOwnerId());
+    assertTrue(project.getUserIds().isEmpty());
+    assertTrue(project.getTeamIds().isEmpty());
+    assertTrue(project.getArtifactIds().isEmpty());
+  }
+
+  /**
+   * Test the getProjectId method.
+   */
+  @Test
+  public void testGetProjectId() {
+    assertNull(project.getProjectId());
+  }
+
+  /**
+   * Test the getProjectName method.
+   */
+  @Test
+  public void testGetProjectName() {
+    assertEquals("projectName", project.getProjectName());
+  }
+
+  /**
+   * Test the setProjectName method.
+   */
+  @Test
+  public void testSetProjectName() {
+    project.setProjectName("newProjectName");
+    assertEquals("newProjectName", project.getProjectName());
+  }
+
+  /**
+   * Test the getProjectDescription method.
+   */
+  @Test
+  public void testGetProjectDescription() {
+    assertEquals("projectDescription", project.getProjectDescription());
+  }
+
+  /**
+   * Test the setProjectDescription method.
+   */
+  @Test
+  public void testSetProjectDescription() {
+    project.setProjectDescription("newProjectDescription");
+    assertEquals("newProjectDescription", project.getProjectDescription());
+  }
+
+  /**
+   * Test the getProjectCreationDate method.
+   */
+  @Test
+  public void testGetProjectCreationDate() {
+    assertEquals(0L, project.getProjectCreationDate());
+  }
+
+  /**
+   * Test the setProjectCreationDate method.
+   */
+  @Test
+  public void testSetProjectCreationDate() {
+    project.setProjectCreationDate(1L);
+    assertEquals(1L, project.getProjectCreationDate());
+  }
+
+  /**
+   * Test the getProjectDeadline method.
+   */
+  @Test
+  public void testGetProjectDeadline() {
+    assertEquals(0L, project.getProjectDeadline());
+  }
+
+  /**
+   * Test the setProjectDeadline method.
+   */
+  @Test
+  public void testSetProjectDeadline() {
+    project.setProjectDeadline(1L);
+    assertEquals(1L, project.getProjectDeadline());
+  }
+
+  /**
+   * Test the getOwnerId method.
+   */
+  @Test
+  public void testGetOwnerId() {
+    assertEquals("ownerId", project.getOwnerId());
+  }
+
+  /**
+   * Test the setOwnerId method.
+   */
+  @Test
+  public void testSetOwnerId() {
+    project.setOwnerId("newOwnerId");
+    assertEquals("newOwnerId", project.getOwnerId());
+  }
+
+  /**
+   * Test the getUserIds method.
+   */
+  @Test
+  public void testGetUserIds() {
+    assertTrue(project.getUserIds().isEmpty());
+  }
+
+  /**
+   * Test the addUser method.
+   */
+  @Test
+  public void testAddUser() {
+    project.getUserIds().add("userId1");
+    assertTrue(project.getUserIds().contains("userId1"));
+  }
+
+  /**
+   * Test the removeUser method.
+   */
+  @Test
+  public void testRemoveUser() {
+    project.getUserIds().add("userId1");
+    project.getUserIds().remove("userId1");
+    assertFalse(project.getUserIds().contains("userId1"));
+  }
+
+  /**
+   * Test the getTeamIds method.
+   */
+  @Test
+  public void testGetTeamIds() {
+    assertTrue(project.getTeamIds().isEmpty());
+  }
+
+  /**
+   * Test the addTeam method.
+   */
+  @Test
+  public void testAddTeam() {
+    project.getTeamIds().add("teamId1");
+    assertTrue(project.getTeamIds().contains("teamId1"));
+  }
+
+  /**
+   * Test the removeTeam method.
+   */
+  @Test
+  public void testRemoveTeam() {
+    project.getTeamIds().add("teamId1");
+    project.getTeamIds().remove("teamId1");
+    assertFalse(project.getTeamIds().contains("teamId1"));
+  }
+
+  /**
+   * Test the getArtifactIds method.
+   */
+  @Test
+  public void testGetArtifactIds() {
+    assertTrue(project.getArtifactIds().isEmpty());
+  }
+
+  /**
+   * Test the addArtifact method.
+   */
+  @Test
+  public void testAddArtifact() {
+    project.getArtifactIds().add("artifactId1");
+    assertTrue(project.getArtifactIds().contains("artifactId1"));
+  }
+
+  /**
+   * Test the removeArtifact method.
+   */
+  @Test
+  public void testRemoveArtifact() {
+    project.getArtifactIds().add("artifactId1");
+    project.getArtifactIds().remove("artifactId1");
+    assertFalse(project.getArtifactIds().contains("artifactId1"));
+  }
+
+  /**
+   * Test the equals' method.
+   */
+  @Test
+  public void testEquals() {
+    assertTrue(project.equals(equalProject));
+  }
+
+  /**
+   * Test the equals method with null.
+   */
+  @Test
+  public void testEqualsWithNull() {
+    assertFalse(project.equals(null));
+  }
+
+  /**
+   * Test the equals method with a different class.
+   */
+  @Test
+  public void testNotEquals() {
+    assertFalse(project.equals(differentProject));
+  }
+
+  /**
+   * Test the hashCode method.
+   */
+  @Test
+  public void testHashCode() {
+    assertEquals(project.hashCode(), equalProject.hashCode());
+  }
+
+  /**
+   * Test the hashCode method with different objects.
+   */
+  @Test
+  public void testNotHashCode() {
+    assertFalse(project.hashCode() == differentProject.hashCode());
+  }
+
+  /**
+   * Test the toString method.
+   */
+  @Test
+  public void testToString() {
+    String expected = "Project{projectId='null', projectName='projectName', "
+        + "projectDescription='projectDescription', projectCreationDate=0, "
+        + "projectDeadline=0, ownerId='ownerId', usersIds=[], teamsIds=[], artifactsIds=[]}";
+    assertEquals(expected, project.toString());
+  }
 }
+
+
+
