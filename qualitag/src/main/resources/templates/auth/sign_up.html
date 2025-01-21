@@ -87,6 +87,7 @@
         // Carica dinamicamente il contenuto
         $("#loading-modal-placeholder").load("/html/loading_modal.html", function () {
           const modalEvent = new Event('modalLoaded');
+          console.log("modal event dispatched");
           document.dispatchEvent(modalEvent);
 
         });

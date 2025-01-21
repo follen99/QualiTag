@@ -5,6 +5,7 @@ export class LoadingModal {
     this.showLoading = true;
     this.done = false;
 
+
     this.loadingModal = new bootstrap.Modal(
         document.getElementById('loadingModal'));
     this.modalMessage = document.getElementById('modalMessage');
@@ -12,12 +13,11 @@ export class LoadingModal {
     this.closeModalButton = document.getElementById('closeModalButton');
 
     this.closeModalButton.style.display = 'none'; // default value
-    this.closeModalButton.addEventListener('click', function () {
+    this.closeModalButton.addEventListener('click', () => {
       this.loadingModal.hide();
 
       if (this.done) {
-        window.location.href = '/project/' + localStorage.getItem('username')
-            + "/projects";
+        window.location.href = defaultHref;
         return;
       }
 
@@ -56,11 +56,15 @@ export class LoadingModal {
   showModal(message, showLoadingWheel, showCloseButton, done) {
     if (showLoadingWheel !== null && showLoadingWheel !== undefined) {
       this.showLoadingWheel(showLoadingWheel);
-    } else this.showLoadingWheel(true); // default value
+    } else {
+      this.showLoadingWheel(true); // default value
+    }
 
     if (showCloseButton !== null && showCloseButton !== undefined) {
       this.showCloseButton(showCloseButton);
-    } else this.showCloseButton(false); // default value
+    } else {
+      this.showCloseButton(false); // default value
+    }
 
     if (done !== null && done !== undefined) {
       this.isDone(done);
@@ -69,7 +73,6 @@ export class LoadingModal {
     this.modalMessage.innerText = message || this.defaultMessage;
     this.loadingModal.show();
   }
-
   hideModal() {
     this.loadingModal.hide();
 

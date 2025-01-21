@@ -32,7 +32,7 @@ document.getElementById('registrationForm').addEventListener('submit',
           // Error: Display the error message from the JSON response
           loadingModal.showModal(
               "Something went wrong!\n Message: " + responseData.msg
-              , false, true, true);
+              , false, true, false);
         }
       } catch (error) {
         alert('An error occurred: ' + error.message);
