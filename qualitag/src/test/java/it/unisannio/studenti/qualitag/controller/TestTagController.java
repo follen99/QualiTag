@@ -1,27 +1,31 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagUpdateDto;
 import it.unisannio.studenti.qualitag.service.TagService;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-
+/**
+ * Test class for TagController.
+ */
 public class TestTagController {
 
   private MockMvc mockMvc;
@@ -32,6 +36,9 @@ public class TestTagController {
   @InjectMocks
   private TagController tagController;
 
+  /**
+   * Set up the test environment.
+   */
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
@@ -49,7 +56,8 @@ public class TestTagController {
     mockMvc.perform(post("/api/v1/tag")
             .contentType(MediaType.APPLICATION_JSON)
             .content(
-                "{\"tagValue\":\"tagValue\",\"createdBy\":\"createdBy\",\"colorHex\":\"colorHex\"}"))
+                "{\"tagValue\":\"tagValue\",\"createdBy\":"
+                + "\"createdBy\",\"colorHex\":\"colorHex\"}"))
         .andExpect(status().isOk());
 
     verify(tagService, times(1)).createTag(tagCreateDto);

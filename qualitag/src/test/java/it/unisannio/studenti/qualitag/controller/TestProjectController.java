@@ -1,25 +1,30 @@
 package it.unisannio.studenti.qualitag.controller;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
 import it.unisannio.studenti.qualitag.service.ProjectService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+/**
+ * Test class for ProjectController.
+ */
 public class TestProjectController {
 
   private MockMvc mockMvc;
@@ -30,6 +35,9 @@ public class TestProjectController {
   @InjectMocks
   private ProjectController projectController;
 
+  /**
+   * Set up the test environment.
+   */
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
@@ -48,7 +56,9 @@ public class TestProjectController {
     mockMvc.perform(post("/api/v1/project")
             .contentType(MediaType.APPLICATION_JSON)
             .content(
-                "{\"projectName\":\"projectName\",\"projectDescription\":\"projectDescription\",\"deadlineDate\":\"2023-12-31\",\"userEmails\":[\"user1@example.com\",\"user2@example.com\"]}"))
+                "{\"projectName\":\"projectName\",\"projectDescription\":"
+                + "\"projectDescription\",\"deadlineDate\":\"2023-12-31\","
+                + "\"userEmails\":[\"user1@example.com\",\"user2@example.com\"]}"))
         .andExpect(status().isOk());
     verify(projectService, times(1)).createProject(projectCreateDto);
     verifyNoMoreInteractions(projectService);
