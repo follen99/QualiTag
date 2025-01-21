@@ -27,7 +27,7 @@ document.getElementById('registrationForm').addEventListener('submit',
           // alert(responseData.msg || 'Registration successful');
           // window.location.href = '/'; // Redirect to homepage after registration
 
-          loadingModal.showModal("Registration successful!", false, true, true);
+          loadingModal.showModal("Registration successful!\n Check your emails.", false, true, true);
         } else {
           // Error: Display the error message from the JSON response
           loadingModal.showModal(
