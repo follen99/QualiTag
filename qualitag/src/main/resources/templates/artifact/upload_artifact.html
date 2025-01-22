@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/css/homepage/custom-button.css">
   <link rel="stylesheet" href="/assets/css/Team-Horizontal-images.css">
   <link rel="stylesheet" href="/css/project/styles.css">
+  <link rel="stylesheet" href="/css/button-styles.css">
 
   <!-- script to reuse the navbar -->
   <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
@@ -46,18 +47,134 @@
       <div class="row">
         <div class="col-md-8 col-xl-6 text-center mx-auto">
           <h2 class="fw-bold">Upload an artifact</h2>
+          <p class="fw-bold text-success mb-2">Select one or multiple artifacts</p>
         </div>
       </div>
     </div>
     <div class="row d-flex justify-content-center">
       <div class="col-md-12 col-xl-12">
+        <div class="row">
+          <div class="col mb-3">
+            <input class="form-control" type="file" id="formFileMultiple" multiple>
+          </div>
 
+          <div class="col">
+            <button class="common-button-size button-custom dropdown-toggle me-2"
+                    type="button"
+                    id="dropdownMenuButtonTeams" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+              Target team
+            </button>
+            <ul class="adaptive-dropdown-menu dropdown-menu"
+                aria-labelledby="ddmenuTeams">
+              <!-- list of teams -->
+            </ul>
+          </div>
 
-
+<!--          confirm button-->
+          <div class="col">
+            <button class="common-button-size button-custom me-2" type="button" id="confirmButton">
+              Confirm
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const projectId = window.location.pathname.split('/')[2];       // getting the project id
+    const token = localStorage.getItem('authToken');                // getting the token
+    const confirmButton = document.querySelector('#confirmButton'); // getting the confirm button
+
+    // adding team list
+    const teamsDropdown = document.querySelector('#dropdownMenuButtonTeams + .dropdown-menu');
+    teamsDropdown.innerHTML = ''; // Clear existing items
+
+    fetch(`/api/v1/project/${projectId}/teams`, {
+      method: 'GET', headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          // get error message
+          console.log("Error message: " + errorData.msg);
+          alert(errorData.msg + "\nYou will redirect to the project list page.");
+          window.location.href = "/project/" + localStorage.getItem('username') + "/projects";
+        });
+      }
+      return response.json();
+    }).then(data => {
+      if (Array.isArray(data.teams)) {
+        data.teams.forEach(team => {
+          console.log(team);
+          const teamItem = document.createElement('li');
+          teamItem.classList.add('dropdown-item');
+          teamItem.textContent = team.teamName;
+          teamItem.addEventListener('click', function () {
+            // set the team id to the button
+            document.querySelector('#dropdownMenuButtonTeams').textContent = team.teamName;
+            document.querySelector('#dropdownMenuButtonTeams').dataset.teamId = team.teamId;
+          });
+          teamsDropdown.appendChild(teamItem);
+        });
+      } else {
+        console.error('Expected an array but got:', data);
+      }
+    }).catch(error => {
+      console.error('Error fetching teams:', error);
+    });
+
+    confirmButton.addEventListener('click', function () {
+      if (!confirm('Are you sure you want to upload the artifacts?')){
+        return;
+      }
+
+      // getting the team id
+      const teamId = document.querySelector('#dropdownMenuButtonTeams').dataset.teamId;
+
+      // getting the files
+      const files = document.querySelector('#formFileMultiple').files;
+
+      console.log("teamId: " + teamId);
+
+      for (let i = 0; i < files.length; i++) {
+        console.log(`File ${i + 1}:`);
+        console.log(`Name: ${files[i].name}`);
+        console.log(`Size: ${files[i].size} bytes`);
+        console.log(`Type: ${files[i].type}`);
+      }
+      // to complete
+      /*const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+      formData.append('teamId', teamId);
+      fetch(`/api/v1/project/${projectId}/artifact`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      }).then(response => {
+        if (!response.ok) {
+          return response.json().then(errorData => {
+            alert(errorData.msg);
+          });
+        } else {
+          alert('Artifacts uploaded successfully!');
+          window.location.href = `/project/${projectId}/artifacts`;
+        }
+      }).catch(error => {
+        console.error('Error uploading artifacts:', error);
+      });*/
+    });
+  });
+</script>
 
 
 <script type="module" src="/js/navbar/nav-bar-logic.js"></script>

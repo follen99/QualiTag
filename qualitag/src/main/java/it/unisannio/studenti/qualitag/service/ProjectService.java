@@ -14,6 +14,7 @@ import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.mapper.ProjectMapper;
+import it.unisannio.studenti.qualitag.mapper.TeamMapper;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
@@ -341,7 +342,7 @@ public class ProjectService {
         response.put("msg", "Team with ID " + teamId + " not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      wholeTeamDtos.add(team.toWholeTeamDto());
+      wholeTeamDtos.add(TeamMapper.toWholeTeamDto(team));
     }
 
     // artifacts
@@ -814,4 +815,34 @@ public class ProjectService {
         deadlineDate.toInstant().toEpochMilli(), userIds);
   }
 
+  public ResponseEntity<?> getProjectsTeams(String projectId) {
+    Map<String, Object> response = new HashMap<>();
+    if (projectId == null || projectId.isEmpty()) {
+      response.put("msg", "Project ID cannot be null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+    Project project = projectRepository.findProjectByProjectId(projectId);
+
+    if (project == null) {
+      response.put("msg", "Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<String> teamIds = project.getTeamIds();
+    List<WholeTeamDto> teams = new ArrayList<>();
+
+    for (String teamId : teamIds) {
+      Team team = teamsRepository.findTeamByTeamId(teamId);
+      if (team == null) {
+        response.put("msg", "Team with ID " + teamId + " not found");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      }
+      teams.add(TeamMapper.toWholeTeamDto(team));
+    }
+
+    response.put("msg", "Teams found successfully");
+    response.put("teams", teams);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+
+  }
 }

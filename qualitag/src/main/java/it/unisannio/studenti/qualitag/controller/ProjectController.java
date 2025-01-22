@@ -113,6 +113,17 @@ public class ProjectController {
   }
 
   /**
+   * Gets all the teams of a project.
+   *
+   * @param projectId the id of the project to find the teams of
+   * @return the response entity
+   */
+  @GetMapping("/{projectId}/teams")
+  public ResponseEntity<?> getProjectTeams(@PathVariable String projectId) {
+    return projectService.getProjectsTeams(projectId);
+  }
+
+  /**
    * Updates a project.
    *
    * @param projectId        the id of the project to update

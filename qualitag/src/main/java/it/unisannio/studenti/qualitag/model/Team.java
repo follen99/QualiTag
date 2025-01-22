@@ -51,9 +51,9 @@ public class Team {
   /**
    * Constructs a Team with the specified details.
    *
-   * @param teamName the name of the team
+   * @param teamName          the name of the team
    * @param creationTimeStamp the creation date of the team
-   * @param teamDescription the description of the team
+   * @param teamDescription   the description of the team
    */
   public Team(String teamName, String projectId, Long creationTimeStamp, String teamDescription,
       List<String> userIds) {
@@ -67,6 +67,7 @@ public class Team {
   }
 
   // GETTERS AND SETTERS
+
   /**
    * Adds a user to the team.
    *
@@ -127,19 +128,4 @@ public class Team {
         + ", team_description='" + teamDescription + '\'' + '}';
   }
 
-  // TODO: Move to mapper
-  /**
-   * Convert to DTO.
-   *
-   * @return The DTO
-   */
-  public WholeTeamDto toWholeTeamDto() {
-    return new WholeTeamDto(
-            this.teamId, 
-            this.projectId, 
-            this.userIds, 
-            this.teamName,
-            this.creationTimeStamp, 
-            this.teamDescription);
-  }
 }
