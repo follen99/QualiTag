@@ -426,11 +426,12 @@ public class TeamService {
     // Delete team from repository
     teamRepository.deleteById(teamId);
     if (teamRepository.existsById(teamId)) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Team not deleted");
+      response.put("msg", "Team not deleted");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    System.out.println("Team deleted successfully.");
-    return ResponseEntity.status(HttpStatus.OK).body("Team deleted successfully.");
+    response.put("msg", "Team deleted successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   /**

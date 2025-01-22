@@ -98,6 +98,7 @@ public class TeamController {
    */
   @DeleteMapping("/{teamId}")
   public ResponseEntity<?> deleteTeam(@PathVariable String teamId) {
+    System.out.println("deleting team, teamid:  " + teamId);
     return this.teamService.deleteTeam(teamId);
   }
 }
