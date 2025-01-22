@@ -289,6 +289,10 @@ public class TeamService {
           // Remove user from existing team
           existingTeam.getUserIds().remove(userId);
           teamRepository.save(existingTeam);
+
+          // Remove team from user
+          user.getTeamIds().remove(existingTeam.getTeamId());
+          userRepository.save(user);
         }
       }
 
