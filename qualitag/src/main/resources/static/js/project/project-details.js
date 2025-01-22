@@ -189,4 +189,9 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = `/team/${globalProjectData.projectId}/create`;
   });
 
+  document.getElementById('newArtifactButton').addEventListener('click', () => {
+    // redirecting to create team page, passing the project id which is needed to link the team to the project
+    window.location.href = `/artifact/${globalProjectData.projectId}/create`;
+  });
+
 });

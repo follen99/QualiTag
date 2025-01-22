@@ -42,8 +42,8 @@ public class TeamViewController {
    *
    * @return the create team view
    */
-  @GetMapping("/{teamid}/create")
-  public String createTeam(@PathVariable("teamid") String teamId) {
+  @GetMapping("/{projectId}/create")
+  public String createTeam(@PathVariable("projectId") String teamId) {
     return "team/create_team";
   }
 
