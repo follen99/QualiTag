@@ -132,6 +132,7 @@ public class ProjectController {
    */
   @DeleteMapping("/{projectId}")
   public ResponseEntity<?> deleteProject(@PathVariable String projectId) {
+    System.out.println("deleting: " + projectId);
     return projectService.deleteProject(projectId);
   }
 }

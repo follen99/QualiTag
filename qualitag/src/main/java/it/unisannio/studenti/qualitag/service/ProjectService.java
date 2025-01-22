@@ -532,6 +532,7 @@ public class ProjectService {
   public ResponseEntity<?> deleteProject(String projectId) {
     Map<String, Object> response = new HashMap<>();
 
+    // TODO: NON ELIMINA BENE I TEAMS!
     // Check if there's a problem with the project ID
     if (projectId == null || projectId.isEmpty()) {
       response.put("msg", "Project ID cannot be null or empty");
@@ -578,8 +579,10 @@ public class ProjectService {
       artifactService.deleteArtifact(artifactId);
     }
 
+    // Finally, delete the project
     projectRepository.deleteById(projectId);
-    // FIXME: Is this check necessary?
+
+    // checking if the project has been deleted correctly
     if (projectRepository.existsById(projectId)) {
       response.put("msg", "Project not deleted");
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

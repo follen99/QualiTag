@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
       return response.json().then(errorData => {
         // get error message
         console.log("Error message: " + errorData.msg);
-        alert(errorData.msg);
+        alert(errorData.msg + "\nYou will redirect to the project list page.");
+        window.location.href = "/project/" + localStorage.getItem('username') + "/projects";
       });
     }
     return response.json(); // Se la risposta è ok, continua con il parsing dei dati
