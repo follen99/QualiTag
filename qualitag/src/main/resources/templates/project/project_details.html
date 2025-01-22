@@ -222,7 +222,6 @@
                     // get project id from url
                     const urlParams = new URLSearchParams(window.location.search);
                     const projectId = urlParams.get('id');
-                    console.log("projectID: " + projectId)
 
                     document.getElementById('deleteTeamButton').addEventListener('click', () => {
                       if (projectId === "" || projectId === null || projectId === undefined) {
@@ -247,7 +246,12 @@
                       .then(response => {
                         if (response.ok) {
                           return response.json().then(data => {
-                            console.log(data);
+
+                            // updating local cache
+                            const projectIds = JSON.parse(localStorage.getItem('user-projectIds')) || [];
+                            const updatedProjectIds = projectIds.filter(id => id !== projectId);
+                            localStorage.setItem('user-projectIds', JSON.stringify(updatedProjectIds));
+
                             alert(data.msg);
                             const redirectUrl = "/project/"
                                 + localStorage.getItem("username")

@@ -108,6 +108,7 @@ public class ProjectService {
       }
 
       response.put("msg", "Project created successfully");
+      response.put("projectId", project.getProjectId());
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (ProjectValidationException e) {
       response.put("msg", e.getMessage());

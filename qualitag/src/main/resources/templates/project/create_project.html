@@ -175,6 +175,13 @@
           closeModalButton.style.display = 'block';           // showing close button
           modalMessage.innerText = "Project created successfully!"; // setting success message
           done = true;
+
+          // updating local cache
+          const projectIds = JSON.parse(localStorage.getItem('user-projectIds')) || [];
+          response.json().then(data => {
+            projectIds.push(data.projectId);
+            localStorage.setItem('user-projectIds', JSON.stringify(projectIds));
+          });
         }
       })
       .catch((error) => {
