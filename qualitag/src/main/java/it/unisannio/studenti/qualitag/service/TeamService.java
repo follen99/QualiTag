@@ -137,6 +137,8 @@ public class TeamService {
    * @return The response entity.
    */
   public ResponseEntity<?> addTeam(TeamCreateDto teamCreateDto) {
+    // TODO: ritorna la mail dell'utente invece dell'id se non è parte del progetto
+    // TODO: gestire rollback creazione team
     Map<String, Object> response = new HashMap<>();
 
     // Team validation

@@ -45,14 +45,14 @@ document.addEventListener('DOMContentLoaded', function () {
      * "teams":["6753782aebf3c97069ad69a4"]}
      */
 
-    document.getElementById('projectName').innerText = project.projectName;
+    document.getElementById('projectName').innerText = "Name: " + project.projectName;
     document.getElementById(
-        'projectDescription').innerText = project.projectDescription;
+        'projectDescription').innerText = "Description: " + project.projectDescription;
     document.getElementById(
         'projectDeadline').innerText = `Deadline: ${new Date(
         project.projectDeadline).toLocaleDateString()}`;
     document.getElementById(
-        'projectStartingDate').innerText = `Deadline: ${new Date(
+        'projectStartingDate').innerText = `Creation date: ${new Date(
         project.projectCreationDate).toLocaleDateString()}`;
 
     // TODO add a card to display more infos about the owner

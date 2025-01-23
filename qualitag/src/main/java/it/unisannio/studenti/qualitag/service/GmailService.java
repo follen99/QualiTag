@@ -34,7 +34,7 @@ import org.apache.commons.codec.binary.Base64;
  * This class is used to send e-mails using the Gmail API.
  */
 public class GmailService {
-
+  // TODO: poter copiare stored credentials nelle risorse
   private static final String TEST_EMAIL = "qualitag.project@gmail.com";
   private static final String FROM_EMAIL = "qualitag.project@gmail.com";
   private final Gmail service;

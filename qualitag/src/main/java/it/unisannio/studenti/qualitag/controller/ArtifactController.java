@@ -44,7 +44,6 @@ public class ArtifactController {
    */
   @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<?> createArtifact(@ModelAttribute ArtifactCreateDto artifactCreateDto) {
-    System.out.println("DTo: " + artifactCreateDto);
     return this.artifactService.addArtifact(artifactCreateDto);
   }
 
