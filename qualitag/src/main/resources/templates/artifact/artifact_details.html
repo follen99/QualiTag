@@ -13,6 +13,13 @@
   <!--  <link rel="stylesheet" href="/css/project/styles.css">-->
   <!--  <link rel="stylesheet" href="/css/button-styles.css">-->
 
+<!--  librerie per la visualizzazione del codice con Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+
+
   <!-- script to reuse the navbar -->
   <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
   <title>Artifact Detail</title>
@@ -102,39 +109,56 @@
 
 // Funzione per visualizzare il file
     function displayArtifact(blob, contentType, container) {
-      if (contentType.startsWith('text')) {
-        // Per i file di testo
+      if (contentType.startsWith('text') || contentType.includes('javascript') || contentType.includes('java')) {
         const reader = new FileReader();
         reader.onload = () => {
-          container.innerHTML = `<pre>${reader.result}</pre>`;
+          const code = document.createElement('code');
+          code.className = detectLanguage(contentType); // Aggiungi classe linguaggio
+          code.textContent = reader.result;
+
+          const pre = document.createElement('pre');
+          pre.appendChild(code);
+
+          container.innerHTML = ''; // Svuota il contenitore
+          container.appendChild(pre);
+
+          // Esegui l'highlighting
+          hljs.highlightElement(code);
         };
         reader.readAsText(blob);
       } else if (contentType.startsWith('image')) {
-        // Per immagini (es. JPEG, PNG)
         const img = document.createElement('img');
         img.src = URL.createObjectURL(blob);
         img.alt = 'Artifact Image';
-        img.style.maxWidth = '100%'; // Per evitare overflow
-        container.innerHTML = ''; // Svuota il contenitore
+        img.style.maxWidth = '100%';
+        container.innerHTML = '';
         container.appendChild(img);
       } else if (contentType === 'application/pdf') {
-        // Per file PDF
         const object = document.createElement('object');
         object.data = URL.createObjectURL(blob);
         object.type = 'application/pdf';
         object.width = '100%';
-        object.height = '500px'; // Altezza del contenitore PDF
-        container.innerHTML = ''; // Svuota il contenitore
+        object.height = '500px';
+        container.innerHTML = '';
         container.appendChild(object);
       } else {
-        // Per altri tipi di file, offri il download
         const downloadLink = document.createElement('a');
         downloadLink.href = URL.createObjectURL(blob);
         downloadLink.download = 'artifact_file';
         downloadLink.textContent = 'Download File';
-        container.innerHTML = ''; // Svuota il contenitore
+        container.innerHTML = '';
         container.appendChild(downloadLink);
       }
+    }
+
+// Funzione per determinare il linguaggio dal Content-Type
+    function detectLanguage(contentType) {
+      if (contentType.includes('javascript')) return 'language-javascript';
+      if (contentType.includes('java')) return 'language-java';
+      if (contentType.includes('python')) return 'language-python';
+      if (contentType.includes('html')) return 'language-html';
+      if (contentType.includes('css')) return 'language-css';
+      return 'plaintext'; // Default
     }
 
 
