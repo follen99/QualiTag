@@ -35,12 +35,27 @@ public class ArtifactViewController {
   /**
    * Returns the create team view.
    *
+   * @param projectId the project id where the artifact will be linked
    * @return the create team view
    */
   @GetMapping("/{projectId}/create")
   public String createArtifact(@PathVariable("projectId") String projectId, Model model) {
     model.addAttribute("projectId", projectId);
     return "artifact/upload_artifact";
+  }
+
+  /**
+   * Returns the view for the artifact.
+   *
+   * @param artifactId the artifact id
+   * @return the view for tagging the artifact
+   */
+  @GetMapping("/{artifactId}/tag")
+  public String viewArtifact(@PathVariable("artifactId") String artifactId) {
+    /*WholeArtifactDto artifactDto = ArtifactMapper.toWholeArtifactDto(
+        artifactRepository.findById(artifactId).orElseThrow(NoSuchElementException::new));
+    model.addAttribute("artifact", artifactDto);*/
+    return "artifact/artifact_details";
   }
 
 }

@@ -150,34 +150,12 @@ document.addEventListener('DOMContentLoaded', function () {
         '#dropdownMenuButtonArtifacts + .dropdown-menu');
     artifactsDropdown.innerHTML = ''; // Clear existing items
 
-    project.artifacts.forEach(artifact => {
-      // Creating an element <li> for each team
-      const teamItem = document.createElement('li');
-
-      // Creating SVG icon
-      const icon = document.createElement('span');
-      icon.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-card-text" viewBox="0 0 16 16">
-                          <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
-                          <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8m0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/>
-                        </svg>
-                    `;
-      icon.style.marginLeft = '1em';
-
-      // Adding SVG icon to <li>
-      teamItem.appendChild(icon);
-
-      // Adding team
-      const artifactName = document.createElement('span');
-      artifactName.textContent = artifact.artifactName;
-      artifactName.style.marginLeft = '0.3em';
-
-      // adding artifactName to <li>
-      teamItem.appendChild(artifactName);
-
-      // adding <li> to dropdown
-      artifactsDropdown.appendChild(teamItem);
-    });
+    if (project.artifacts.length === 0) {
+      const noArtifact = { artifactName: "No artifacts Available" };
+      showTeamInsideDropdown(artifactsDropdown,[noArtifact], false);
+    }else {
+      showTeamInsideDropdown(artifactsDropdown, project.artifacts);
+    }
 
   })
   .catch(error => {
@@ -195,3 +173,40 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 });
+
+function showTeamInsideDropdown(artifactsDropdown, artifacts, clickable = true) {
+  artifacts.forEach(artifact => {
+    // Creating an element <li> for each team
+    const teamItem = document.createElement('li');
+
+    // Creating SVG icon
+    const icon = document.createElement('span');
+    icon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-card-text" viewBox="0 0 16 16">
+                          <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
+                          <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8m0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/>
+                        </svg>
+                    `;
+    icon.style.marginLeft = '1em';
+
+    // Adding SVG icon to <li>
+    teamItem.appendChild(icon);
+
+    // Adding team
+    const artifactName = document.createElement('span');
+    artifactName.textContent = artifact.artifactName;
+    artifactName.style.marginLeft = '0.3em';
+
+    // adding artifactName to <li>
+    teamItem.appendChild(artifactName);
+
+    // adding <li> to dropdown
+    artifactsDropdown.appendChild(teamItem);
+
+    if (clickable) {
+      teamItem.addEventListener('click', () => {
+        window.location.href = `/artifact/${artifact.artifactId}/tag`;
+      });
+    }
+  });
+}
