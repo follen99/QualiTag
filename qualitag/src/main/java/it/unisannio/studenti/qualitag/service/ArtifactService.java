@@ -197,7 +197,8 @@ public class ArtifactService {
       headers.setContentType(MediaType.parseMediaType(contentType));
       headers.setContentLength(Files.size(filePath));
 
-      return new ResponseEntity<>(file, headers, HttpStatus.OK);
+//      return new ResponseEntity<>(file, headers, HttpStatus.OK);
+      return ResponseEntity.ok().headers(headers).body(file);
     } catch (IOException e) {
       // Log the exception properly
       e.printStackTrace();

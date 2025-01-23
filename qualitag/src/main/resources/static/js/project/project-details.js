@@ -30,7 +30,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const projectId = urlParams.get('id');
 
   fetch(`/api/v1/project/${projectId}/status/whole`, {
-    method: 'GET', headers: {
+    method: 'GET',
+    headers: {
       'Authorization': `Bearer ${token}`
     }
   })
@@ -89,7 +90,8 @@ document.addEventListener('DOMContentLoaded', function () {
           '', '', '', defaultIcon, 'username');
     }
 
-    showElementsInsideDropdown(usersDropdown, project.users, false, '', '', '', usersIcon, 'username');
+    showElementsInsideDropdown(usersDropdown, project.users, false, '', '', '',
+        usersIcon, 'username');
 
     // adding team list
     const teamsDropdown = document.querySelector(
@@ -102,7 +104,8 @@ document.addEventListener('DOMContentLoaded', function () {
           '', '', '', defaultIcon, 'teamName');
     }
 
-    showElementsInsideDropdown(teamsDropdown, project.teams, true, '/team/', '/details', 'teamId', teamIcon, 'teamName');
+    showElementsInsideDropdown(teamsDropdown, project.teams, true, '/team/',
+        '/details', 'teamId', teamIcon, 'teamName');
 
     // adding team list
     const artifactsDropdown = document.querySelector(
