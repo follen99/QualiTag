@@ -130,15 +130,33 @@
     });
 
     confirmButton.addEventListener('click', function () {
-      if (!confirm('Are you sure you want to upload the artifacts?')){
-        return;
-      }
-
       // getting the team id
       const teamId = document.querySelector('#dropdownMenuButtonTeams').dataset.teamId;
 
       // getting the files
       const files = document.querySelector('#formFileMultiple').files;
+
+      if (files.length === 0) {
+        alert('Please select one or more files to upload.');
+        return;
+      }
+
+      // max number of files = 5
+      if (files.length > 5) {
+        alert('You can upload up to 5 files at a time.');
+        return;
+      }
+
+      if (!teamId) {
+        alert('Please select a team to upload the artifacts.');
+        return;
+
+      }
+
+      if (!confirm('Are you sure you want to upload the artifacts?')){
+        return;
+      }
+
 
       console.log("teamId: " + teamId);
 
@@ -148,30 +166,34 @@
         console.log(`Size: ${files[i].size} bytes`);
         console.log(`Type: ${files[i].type}`);
       }
-      // to complete
-      /*const formData = new FormData();
+
       for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
+        const formData = new FormData();
+        formData.append('artifactName', files[i].name);
+        formData.append('description', ''); // Add description if needed
+        formData.append('projectId', projectId);
+        formData.append('file', files[i]);
+
+        fetch(`/api/v1/artifact`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        }).then(response => {
+          if (!response.ok) {
+            return response.json().then(errorData => {
+              alert(errorData.msg);
+            });
+          } else {
+            alert('Artifacts uploaded successfully!');
+            window.location.href = `/project/${projectId}/artifacts`;
+          }
+        }).catch(error => {
+          console.error('Error uploading artifacts:', error);
+        });
       }
-      formData.append('teamId', teamId);
-      fetch(`/api/v1/project/${projectId}/artifact`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      }).then(response => {
-        if (!response.ok) {
-          return response.json().then(errorData => {
-            alert(errorData.msg);
-          });
-        } else {
-          alert('Artifacts uploaded successfully!');
-          window.location.href = `/project/${projectId}/artifacts`;
-        }
-      }).catch(error => {
-        console.error('Error uploading artifacts:', error);
-      });*/
+
     });
   });
 </script>
