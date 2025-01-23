@@ -71,13 +71,25 @@
             </ul>
           </div>
 
-<!--          confirm button-->
+          <!--          confirm button-->
           <div class="col">
             <button class="common-button-size button-custom me-2" type="button" id="confirmButton">
               Confirm
             </button>
           </div>
         </div>
+
+        <!--        description -->
+        <div class="row">
+          <div class="row mb-3">
+            <div class="col">
+              <label for="artifactDescription" class="form-label">Artifact Description</label>
+              <textarea class="form-control" id="artifactDescription" rows="3"
+                        placeholder="Type here a description for this artifact."></textarea>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -136,6 +148,9 @@
       // getting the files
       const files = document.querySelector('#formFileMultiple').files;
 
+      // getting the description
+      const description = document.querySelector('#artifactDescription').value;
+
       if (files.length === 0) {
         alert('Please select one or more files to upload.');
         return;
@@ -153,10 +168,9 @@
 
       }
 
-      if (!confirm('Are you sure you want to upload the artifacts?')){
+      if (!confirm('Are you sure you want to upload the artifacts?')) {
         return;
       }
-
 
       console.log("teamId: " + teamId);
 
@@ -168,11 +182,20 @@
       }
 
       for (let i = 0; i < files.length; i++) {
+        /*formData = JSON.stringify({
+          'artifactName': files[i].name,
+          'description': description,
+          'projectId': projectId,
+          'file': files[i]
+        })*/
+
         const formData = new FormData();
         formData.append('artifactName', files[i].name);
-        formData.append('description', ''); // Add description if needed
+        formData.append('description', description || 'No description for this artifact.');
         formData.append('projectId', projectId);
         formData.append('file', files[i]);
+
+        console.log(formData);
 
         fetch(`/api/v1/artifact`, {
           method: 'POST',
@@ -187,13 +210,13 @@
             });
           } else {
             alert('Artifacts uploaded successfully!');
-            window.location.href = `/project/${projectId}/artifacts`;
+            window.location.href = `https://localhost:8443/project/detail?id=${projectId}`;
           }
         }).catch(error => {
           console.error('Error uploading artifacts:', error);
         });
-      }
 
+      }
     });
   });
 </script>
