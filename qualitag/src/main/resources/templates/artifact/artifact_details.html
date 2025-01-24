@@ -13,11 +13,15 @@
   <!--  <link rel="stylesheet" href="/css/project/styles.css">-->
   <!--  <link rel="stylesheet" href="/css/button-styles.css">-->
 
-<!--  librerie per la visualizzazione del codice con Highlight.js -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+  <!--  librerie per la visualizzazione del codice con Highlight.js -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
 
 
   <!-- script to reuse the navbar -->
@@ -48,7 +52,7 @@
 <!--end of Navigation bar-->
 
 <section class="py-5">
-  <div class="container py-5">
+  <div class="w-auto p-3">
     <div class="row mb-4 mb-lg-5">
       <div class="row">
         <div class="col-md-8 col-xl-6 text-center mx-auto">
@@ -57,9 +61,23 @@
       </div>
     </div>
     <div class="row d-flex justify-content-center">
-      <div class="col-md-12 col-xl-12">
+      <div class="col-md-12 col-xl-12 d-flex justify-content-center">
 
-        <div id="artifact-container"></div>
+        <div class="container-fluid" style="margin-left: 2em; margin-right: 2em">
+          <div class="row">
+            <div class="col-md-9">
+              <div id="artifact-container"></div>
+            </div>
+            <div class="col-md-3">
+              <div id="sidebar-container">
+                <!-- Qui puoi aggiungere i tuoi bottoni ed altri elementi visuali -->
+                <button class="btn btn-primary">Button 1</button>
+                <button class="btn btn-secondary">Button 2</button>
+                <!-- Aggiungi altri elementi qui -->
+              </div>
+            </div>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -70,6 +88,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     const artifactContainer = document.getElementById('artifact-container');
 
+    // 1. Fetch the artifact from the server
     async function fetchArtifact(artifactId) {
       const artifactContainer = document.getElementById('artifact-container');
 
@@ -87,7 +106,7 @@
           throw new Error(errorResponse.msg || 'Failed to fetch artifact');
         }
 
-        // Recupera il contenuto e gli headers
+        // gettin headers content
         const headers = response.headers;
         const contentType = headers.get('content-type');
         const contentDisposition = headers.get('content-disposition');
@@ -97,43 +116,48 @@
 
         console.log('filename:', filename);
 
-        // Ottieni il file come Blob
+        // get the file as a blob
         const fileBlob = await response.blob();
 
-        // Visualizza il file in base al tipo
+        // visualize the file
         displayArtifact(fileBlob, contentType, artifactContainer);
       } catch (error) {
         artifactContainer.innerHTML = `<p>${error.message}</p>`;
       }
     }
 
-// Funzione per visualizzare il file
+    // 2. visualize the file
     function displayArtifact(blob, contentType, container) {
-      if (contentType.startsWith('text') || contentType.includes('javascript') || contentType.includes('java')) {
+      if (contentType.startsWith('text') || contentType.includes('javascript')
+          || contentType.includes('java')) {
         const reader = new FileReader();
         reader.onload = () => {
           const code = document.createElement('code');
-          code.className = detectLanguage(contentType); // Aggiungi classe linguaggio
+          code.className = detectLanguage(contentType); // determine the language
           code.textContent = reader.result;
 
           const pre = document.createElement('pre');
           pre.appendChild(code);
 
-          container.innerHTML = ''; // Svuota il contenitore
-          container.appendChild(pre);
+          container.innerHTML = '';       // Clear existing content
+          container.appendChild(pre);     // Add the new content
 
-          // Esegui l'highlighting
-          hljs.highlightElement(code);
+          hljs.highlightElement(code);    // Highlight the code wih Highlight.js
         };
+
         reader.readAsText(blob);
       } else if (contentType.startsWith('image')) {
+        // if the file is an image
         const img = document.createElement('img');
         img.src = URL.createObjectURL(blob);
         img.alt = 'Artifact Image';
         img.style.maxWidth = '100%';
         container.innerHTML = '';
+        img.style.borderRadius = '15px';
+        img.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.2)';
         container.appendChild(img);
       } else if (contentType === 'application/pdf') {
+        // if the file is a pdf
         const object = document.createElement('object');
         object.data = URL.createObjectURL(blob);
         object.type = 'application/pdf';
@@ -142,25 +166,51 @@
         container.innerHTML = '';
         container.appendChild(object);
       } else {
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = 'artifact_file';
-        downloadLink.textContent = 'Download File';
+        // if the file is not text, image or pdf visualize a download link
+        const containerDiv = document.createElement('div');
+        containerDiv.className = 'd-flex flex-column align-items-center';
+
+        const fileTypeText = document.createElement('p');
+        fileTypeText.textContent = `This is a ${contentType.split('/')[1]} file. You cannot preview it.`;
+
+        const downloadButton = document.createElement('a');
+        downloadButton.href = URL.createObjectURL(blob);
+        downloadButton.download = 'artifact_file';
+        downloadButton.className = 'btn btn-primary d-flex align-items-center';
+        downloadButton.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16" style="margin-right: 1em">
+  <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
+  <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+</svg>
+    Download
+  `;
+
         container.innerHTML = '';
-        container.appendChild(downloadLink);
+        containerDiv.appendChild(fileTypeText);
+        containerDiv.appendChild(downloadButton);
+        container.appendChild(containerDiv);
       }
     }
 
-// Funzione per determinare il linguaggio dal Content-Type
+    // determine file type
     function detectLanguage(contentType) {
-      if (contentType.includes('javascript')) return 'language-javascript';
-      if (contentType.includes('java')) return 'language-java';
-      if (contentType.includes('python')) return 'language-python';
-      if (contentType.includes('html')) return 'language-html';
-      if (contentType.includes('css')) return 'language-css';
+      if (contentType.includes('javascript')) {
+        return 'language-javascript';
+      }
+      if (contentType.includes('java')) {
+        return 'language-java';
+      }
+      if (contentType.includes('python')) {
+        return 'language-python';
+      }
+      if (contentType.includes('html')) {
+        return 'language-html';
+      }
+      if (contentType.includes('css')) {
+        return 'language-css';
+      }
       return 'plaintext'; // Default
     }
-
 
     // Example: Fetch and display an artifact with ID '123'
     const artifactId = window.location.pathname.split('/')[2];
