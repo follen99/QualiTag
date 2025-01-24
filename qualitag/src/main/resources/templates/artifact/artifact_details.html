@@ -84,12 +84,12 @@
                 <!-- Dropdown per selezionare i tag esistenti -->
                 <div class="dropdown">
                   <button class="common-button-size button-custom dropdown-toggle me-2 mt-2"
-                  type="button" id="tagDropdown"
-                  data-bs-toggle="dropdown" aria-expanded="false">
+                          type="button" id="tagDropdown"
+                          data-bs-toggle="dropdown" aria-expanded="false">
                     Previous tags...
                   </button>
                   <ul class="adaptive-dropdown-menu dropdown-menu" aria-labelledby="tagDropdown"
-                  id="tagList">
+                      id="tagList">
                     <!-- I tag verranno caricati dinamicamente qui -->
                   </ul>
                 </div>
@@ -151,13 +151,19 @@
           'Content-Type': 'application/json'
         }, body: JSON.stringify(tagCreateDtoList)
       }).then(response => {
-        if (!response.ok) {
-          alert(response.json().msg);
+        if (response.ok) {
+          return response.json().then(data => {
+            alert("Response: " + data.msg);
+            console.log("data: " + JSON.stringify(data));
+            window.location.reload();
+          });
+        }else {
+          return response.json().then(errorData => {
+            console.error("Error message: " + errorData.msg);
+            alert("Error: " + errorData.msg);
+          });
         }
-        alert(response.json().msg);
-        window.location.reload();
       });
-
 
     });
 
@@ -166,7 +172,12 @@
     fetchArtifact(artifactId);
   });
 
-  // 1. Fetch the artifact from the server
+  /**
+   * Fetches the artifact with the given ID and displays it in the given container.
+   *
+   * @param artifactId  the ID of the artifact to fetch
+   * @returns {Promise<void>} a promise that resolves when the artifact is fetched and displayed
+   */
   async function fetchArtifact(artifactId) {
     const artifactContainer = document.getElementById('artifact-container');
 
@@ -235,24 +246,32 @@
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }
-    }).then(response => {
-      if (!response.ok) {
-        console.log('Error:', response.json());
-      }
-      return response.json();
-    }).then(data => {
-      // console.log("data: " + data.json());
-      const tags = data.tags;
-      console.log("data: " + JSON.stringify(tags));
-      console.log("tagvalue: " + tags[0].tagValue);
-
-      if (Array.isArray(tags) && tags.length > 0) {
-        showElementsInsideDropdown(tagDropDown, data.tags, true, tagIcon, 'tagValue');
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json().then(data => {
+          const tags = data.tags;
+          console.log("data: " + JSON.stringify(tags));
+          if (Array.isArray(tags) && tags.length > 0) {
+            console.log("Primo tag:", tags[0].tagValue);
+            showElementsInsideDropdown(tagDropDown, tags, true, tagIcon, 'tagValue');
+          } else {
+            const noTags = {tagValue: "No tags Available"};
+            showElementsInsideDropdown(tagDropDown, [noTags], false, null, 'tagValue');
+          }
+        });
       } else {
-        const noTags = {tagName: "No tags Available"};
-        showElementsInsideDropdown(tagDropDown, [noTags], false, null, 'tagValue');
+        return response.json().then(errorData => {
+          console.error("Something went wrong:", errorData.msg);
+          alert("Errore: " + errorData.msg);
+        });
       }
+    })
+    .catch(error => {
+      console.error("Si è verificato un errore:", error.message);
+      alert("Errore: " + error.message);
     });
+
   }
 
   // 2. visualize the file
@@ -321,6 +340,7 @@
       container.appendChild(containerDiv);
     }
   }
+
   /**
    * Show elements inside a dropdown.
    *
