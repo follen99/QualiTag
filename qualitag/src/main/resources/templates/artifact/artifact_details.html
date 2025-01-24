@@ -130,7 +130,34 @@
         alert('Please add at least one tag');
         return;
       }
-      
+
+      const defaultHex = '#000000';   // TODO: pick dynamically
+      const userName = localStorage.getItem('username');  // TODO: change to userId
+
+      const tagCreateDtoList = tags.map(tagValue => ({
+        tagValue: tagValue,
+        createdBy: userName,
+        colorHex: defaultHex
+      }));
+
+      console.log("tags: " + JSON.stringify({tagCreateDtoList}))
+
+      const artifactId = window.location.pathname.split('/')[2];
+      fetch(`/api/v1/tag/${artifactId}/addtags`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Content-Type': 'application/json'
+        }, body: JSON.stringify({tagCreateDtoList})
+      }).then(response => {
+        if (!response.ok) {
+          alert(response.json().msg);
+        }
+        alert(response.json().msg);
+        window.location.reload();
+      });
+
+
     });
 
     // Example: Fetch and display an artifact with ID '123'

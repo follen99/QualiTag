@@ -77,6 +77,35 @@ public class TagService {
     }
   }
 
+  public ResponseEntity<?> addTagsToArtfact(List<TagCreateDto> tags, String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // for every tag added...
+    // TODO: si puo ottimizzare l'operazione prendendo i tag gia esistenti e vedendo le differenze con quelli passati ed aggiungere/togliere solo quelli necessari
+    for (TagCreateDto tagCreateDto : tags) {
+      TagCreateDto correctTagDto = validateTag(tagCreateDto);
+      Tag tag = tagMapper.toEntity(correctTagDto);
+
+      this.tagRepository.save(tag);
+
+      if (!this.addTagToUser(tag)) {
+        // If it was impossible to add the tag to the user, rollback
+        this.tagRepository.delete(tag);
+        response.put("msg", "Tag already exists");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
+
+      // adding tag to artifact
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+      artifact.getTags().add(tag.getTagId());
+      artifactRepository.save(artifact);
+    }
+
+    response.put("msg", "Tags added successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+
   /**
    * Adds a tag to a user every time a tag is created.
    *
@@ -86,6 +115,15 @@ public class TagService {
   private boolean addTagToUser(Tag tag) {
     // Retrieve user. Already validated earlier.
     User user = userRepository.findByUserId(tag.getCreatedBy());
+    if (user == null) {
+      user = userRepository.findByUsername(tag.getCreatedBy());
+      if (user == null) {
+        user = userRepository.findByEmail(tag.getCreatedBy());
+      }
+      if (user == null) {
+        return false;
+      }
+    }
 
     // Check if the user already has a tag with the same value
     List<String> userTagIds = user.getTagIds();
@@ -437,4 +475,6 @@ public class TagService {
     response.put("tags", tags);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
+
+
 }

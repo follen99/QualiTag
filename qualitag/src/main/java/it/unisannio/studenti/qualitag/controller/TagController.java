@@ -3,6 +3,7 @@ package it.unisannio.studenti.qualitag.controller;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagUpdateDto;
 import it.unisannio.studenti.qualitag.service.TagService;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,6 +41,21 @@ public class TagController {
   @PostMapping()
   public ResponseEntity<?> createTag(@RequestBody TagCreateDto tagCreateDto) {
     return this.tagService.createTag(tagCreateDto);
+  }
+
+  /**
+   * Adds tags to an artifact.
+   *
+   * @param tags       The tags to add.
+   * @param artifactId The id of the artifact to add the tags to.
+   * @return The response entity.
+   */
+  // TODO: dovremmo spostare questo metodo in artifactController?
+  @PostMapping("/{artifactId}/addtags")
+  public ResponseEntity<?> addTags(@RequestBody List<TagCreateDto> tags,
+      @PathVariable String artifactId) {
+    System.out.println("Adding tags to artifact with id: " + artifactId + tags);
+    return this.tagService.addTagsToArtfact(tags, artifactId);
   }
 
   /**
