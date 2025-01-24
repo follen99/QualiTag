@@ -77,9 +77,9 @@ public class TagService {
     }
   }
 
-  public ResponseEntity<?> addTagsToArtfact(List<TagCreateDto> tags, String artifactId) {
+  public ResponseEntity<?> addTagsToArtfactAndUser(List<TagCreateDto> tags, String artifactId) {
     Map<String, Object> response = new HashMap<>();
-
+    System.out.println("tags: " + tags);
     // for every tag added...
     // TODO: si puo ottimizzare l'operazione prendendo i tag gia esistenti e vedendo le differenze con quelli passati ed aggiungere/togliere solo quelli necessari
     for (TagCreateDto tagCreateDto : tags) {
@@ -114,13 +114,18 @@ public class TagService {
    */
   private boolean addTagToUser(Tag tag) {
     // Retrieve user. Already validated earlier.
-    User user = userRepository.findByUserId(tag.getCreatedBy());
+    User user = null;
+    String createdBy = tag.getCreatedBy();
+
+    user = userRepository.findByEmail(createdBy);
     if (user == null) {
-      user = userRepository.findByUsername(tag.getCreatedBy());
-      if (user == null) {
-        user = userRepository.findByEmail(tag.getCreatedBy());
-      }
-      if (user == null) {
+      user = userRepository.findByUsername(createdBy);
+    }
+
+    if ( user == null && createdBy.length() == 24 && createdBy.matches("^[0-9a-fA-F]{24}$")){
+      try {
+        user = userRepository.findByUserId(createdBy);
+      } catch (Exception e) {
         return false;
       }
     }
