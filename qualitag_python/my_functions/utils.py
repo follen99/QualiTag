@@ -1,7 +1,7 @@
 """
   Utility functions for tag processing and text similarity.
 """
-from .similarity import are_tags_close, suggest_common_tag
+from .similarity import group_tags_by_average_similarity, suggest_common_tag
 from .text_preprocessing import preprocess_text
 
 
@@ -14,27 +14,18 @@ def reduce_similar_tags(tags: list[str], threshold: float = 0.7) -> list[str]:
     return []
 
   # Process and deduplicate input tags
-  processed_tags = list(set(preprocess_text(tag) for tag in tags))
+  processed_tags = sorted(list(set(preprocess_text(tag) for tag in tags)))
+  print(f"Processed tags: {processed_tags}")
 
-  # Initialize variables to track groups of similar tags
-  grouped_tags = []
+  grouped_tags = group_tags_by_average_similarity(processed_tags, threshold)
+  print(f"\n\nGrouped tags new method: {grouped_tags}\n\n")
+
   reduced_tags = []
-
-  for tag in processed_tags:
-    # Skip tags already grouped
-    if any(tag in group for group in grouped_tags):
-      continue
-
-    # Find similar tags for the current tag
-    similar_group = [
-        t for t in processed_tags if are_tags_close(tag, t, threshold)
-    ]
-    if len(similar_group) > 1:
-      # Suggest a common tag for similar tags
-      common_tag = suggest_common_tag(similar_group)
-      reduced_tags.append(common_tag)
-      grouped_tags.append(similar_group)
+  for group in grouped_tags:
+    if len(group) == 1:
+      reduced_tags.append(group[0])
     else:
-      reduced_tags.append(tag)
+      common_tag = suggest_common_tag(group)
+      reduced_tags.append(common_tag)
 
-  return list(set(reduced_tags))
+  return sorted(list(set(reduced_tags)))
