@@ -440,23 +440,13 @@ public class TagService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    User user = null;
 
-    if (userIdOrEmailOrUsername.length() != 24) {
-      user = userRepository.findByUsername(userIdOrEmailOrUsername);
-    } else {
-      if (userIdOrEmailOrUsername.contains("@")) {
-        user = userRepository.findByEmail(userIdOrEmailOrUsername);
-      } else {
-        user = userRepository.findByUserId(userIdOrEmailOrUsername);
-      }
-    }
-
+    User user = this.findUser(userIdOrEmailOrUsername);
     if (user == null) {
       response.put("msg", "User not found");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    System.out.println("user: " + user);
+
 
     List<String> tagIds = user.getTagIds();
     if (tagIds.isEmpty()) {
@@ -479,6 +469,21 @@ public class TagService {
 
     response.put("tags", tags);
     return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  private User findUser(String userIdOrEmailOrUsername){
+    User user = null;
+
+    if (userIdOrEmailOrUsername.length() != 24) {
+      user = userRepository.findByUsername(userIdOrEmailOrUsername);
+    } else {
+      if (userIdOrEmailOrUsername.contains("@")) {
+        user = userRepository.findByEmail(userIdOrEmailOrUsername);
+      } else {
+        user = userRepository.findByUserId(userIdOrEmailOrUsername);
+      }
+    }
+    return user;
   }
 
 

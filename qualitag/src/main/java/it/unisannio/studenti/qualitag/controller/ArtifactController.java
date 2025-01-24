@@ -71,6 +71,11 @@ public class ArtifactController {
     return this.artifactService.getArtifactMetadata(artifactId);
   }
 
+  @GetMapping("/{artifactId}/{userIdOrEmailOrUsername}/tags")
+  public ResponseEntity<?> getTagsByUser(@PathVariable String artifactId, @PathVariable String userIdOrEmailOrUsername) {
+    return this.artifactService.getTagsByUser(artifactId, userIdOrEmailOrUsername);
+  }
+
   // PUT Methods
 
   /**

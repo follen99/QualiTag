@@ -535,4 +535,44 @@ public class ArtifactService {
     return path.toString();
   }
 
+  public ResponseEntity<?> getTagsByUser(String artifactId, String userIdOrEmailOrUsername) {
+    Map<String, Object> response = new HashMap<>();
+    User user = null;
+
+    if (userIdOrEmailOrUsername.length() != 24) {
+      user = userRepository.findByUsername(userIdOrEmailOrUsername);
+    } else {
+      if (userIdOrEmailOrUsername.contains("@")) {
+        user = userRepository.findByEmail(userIdOrEmailOrUsername);
+      } else {
+        user = userRepository.findByUserId(userIdOrEmailOrUsername);
+      }
+    }
+
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Retrieve the artifact
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the user is authorized to view the artifact
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
+        .contains(artifact.getTeamId()))) {
+      response.put("msg", "User is not authorized to view this artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    List<Tag> tags = tagRepository.findTagsByCreatedBy(user.getUserId());
+
+    response.put("msg", "Tags retrieved successfully");
+    response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
 }
