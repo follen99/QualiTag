@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', function () {
       showElementsInsideDropdown(artifactsDropdown, [noArtifact], false,
           '', '', '', defaultIcon, 'artifactName');
     } else {
-      console.log("eccomi qui");
       showElementsInsideDropdown(artifactsDropdown,
           project.artifacts,
           true,

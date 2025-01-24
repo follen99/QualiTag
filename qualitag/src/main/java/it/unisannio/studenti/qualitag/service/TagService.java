@@ -17,6 +17,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -209,7 +210,7 @@ public class TagService {
    * Updates a tag.
    *
    * @param tagUpdateDto The tag to update.
-   * @param id The id of the tag to update.
+   * @param id           The id of the tag to update.
    * @return The response entity.
    */
   public ResponseEntity<?> updateTag(TagUpdateDto tagUpdateDto, String id) {
@@ -387,5 +388,53 @@ public class TagService {
     }
     throw new IllegalStateException(
         "Unexpected authentication principal type: " + principal.getClass());
+  }
+
+  public ResponseEntity<?> getTagsByUser(String userIdOrEmailOrUsername) {
+    Map<String, Object> response = new HashMap<>();
+    if (userIdOrEmailOrUsername == null || userIdOrEmailOrUsername.isEmpty()) {
+      response.put("msg", "User id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    User user = null;
+
+    if (userIdOrEmailOrUsername.length() != 24) {
+      user = userRepository.findByUsername(userIdOrEmailOrUsername);
+    } else {
+      if (userIdOrEmailOrUsername.contains("@")) {
+        user = userRepository.findByEmail(userIdOrEmailOrUsername);
+      } else {
+        user = userRepository.findByUserId(userIdOrEmailOrUsername);
+      }
+    }
+
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    System.out.println("user: " + user);
+
+    List<String> tagIds = user.getTagIds();
+    if (tagIds.isEmpty()) {
+      // return empty list
+      response.put("tags", new ArrayList<String>());
+      return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    // TODO: si potrebbe ritornare una mappa con i tag e relativi numeri di occorrenze, così da mostrare quelli piu' usati
+    List<Tag> tags = new ArrayList<>();
+
+    for (String tagId : tagIds) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      if (tag == null) {
+        response.put("msg", "Tag not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      tags.add(tag);
+    }
+
+    response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }

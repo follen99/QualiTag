@@ -54,6 +54,17 @@ public class TagController {
   }
 
   /**
+   * Get all tags of an user, from all the artifacts.
+   *
+   * @param userIdOrEmailOrUsername user id or email.
+   * @return The response entity containing a list of tags.
+   */
+  @GetMapping("byuser/{userIdOrEmailOrUsername}/all")
+  public ResponseEntity<?> getTagsByUser(@PathVariable String userIdOrEmailOrUsername) {
+    return this.tagService.getTagsByUser(userIdOrEmailOrUsername);
+  }
+
+  /**
    * Gets tags by their value.
    *
    * @param value The value of the tags to get.
