@@ -7,7 +7,6 @@ const tagIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em
     + '  <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586 7 7L13.586 9l-7-7H2z"/>\n'
     + '</svg>';
 
-
 document.addEventListener('DOMContentLoaded', function () {
   const artifactContainer = document.getElementById('artifact-container');
 
@@ -18,11 +17,12 @@ document.addEventListener('DOMContentLoaded', function () {
   fetchArtifact(artifactId);
 
   // displaying sidebar stuff
-  populateSidebar();
+  populateSidebar(artifactId, localStorage.getItem('username'));
 
   // when the user clicks the confirm button
   confirmButton.addEventListener('click', () => {
-    const tags = tagInput.value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    const tags = tagInput.value.split(',').map(tag => tag.trim()).filter(
+        tag => tag.length > 0);
 
     if (tags.length === 0) {
       alert('Please add at least one tag');
@@ -35,9 +35,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     saveTags(artifactId, userName, defaultHex, tags);
   });
-
-
 });
+
+/**
+ * Fetches the tags for the artifact with the given ID/username/email.
+ *
+ * @param artifactId  the ID of the artifact to fetch tags for
+ * @param username the username of the user to fetch tags for
+ */
+function fetchTagsFromUser(artifactId, username) {
+  return fetch(`/api/v1/artifact/${artifactId}/${username}/tags`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      return response.json().then(errorData => {
+        console.error("Error message: " + errorData.msg);
+        alert("Error: " + errorData.msg);
+        throw new Error(errorData.msg);
+      });
+    }
+  });
+}
 
 /**
  * Saves the tags for the artifact with the given ID.
@@ -107,7 +130,6 @@ async function fetchArtifact(artifactId) {
         ? contentDisposition.split('filename=')[1].replace(/"/g, '')
         : 'downloaded_file';
 
-    console.log('filename:', filename);
 
     // get the file as a blob
     const fileBlob = await response.blob();
@@ -139,7 +161,7 @@ function detectLanguage(contentType) {
   return 'plaintext'; // Default
 }
 
-function populateSidebar() {
+function populateSidebar(artifactId, username) {
   const tagDropDown = document.getElementById('tagList');
 
   fetch('/api/v1/tag/byuser/' + localStorage.getItem('username') + '/all', {
@@ -152,13 +174,13 @@ function populateSidebar() {
     if (response.ok) {
       return response.json().then(data => {
         const tags = data.tags;
-        console.log("data: " + JSON.stringify(tags));
         if (Array.isArray(tags) && tags.length > 0) {
-          console.log("Primo tag:", tags[0].tagValue);
-          showElementsInsideDropdown(tagDropDown, tags, true, tagIcon, 'tagValue');
+          showElementsInsideDropdown(tagDropDown, tags, true, tagIcon,
+              'tagValue');
         } else {
           const noTags = {tagValue: "No tags Available"};
-          showElementsInsideDropdown(tagDropDown, [noTags], false, null, 'tagValue');
+          showElementsInsideDropdown(tagDropDown, [noTags], false, null,
+              'tagValue');
         }
       });
     } else {
@@ -172,6 +194,12 @@ function populateSidebar() {
     console.error("Si è verificato un errore:", error.message);
     alert("Errore: " + error.message);
   });
+
+  fetchTagsFromUser(artifactId, username).then(tags => {
+    const tagInput = document.getElementById('tagInput');
+    console.log("tags:", tags.tags);
+    tagInput.value = tags.tags.map(tag => tag.tagValue).join(', ');
+  })
 
 }
 

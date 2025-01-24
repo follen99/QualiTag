@@ -360,11 +360,22 @@ public class TagService {
     if (createdBy == null || createdBy.isEmpty()) {
       throw new TagValidationException("User information is null or empty");
     }
-    if (!userRepository.existsByUsername(createdBy) && !userRepository.existsById(createdBy)) {
+
+    User user = null;
+    if (createdBy.length() == 24 && createdBy.matches("^[0-9a-fA-F]{24}$")) {
+      user = userRepository.findByUserId(createdBy);
+    } else {
+      user = userRepository.findByUsername(createdBy);
+    }
+
+    if (user == null) {
       throw new TagValidationException("User does not exist");
     }
 
-    return new TagCreateDto(tagValue, createdBy, tagColor);
+// Use the userId for further processing
+    String userId = user.getUserId();
+
+    return new TagCreateDto(tagValue, userId, tagColor);
   }
 
   private TagUpdateDto validateUpdate(TagUpdateDto tagDto) {

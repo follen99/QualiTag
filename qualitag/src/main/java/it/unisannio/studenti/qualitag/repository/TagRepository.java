@@ -15,7 +15,7 @@ public interface TagRepository extends MongoRepository<Tag, String> {
    * @param value The username of the creator.
    * @return A list of tags created by the specified user.
    */
-  List<Tag> findTagsByCreatedBy(String value); // created by username
+  List<Tag> findTagByCreatedBy(String value); // created by username
 
   /**
    * Finds tags that contain the specified value.

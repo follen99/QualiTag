@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -569,7 +570,15 @@ public class ArtifactService {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
-    List<Tag> tags = tagRepository.findTagsByCreatedBy(user.getUserId());
+    List<String> tagIds = artifact.getTags();
+    List<Tag> tags = new ArrayList<>();
+
+    for (String tagId : tagIds) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      if (tag.getCreatedBy().equals(user.getUserId())) {
+        tags.add(tag);
+      }
+    }
 
     response.put("msg", "Tags retrieved successfully");
     response.put("tags", tags);

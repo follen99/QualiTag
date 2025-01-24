@@ -1,6 +1,8 @@
 package it.unisannio.studenti.qualitag.repository;
 
 import it.unisannio.studenti.qualitag.model.Artifact;
+import it.unisannio.studenti.qualitag.model.Tag;
+import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**
@@ -22,4 +24,7 @@ public interface ArtifactRepository extends MongoRepository<Artifact, String> {
    * @param artifactId the id of the artifact to delete
    */
   void deleteArtifactByArtifactId(String artifactId);
+
+
+
 }
