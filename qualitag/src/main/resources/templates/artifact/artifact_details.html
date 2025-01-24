@@ -23,6 +23,9 @@
   <script
       src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
 
+  <!--  button css-->
+  <link rel="stylesheet" href="/css/button-styles.css">
+
 
   <!-- script to reuse the navbar -->
   <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
@@ -68,26 +71,32 @@
             <div class="col-md-9">
               <div id="artifact-container"></div>
             </div>
-            <div class="col-md-3">
-              <div id="sidebar-container">
+            <div class="col-md-3 mx-auto">
+              <div id="sidebar-container" class="d-flex flex-column align-items-center">
+                <!-- Lista dei tag selezionati -->
+                <div id="selectedTags" class="mt-3">
+                  <!-- I tag selezionati verranno visualizzati qui -->
+                  <textarea id="tagInput" class="form-control mt-3" rows="3"
+                            placeholder="Add your tags separated by a comma..."></textarea>
+                </div>
+
+
                 <!-- Dropdown per selezionare i tag esistenti -->
                 <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="tagDropdown"
-                          data-bs-toggle="dropdown" aria-expanded="false">
-                    Seleziona Tag
+                  <button class="common-button-size button-custom dropdown-toggle me-2 mt-2"
+                  type="button" id="tagDropdown"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                    Previous tags...
                   </button>
-                  <ul class="dropdown-menu" aria-labelledby="tagDropdown" id="tagList">
+                  <ul class="adaptive-dropdown-menu dropdown-menu" aria-labelledby="tagDropdown"
+                  id="tagList">
                     <!-- I tag verranno caricati dinamicamente qui -->
                   </ul>
                 </div>
 
-                <!-- Lista dei tag selezionati -->
-                <div id="selectedTags" class="mt-3">
-                  <!-- I tag selezionati verranno visualizzati qui -->
-                </div>
 
                 <!-- Pulsante per confermare i tag selezionati -->
-                <button class="btn btn-primary mt-3" id="confirmTagsButton">Conferma</button>
+                <button class="btn btn-primary mt-3" id="confirmTagsButton">Confirm</button>
               </div>
             </div>
           </div>
@@ -111,130 +120,162 @@
   document.addEventListener('DOMContentLoaded', function () {
     const artifactContainer = document.getElementById('artifact-container');
 
-    // 1. Fetch the artifact from the server
-    async function fetchArtifact(artifactId) {
-      const artifactContainer = document.getElementById('artifact-container');
+    const confirmButton = document.getElementById('confirmTagsButton');
+    const tagInput = document.getElementById('tagInput');
 
-      try {
-        const response = await fetch(`/api/v1/artifact/${artifactId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-          }
-        });
+    confirmButton.addEventListener('click', () => {
+      const tags = tagInput.value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
-        if (!response.ok) {
-          const errorResponse = await response.json();
-          alert(`Error: ${errorResponse.msg}`);
-          throw new Error(errorResponse.msg || 'Failed to fetch artifact');
-        }
-
-        // displaying sidebar stuff
-        populateSidebar();
-
-        // gettin headers content
-        const headers = response.headers;
-        const contentType = headers.get('content-type');
-        const contentDisposition = headers.get('content-disposition');
-        const filename = contentDisposition
-            ? contentDisposition.split('filename=')[1].replace(/"/g, '')
-            : 'downloaded_file';
-
-        console.log('filename:', filename);
-
-        // get the file as a blob
-        const fileBlob = await response.blob();
-
-        // visualize the file
-        displayArtifact(fileBlob, contentType, artifactContainer);
-      } catch (error) {
-        artifactContainer.innerHTML = `<p>${error.message}</p>`;
+      if (tags.length === 0) {
+        alert('Please add at least one tag');
+        return;
       }
-    }
+      
+    });
 
-    function populateSidebar() {
-      const tagDropDown = document.getElementById('tagList');
+    // Example: Fetch and display an artifact with ID '123'
+    const artifactId = window.location.pathname.split('/')[2];
+    fetchArtifact(artifactId);
+  });
 
-      fetch('/api/v1/tag/byuser/' + localStorage.getItem('username') + '/all', {
+  // 1. Fetch the artifact from the server
+  async function fetchArtifact(artifactId) {
+    const artifactContainer = document.getElementById('artifact-container');
+
+    try {
+      const response = await fetch(`/api/v1/artifact/${artifactId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
-      }).then(response => {
-        if (!response.ok) {
-          console.log('Error:', response);
-          console.log('Error:', response.json());
-        }
-        return response.json();
-      }).then(data => {
-        if (Array.isArray(data.tags)) {
-          showElementsInsideDropdown(tagDropDown, data.tags, true,
-              '/api/v1/artifact/', '/tag', 'tagId', tagIcon, 'tagName');
-        } else {
-          const noTags = {tagName: "No tags Available"};
-          showElementsInsideDropdown(tagDropDown, [noTags], false,
-              '', '', '', null, 'tagName');
-        }
       });
 
-      const noTags = {tagName: "No artifacts Available"};
-      showElementsInsideDropdown(tagDropDown, [noTags], false,
-          '', '', '', null, 'tagName');
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        alert(`Error: ${errorResponse.msg}`);
+        throw new Error(errorResponse.msg || 'Failed to fetch artifact');
+      }
+
+      // displaying sidebar stuff
+      populateSidebar();
+
+      // gettin headers content
+      const headers = response.headers;
+      const contentType = headers.get('content-type');
+      const contentDisposition = headers.get('content-disposition');
+      const filename = contentDisposition
+          ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+          : 'downloaded_file';
+
+      console.log('filename:', filename);
+
+      // get the file as a blob
+      const fileBlob = await response.blob();
+
+      // visualize the file
+      displayArtifact(fileBlob, contentType, artifactContainer);
+    } catch (error) {
+      artifactContainer.innerHTML = `<p>${error.message}</p>`;
     }
+  }
 
-    // 2. visualize the file
-    function displayArtifact(blob, contentType, container) {
-      if (contentType.startsWith('text') || contentType.includes('javascript')
-          || contentType.includes('java')) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const code = document.createElement('code');
-          code.className = detectLanguage(contentType); // determine the language
-          code.textContent = reader.result;
+  // determine file type
+  function detectLanguage(contentType) {
+    if (contentType.includes('javascript')) {
+      return 'language-javascript';
+    }
+    if (contentType.includes('java')) {
+      return 'language-java';
+    }
+    if (contentType.includes('python')) {
+      return 'language-python';
+    }
+    if (contentType.includes('html')) {
+      return 'language-html';
+    }
+    if (contentType.includes('css')) {
+      return 'language-css';
+    }
+    return 'plaintext'; // Default
+  }
 
-          const pre = document.createElement('pre');
-          pre.appendChild(code);
+  function populateSidebar() {
+    const tagDropDown = document.getElementById('tagList');
 
-          container.innerHTML = '';       // Clear existing content
-          container.appendChild(pre);     // Add the new content
-
-          hljs.highlightElement(code);    // Highlight the code wih Highlight.js
-        };
-
-        reader.readAsText(blob);
-      } else if (contentType.startsWith('image')) {
-        // if the file is an image
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(blob);
-        img.alt = 'Artifact Image';
-        img.style.maxWidth = '100%';
-        container.innerHTML = '';
-        img.style.borderRadius = '15px';
-        img.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.2)';
-        container.appendChild(img);
-      } else if (contentType === 'application/pdf') {
-        // if the file is a pdf
-        const object = document.createElement('object');
-        object.data = URL.createObjectURL(blob);
-        object.type = 'application/pdf';
-        object.width = '100%';
-        object.height = '500px';
-        container.innerHTML = '';
-        container.appendChild(object);
+    fetch('/api/v1/tag/byuser/' + localStorage.getItem('username') + '/all', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      }
+    }).then(response => {
+      if (!response.ok) {
+        console.log('Error:', response.json());
+      }
+      return response.json();
+    }).then(data => {
+      console.log("data: " + data.tags);
+      if (Array.isArray(data.tags) && data.tags.length > 0) {
+        showElementsInsideDropdown(tagDropDown, data.tags, true, tagIcon, 'tagName');
       } else {
-        // if the file is not text, image or pdf visualize a download link
-        const containerDiv = document.createElement('div');
-        containerDiv.className = 'd-flex flex-column align-items-center';
+        const noTags = {tagName: "No tags Available"};
+        showElementsInsideDropdown(tagDropDown, [noTags], false, null, 'tagName');
+      }
+    });
+  }
 
-        const fileTypeText = document.createElement('p');
-        fileTypeText.textContent = `This is a ${contentType.split(
-            '/')[1]} file. You cannot preview it.`;
+  // 2. visualize the file
+  function displayArtifact(blob, contentType, container) {
+    if (contentType.startsWith('text') || contentType.includes('javascript')
+        || contentType.includes('java')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const code = document.createElement('code');
+        code.className = detectLanguage(contentType); // determine the language
+        code.textContent = reader.result;
 
-        const downloadButton = document.createElement('a');
-        downloadButton.href = URL.createObjectURL(blob);
-        downloadButton.download = 'artifact_file';
-        downloadButton.className = 'btn btn-primary d-flex align-items-center';
-        downloadButton.innerHTML = `
+        const pre = document.createElement('pre');
+        pre.appendChild(code);
+
+        container.innerHTML = '';       // Clear existing content
+        container.appendChild(pre);     // Add the new content
+
+        hljs.highlightElement(code);    // Highlight the code wih Highlight.js
+      };
+
+      reader.readAsText(blob);
+    } else if (contentType.startsWith('image')) {
+      // if the file is an image
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(blob);
+      img.alt = 'Artifact Image';
+      img.style.maxWidth = '100%';
+      container.innerHTML = '';
+      img.style.borderRadius = '15px';
+      img.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.2)';
+      container.appendChild(img);
+    } else if (contentType === 'application/pdf') {
+      // if the file is a pdf
+      const object = document.createElement('object');
+      object.data = URL.createObjectURL(blob);
+      object.type = 'application/pdf';
+      object.width = '100%';
+      object.height = '500px';
+      container.innerHTML = '';
+      container.appendChild(object);
+    } else {
+      // if the file is not text, image or pdf visualize a download link
+      const containerDiv = document.createElement('div');
+      containerDiv.className = 'd-flex flex-column align-items-center';
+
+      const fileTypeText = document.createElement('p');
+      fileTypeText.textContent = `This is a ${contentType.split(
+          '/')[1]} file. You cannot preview it.`;
+
+      const downloadButton = document.createElement('a');
+      downloadButton.href = URL.createObjectURL(blob);
+      downloadButton.download = 'artifact_file';
+      downloadButton.className = 'btn btn-primary d-flex align-items-center';
+      downloadButton.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16" style="margin-right: 1em">
   <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
   <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
@@ -242,56 +283,24 @@
     Download
   `;
 
-        container.innerHTML = '';
-        containerDiv.appendChild(fileTypeText);
-        containerDiv.appendChild(downloadButton);
-        container.appendChild(containerDiv);
-      }
+      container.innerHTML = '';
+      containerDiv.appendChild(fileTypeText);
+      containerDiv.appendChild(downloadButton);
+      container.appendChild(containerDiv);
     }
-
-    // determine file type
-    function detectLanguage(contentType) {
-      if (contentType.includes('javascript')) {
-        return 'language-javascript';
-      }
-      if (contentType.includes('java')) {
-        return 'language-java';
-      }
-      if (contentType.includes('python')) {
-        return 'language-python';
-      }
-      if (contentType.includes('html')) {
-        return 'language-html';
-      }
-      if (contentType.includes('css')) {
-        return 'language-css';
-      }
-      return 'plaintext'; // Default
-    }
-
-    // Example: Fetch and display an artifact with ID '123'
-    const artifactId = window.location.pathname.split('/')[2];
-    fetchArtifact(artifactId);
-  });
-
+  }
   /**
    * Show elements inside a dropdown.
    *
    * @param targetDropdown the dropdown where the elements will be shown
    * @param list the list of elements to show
    * @param clickable if the elements are clickable
-   * @param headerUrl the url to append before the id
-   * @param footerUrl the url to append after the id
-   * @param itemIdName the name of the id attribute
    * @param icon the icon to show before the text
    * @param attributeName the name of the attribute to show inside the dropdown
    */
   function showElementsInsideDropdown(targetDropdown,
       list,
       clickable = false,
-      headerUrl,
-      footerUrl,
-      itemIdName,
       icon = defaultIcon,
       attributeName
   ) {
@@ -301,9 +310,6 @@
 
       // Creating the <a> element
       const link = document.createElement('a');
-      if (clickable) {
-        link.href = headerUrl + listItem[itemIdName] + footerUrl;
-      }
 
       link.style.textDecoration = 'none';
       link.style.color = 'inherit'; // To inherit the color from the parent
