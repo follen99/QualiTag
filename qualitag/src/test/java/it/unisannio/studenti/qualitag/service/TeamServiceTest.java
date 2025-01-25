@@ -1,8 +1,14 @@
 package it.unisannio.studenti.qualitag.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
 
@@ -23,7 +29,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +56,8 @@ public class TeamServiceTest {
   private ProjectRepository projectRepository;
   @Mock
   private UserRepository userRepository;
+  @Mock
+  private ArtifactService artifactService;
 
   @InjectMocks
   private TeamService teamService;
@@ -71,7 +81,7 @@ public class TeamServiceTest {
     //Initialize entities
     team = new Team("teamName", "projectId",
         123456789L, "teamDescription",
-        new ArrayList<>(Arrays.asList("user2Id", "user3Id")));
+        new ArrayList<>(Arrays.asList("user1Id", "user2Id")));
     team.setTeamId("teamId");
     artifact = new Artifact("artifactName",
         "projectId", "teamId", "filePath");
@@ -92,6 +102,9 @@ public class TeamServiceTest {
     user2 = new User("user2", "user2@example.com",
         "password", "Alice", "Smith");
     user2.setUserId("user2Id");
+
+    //add artifact to team
+    team.setArtifactIds(Arrays.asList("artifactId"));
 
     //Initialize DTO
     teamCreateDto = new TeamCreateDto("teamName", "teamDescription",
@@ -118,7 +131,7 @@ public class TeamServiceTest {
    * @throws BadRequestException
    */
   @Test
-  void testAddTeam_success() throws BadRequestException {
+  void testAddTeam_success() {
     // Arrange
     when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
     when(userRepository.findByUserId("ownerId")).thenReturn(owner);
@@ -394,7 +407,7 @@ public class TeamServiceTest {
   @Test
   void testAddTeam_EmptyEmail() throws TeamValidationException {
     // Arrange
-    teamCreateDto = new TeamCreateDto("TeamName", "",
+    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
         "projectId", new ArrayList<>(Arrays.asList("", "user2@example.come")));
 
     when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
@@ -408,6 +421,27 @@ public class TeamServiceTest {
     assertEquals("There is an empty email in the list. Remove it.",
         ((Map<String, String>) response.getBody()).get("msg"));
 
+  }
+
+  /**
+   * Tests an execution of the addTeam method where there is a null email in the list
+   */
+  @Test
+  void testAddTeam_NullEmail() {
+    // Arrange
+    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
+        "projectId", new ArrayList<>(Arrays.asList(null, "user2@example.come")));
+
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+
+    // Act
+    ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("There is an empty email in the list. Remove it.",
+        ((Map<String, String>) response.getBody()).get("msg"));
   }
 
   /**
@@ -479,35 +513,35 @@ public class TeamServiceTest {
   @Test
   void testAddTeam_TeamDescriptionEmpty()
       throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    // Arrange
-    // teamCreateDto = new TeamCreateDto("teamName", "",
-    //    "projectId", new ArrayList<>(Arrays.asList("user1@example.com",
-    //   "user2@example.com")));
+    //Arrange
+    teamCreateDto = new TeamCreateDto("teamName", null,
+        "projectId", new ArrayList<>(Arrays.asList("user1@example.com",
+        "user2@example.com")));
 
-    // Arrange: Set up mock objects and spy on the service class
-    //TeamService teamServiceSpy = Mockito.spy(teamService);
+    //Arrange: Set up mock objects and spy on the service class
+    TeamService teamServiceSpy = Mockito.spy(teamService);
 
-    //when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    //when(userRepository.findByUserId("ownerId")).thenReturn(owner);
-    //when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    //when(userRepository.findByUserId("user1Id")).thenReturn(user1);
-    //when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
-    //when(userRepository.findByUserId("user2Id")).thenReturn(user2);
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
+    when(userRepository.findByUserId("user1Id")).thenReturn(user1);
+    when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
+    when(userRepository.findByUserId("user2Id")).thenReturn(user2);
 
     // Act
-    //ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
+    ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
 
-    // Use reflection to invoke the private method 'validateTeam'
-    //Method validateTeamMethod = TeamService.class.getDeclaredMethod("validateTeam",
-    //TeamCreateDto.class);
-    //validateTeamMethod.setAccessible(true); // Make the method accessible
+    //Use reflection to invoke the private method 'validateTeam'
+    Method validateTeamMethod = TeamService.class.getDeclaredMethod("validateTeam",
+        TeamCreateDto.class);
+    validateTeamMethod.setAccessible(true); // Make the method accessible
 
-    //CompletedTeamCreateDto result = (CompletedTeamCreateDto) validateTeamMethod.
-    // invoke(teamServiceSpy, teamCreateDto);
+    CompletedTeamCreateDto result = (CompletedTeamCreateDto) validateTeamMethod.
+        invoke(teamServiceSpy, teamCreateDto);
 
-    // Assert
-    //assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    //assertEquals("Hi, we are team teamName!", result.teamDescription());
+    //Assert
+    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    assertEquals("Hi, we are team teamName!", result.teamDescription());
   }
 
   //TODO: Add test for addTeam method where the team is null
@@ -579,9 +613,9 @@ public class TeamServiceTest {
    * Tests and AddTeam execution by using reflection to see if the CompletedTeamCreateDto is created
    * correctly
    *
-   * @throws NoSuchMethodException
-   * @throws InvocationTargetException
-   * @throws IllegalAccessException
+   * @throws NoSuchMethodException     if the validateTeam method is not found
+   * @throws InvocationTargetException if the validateTeam method cannot be invoked
+   * @throws IllegalAccessException    if the validateTeam method cannot be accessed
    */
   @Test
   void testAddTeam_success_usingReflection()
@@ -620,6 +654,425 @@ public class TeamServiceTest {
     assertEquals(expectedDto.projectId(), result.projectId());
     assertEquals(expectedDto.teamDescription(), result.teamDescription());
     assertEquals(expectedDto.userIds(), result.userIds());
+  }
+
+  /**
+   * Tests the method addTeamToUsers with reflection, in the case where the team i null
+   *
+   * @throws NoSuchMethodException     if the addTeamToUsers method is not found
+   * @throws InvocationTargetException if the addTeamToUsers method cannot be invoked
+   * @throws IllegalAccessException    if the addTeamToUsers method cannot be accessed
+   */
+  @Test
+  void testAddTeamToUsers_TeamNull() throws NoSuchMethodException,
+      InvocationTargetException, IllegalAccessException {
+    //Arrange
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+    team = null;
+
+    InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
+      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod("addTeamToUsers",
+          Team.class);
+      addTeamToUsersMethod.setAccessible(true);
+      addTeamToUsersMethod.invoke(teamServiceSpy, team);
+    });
+
+    //Assert
+    Throwable cause = exception.getCause();
+    assertNotNull(cause, "Expected an exception cause but found null.");
+    assertInstanceOf(TeamValidationException.class, cause,
+        "Expected a TeamValidationException.");
+    assertEquals("Team cannot be null", cause.getMessage());
+  }
+
+  /**
+   * Tests the method addTeamToUsers with reflection, in the case where the team has a null user
+   *
+   * @throws NoSuchMethodException  if the addTeamToUsers method is not found
+   * @throws IllegalAccessException if the addTeamToUsers method cannot be accessed
+   */
+  @Test
+  void testAddTeamToUsers_UserIdNull()
+      throws NoSuchMethodException, IllegalAccessException {
+    // Arrange
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+
+    team.setUserIds(Arrays.asList(null, "user1Id"));
+
+    // Act & Assert
+    InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
+      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod(
+          "addTeamToUsers", Team.class);
+      addTeamToUsersMethod.setAccessible(true);
+      addTeamToUsersMethod.invoke(teamServiceSpy, team);
+    });
+
+    // Assert the cause
+    Throwable cause = exception.getCause();
+    assertNotNull(cause, "Expected an exception cause but found null.");
+    assertInstanceOf(TeamValidationException.class, cause,
+        "Expected a TeamValidationException.");
+    assertEquals("User ID is null or empty", cause.getMessage());
+  }
+
+  /**
+   * Tests the method addTeamToUsers with reflection, in the case where the team has an empty user
+   *
+   * @throws NoSuchMethodException  if the addTeamToUsers method is not found
+   * @throws IllegalAccessException if the addTeamToUsers method cannot be accessed
+   */
+  @Test
+  void testAddTeamToUsers_UserIdEmpty()
+      throws NoSuchMethodException, IllegalAccessException {
+    // Arrange
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+
+    team.setUserIds(Arrays.asList("", "user1Id"));
+
+    // Act & Assert
+    InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
+      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod(
+          "addTeamToUsers", Team.class);
+      addTeamToUsersMethod.setAccessible(true);
+      addTeamToUsersMethod.invoke(teamServiceSpy, team);
+    });
+
+    // Assert the cause
+    Throwable cause = exception.getCause();
+    assertNotNull(cause, "Expected an exception cause but found null.");
+    assertInstanceOf(TeamValidationException.class, cause,
+        "Expected a TeamValidationException.");
+    assertEquals("User ID is null or empty", cause.getMessage());
+  }
+
+
+  /**
+   * Tests the method addTeamToUsers with reflection, in the case where the user does not exist
+   *
+   * @throws NoSuchMethodException  if the addTeamToUsers method is not found
+   * @throws IllegalAccessException if the addTeamToUsers method cannot be accessed
+   */
+  @Test
+  void testAddTeamToUsers_UserDoesNotExist() throws NoSuchMethodException, IllegalAccessException {
+    // Arrange
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+
+    team.setUserIds(Arrays.asList("nonexistentUser", "user1Id"));
+    when(userRepository.findByUserId("nonexistentUser")).thenReturn(null);
+    when(userRepository.findByUserId("user1")).thenReturn(user1);
+
+    // Act & Assert
+    InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
+      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod(
+          "addTeamToUsers", Team.class);
+      addTeamToUsersMethod.setAccessible(true);
+      addTeamToUsersMethod.invoke(teamServiceSpy, team);
+    });
+
+    // Assert the cause
+    Throwable cause = exception.getCause();
+    assertNotNull(cause, "Expected an exception cause but found null.");
+    assertInstanceOf(TeamValidationException.class, cause,
+        "Expected a TeamValidationException.");
+    assertEquals("User with ID nonexistentUser does not exist", cause.getMessage());
+  }
+
+  /**
+   * Tests the method addTeamToUsers with reflection, in the case where the user is not part of the
+   * project
+   *
+   * @throws NoSuchMethodException  if the addTeamToUsers method is not found
+   * @throws IllegalAccessException if the addTeamToUsers method cannot be accessed
+   */
+  @Test
+  void testAddTeamToUsers_UserNotInProject() throws NoSuchMethodException, IllegalAccessException {
+    // Arrange
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+
+    team.setProjectId("projectId");
+    when(userRepository.findByUserId("user1Id")).thenReturn(user1);
+    when(userRepository.findByUserId("user2Id")).thenReturn(user2);
+
+    project.setUserIds(Arrays.asList("user1Id", "user3Id")); // User not in project
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+
+    // Act & Assert
+    InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
+      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod
+          ("addTeamToUsers", Team.class);
+      addTeamToUsersMethod.setAccessible(true);
+      addTeamToUsersMethod.invoke(teamServiceSpy, team);
+    });
+
+    // Assert the cause
+    Throwable cause = exception.getCause();
+    assertNotNull(cause, "Expected an exception cause but found null.");
+    assertInstanceOf(TeamValidationException.class, cause,
+        "Expected a TeamValidationException.");
+    assertEquals("User with ID user2Id is not part of the project",
+        cause.getMessage());
+  }
+
+  /**
+   * Tests a successful execution of the  getTeamsByProject method
+   */
+  @Test
+  void testGetTeamsByProject() {
+    // Arrange
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(teamRepository.existsByProjectId("projectId")).thenReturn(true);
+    when(teamRepository.findTeamsByProjectId("projectId")).thenReturn(Arrays.asList(team));
+
+    // Act
+    ResponseEntity<?> response = teamService.getTeamsByProject("projectId");
+
+    // Assert
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(Arrays.asList(team), response.getBody());
+  }
+
+  /**
+   * Tests an execution of the getTeamsByProject method where the project is null
+   */
+  @Test
+  void testGetTeamsByProject_ProjectNull() {
+    // Act
+    ResponseEntity<?> response = teamService.getTeamsByProject(null);
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Project ID is null or empty", response.getBody());
+  }
+
+  /**
+   * Tests an execution of the getTeamsByProject method where the project is empty
+   */
+  @Test
+  void testGetTeamsByProject_ProjectEmpty() {
+    // Act
+    ResponseEntity<?> response = teamService.getTeamsByProject("");
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Project ID is null or empty", response.getBody());
+  }
+
+  /**
+   * Tests an execution of the getTeamsByProject method where there no teams found for the project
+   */
+  @Test
+  void testGetTeamsByProject_NoTeamsFound() {
+    // Arrange
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(teamRepository.existsByProjectId("projectId")).thenReturn(false);
+
+    // Act
+    ResponseEntity<?> response = teamService.getTeamsByProject("projectId");
+
+    // Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertEquals("No teams found for project ID projectId", response.getBody());
+  }
+
+  /**
+   * Tests a successful execution of the getTeamByUser method
+   */
+  @Test
+  void testGetTeamsByUser() {
+    // Arrange
+    when(userRepository.findByUserId("userId")).thenReturn(user1);
+    when(teamRepository.existsByUserIdsContaining("userId")).thenReturn(true);
+    when(teamRepository.findByUserIdsContaining("userId")).thenReturn(Arrays.asList(team));
+
+    // Act
+    ResponseEntity<?> response = teamService.getTeamsByUser("userId");
+
+    // Assert
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(Arrays.asList(team), response.getBody());
+  }
+
+  /**
+   * Tests an execution of the getTeamsByUser method where the user is null
+   */
+  @Test
+  void testGetTeamsByUser_UserNull() {
+    // Act
+    ResponseEntity<?> response = teamService.getTeamsByUser(null);
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("User ID is null or empty", response.getBody());
+  }
+
+  /**
+   * Tests an execution of the getTeamsByUser method where the user is empty
+   */
+  @Test
+  void testGetTeamsByUser_UserEmpty() {
+    // Act
+    ResponseEntity<?> response = teamService.getTeamsByUser("");
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("User ID is null or empty", response.getBody());
+  }
+
+  /**
+   * Tests an execution of the getTeamsByUser method where there are no teams found for the user
+   */
+  @Test
+  void testGetTeamsByUser_NoTeamsFound() {
+    // Arrange
+    when(userRepository.findByUserId("userId")).thenReturn(user1);
+    when(teamRepository.existsByUserIdsContaining("userId")).thenReturn(false);
+
+    // Act
+    ResponseEntity<?> response = teamService.getTeamsByUser("userId");
+
+    // Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertEquals("No teams found for user ID userId", response.getBody());
+  }
+
+  /**
+   * Tests a successful execution of the deleteTeam method
+   */
+  @Test
+  void testDeleteTeam() {
+    // Arrange
+    when(teamRepository.findById("teamId")).thenReturn(Optional.ofNullable(team));
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(projectRepository.save(project)).thenReturn(project);
+
+    when(userRepository.findById("user2Id")).thenReturn(Optional.ofNullable(user2));
+    when(userRepository.save(user2)).thenReturn(user2);
+    when(userRepository.findById("user1Id")).thenReturn(Optional.ofNullable(user1));
+    when(userRepository.save(user1)).thenReturn(user1);
+    when(teamRepository.existsById("teamId")).thenReturn(false);
+
+    when(artifactService.deleteArtifact("artifactId")).
+        thenReturn(ResponseEntity.ok().build());
+
+    // Act
+    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+
+    // Assert
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals("Team deleted successfully.", response.getBody());
+  }
+
+  /**
+   * Tests an execution of the deleteTeam method where the team is null
+   */
+  @Test
+  void testDeleteTeam_TeamNull() {
+    // Act
+    ResponseEntity<?> response = teamService.deleteTeam(null);
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Team ID is null or empty",
+        ((Map<String, String>) response.getBody()).get("msg"));
+  }
+
+  /**
+   * Tests an execution of the deleteTeam method where the team is empty
+   */
+  @Test
+  void testDeleteTeam_TeamEmpty() {
+    // Act
+    ResponseEntity<?> response = teamService.deleteTeam("");
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Team ID is null or empty",
+        ((Map<String, String>) response.getBody()).get("msg"));
+  }
+
+  /**
+   * Tests an execution of the deleteTeam method where the team is not found
+   */
+  @Test
+  void testDeleteTeam_TeamNotFound() {
+    // Arrange
+    when(teamRepository.findById("teamId")).thenReturn(Optional.empty());
+
+    //Act
+    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+
+    //Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertEquals("Team not found",
+        ((Map<String, String>) response.getBody()).get("msg"));
+  }
+
+  /**
+   * Test an execution of the deleteTeam method where the project is not found
+   */
+  @Test
+  void testDeleteTeam_ProjectNotFound() {
+    // Arrange
+    when(teamRepository.findById("teamId")).thenReturn(Optional.ofNullable(team));
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(null);
+
+    // Act
+    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+
+    // Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertEquals("Project not found",
+        ((Map<String, String>) response.getBody()).get("msg"));
+  }
+
+  /**
+   * Tests an execution of the deleteTeam method where the user is not found
+   */
+  @Test
+  void testDeleteTeam_UserNotFound() {
+// Arrange
+    when(teamRepository.findById("teamId")).thenReturn(Optional.ofNullable(team));
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(projectRepository.save(project)).thenReturn(project);
+
+    when(userRepository.findById("user1Id")).thenReturn(Optional.ofNullable(user1));
+    when(userRepository.save(user1)).thenReturn(user1);
+    when(userRepository.findById("user2Id")).thenReturn(Optional.empty());
+
+    // Act
+    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+
+    // Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertEquals("User with ID user2Id not found",
+        ((Map<String, String>) response.getBody()).get("msg"));
+  }
+
+  /**
+   * Tests an execution of the deleteTeam method where the team is not deleted
+   */
+  @Test
+  void testDeleteTeam_TeamNotDeleted() {
+    // Arrange
+    when(teamRepository.findById("teamId")).thenReturn(Optional.ofNullable(team));
+    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(projectRepository.save(project)).thenReturn(project);
+
+    when(userRepository.findById("user2Id")).thenReturn(Optional.ofNullable(user2));
+    when(userRepository.save(user2)).thenReturn(user2);
+    when(userRepository.findById("user1Id")).thenReturn(Optional.ofNullable(user1));
+    when(userRepository.save(user1)).thenReturn(user1);
+    when(teamRepository.existsById("teamId")).thenReturn(true);
+
+    when(artifactService.deleteArtifact("artifactId")).
+        thenReturn(ResponseEntity.ok().build());
+
+    // Act
+    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+
+    // Assert
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    assertEquals("Team not deleted", response.getBody());
   }
 
 
