@@ -86,6 +86,8 @@ public class TagService {
     for (TagCreateDto tagCreateDto : tags) {
       TagCreateDto correctTagDto = validateTag(tagCreateDto);
       Tag tag = tagMapper.toEntity(correctTagDto);
+      // TODO: A CHE serve avere una lista di artifacts se poi ogni tag è legato ad un singolo artifact?!
+      tag.getArtifactIds().add(artifactId);
 
       this.tagRepository.save(tag);
 
