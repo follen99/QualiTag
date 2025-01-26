@@ -30,10 +30,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const defaultHex = '#000000';   // TODO: pick dynamically
-    const userName = localStorage.getItem('username');  // TODO: change to userId
+    const userId = localStorage.getItem('user-userId');
     const artifactId = window.location.pathname.split('/')[2];
 
-    saveTags(artifactId, userName, defaultHex, tags);
+    saveTags(artifactId, userId, defaultHex, tags);
   });
 });
 
@@ -62,18 +62,37 @@ function fetchTagsFromUser(artifactId, username) {
   });
 }
 
+function deleteTagById(tagId) {
+  return fetch(`/api/v1/tag/${tagId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      return response.json().then(errorData => {
+        console.error("Error message: " + errorData.msg);
+        alert("Error: " + errorData.msg);
+        throw new Error(errorData.msg);
+      });
+    }
+  });
+}
+
 /**
  * Saves the tags for the artifact with the given ID.
  *
  * @param artifactId  the ID of the artifact to save tags for
- * @param username  the username of the user saving the tags
+ * @param userId  the userId of the user saving the tags
  * @param hex the hex color code for the tags
  * @param tags the tags to save (array of strings)
  */
-function saveTags(artifactId, username, hex, tags) {
+function saveTags(artifactId, userId, hex, tags) {
   const tagCreateDtoList = tags.map(tagValue => ({
     tagValue: tagValue,
-    createdBy: username,
+    createdBy: userId,
     colorHex: hex
   }));
 
@@ -195,12 +214,39 @@ function populateSidebar(artifactId, username) {
     alert("Errore: " + error.message);
   });
 
-  fetchTagsFromUser(artifactId, username).then(tags => {
-    const tagInput = document.getElementById('tagInput');
-    console.log("tags:", tags.tags);
-    tagInput.value = tags.tags.map(tag => tag.tagValue).join(', ');
-  })
+  populateExistingTags(artifactId, username);
 
+}
+
+function populateExistingTags(artifactId, username) {
+  const existingTagList = document.getElementById('existingTagsList');
+
+  fetchTagsFromUser(artifactId, username).then(tags => {
+    console.log("tags:", tags.tags);
+    // tagInput.value = tags.tags.map(tag => tag.tagValue).join(', ');
+    existingTagList.innerHTML = ''; // Clear existing tags
+    tags.tags.forEach(tag => {
+      const listItem = document.createElement('li');
+      listItem.textContent = tag.tagValue;
+
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'x';
+      removeButton.style.marginLeft = '10px';
+      removeButton.addEventListener('click', () => {
+        // listItem.remove();
+        // Optionally, you can add code here to remove the tag from the server
+        if (confirm(`Are you sure you want to remove the tag "${tag.tagValue}"?`)){
+          deleteTagById(tag.tagId).then(() => {
+            alert(`Tag "${tag.tagValue}" removed successfully.`);
+            window.location.reload();
+          });
+        }
+      });
+
+      listItem.appendChild(removeButton);
+      existingTagList.appendChild(listItem);
+    });
+  })
 }
 
 // 2. visualize the file

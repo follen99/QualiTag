@@ -39,6 +39,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       localStorage.setItem('user-projectIds', JSON.stringify(user.projectIds));
       localStorage.setItem('user-tagIds', JSON.stringify(user.teamIds));
       localStorage.setItem('user-lastFetch', Date.now());
+      localStorage.setItem('user-userId', user.userId);
 
       console.log(JSON.stringify(localStorage, null, 2));
 

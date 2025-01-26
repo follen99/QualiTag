@@ -1,6 +1,8 @@
 package it.unisannio.studenti.qualitag.repository;
 
+import com.google.common.base.Optional;
 import it.unisannio.studenti.qualitag.model.Tag;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -33,4 +35,12 @@ public interface TagRepository extends MongoRepository<Tag, String> {
    */
   Tag findTagByTagId(String tagId);
 
+  /**
+   * Finds a tag by its value if belongs to the userid.
+   *
+   * @param tagValue The value of the tag to find.
+   * @param createdBy The user that created the tag.
+   * @return The tag with the specified value.
+   */
+  Optional<Tag> findTagByTagValueAndCreatedBy(String tagValue, String createdBy);
 }

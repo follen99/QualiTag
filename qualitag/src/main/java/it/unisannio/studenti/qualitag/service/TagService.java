@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.service;
 
+import com.google.common.base.Optional;
 import it.unisannio.studenti.qualitag.constants.TagConstants;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
@@ -122,7 +123,7 @@ public class TagService {
       user = userRepository.findByUsername(createdBy);
     }
 
-    if ( user == null && createdBy.length() == 24 && createdBy.matches("^[0-9a-fA-F]{24}$")){
+    if (user == null && createdBy.length() == 24 && createdBy.matches("^[0-9a-fA-F]{24}$")) {
       try {
         user = userRepository.findByUserId(createdBy);
       } catch (Exception e) {
@@ -451,13 +452,11 @@ public class TagService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-
     User user = this.findUser(userIdOrEmailOrUsername);
     if (user == null) {
       response.put("msg", "User not found");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-
 
     List<String> tagIds = user.getTagIds();
     if (tagIds.isEmpty()) {
@@ -482,7 +481,7 @@ public class TagService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  private User findUser(String userIdOrEmailOrUsername){
+  private User findUser(String userIdOrEmailOrUsername) {
     User user = null;
 
     if (userIdOrEmailOrUsername.length() != 24) {
@@ -497,5 +496,91 @@ public class TagService {
     return user;
   }
 
+  // TODO this is too fucking difficult to do...
+  public ResponseEntity<?> updateTagsOfAnArtifact(List<TagCreateDto> tagsFromFrontend, String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+    System.out.println("tags: " + tagsFromFrontend);
 
+    // ASSUMING THAT ALL TAGS ARE CREATED BY THE SAME USER
+    String userId = tagsFromFrontend.getFirst().createdBy();
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<String> artifactTagIds = artifact.getTags();
+    if (artifactTagIds.isEmpty()) {
+      // add all tags right away
+      System.out.println("Adding all tags");
+    }
+
+    // prendo tutti i Tag dell'artefatto solo se creati dall'utente in questione
+    List<Tag> artifactTags = new ArrayList<>();
+    for (String tagId : artifactTagIds) {
+      Optional<Tag> tag = tagRepository.findTagByTagValueAndCreatedBy(tagId, userId);
+      if (tag.isPresent()) {
+        artifactTags.add(tag.get());
+      }
+    }
+
+    for (TagCreateDto tagDto : tagsFromFrontend) {
+      boolean tagExists = artifactTags.stream()
+          .anyMatch(existingTag -> {
+            return existingTag.getTagValue().equals(tagDto.tagValue());
+          });
+      if (tagExists) {
+        // doing nothing
+        continue;
+      }
+      // creating new tag
+
+      ResponseEntity<?> responseEntity = createTag(tagDto);
+      if (responseEntity.getStatusCode() != HttpStatus.CREATED) {
+        return responseEntity;
+      }
+
+    }
+
+
+
+/*
+    for (TagCreateDto tagDto : tagsFromFrontend) {
+      // Cerca se il tag esiste già nel database
+      User user = null;
+      String userId = tagDto.createdBy();
+      if (userId == null || !userId.matches("^[0-9a-fA-F]{24}$")) {
+        response.put("msg", "User ID is not valid");
+      }
+
+      user = userRepository.findByUserId(userId);
+
+      if (user == null) {
+        response.put("msg", "User not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      Optional<Tag> existingTag = tagRepository.findTagByTagValueAndCreatedBy(tagDto.tagValue(), userId);
+
+      if (existingTag.isPresent()) {
+        // Se esiste, aggiungi l'ID alla lista
+        updatedTagIds.add(existingTag.get().getTagId());
+      } else {
+        // Se non esiste, crea un nuovo tag
+        Tag newTag = new Tag();
+        newTag.setValue(tagDto.tagValue());
+        newTag.setCreatedBy(tagDto.createdBy());
+        newTag.setColorHex(tagDto.colorHex());
+        tagRepository.save(newTag);
+
+        // Aggiungi l'ID del nuovo tag alla lista
+        updatedTagIds.add(newTag.getId());
+      }
+    }
+*/
+    // work in progress
+    return null;
+
+  }
 }
