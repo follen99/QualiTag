@@ -3,7 +3,9 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
+import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.model.Tag;
@@ -578,6 +580,45 @@ public class ArtifactService {
       if (tag.getCreatedBy().equals(user.getUserId())) {
         tags.add(tag);
       }
+    }
+
+    response.put("msg", "Tags retrieved successfully");
+    response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  public ResponseEntity<?> getAllTags(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<String> tagIds = artifact.getTags();
+    List<TagResponseDto> tags = new ArrayList<>();
+    for (String tagId : tagIds) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      if (tag == null) {
+        response.put("msg", "Tag not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      User user = userRepository.findByUserId(tag.getCreatedBy());
+      if (user == null) {
+        response.put("msg", "User not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      // swapping userId with username for convenience
+      tag.setCreatedBy(user.getUsername());
+
+      TagMapper tagMapper = new TagMapper();
+      tags.add(tagMapper.getResponseDto(tag));
     }
 
     response.put("msg", "Tags retrieved successfully");

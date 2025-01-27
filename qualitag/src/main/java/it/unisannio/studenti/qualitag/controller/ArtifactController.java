@@ -60,6 +60,11 @@ public class ArtifactController {
     return this.artifactService.getArtifact(artifactId);
   }
 
+  @GetMapping("/{artifactId}/tags")
+  public ResponseEntity<?> getTags(@PathVariable String artifactId) {
+    return this.artifactService.getAllTags(artifactId);
+  }
+
   /**
    * Gets the metadata of an artifact.
    *

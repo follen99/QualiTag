@@ -8,8 +8,10 @@ const tagIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em
     + '</svg>';
 
 // Main control flow
+let allTagsContainer;
 document.addEventListener('DOMContentLoaded', function () {
   const artifactContainer = document.getElementById('artifact-container');
+  allTagsContainer = document.getElementById('tags-container');
 
   const tagInput = document.getElementById('tagInput');
 
@@ -21,15 +23,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
   fetchArtifact(artifactId);
 
-  console.log("your username: " + localStorage.getItem('username') + "\nowner: " + ownerUsername);
+  // if the user is the owner of the artifact he cannot tag it,
+  // but he can stop the tagging operation, see other users' tags and IRR
   if (localStorage.getItem('username') === ownerUsername) {
     populateSidebarOwner(artifactId, localStorage.getItem('username'));
   } else {
-    // displaying sidebar stuff
+    // if the user is not the owner, he can tag the artifact
     populateSidebarUser(artifactId, localStorage.getItem('username'));
   }
 
 });
+
+function fetchAllArtifactTags(artifactId) {
+  return fetch(`/api/v1/artifact/${artifactId}/tags`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      return response.json().then(errorData => {
+        console.error("Error message: " + errorData.msg);
+        alert("Error: " + errorData.msg);
+        throw new Error(errorData.msg);
+      });
+    }
+  });
+}
 
 /**
  * Fetches the tags for the artifact with the given ID/username/email.
@@ -173,7 +195,7 @@ function detectLanguage(contentType) {
   return 'plaintext'; // Default
 }
 
-function populateSidebarOwner(artifactId, username) {
+async function populateSidebarOwner(artifactId, username) {
   // TODO: mostrare tutti i tag aggiunti dagli altri utenti finora, mostrare IRR
 
   const sidebarContainer = document.getElementById('sidebar-container');
@@ -185,12 +207,63 @@ function populateSidebarOwner(artifactId, username) {
 
   const stopButton = document.createElement('button');
   stopButton.textContent = 'Stop Tagging';
+  stopButton.style.marginBottom = '2em';
   stopButton.className = 'btn btn-danger mt-3';
   stopButton.addEventListener('click', () => {
     alert('Tagging operation stopped.');
   });
   sidebarContainer.appendChild(stopButton);
+
+  const response = await fetchAllArtifactTags(artifactId);
+  const tags = response.tags; // Array of tags
+
+  console.log("tags:", tags);
+
+  if (Array.isArray(tags) && tags.length > 0) {
+    const explanatoryText = document.createElement('p');
+    explanatoryText.textContent = 'Tags from all the users:';
+    sidebarContainer.appendChild(explanatoryText);
+    
+    for (const tag of tags) {
+      const tagContainer = document.createElement('div'); // Creazione dinamica del contenitore per ogni tag
+      tagContainer.className = 'd-flex justify-content-between align-items-center border p-2 mb-2 rounded';
+      tagContainer.style.backgroundColor = '#334E82'; // Sfondo leggero per separare i tag
+
+      // Sezione per visualizzare il colore
+      const colorIndicator = document.createElement('div');
+      colorIndicator.style.width = '20px';
+      colorIndicator.style.height = '20px';
+      colorIndicator.style.borderRadius = '50%';
+      colorIndicator.style.backgroundColor = tag.colorHex; // Colore basato su tag.colorHex
+      colorIndicator.style.border = '1px solid #ccc';
+      tagContainer.appendChild(colorIndicator);
+
+      // Sezione per il testo del tag
+      const tagDetails = document.createElement('div');
+      tagDetails.className = 'd-flex flex-column ms-3';
+
+      // Testo principale del tag
+      const tagText = document.createElement('span');
+      tagText.textContent = tag.tagValue;
+      tagText.className = 'fw-bold'; // Testo in grassetto
+      tagDetails.appendChild(tagText);
+
+      // Informazione sul creatore del tag
+      const tagCreator = document.createElement('span');
+      tagCreator.textContent = `Created by: ${tag.createdBy}`;
+      tagCreator.className = 'text-muted text-small'; // Testo più piccolo e opaco
+      tagDetails.appendChild(tagCreator);
+
+      tagContainer.appendChild(tagDetails);
+
+      // Aggiunta del contenitore del tag alla sidebar
+      sidebarContainer.appendChild(tagContainer);
+    }
+  }
+
+
 }
+
 
 function populateSidebarUser(artifactId, username) {
   const tagDropDown = document.getElementById('tagList');

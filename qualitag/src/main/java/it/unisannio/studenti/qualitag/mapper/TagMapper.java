@@ -16,6 +16,7 @@ public class TagMapper {
   /**
    * Default constructor.
    */
+  // TODO: make this class static!
   public TagMapper() {
   }
 
