@@ -3,6 +3,7 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
+import it.unisannio.studenti.qualitag.dto.user.UserResponseDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.model.Tag;
@@ -77,8 +78,12 @@ public class UserService {
       }
     }
 
-    UserInfoDisplayDto dto = userMapper.toDisplayDto(user);
-    return ResponseEntity.status(HttpStatus.OK).body(dto);
+//    UserInfoDisplayDto dto = userMapper.toDisplayDto(user);
+    UserResponseDto returnDto = new UserResponseDto(user.getUsername(), user.getEmail(),
+        user.getName(), user.getSurname(), user.getProjectIds(), user.getTeamIds(),
+        user.getTagIds(), user.getProjectRolesAsString(), user.getUserId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(returnDto);
   }
 
   /**
