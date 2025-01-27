@@ -108,10 +108,16 @@
       </div>
     </div>
   </div>
+
+<!-- accrocchio per passare il projectId senza fare un'altra chiamata -->
+  <div id="ownerUsernameContainer" th:text="${ownerUsername} " style="display: none;"></div>
 </section>
 
-<script src="/js/artifact/artifact-details.js"></script>
-
+<script th:inline="javascript" src="/js/artifact/artifact-details.js"></script>
+<!--<script th:inline="javascript">
+  const projectId = /*[[${projectId}]]*/ "";
+  console.log("projectId: " + projectId);
+</script>-->
 
 <script type="module" src="/js/navbar/nav-bar-logic.js"></script>
 <script src="/assets/bootstrap/js/bootstrap.min.js"></script>

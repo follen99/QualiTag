@@ -117,11 +117,12 @@ document.addEventListener('DOMContentLoaded', function () {
       showElementsInsideDropdown(artifactsDropdown, [noArtifact], false,
           '', '', '', defaultIcon, 'artifactName');
     } else {
+      console.log(project.owner)
       showElementsInsideDropdown(artifactsDropdown,
           project.artifacts,
           true,
           '/artifact/',
-          '/tag',
+          '/tag' + `/${project.owner.username}`,
           'artifactId',
           artifactsIcon,
           'artifactName');
@@ -163,7 +164,7 @@ function showElementsInsideDropdown(targetDropdown,
     footerUrl,
     itemIdName,
     icon = defaultIcon,
-    attributeName
+    attributeName,
 ) {
   list.forEach(listItem => {
     // Creating an element <li> for each team

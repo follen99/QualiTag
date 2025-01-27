@@ -7,34 +7,28 @@ const tagIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em
     + '  <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586 7 7L13.586 9l-7-7H2z"/>\n'
     + '</svg>';
 
+// Main control flow
 document.addEventListener('DOMContentLoaded', function () {
   const artifactContainer = document.getElementById('artifact-container');
 
-  const confirmButton = document.getElementById('confirmTagsButton');
   const tagInput = document.getElementById('tagInput');
 
   const artifactId = window.location.pathname.split('/')[2];
+
+  const ownerUsername = document.getElementById(
+      'ownerUsernameContainer').textContent.trim();
+  console.log("ownerUsername: " + ownerUsername);
+
   fetchArtifact(artifactId);
 
-  // displaying sidebar stuff
-  populateSidebar(artifactId, localStorage.getItem('username'));
+  console.log("your username: " + localStorage.getItem('username') + "\nowner: " + ownerUsername);
+  if (localStorage.getItem('username') === ownerUsername) {
+    populateSidebarOwner(artifactId, localStorage.getItem('username'));
+  } else {
+    // displaying sidebar stuff
+    populateSidebarUser(artifactId, localStorage.getItem('username'));
+  }
 
-  // when the user clicks the confirm button
-  confirmButton.addEventListener('click', () => {
-    const tags = tagInput.value.split(',').map(tag => tag.trim()).filter(
-        tag => tag.length > 0);
-
-    if (tags.length === 0) {
-      alert('Please add at least one tag');
-      return;
-    }
-
-    const defaultHex = '#000000';   // TODO: pick dynamically
-    const userId = localStorage.getItem('user-userId');
-    const artifactId = window.location.pathname.split('/')[2];
-
-    saveTags(artifactId, userId, defaultHex, tags);
-  });
 });
 
 /**
@@ -149,7 +143,6 @@ async function fetchArtifact(artifactId) {
         ? contentDisposition.split('filename=')[1].replace(/"/g, '')
         : 'downloaded_file';
 
-
     // get the file as a blob
     const fileBlob = await response.blob();
 
@@ -180,8 +173,28 @@ function detectLanguage(contentType) {
   return 'plaintext'; // Default
 }
 
-function populateSidebar(artifactId, username) {
+function populateSidebarOwner(artifactId, username) {
+  // TODO: mostrare tutti i tag aggiunti dagli altri utenti finora, mostrare IRR
+
+  const sidebarContainer = document.getElementById('sidebar-container');
+  sidebarContainer.innerHTML = ''; // Clear existing content
+
+  const message = document.createElement('p');
+  message.textContent = 'You are the owner, you cannot tag an artifact; you can only stop the tagging operation.';
+  sidebarContainer.appendChild(message);
+
+  const stopButton = document.createElement('button');
+  stopButton.textContent = 'Stop Tagging';
+  stopButton.className = 'btn btn-danger mt-3';
+  stopButton.addEventListener('click', () => {
+    alert('Tagging operation stopped.');
+  });
+  sidebarContainer.appendChild(stopButton);
+}
+
+function populateSidebarUser(artifactId, username) {
   const tagDropDown = document.getElementById('tagList');
+  const confirmButton = document.getElementById('confirmTagsButton');
 
   fetch('/api/v1/tag/byuser/' + localStorage.getItem('username') + '/all', {
     method: 'GET',
@@ -216,6 +229,23 @@ function populateSidebar(artifactId, username) {
 
   populateExistingTags(artifactId, username);
 
+  // when the user clicks the confirm button
+  confirmButton.addEventListener('click', () => {
+    const tags = tagInput.value.split(',').map(tag => tag.trim()).filter(
+        tag => tag.length > 0);
+
+    if (tags.length === 0) {
+      alert('Please add at least one tag');
+      return;
+    }
+
+    const defaultHex = '#000000';   // TODO: pick dynamically
+    const userId = localStorage.getItem('user-userId');
+    const artifactId = window.location.pathname.split('/')[2];
+
+    saveTags(artifactId, userId, defaultHex, tags);
+  });
+
 }
 
 function populateExistingTags(artifactId, username) {
@@ -235,7 +265,8 @@ function populateExistingTags(artifactId, username) {
       removeButton.addEventListener('click', () => {
         // listItem.remove();
         // Optionally, you can add code here to remove the tag from the server
-        if (confirm(`Are you sure you want to remove the tag "${tag.tagValue}"?`)){
+        if (confirm(
+            `Are you sure you want to remove the tag "${tag.tagValue}"?`)) {
           deleteTagById(tag.tagId).then(() => {
             alert(`Tag "${tag.tagValue}" removed successfully.`);
             window.location.reload();

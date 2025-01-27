@@ -1,22 +1,5 @@
 package it.unisannio.studenti.qualitag.view;
 
-import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
-import it.unisannio.studenti.qualitag.dto.project.ProjectInfoDto;
-import it.unisannio.studenti.qualitag.dto.team.WholeTeamHeavyDto;
-import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
-import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
-import it.unisannio.studenti.qualitag.mapper.UserMapper;
-import it.unisannio.studenti.qualitag.model.Artifact;
-import it.unisannio.studenti.qualitag.model.Project;
-import it.unisannio.studenti.qualitag.model.Team;
-import it.unisannio.studenti.qualitag.model.User;
-import it.unisannio.studenti.qualitag.repository.ArtifactRepository;
-import it.unisannio.studenti.qualitag.repository.ProjectRepository;
-import it.unisannio.studenti.qualitag.repository.TeamRepository;
-import it.unisannio.studenti.qualitag.repository.UserRepository;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,11 +33,14 @@ public class ArtifactViewController {
    * @param artifactId the artifact id
    * @return the view for tagging the artifact
    */
-  @GetMapping("/{artifactId}/tag")
-  public String viewArtifact(@PathVariable("artifactId") String artifactId) {
+  @GetMapping("/{artifactId}/tag/{projectOwnerUsername}")
+  public String viewArtifact(@PathVariable("artifactId") String artifactId,
+      @PathVariable String projectOwnerUsername, Model model) {
     /*WholeArtifactDto artifactDto = ArtifactMapper.toWholeArtifactDto(
         artifactRepository.findById(artifactId).orElseThrow(NoSuchElementException::new));
     model.addAttribute("artifact", artifactDto);*/
+    model.addAttribute("ownerUsername", projectOwnerUsername);
+    System.out.println("projectId: " + projectOwnerUsername);
     return "artifact/artifact_details";
   }
 
