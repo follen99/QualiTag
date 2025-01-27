@@ -223,7 +223,7 @@ async function populateSidebarOwner(artifactId, username) {
     const explanatoryText = document.createElement('p');
     explanatoryText.textContent = 'Tags from all the users:';
     sidebarContainer.appendChild(explanatoryText);
-    
+
     for (const tag of tags) {
       const tagContainer = document.createElement('div'); // Creazione dinamica del contenitore per ogni tag
       tagContainer.className = 'd-flex justify-content-between align-items-center border p-2 mb-2 rounded';
@@ -268,6 +268,7 @@ async function populateSidebarOwner(artifactId, username) {
 function populateSidebarUser(artifactId, username) {
   const tagDropDown = document.getElementById('tagList');
   const confirmButton = document.getElementById('confirmTagsButton');
+  const clearButton = document.getElementById('clearTextAreaButton');
 
   fetch('/api/v1/tag/byuser/' + localStorage.getItem('username') + '/all', {
     method: 'GET',
@@ -317,6 +318,13 @@ function populateSidebarUser(artifactId, username) {
     const artifactId = window.location.pathname.split('/')[2];
 
     saveTags(artifactId, userId, defaultHex, tags);
+  });
+
+  clearButton.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear the tags?')) {
+      const tagInput = document.getElementById('tagInput');
+      tagInput.value = '';
+    }
   });
 
 }
@@ -467,5 +475,15 @@ function showElementsInsideDropdown(targetDropdown,
 
     // Adding <li> to dropdown
     targetDropdown.appendChild(wrapperItem);
+
+    if (clickable){
+      link.addEventListener('click', () =>{
+        const tagInput = document.getElementById('tagInput');
+        const currentTags = tagInput.value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+        if (!currentTags.some(tag => tag.toLowerCase() === listItem[attributeName].toLowerCase())) {
+          tagInput.value = currentTags.join(', ') + (currentTags.length ? ', ' : '') + listItem[attributeName];
+        }
+      });
+    }
   });
 }

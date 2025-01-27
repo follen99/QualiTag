@@ -81,17 +81,33 @@
                 </div>
 
 
-                <!-- Dropdown per selezionare i tag esistenti -->
-                <div class="dropdown">
-                  <button class="common-button-size button-custom dropdown-toggle me-2 mt-2"
-                          type="button" id="tagDropdown"
-                          data-bs-toggle="dropdown" aria-expanded="false">
-                    Previous tags...
-                  </button>
-                  <ul class="adaptive-dropdown-menu dropdown-menu" aria-labelledby="tagDropdown"
-                      id="tagList">
-                    <!-- I tag verranno caricati dinamicamente qui -->
-                  </ul>
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col">
+
+                      <!-- Dropdown per selezionare i tag esistenti -->
+                      <div class="dropdown">
+                        <button class="common-button-size button-custom dropdown-toggle me-1 mt-2"
+                                type="button" id="tagDropdown"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                          Previous tags...
+                        </button>
+                        <ul class="adaptive-dropdown-menu dropdown-menu" aria-labelledby="tagDropdown"
+                            id="tagList">
+                          <!-- I tag verranno caricati dinamicamente qui -->
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div class="col">
+                      <button type="button"
+                              class="btn btn-danger common-button-size mt-2 ms-1"
+                              style="display: flex; align-items: center; justify-content: center;"
+                              id="clearTextAreaButton">
+                        Clear
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
 
