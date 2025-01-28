@@ -9,7 +9,7 @@ const tagIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em
 
 // Main control flow
 let allTagsContainer;
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
   const artifactContainer = document.getElementById('artifact-container');
   allTagsContainer = document.getElementById('tags-container');
 
@@ -21,18 +21,42 @@ document.addEventListener('DOMContentLoaded', function () {
       'ownerUsernameContainer').textContent.trim();
   console.log("ownerUsername: " + ownerUsername);
 
+  // before displaying the artifact, check artifact metadata
+  const metadata = await fetchArtifactMetadata(artifactId);
+  console.log("metadata:", metadata);
+
+  // fetch and display artifact content
   fetchArtifact(artifactId);
 
   // if the user is the owner of the artifact he cannot tag it,
   // but he can stop the tagging operation, see other users' tags and IRR
   if (localStorage.getItem('username') === ownerUsername) {
-    populateSidebarOwner(artifactId, localStorage.getItem('username'));
+    populateSidebarOwner(artifactId, metadata);
   } else {
     // if the user is not the owner, he can tag the artifact
-    populateSidebarUser(artifactId, localStorage.getItem('username'));
+    populateSidebarUser(artifactId, metadata);
   }
 
 });
+
+async function fetchArtifactMetadata(artifactId) {
+  return fetch(`/api/v1/artifact/${artifactId}/metadata`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      return response.json().then(errorData => {
+        console.error("Error message: " + errorData.msg);
+        alert("Error: " + errorData.msg);
+        throw new Error(errorData.msg);
+      });
+    }
+  });
+}
 
 function fetchAllArtifactTags(artifactId) {
   return fetch(`/api/v1/artifact/${artifactId}/tags`, {
@@ -195,7 +219,7 @@ function detectLanguage(contentType) {
   return 'plaintext'; // Default
 }
 
-async function populateSidebarOwner(artifactId, username) {
+async function populateSidebarOwner(artifactId, metadata) {
   // TODO: mostrare tutti i tag aggiunti dagli altri utenti finora, mostrare IRR
 
   const sidebarContainer = document.getElementById('sidebar-container');
@@ -205,19 +229,42 @@ async function populateSidebarOwner(artifactId, username) {
   message.textContent = 'You are the owner, you cannot tag an artifact; you can only stop the tagging operation.';
   sidebarContainer.appendChild(message);
 
-  const stopButton = document.createElement('button');
-  stopButton.textContent = 'Stop Tagging';
-  stopButton.style.marginBottom = '2em';
-  stopButton.className = 'btn btn-danger mt-3';
-  stopButton.addEventListener('click', () => {
-    if (confirm(
-        "Are you sure you want to stop the tagging operation?\n This will prevent other users from adding tags.")) {
-      // TODO: actually stop the tagging operation
-      alert(stopTaggingOperation(artifactId));
-      // alert('Tagging operation stopped.');
-    }
-  });
-  sidebarContainer.appendChild(stopButton);
+
+  console.log("metadata:", metadata.artifact.isTaggingOpen);
+  if (metadata.artifact.isTaggingOpen) {
+    sidebarContainer.appendChild(getExplainingText('The tagging operation is currently in progress. You can stop it by clicking the button below.'));
+
+    const stopButton = document.createElement('button');
+    stopButton.textContent = 'Stop Tagging';
+    stopButton.style.marginBottom = '2em';
+    stopButton.className = 'btn btn-danger mt-3';
+    stopButton.addEventListener('click', async () => {
+      if (confirm(
+          "Are you sure you want to stop the tagging operation?\n This will prevent other users from adding tags.")) {
+        alert(await stopTaggingOperation(artifactId));
+
+        window.location.reload();
+      }
+    });
+    sidebarContainer.appendChild(stopButton);
+  } else {
+
+    sidebarContainer.appendChild(getExplainingText('No user can tag the artifact since the tagging operation is closed. You can resume it by clicking the button below.'));
+
+    const startButton = document.createElement('button');
+    startButton.textContent = 'Start Tagging';
+    startButton.style.marginBottom = '2em';
+    startButton.className = 'btn btn-primary mt-3';
+    startButton.addEventListener('click', async () => {
+      if (confirm(
+          "Are you sure you want to start the tagging operation?\n This will allow other users to add tags.")) {
+        alert(await startTaggingOperation(artifactId));
+
+        window.location.reload();
+      }
+    });
+    sidebarContainer.appendChild(startButton);
+  }
 
   const response = await fetchAllArtifactTags(artifactId);
   const tags = response.tags; // Array of tags
@@ -268,8 +315,43 @@ async function populateSidebarOwner(artifactId, username) {
 
 }
 
-function stopTaggingOperation(artifactId) {
+function getExplainingText(text) {
+  const explanationContainer = document.createElement('div');
+  explanationContainer.className = 'p-3 mb-3 rounded';
+  explanationContainer.style.backgroundColor = '#4d6a7b'; // Matching background color
+
+  const explanation = document.createElement('p');
+  explanation.textContent = text;
+  explanation.style.textAlign = 'center'; // Center the text
+  explanation.style.fontSize = '1.2em'; // Increase the font size
+
+  explanationContainer.appendChild(explanation);
+  return explanationContainer;
+}
+
+async function stopTaggingOperation(artifactId) {
   return fetch(`/api/v1/artifact/${artifactId}/stoptagging`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(data => {
+        return data.msg;
+      });
+    } else {
+      return response.json().then(errorData => {
+        console.error("Error message: " + errorData.msg);
+        alert("Error: " + errorData.msg);
+        throw new Error(errorData.msg);
+      });
+    }
+  });
+}
+
+async function startTaggingOperation(artifactId) {
+  return fetch(`/api/v1/artifact/${artifactId}/starttagging`, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('authToken')}`
