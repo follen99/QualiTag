@@ -209,7 +209,7 @@ public class TagService {
    * Updates a tag.
    *
    * @param tagUpdateDto The tag to update.
-   * @param id The id of the tag to update.
+   * @param id           The id of the tag to update.
    * @return The response entity.
    */
   public ResponseEntity<?> updateTag(TagUpdateDto tagUpdateDto, String id) {
