@@ -76,8 +76,13 @@ document.addEventListener('DOMContentLoaded', function () {
         'projectStartingDate').innerText = `Creation date: ${new Date(
         project.projectCreationDate).toLocaleDateString()}`;
 
-    // TODO add a card to display more infos about the owner
-    document.getElementById('projectOwner').innerText = project.owner.username;
+    // if the project is owned by the user, show "you" next to the owner name
+    if (project.owner.username === localStorage.getItem('username')) {
+      document.getElementById('projectOwner').innerText = project.owner.username + " (you)";
+    }else {
+      document.getElementById('projectOwner').innerText = project.owner.username;
+    }
+
 
     // adding user list
     const usersDropdown = document.querySelector(

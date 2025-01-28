@@ -210,7 +210,10 @@ async function populateSidebarOwner(artifactId, username) {
   stopButton.style.marginBottom = '2em';
   stopButton.className = 'btn btn-danger mt-3';
   stopButton.addEventListener('click', () => {
-    alert('Tagging operation stopped.');
+    if (confirm("Are you sure you want to stop the tagging operation?\n This will prevent other users from adding tags.")) {
+      // TODO: actually stop the tagging operation
+      alert('Tagging operation stopped.');
+    }
   });
   sidebarContainer.appendChild(stopButton);
 
