@@ -279,7 +279,10 @@ function populateSidebarUser(artifactId, username) {
   .then(response => {
     if (response.ok) {
       return response.json().then(data => {
-        const tags = data.tags;
+        let tags = data.tags;
+
+        tags = removeDuplicates(tags, 'tagValue');
+
         if (Array.isArray(tags) && tags.length > 0) {
           showElementsInsideDropdown(tagDropDown, tags, true, tagIcon,
               'tagValue');
@@ -327,6 +330,20 @@ function populateSidebarUser(artifactId, username) {
     }
   });
 
+}
+
+function removeDuplicates(array, key) {
+  const uniqueTags = [];
+  const tagValues = new Set();
+
+  array.forEach(tag => {
+    if (!tagValues.has(tag[key])) {
+      tagValues.add(tag[key]);
+      uniqueTags.push(tag);
+    }
+  });
+
+  return uniqueTags;
 }
 
 function populateExistingTags(artifactId, username) {

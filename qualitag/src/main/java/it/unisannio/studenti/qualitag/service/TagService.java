@@ -132,7 +132,11 @@ public class TagService {
         return false;
       }
     }
-    // TODO: add a check for the user
+
+    if (user == null) {
+      return false;
+    }
+
     // Check if the user already has a tag with the same value and for the same artifact
     List<String> userTagIds = user.getTagIds();
     for (String tagId : userTagIds) {
