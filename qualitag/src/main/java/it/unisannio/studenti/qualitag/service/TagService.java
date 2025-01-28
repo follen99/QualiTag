@@ -132,13 +132,17 @@ public class TagService {
         return false;
       }
     }
-
-    // Check if the user already has a tag with the same value
+    // TODO: add a check for the user
+    // Check if the user already has a tag with the same value and for the same artifact
     List<String> userTagIds = user.getTagIds();
     for (String tagId : userTagIds) {
       Tag userTag = tagRepository.findTagByTagId(tagId);
+      // check if the tag already exists with the same value
       if (userTag.getTagValue().equals(tag.getTagValue())) {
-        return false;
+        // check if the tag if from the same artifact
+        if (userTag.getArtifactIds().equals(tag.getArtifactIds())) {
+          return false;
+        }
       }
     }
 
