@@ -222,18 +222,41 @@ public class ArtifactTest {
    * Test the hashcode method with a different object.
    */
   @Test
-  public void testNotEqualsHashCode() {
-    assertNotEquals(artifact.hashCode(), differentArtifact.hashCode());
+  public void testNotEqualsWithTaggingOpen() {
+    artifact.setTaggingOpen(true);
+    differentArtifact.setTaggingOpen(false);
+    assertNotEquals(artifact, differentArtifact);
+  }
+
+  /**
+   * Test the hashcode method with a different object.
+   */
+  @Test
+  public void testIsTaggingOpen() {
+    artifact.setTaggingOpen(true);
+    assertTrue(artifact.isTaggingOpen());
+  }
+
+  /**
+   * Test the hashcode method with a different object.
+   */
+  @Test
+  public void testSetTaggingOpen() {
+    artifact.setTaggingOpen(true);
+    assertTrue(artifact.isTaggingOpen());
+    artifact.setTaggingOpen(false);
+    assertFalse(artifact.isTaggingOpen());
   }
 
   /**
    * Test the toString method.
    */
   @Test
-  public void testToString() {
+  public void testToStringWithTaggingOpen() {
+    artifact.setTaggingOpen(true);
     String expected = "Artifact{artifactId='null', "
         + "artifactName='artifactName', description='description', "
-        + "projectId='projectId', teamId='teamId', filePath='filePath', tags=[]}";
+        + "projectId='projectId', teamId='teamId', filePath='filePath', tags=[], isTaggingOpen=true}";
     assertEquals(expected, artifact.toString());
   }
 
@@ -247,6 +270,16 @@ public class ArtifactTest {
         "filePath");
     sameArtifact.setArtifactId(artifact.getArtifactId());
     assertEquals(sameArtifact, artifact);
+  }
+
+  /**
+   * Test equals with different cases.
+   */
+  @Test
+  public void testEqualsWithTaggingOpen() {
+    artifact.setTaggingOpen(true);
+    equalArtifact.setTaggingOpen(true);
+    assertEquals(artifact, equalArtifact);
   }
 
   /**

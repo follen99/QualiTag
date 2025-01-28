@@ -229,10 +229,10 @@ async function populateSidebarOwner(artifactId, metadata) {
   message.textContent = 'You are the owner, you cannot tag an artifact; you can only stop the tagging operation.';
   sidebarContainer.appendChild(message);
 
-
   console.log("metadata:", metadata.artifact.isTaggingOpen);
   if (metadata.artifact.isTaggingOpen) {
-    sidebarContainer.appendChild(getExplainingText('The tagging operation is currently in progress. You can stop it by clicking the button below.'));
+    sidebarContainer.appendChild(getExplainingText(
+        'The tagging operation is currently in progress. You can stop it by clicking the button below.'));
 
     const stopButton = document.createElement('button');
     stopButton.textContent = 'Stop Tagging';
@@ -249,7 +249,8 @@ async function populateSidebarOwner(artifactId, metadata) {
     sidebarContainer.appendChild(stopButton);
   } else {
 
-    sidebarContainer.appendChild(getExplainingText('No user can tag the artifact since the tagging operation is closed. You can resume it by clicking the button below.'));
+    sidebarContainer.appendChild(getExplainingText(
+        'No user can tag the artifact since the tagging operation is closed. You can resume it by clicking the button below.'));
 
     const startButton = document.createElement('button');
     startButton.textContent = 'Start Tagging';
@@ -371,70 +372,80 @@ async function startTaggingOperation(artifactId) {
   });
 }
 
-function populateSidebarUser(artifactId, username) {
-  const tagDropDown = document.getElementById('tagList');
-  const confirmButton = document.getElementById('confirmTagsButton');
-  const clearButton = document.getElementById('clearTextAreaButton');
+async function populateSidebarUser(artifactId, username) {
+  const metadata = await fetchArtifactMetadata(artifactId);
 
-  fetch('/api/v1/tag/byuser/' + localStorage.getItem('username') + '/all', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-    }
-  })
-  .then(response => {
-    if (response.ok) {
-      return response.json().then(data => {
-        let tags = data.tags;
+  if (metadata.artifact.isTaggingOpen) {
+    const tagDropDown = document.getElementById('tagList');
+    const confirmButton = document.getElementById('confirmTagsButton');
+    const clearButton = document.getElementById('clearTextAreaButton');
 
-        tags = removeDuplicates(tags, 'tagValue');
+    fetch('/api/v1/tag/byuser/' + localStorage.getItem('username') + '/all', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json().then(data => {
+          let tags = data.tags;
 
-        if (Array.isArray(tags) && tags.length > 0) {
-          showElementsInsideDropdown(tagDropDown, tags, true, tagIcon,
-              'tagValue');
-        } else {
-          const noTags = {tagValue: "No tags Available"};
-          showElementsInsideDropdown(tagDropDown, [noTags], false, null,
-              'tagValue');
-        }
-      });
-    } else {
-      return response.json().then(errorData => {
-        console.error("Something went wrong:", errorData.msg);
-        alert("Errore: " + errorData.msg);
-      });
-    }
-  })
-  .catch(error => {
-    console.error("Si è verificato un errore:", error.message);
-    alert("Errore: " + error.message);
-  });
+          tags = removeDuplicates(tags, 'tagValue');
 
-  populateExistingTags(artifactId, username);
+          if (Array.isArray(tags) && tags.length > 0) {
+            showElementsInsideDropdown(tagDropDown, tags, true, tagIcon,
+                'tagValue');
+          } else {
+            const noTags = {tagValue: "No tags Available"};
+            showElementsInsideDropdown(tagDropDown, [noTags], false, null,
+                'tagValue');
+          }
+        });
+      } else {
+        return response.json().then(errorData => {
+          console.error("Something went wrong:", errorData.msg);
+          alert("Errore: " + errorData.msg);
+        });
+      }
+    })
+    .catch(error => {
+      console.error("Si è verificato un errore:", error.message);
+      alert("Errore: " + error.message);
+    });
 
-  // when the user clicks the confirm button
-  confirmButton.addEventListener('click', () => {
-    const tags = tagInput.value.split(',').map(tag => tag.trim()).filter(
-        tag => tag.length > 0);
+    populateExistingTags(artifactId, username);
 
-    if (tags.length === 0) {
-      alert('Please add at least one tag');
-      return;
-    }
+    // when the user clicks the confirm button
+    confirmButton.addEventListener('click', () => {
+      const tags = tagInput.value.split(',').map(tag => tag.trim()).filter(
+          tag => tag.length > 0);
 
-    const defaultHex = '#000000';   // TODO: pick dynamically
-    const userId = localStorage.getItem('user-userId');
-    const artifactId = window.location.pathname.split('/')[2];
+      if (tags.length === 0) {
+        alert('Please add at least one tag');
+        return;
+      }
 
-    saveTags(artifactId, userId, defaultHex, tags);
-  });
+      const defaultHex = '#000000';   // TODO: pick dynamically
+      const userId = localStorage.getItem('user-userId');
+      const artifactId = window.location.pathname.split('/')[2];
 
-  clearButton.addEventListener('click', () => {
-    if (confirm('Are you sure you want to clear the tags?')) {
-      const tagInput = document.getElementById('tagInput');
-      tagInput.value = '';
-    }
-  });
+      saveTags(artifactId, userId, defaultHex, tags);
+    });
+
+    clearButton.addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear the tags?')) {
+        const tagInput = document.getElementById('tagInput');
+        tagInput.value = '';
+      }
+    });
+  } else {
+    const sidebarContainer = document.getElementById('sidebar-container');
+    sidebarContainer.innerHTML = ''; // Clear existing content
+
+    const message = 'The tagging operation is currently closed. You cannot tag the artifact.';
+    sidebarContainer.appendChild(getExplainingText(message));
+  }
 
 }
 
