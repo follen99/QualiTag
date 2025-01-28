@@ -210,9 +210,11 @@ async function populateSidebarOwner(artifactId, username) {
   stopButton.style.marginBottom = '2em';
   stopButton.className = 'btn btn-danger mt-3';
   stopButton.addEventListener('click', () => {
-    if (confirm("Are you sure you want to stop the tagging operation?\n This will prevent other users from adding tags.")) {
+    if (confirm(
+        "Are you sure you want to stop the tagging operation?\n This will prevent other users from adding tags.")) {
       // TODO: actually stop the tagging operation
-      alert('Tagging operation stopped.');
+      alert(stopTaggingOperation(artifactId));
+      // alert('Tagging operation stopped.');
     }
   });
   sidebarContainer.appendChild(stopButton);
@@ -264,9 +266,28 @@ async function populateSidebarOwner(artifactId, username) {
     }
   }
 
-
 }
 
+function stopTaggingOperation(artifactId) {
+  return fetch(`/api/v1/artifact/${artifactId}/stoptagging`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(data => {
+        return data.msg;
+      });
+    } else {
+      return response.json().then(errorData => {
+        console.error("Error message: " + errorData.msg);
+        alert("Error: " + errorData.msg);
+        throw new Error(errorData.msg);
+      });
+    }
+  });
+}
 
 function populateSidebarUser(artifactId, username) {
   const tagDropDown = document.getElementById('tagList');
@@ -496,12 +517,15 @@ function showElementsInsideDropdown(targetDropdown,
     // Adding <li> to dropdown
     targetDropdown.appendChild(wrapperItem);
 
-    if (clickable){
-      link.addEventListener('click', () =>{
+    if (clickable) {
+      link.addEventListener('click', () => {
         const tagInput = document.getElementById('tagInput');
-        const currentTags = tagInput.value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-        if (!currentTags.some(tag => tag.toLowerCase() === listItem[attributeName].toLowerCase())) {
-          tagInput.value = currentTags.join(', ') + (currentTags.length ? ', ' : '') + listItem[attributeName];
+        const currentTags = tagInput.value.split(',').map(
+            tag => tag.trim()).filter(tag => tag.length > 0);
+        if (!currentTags.some(tag => tag.toLowerCase()
+            === listItem[attributeName].toLowerCase())) {
+          tagInput.value = currentTags.join(', ') + (currentTags.length ? ', '
+              : '') + listItem[attributeName];
         }
       });
     }

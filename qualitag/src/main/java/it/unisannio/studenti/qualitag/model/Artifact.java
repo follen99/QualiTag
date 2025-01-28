@@ -37,6 +37,10 @@ public class Artifact {
 
   @Field(name = "artifactTags")
   private List<String> tags;
+  
+  @Field(name = "isTaggingOpen")
+  private boolean isTaggingOpen;
+  
 
   /**
    * Default constructor for Artifact.
@@ -127,6 +131,7 @@ public class Artifact {
         + ", teamId='" + teamId + '\''
         + ", filePath='" + filePath + '\''
         + ", tags=" + tags
+        + ", isTaggingOpen=" + isTaggingOpen
         + '}';
   }
 

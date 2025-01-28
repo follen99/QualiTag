@@ -108,6 +108,28 @@ public class ArtifactController {
     return this.artifactService.addTags(artifactId, dto);
   }
 
+  /**
+   * Starts the tagging process for an artifact.
+   *
+   * @param artifactId the id of the artifact to start tagging
+   * @return the response entity
+   */
+  @PutMapping("/{artifactId}/starttagging")
+  public ResponseEntity<?> startTagging(@PathVariable String artifactId) {
+    return this.artifactService.startTagging(artifactId);
+  }
+
+  /**
+   * Stops the tagging process for an artifact.
+   *
+   * @param artifactId the id of the artifact to stop tagging
+   * @return the response entity
+   */
+  @PutMapping("/{artifactId}/stoptagging")
+  public ResponseEntity<?> stopTagging(@PathVariable String artifactId) {
+    return this.artifactService.stopTagging(artifactId);
+  }
+
   // DELETE Methods
 
   /**

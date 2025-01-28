@@ -102,6 +102,7 @@ public class ArtifactService {
       // Convert the DTO to an entity
       Artifact artifact = ArtifactMapper.toEntity(artifactCreateDto);
       artifact.setFilePath(filePath);
+      artifact.setTaggingOpen(true);
 
       // Find the team with the least artifacts
       String minTeamId = null;
@@ -623,6 +624,50 @@ public class ArtifactService {
 
     response.put("msg", "Tags retrieved successfully");
     response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  public ResponseEntity<?> startTagging(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    artifact.setTaggingOpen(true);
+
+    artifactRepository.save(artifact);
+
+    response.put("msg", "Tagging started successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  public ResponseEntity<?> stopTagging(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    artifact.setTaggingOpen(false);
+
+    artifactRepository.save(artifact);
+
+    response.put("msg", "Tagging stopped successfully");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }
