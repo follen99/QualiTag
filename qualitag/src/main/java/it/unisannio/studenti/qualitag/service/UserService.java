@@ -124,7 +124,7 @@ public class UserService {
    * Modifies a user.
    *
    * @param userModifyDto The user modification data.
-   * @param username The username of the user to modify.
+   * @param username      The username of the user to modify.
    * @return A response entity with the result of the modification.
    */
   public ResponseEntity<?> updateUser(UserModifyDto userModifyDto, String username) {
@@ -198,7 +198,7 @@ public class UserService {
    * Updates the password of a user.
    *
    * @param passwordUpdateDto The password update data.
-   * @param username The username of the user to update the password.
+   * @param username          The username of the user to update the password.
    * @return A response entity with the result of the password update.
    */
   public ResponseEntity<?> updatePassword(PasswordUpdateDto passwordUpdateDto, String username) {

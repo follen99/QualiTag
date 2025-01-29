@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -70,6 +72,7 @@ public class TeamService {
       response.put("msg", "Team not found");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+    System.out.println("Team found: " + team);
 
     List<String> newUserIds = new ArrayList<>();
 
@@ -81,28 +84,36 @@ public class TeamService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       newUserIds.add(user.getUserId());
+      System.out.println("Added userId from email: " + email + " -> " + user.getUserId());
     }
 
     // updating user ids
+    System.out.println("Setting new user IDs for team: " + newUserIds);
     team.setUserIds(newUserIds);
 
     // saving on db
+    System.out.println("Saved updated team: " + team);
     teamRepository.save(team);
 
     // Find and add team to new users
     Set<String> addedUserIds = new HashSet<>(newUserIds);
     List<String> previousUserIds = new ArrayList<>(team.getUserIds());
 
+    System.out.println("New user IDs to add to the team: " + addedUserIds);
+
     // addedUserIds = newUserIds - previousUserIds
     previousUserIds.forEach(addedUserIds::remove);
+    System.out.println("Previous Ids: "+ previousUserIds);
     for (String userId : addedUserIds) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
         response.put("msg", "User with ID " + userId + " not found");
+        System.out.println("User not found with ID: " + userId);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       user.getTeamIds().add(teamId);
       userRepository.save(user);
+      System.out.println("Added team ID to user: " + user);
     }
 
     // find and remove team from old users
@@ -110,14 +121,17 @@ public class TeamService {
 
     // removedUserIds = previousUserIds - newUserIds
     newUserIds.forEach(removedUserIds::remove);
+    System.out.println("New Users Ids: " + newUserIds);
     for (String userId : removedUserIds) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
         response.put("msg", "User with ID " + userId + " not found");
+        System.out.println("User not found with ID: " + userId);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       user.getTeamIds().remove(teamId);
       userRepository.save(user);
+      System.out.println("Added team ID to user: " + user);
     }
 
     response.put("msg", "Team users updated successfully");
@@ -247,7 +261,6 @@ public class TeamService {
             + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH + " characters including whitespaces.");
       }
     }
-
     return new CompletedTeamCreateDto(name, project.getProjectId(), System.currentTimeMillis(),
         description, userIds);
   }
