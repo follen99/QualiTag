@@ -10,7 +10,6 @@ const tagIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em
 // Main control flow
 let allTagsContainer;
 document.addEventListener('DOMContentLoaded', async function () {
-  const artifactContainer = document.getElementById('artifact-container');
   allTagsContainer = document.getElementById('tags-container');
 
   const tagInput = document.getElementById('tagInput');
@@ -23,10 +22,16 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   // before displaying the artifact, check artifact metadata
   const metadata = await fetchArtifactMetadata(artifactId);
-  console.log("metadata:", metadata);
 
+  // console.log("Irr" + await fetchTeamIrr(metadata.artifact.teamId).irr);
+  fetchTeamIrr(metadata.artifact.teamId).then(data => {
+    const irr = data.irr;
+    displayTeamIrr(irr);
+  });
   // fetch and display artifact content
   fetchArtifact(artifactId);
+
+
 
   // if the user is the owner of the artifact he cannot tag it,
   // but he can stop the tagging operation, see other users' tags and IRR
@@ -38,6 +43,61 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
 });
+
+function displayTeamIrr(irr) {
+  const irrContainer = document.getElementById('irr-container');
+  const sliderBar = document.querySelector('.slider-bar');
+  const irrValue = document.getElementById('irr-value');
+  irrValue.textContent = irr.toFixed(3);
+  const sliderCenter = document.querySelector('.slider-center');
+
+  // Update the IRR value text
+  irrValue.textContent = irr.toFixed(2);
+
+  // Reset the slider bar
+  sliderBar.style.width = '0%';
+  sliderBar.style.left = '50%';
+  sliderBar.style.backgroundColor = 'transparent';
+
+  if (irr > 0) {
+    // Positive IRR: fill to the right with green
+    const fillWidth = (irr * 50); // Calculate proportional width
+    sliderBar.style.width = `${fillWidth}%`; // Fill to the right
+    sliderBar.style.left = '50%'; // Start from the center
+    sliderBar.style.backgroundColor = 'green';
+    sliderCenter.classList.remove('visible'); // Hide the circle
+  } else if (irr < 0) {
+    // Negative IRR: fill to the left with red
+    const fillWidth = (Math.abs(irr) * 50); // Calculate proportional width
+    sliderBar.style.width = `${fillWidth}%`; // Fill to the left
+    sliderBar.style.left = `${50 - fillWidth}%`; // Adjust the start position
+    sliderBar.style.backgroundColor = 'red';
+    sliderCenter.classList.remove('visible'); // Hide the circle
+  } else {
+    // IRR is zero: show orange circle
+    sliderBar.style.backgroundColor = 'transparent';
+    sliderCenter.classList.add('visible'); // Show the circle
+  }
+}
+
+async function fetchTeamIrr(teamId){
+  return fetch(`/api/v1/team/${teamId}/irr`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      return response.json().then(errorData => {
+        console.error("Error message: " + errorData.msg);
+        alert("Error: " + errorData.msg);
+        throw new Error(errorData.msg);
+      });
+    }
+  });
+}
 
 async function fetchArtifactMetadata(artifactId) {
   return fetch(`/api/v1/artifact/${artifactId}/metadata`, {

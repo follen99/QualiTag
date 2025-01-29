@@ -34,6 +34,85 @@
   <!-- Token validation -->
   <script src="/js/auth/token-validation.js"></script>
 
+  <style>
+    .card {
+      background-color: #634760;
+      border-radius: 15px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      color: white;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 20px;
+    }
+
+    .slider {
+      position: relative;
+      width: 100%;
+      height: 10px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .slider-bar {
+      position: absolute;
+      height: 100%;
+      width: 50%;
+      background-color: transparent;
+      transition: all 0.3s ease;
+      border-radius: 5px; /* Arrotonda i bordi esterni */
+    }
+
+    /* Arrotonda solo il bordo destro per la barra verde (irr > 0) */
+    .slider-bar[style*="green"] {
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    /* Arrotonda solo il bordo sinistro per la barra rossa (irr < 0) */
+    .slider-bar[style*="red"] {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .slider-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      background-color: orange;
+      border-radius: 50%;
+      opacity: 0; /* Nascondi di default */
+      transition: opacity 0.3s ease;
+    }
+
+    .slider-center.visible {
+      opacity: 1; /* Mostra solo quando necessario */
+    }
+
+    .irr-value {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+  </style>
+
 </head>
 <body>
 <!-- NAV BAR: THIS IS THE SAME FOR ALL THE VIEWS -->
@@ -69,7 +148,25 @@
         <div class="container-fluid" style="margin-left: 2em; margin-right: 2em">
           <div class="row">
             <div class="col-md-9">
+              <!-- contenitore per artefatto-->
               <div id="artifact-container"></div>
+
+              <div class="container-fluid d-flex justify-content-center">
+                <!-- Contenitore per IRR -->
+                <div class="card" style="margin-top: 2em">
+                  <div class="title">Team inter-rater agreement</div>
+                  <div class="subtitle">Calculated using Krippendorff's Alpha.</div>
+                  <div id="irr-container">
+                    <div class="slider">
+                      <div class="slider-bar"></div>
+                      <div class="slider-center"></div>
+                    </div>
+                    <div class="irr-value">IRR: <span id="irr-value">0.00</span></div>
+                  </div>
+                </div>
+              </div>
+
+
             </div>
             <div class="col-md-3 mx-auto">
               <div id="sidebar-container" class="d-flex flex-column align-items-center">
