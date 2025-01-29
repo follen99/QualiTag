@@ -1,0 +1,75 @@
+[{
+  "_id": {
+    "$oid": "6790f04366b824136c05a84f"
+  },
+  "username": "user1",
+  "email": "user1@example.com",
+  "passwordHash": "$2a$10$GAg2R4/12V2ytEZHWww3nuYuro0ylhoCr40ZIqRUMecsDQYmuQ.DW",
+  "name": "user1",
+  "surname": "user1",
+  "projectIds": [],
+  "teamIds": [],
+  "tagIds": [],
+  "roles": {},
+  "_class": "it.unisannio.studenti.qualitag.model.User"
+},
+{
+  "_id": {
+    "$oid": "6790f0566d3992e1165adc82"
+  },
+  "username": "user2",
+  "email": "user2@example.com",
+  "passwordHash": "$2a$10$GAg2R4/12V2ytEZHWww3nuYuro0ylhoCr40ZIqRUMecsDQYmuQ.DW",
+  "name": "user2",
+  "surname": "user2",
+  "projectIds": [],
+  "teamIds": [],
+  "tagIds": [],
+  "roles": {},
+  "_class": "it.unisannio.studenti.qualitag.model.User"
+},
+{
+  "_id": {
+    "$oid": "6790f05f6d3992e1165adc83"
+  },
+  "username": "user3",
+  "email": "user3@example.com",
+  "passwordHash": "$2a$10$GAg2R4/12V2ytEZHWww3nuYuro0ylhoCr40ZIqRUMecsDQYmuQ.DW",
+  "name": "user3",
+  "surname": "user3",
+  "projectIds": [],
+  "teamIds": [],
+  "tagIds": [],
+  "roles": {},
+  "_class": "it.unisannio.studenti.qualitag.model.User"
+},
+{
+  "_id": {
+    "$oid": "6790f0696d3992e1165adc84"
+  },
+  "username": "user4",
+  "email": "user4@example.com",
+  "passwordHash": "$2a$10$GAg2R4/12V2ytEZHWww3nuYuro0ylhoCr40ZIqRUMecsDQYmuQ.DW",
+  "name": "user4",
+  "surname": "user4",
+  "projectIds": [],
+  "teamIds": [],
+  "tagIds": [],
+  "roles": {},
+  "_class": "it.unisannio.studenti.qualitag.model.User"
+},
+{
+  "_id": {
+    "$oid": "6790f0746d3992e1165adc85"
+  },
+  "username": "user5",
+  "email": "user5@example.com",
+  "passwordHash": "$2a$10$GAg2R4/12V2ytEZHWww3nuYuro0ylhoCr40ZIqRUMecsDQYmuQ.DW",
+  "name": "user5",
+  "surname": "user5",
+  "projectIds": [],
+  "teamIds": [],
+  "tagIds": [],
+  "roles": {},
+  "_class": "it.unisannio.studenti.qualitag.model.User"
+}]

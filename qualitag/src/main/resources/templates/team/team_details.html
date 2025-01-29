@@ -60,7 +60,7 @@
 <script>
   $(function () {
     // Carica dinamicamente il contenuto
-    $("#nav-placeholder").load("/assets/html/nav.html", function () {
+    $("#nav-placeholder").load("/html/nav.html", function () {
       // Il contenuto è stato caricato, ora esegui il codice JavaScript
       const navBarEvent = new Event('navbarLoaded');
       console.log("navbar event dispatched");
@@ -128,8 +128,10 @@
               <!-- dialog to edit mails              -->
 
               <!-- Bottone per aprire il dialog -->
-<!-- TODO: visualizzare o meno questo bottone nel caso in cui l'utente che visualizza la pagina puo effettivamente modificare la lista degli utenti del progetto.-->
-              <button id="openDialogBtn" class="btn btn-primary" style="margin-bottom: 2em">Edit users</button>
+              <!-- TODO: visualizzare o meno questo bottone nel caso in cui l'utente che visualizza la pagina puo effettivamente modificare la lista degli utenti del progetto.-->
+              <button id="openDialogBtn" class="btn btn-primary" style="margin-bottom: 2em">Edit
+                users
+              </button>
 
 
               <!-- Dialog Bootstrap -->
@@ -166,13 +168,65 @@
 
             </div>
 
-            <h6>Artifacts:</h6>
-            <ul>
-              <li th:if="${team.artifacts.isEmpty()}">No artifacts available</li>
-              <li th:each="artifact : ${team.artifacts}">
-                <span th:text="${artifact.artifactName}">artifactName</span>
-              </li>
-            </ul>
+            <div>
+              <h6>Artifacts:</h6>
+              <ul>
+                <li th:if="${team.artifacts.isEmpty()}">No artifacts available</li>
+                <li th:each="artifact : ${team.artifacts}">
+                  <span th:text="${artifact.artifactName}">artifactName</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- delete team -->
+            <div>
+              <button type="button" class="btn btn-danger mx-auto" id="deleteTeamButton"
+                      style="margin-bottom:1em;">Delete Team
+              </button>
+
+              <script th:inline="javascript">
+                const teamId2 = window.location.pathname.split('/')[2];
+                const projectId = /*[[${team.project.projectId}]]*/ "";
+                console.log("projectid: " + projectId);
+
+                document.getElementById('deleteTeamButton').addEventListener('click', () => {
+                  if (teamId2 === "" || teamId2 === null || teamId2 === undefined) {
+                    alert("Error: team ID not found");
+                    return;
+                  }
+
+                  const confirmation = confirm(
+                      'Are you sure you want to delete this team? This action is irreversible.');
+                  if (!confirmation) {
+                    return;
+                  }
+
+                  // deleting the team
+                  fetch("/api/v1/team/" + teamId2, {
+                    method: 'DELETE', headers: {
+                      'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
+                    }
+                  })
+                  .then(response => {
+                    if (response.ok) {
+                      return response.json().then(data => {
+                        console.log(data);
+                        alert(data.msg);
+                        emailDialog.hide();   // close the dialog
+                        window.location.href = "/project/detail?id=" + projectId;
+                      });
+                    } else {
+                      return response.json().then(body => {
+                        console.log("response: " + body.msg);
+                        alert("Error updating emails: " + body.msg);
+                      });
+                    }
+                  })
+                  .catch(error => console.error('Error fetching user projects:', error));
+                });
+              </script>
+            </div>
+
           </div>
         </div>
 
@@ -207,7 +261,8 @@
   // Saving the emails
   saveEmailsBtn.addEventListener("click", () => {
     // Update the email list from the textarea
-    emailList = emailTextArea.value.split(",").map(email => email.replace(/\s+/g, '')).filter(email => email);
+    emailList = emailTextArea.value.split(",").map(email => email.replace(/\s+/g, '')).filter(
+        email => email);
     // Check if all emails are correctly formatted
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const invalidEmails = emailList.filter(email => !emailPattern.test(email));
@@ -247,13 +302,6 @@
 <script type="module" src="/js/navbar/nav-bar-logic.js"></script>
 <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
 <script src="/assets/js/bold-and-dark.js"></script>
-
-
-<!--<script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>-->
-
-<script>
-
-</script>
 
 </body>
 </html>

@@ -16,6 +16,7 @@ public record UserResponseDto(
         List<String> projectIds,
         List<String> teamIds,
         List<String> tagIds,
-        Map<String, String> projectRoles) {
+        Map<String, String> projectRoles,
+        String userId) {
 
 }

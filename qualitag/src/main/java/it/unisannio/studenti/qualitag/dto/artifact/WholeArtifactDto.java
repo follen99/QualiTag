@@ -13,6 +13,7 @@ public record WholeArtifactDto(
     @NotBlank String projectId,
     @NotBlank String teamId,
     @NotBlank String filePath,
-    List<String> tags) {
+    List<String> tags,
+    boolean isTaggingOpen) {
 
 }

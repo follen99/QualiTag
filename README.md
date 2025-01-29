@@ -3,6 +3,24 @@
 # QualiTag
 GitHub repository dedicated to SoftwareEngineering project exam
 
+## Running the system
+
+### Non-versioned files
+
+1. Download the file *setup.zip*
+2. Extract it
+3. Copy the content of the extracted folder (setup)  into project root
+
+### Mail service
+
+1. If present, delete the file `qualitag/src/main/resources/credentials/tokens/StoredCredential`
+2. Run the main of the file `qualitag/src/main/java/it/unisannio/studenti/qualitag/service/GmailService.java`
+3. Click on the link
+4. Log in with a google account
+5. A folder will be created in `C:\Users\<username>\AppData\Local\Temp\tokens####`
+6. Inside the folder will be a file named `StoredCredential`; copy it inside the folder: `qualitag/src/main/resources/credentials/tokens/`.
+7. You're good to go.
+
 ## System Requirements
 A user can connect to the system *only after logging in*; if they do not have an account, they can register using email:password.
 

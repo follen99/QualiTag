@@ -113,6 +113,17 @@ public class ProjectController {
   }
 
   /**
+   * Gets all the teams of a project.
+   *
+   * @param projectId the id of the project to find the teams of
+   * @return the response entity
+   */
+  @GetMapping("/{projectId}/teams")
+  public ResponseEntity<?> getProjectTeams(@PathVariable String projectId) {
+    return projectService.getProjectsTeams(projectId);
+  }
+
+  /**
    * Updates a project.
    *
    * @param projectId        the id of the project to update
@@ -132,6 +143,7 @@ public class ProjectController {
    */
   @DeleteMapping("/{projectId}")
   public ResponseEntity<?> deleteProject(@PathVariable String projectId) {
+    System.out.println("deleting: " + projectId);
     return projectService.deleteProject(projectId);
   }
 }

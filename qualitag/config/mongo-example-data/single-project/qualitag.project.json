@@ -1,0 +1,24 @@
+[{
+  "_id": {
+    "$oid": "6790f10e66b824136c05a850"
+  },
+  "projectName": "test project",
+  "projectDescription": "this project contains users:\nuser2, user3\n\nuser1 is owner",
+  "projectCreationDate": {
+    "$numberLong": "1737552142542"
+  },
+  "projectDeadline": {
+    "$numberLong": "1769040000000"
+  },
+  "projectOwnerId": "6790f04366b824136c05a84f",
+  "projectStatus": "OPEN",
+  "projectUsersIds": [
+    "6790f0566d3992e1165adc82",
+    "6790f05f6d3992e1165adc83"
+  ],
+  "projectTeamsIds": [
+    "6790f10e66b824136c05a851"
+  ],
+  "projectArtifactsIds": [],
+  "_class": "it.unisannio.studenti.qualitag.model.Project"
+}]

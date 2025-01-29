@@ -1,0 +1,17 @@
+[{
+  "_id": {
+    "$oid": "6790f10e66b824136c05a851"
+  },
+  "projectId": "6790f10e66b824136c05a850",
+  "userIds": [
+    "6790f0566d3992e1165adc82",
+    "6790f05f6d3992e1165adc83"
+  ],
+  "artifactIds": [],
+  "teamName": "Default team",
+  "creationDate": {
+    "$numberLong": "1737552142562"
+  },
+  "teamDescription": "Default team for project test project",
+  "_class": "it.unisannio.studenti.qualitag.model.Team"
+}]

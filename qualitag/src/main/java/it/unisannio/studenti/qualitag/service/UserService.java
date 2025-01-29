@@ -3,6 +3,7 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.dto.user.PasswordUpdateDto;
 import it.unisannio.studenti.qualitag.dto.user.UserInfoDisplayDto;
 import it.unisannio.studenti.qualitag.dto.user.UserModifyDto;
+import it.unisannio.studenti.qualitag.dto.user.UserResponseDto;
 import it.unisannio.studenti.qualitag.mapper.UserMapper;
 import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.model.Tag;
@@ -77,8 +78,12 @@ public class UserService {
       }
     }
 
-    UserInfoDisplayDto dto = userMapper.toDisplayDto(user);
-    return ResponseEntity.status(HttpStatus.OK).body(dto);
+//    UserInfoDisplayDto dto = userMapper.toDisplayDto(user);
+    UserResponseDto returnDto = new UserResponseDto(user.getUsername(), user.getEmail(),
+        user.getName(), user.getSurname(), user.getProjectIds(), user.getTeamIds(),
+        user.getTagIds(), user.getProjectRolesAsString(), user.getUserId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(returnDto);
   }
 
   /**
@@ -119,7 +124,7 @@ public class UserService {
    * Modifies a user.
    *
    * @param userModifyDto The user modification data.
-   * @param username The username of the user to modify.
+   * @param username      The username of the user to modify.
    * @return A response entity with the result of the modification.
    */
   public ResponseEntity<?> updateUser(UserModifyDto userModifyDto, String username) {
@@ -193,7 +198,7 @@ public class UserService {
    * Updates the password of a user.
    *
    * @param passwordUpdateDto The password update data.
-   * @param username The username of the user to update the password.
+   * @param username          The username of the user to update the password.
    * @return A response entity with the result of the password update.
    */
   public ResponseEntity<?> updatePassword(PasswordUpdateDto passwordUpdateDto, String username) {

@@ -1,0 +1,29 @@
+.button-custom {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.5em 1.5em;
+  text-align: center;
+  text-decoration: none;
+  /*display: inline-block;*/
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border: none;
+  border-radius: 2em;
+
+  /* text align center */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.common-button-size {
+  width: 10em;
+  height: 2.5em;
+  white-space: nowrap; /* Avoid multiline */
+}
+
+.adaptive-dropdown-menu {
+  width: auto; /* Allow the dropdown to adjust its width based on content */
+  min-width: 300px; /* Optional: Set a minimum width */
+}

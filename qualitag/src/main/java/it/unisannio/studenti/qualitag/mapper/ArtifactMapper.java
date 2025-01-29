@@ -38,7 +38,8 @@ public class ArtifactMapper {
         entity.getProjectId(),
         entity.getTeamId(),
         entity.getFilePath(),
-        entity.getTags()
+        entity.getTags(),
+        entity.isTaggingOpen()
     );
   }
 }

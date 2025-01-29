@@ -3,7 +3,9 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
+import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
 import it.unisannio.studenti.qualitag.model.Tag;
@@ -24,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +102,7 @@ public class ArtifactService {
       // Convert the DTO to an entity
       Artifact artifact = ArtifactMapper.toEntity(artifactCreateDto);
       artifact.setFilePath(filePath);
+      artifact.setTaggingOpen(true);
 
       // Find the team with the least artifacts
       String minTeamId = null;
@@ -197,7 +201,8 @@ public class ArtifactService {
       headers.setContentType(MediaType.parseMediaType(contentType));
       headers.setContentLength(Files.size(filePath));
 
-      return new ResponseEntity<>(file, headers, HttpStatus.OK);
+//      return new ResponseEntity<>(file, headers, HttpStatus.OK);
+      return ResponseEntity.ok().headers(headers).body(file);
     } catch (IOException e) {
       // Log the exception properly
       e.printStackTrace();
@@ -534,4 +539,135 @@ public class ArtifactService {
     return path.toString();
   }
 
+  public ResponseEntity<?> getTagsByUser(String artifactId, String userIdOrEmailOrUsername) {
+    Map<String, Object> response = new HashMap<>();
+    User user = null;
+
+    if (userIdOrEmailOrUsername.length() != 24) {
+      user = userRepository.findByUsername(userIdOrEmailOrUsername);
+    } else {
+      if (userIdOrEmailOrUsername.contains("@")) {
+        user = userRepository.findByEmail(userIdOrEmailOrUsername);
+      } else {
+        user = userRepository.findByUserId(userIdOrEmailOrUsername);
+      }
+    }
+
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Retrieve the artifact
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the user is authorized to view the artifact
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
+        .contains(artifact.getTeamId()))) {
+      response.put("msg", "User is not authorized to view this artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    List<String> tagIds = artifact.getTags();
+    List<Tag> tags = new ArrayList<>();
+
+    for (String tagId : tagIds) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      if (tag.getCreatedBy().equals(user.getUserId())) {
+        tags.add(tag);
+      }
+    }
+
+    response.put("msg", "Tags retrieved successfully");
+    response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  public ResponseEntity<?> getAllTags(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<String> tagIds = artifact.getTags();
+    List<TagResponseDto> tags = new ArrayList<>();
+    for (String tagId : tagIds) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      if (tag == null) {
+        response.put("msg", "Tag not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      User user = userRepository.findByUserId(tag.getCreatedBy());
+      if (user == null) {
+        response.put("msg", "User not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      // swapping userId with username for convenience
+      tag.setCreatedBy(user.getUsername());
+
+      TagMapper tagMapper = new TagMapper();
+      tags.add(tagMapper.getResponseDto(tag));
+    }
+
+    response.put("msg", "Tags retrieved successfully");
+    response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  public ResponseEntity<?> startTagging(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    artifact.setTaggingOpen(true);
+
+    artifactRepository.save(artifact);
+
+    response.put("msg", "Tagging started successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  public ResponseEntity<?> stopTagging(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (artifactId == null || artifactId.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    artifact.setTaggingOpen(false);
+
+    artifactRepository.save(artifact);
+
+    response.put("msg", "Tagging stopped successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
 }

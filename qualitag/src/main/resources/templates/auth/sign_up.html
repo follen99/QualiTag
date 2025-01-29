@@ -21,7 +21,7 @@
   <script>
     $(function(){
       // Carica dinamicamente il contenuto
-      $("#nav-placeholder").load("/assets/html/nav.html", function() {
+      $("#nav-placeholder").load("/html/nav.html", function() {
         // Il contenuto è stato caricato, ora esegui il codice JavaScript
         const navBarEvent = new Event('navbarLoaded');
         console.log("navbar event dispatched");
@@ -79,11 +79,26 @@
         </div>
       </div>
     </div>
+
+    <!-- begin of loading modal -->
+    <div id="loading-modal-placeholder"></div>
+    <script>
+      $(function () {
+        // Carica dinamicamente il contenuto
+        $("#loading-modal-placeholder").load("/html/loading_modal.html", function () {
+          const modalEvent = new Event('modalLoaded');
+          console.log("modal event dispatched");
+          document.dispatchEvent(modalEvent);
+
+        });
+      });
+    </script>
+    <!-- end of loading modal -->
   </section>
   <footer class="bg-dark"></footer>
   <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
   <script src="/assets/js/bold-and-dark.js"></script>
-  <script src="/js/auth/sign-up-script.js"></script>
+  <script type="module" src="/js/auth/sign-up-script.js"></script>
 
   <script type="module" src="/js/navbar/nav-bar-logic.js"></script>
 </body>

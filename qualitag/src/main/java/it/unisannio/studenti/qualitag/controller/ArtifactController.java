@@ -60,6 +60,11 @@ public class ArtifactController {
     return this.artifactService.getArtifact(artifactId);
   }
 
+  @GetMapping("/{artifactId}/tags")
+  public ResponseEntity<?> getTags(@PathVariable String artifactId) {
+    return this.artifactService.getAllTags(artifactId);
+  }
+
   /**
    * Gets the metadata of an artifact.
    *
@@ -69,6 +74,11 @@ public class ArtifactController {
   @GetMapping("/{artifactId}/metadata")
   public ResponseEntity<?> getArtifactMetadata(@PathVariable String artifactId) {
     return this.artifactService.getArtifactMetadata(artifactId);
+  }
+
+  @GetMapping("/{artifactId}/{userIdOrEmailOrUsername}/tags")
+  public ResponseEntity<?> getTagsByUser(@PathVariable String artifactId, @PathVariable String userIdOrEmailOrUsername) {
+    return this.artifactService.getTagsByUser(artifactId, userIdOrEmailOrUsername);
   }
 
   // PUT Methods
@@ -96,6 +106,28 @@ public class ArtifactController {
   public ResponseEntity<?> addTags(@PathVariable String artifactId,
       @RequestBody AddTagsToArtifactDto dto) {
     return this.artifactService.addTags(artifactId, dto);
+  }
+
+  /**
+   * Starts the tagging process for an artifact.
+   *
+   * @param artifactId the id of the artifact to start tagging
+   * @return the response entity
+   */
+  @PutMapping("/{artifactId}/starttagging")
+  public ResponseEntity<?> startTagging(@PathVariable String artifactId) {
+    return this.artifactService.startTagging(artifactId);
+  }
+
+  /**
+   * Stops the tagging process for an artifact.
+   *
+   * @param artifactId the id of the artifact to stop tagging
+   * @return the response entity
+   */
+  @PutMapping("/{artifactId}/stoptagging")
+  public ResponseEntity<?> stopTagging(@PathVariable String artifactId) {
+    return this.artifactService.stopTagging(artifactId);
   }
 
   // DELETE Methods

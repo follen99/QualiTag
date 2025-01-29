@@ -37,6 +37,10 @@ public class Artifact {
 
   @Field(name = "artifactTags")
   private List<String> tags;
+  
+  @Field(name = "isTaggingOpen")
+  private boolean isTaggingOpen;
+  
 
   /**
    * Default constructor for Artifact.
@@ -58,8 +62,26 @@ public class Artifact {
     this.projectId = projectId;
     this.teamId = teamId;
     this.filePath = filePath;
-
     this.tags = new ArrayList<>();
+    this.isTaggingOpen = true;
+  }
+
+  /**
+   * Constructor for Artifact, without description.
+   *
+   * @param artifactName  The name of the artifact
+   * @param projectId     The id of the project the artifact belongs to
+   * @param teamId        The id of the team the artifact belongs to
+   * @param filePath      The path of the file of the artifact in the system
+   * @param isTaggingOpen The tagging status of the artifact
+   */
+  public Artifact(String artifactName, String projectId, String teamId, String filePath, Boolean isTaggingOpen) {
+    this.artifactName = artifactName;
+    this.projectId = projectId;
+    this.teamId = teamId;
+    this.filePath = filePath;
+    this.tags = new ArrayList<>();
+    this.isTaggingOpen = isTaggingOpen;
   }
 
   /**
@@ -78,8 +100,8 @@ public class Artifact {
     this.projectId = projectId;
     this.teamId = teamId;
     this.filePath = filePath;
-
     this.tags = new ArrayList<>();
+    this.isTaggingOpen = true;
   }
 
   // EQUALS AND HASHCODE
@@ -127,6 +149,7 @@ public class Artifact {
         + ", teamId='" + teamId + '\''
         + ", filePath='" + filePath + '\''
         + ", tags=" + tags
+        + ", isTaggingOpen=" + isTaggingOpen
         + '}';
   }
 

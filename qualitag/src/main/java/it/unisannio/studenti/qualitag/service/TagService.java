@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.service;
 
+import com.google.common.base.Optional;
 import it.unisannio.studenti.qualitag.constants.TagConstants;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
@@ -17,6 +18,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +78,37 @@ public class TagService {
     }
   }
 
+  public ResponseEntity<?> addTagsToArtfactAndUser(List<TagCreateDto> tags, String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+    System.out.println("tags: " + tags);
+    // for every tag added...
+    // TODO: si puo ottimizzare l'operazione prendendo i tag gia esistenti e vedendo le differenze con quelli passati ed aggiungere/togliere solo quelli necessari
+    for (TagCreateDto tagCreateDto : tags) {
+      TagCreateDto correctTagDto = validateTag(tagCreateDto);
+      Tag tag = tagMapper.toEntity(correctTagDto);
+      // TODO: A CHE serve avere una lista di artifacts se poi ogni tag è legato ad un singolo artifact?!
+      tag.getArtifactIds().add(artifactId);
+
+      this.tagRepository.save(tag);
+
+      if (!this.addTagToUser(tag)) {
+        // If it was impossible to add the tag to the user, rollback
+        this.tagRepository.delete(tag);
+        response.put("msg", "Tag already exists");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
+
+      // adding tag to artifact
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+      artifact.getTags().add(tag.getTagId());
+      artifactRepository.save(artifact);
+    }
+
+    response.put("msg", "Tags added successfully");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+
   /**
    * Adds a tag to a user every time a tag is created.
    *
@@ -84,14 +117,36 @@ public class TagService {
    */
   private boolean addTagToUser(Tag tag) {
     // Retrieve user. Already validated earlier.
-    User user = userRepository.findByUserId(tag.getCreatedBy());
+    User user = null;
+    String createdBy = tag.getCreatedBy();
 
-    // Check if the user already has a tag with the same value
+    user = userRepository.findByEmail(createdBy);
+    if (user == null) {
+      user = userRepository.findByUsername(createdBy);
+    }
+
+    if (user == null && createdBy.length() == 24 && createdBy.matches("^[0-9a-fA-F]{24}$")) {
+      try {
+        user = userRepository.findByUserId(createdBy);
+      } catch (Exception e) {
+        return false;
+      }
+    }
+
+    if (user == null) {
+      return false;
+    }
+
+    // Check if the user already has a tag with the same value and for the same artifact
     List<String> userTagIds = user.getTagIds();
     for (String tagId : userTagIds) {
       Tag userTag = tagRepository.findTagByTagId(tagId);
+      // check if the tag already exists with the same value
       if (userTag.getTagValue().equals(tag.getTagValue())) {
-        return false;
+        // check if the tag if from the same artifact
+        if (userTag.getArtifactIds().equals(tag.getArtifactIds())) {
+          return false;
+        }
       }
     }
 
@@ -209,7 +264,7 @@ public class TagService {
    * Updates a tag.
    *
    * @param tagUpdateDto The tag to update.
-   * @param id The id of the tag to update.
+   * @param id           The id of the tag to update.
    * @return The response entity.
    */
   public ResponseEntity<?> updateTag(TagUpdateDto tagUpdateDto, String id) {
@@ -316,11 +371,22 @@ public class TagService {
     if (createdBy == null || createdBy.isEmpty()) {
       throw new TagValidationException("User information is null or empty");
     }
-    if (!userRepository.existsByUsername(createdBy) && !userRepository.existsById(createdBy)) {
+
+    User user = null;
+    if (createdBy.length() == 24 && createdBy.matches("^[0-9a-fA-F]{24}$")) {
+      user = userRepository.findByUserId(createdBy);
+    } else {
+      user = userRepository.findByUsername(createdBy);
+    }
+
+    if (user == null) {
       throw new TagValidationException("User does not exist");
     }
 
-    return new TagCreateDto(tagValue, createdBy, tagColor);
+// Use the userId for further processing
+    String userId = user.getUserId();
+
+    return new TagCreateDto(tagValue, userId, tagColor);
   }
 
   private TagUpdateDto validateUpdate(TagUpdateDto tagDto) {
@@ -387,5 +453,144 @@ public class TagService {
     }
     throw new IllegalStateException(
         "Unexpected authentication principal type: " + principal.getClass());
+  }
+
+  public ResponseEntity<?> getTagsByUser(String userIdOrEmailOrUsername) {
+    Map<String, Object> response = new HashMap<>();
+    if (userIdOrEmailOrUsername == null || userIdOrEmailOrUsername.isEmpty()) {
+      response.put("msg", "User id is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    User user = this.findUser(userIdOrEmailOrUsername);
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<String> tagIds = user.getTagIds();
+    if (tagIds.isEmpty()) {
+      // return empty list
+      response.put("tags", new ArrayList<String>());
+      return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    // TODO: si potrebbe ritornare una mappa con i tag e relativi numeri di occorrenze, così da mostrare quelli piu' usati
+    List<Tag> tags = new ArrayList<>();
+
+    for (String tagId : tagIds) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      if (tag == null) {
+        response.put("msg", "Tag not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+      tags.add(tag);
+    }
+
+    response.put("tags", tags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  private User findUser(String userIdOrEmailOrUsername) {
+    User user = null;
+
+    if (userIdOrEmailOrUsername.length() != 24) {
+      user = userRepository.findByUsername(userIdOrEmailOrUsername);
+    } else {
+      if (userIdOrEmailOrUsername.contains("@")) {
+        user = userRepository.findByEmail(userIdOrEmailOrUsername);
+      } else {
+        user = userRepository.findByUserId(userIdOrEmailOrUsername);
+      }
+    }
+    return user;
+  }
+
+  // TODO this is too fucking difficult to do...
+  public ResponseEntity<?> updateTagsOfAnArtifact(List<TagCreateDto> tagsFromFrontend, String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+    System.out.println("tags: " + tagsFromFrontend);
+
+    // ASSUMING THAT ALL TAGS ARE CREATED BY THE SAME USER
+    String userId = tagsFromFrontend.getFirst().createdBy();
+
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    List<String> artifactTagIds = artifact.getTags();
+    if (artifactTagIds.isEmpty()) {
+      // add all tags right away
+      System.out.println("Adding all tags");
+    }
+
+    // prendo tutti i Tag dell'artefatto solo se creati dall'utente in questione
+    List<Tag> artifactTags = new ArrayList<>();
+    for (String tagId : artifactTagIds) {
+      Optional<Tag> tag = tagRepository.findTagByTagValueAndCreatedBy(tagId, userId);
+      if (tag.isPresent()) {
+        artifactTags.add(tag.get());
+      }
+    }
+
+    for (TagCreateDto tagDto : tagsFromFrontend) {
+      boolean tagExists = artifactTags.stream()
+          .anyMatch(existingTag -> {
+            return existingTag.getTagValue().equals(tagDto.tagValue());
+          });
+      if (tagExists) {
+        // doing nothing
+        continue;
+      }
+      // creating new tag
+
+      ResponseEntity<?> responseEntity = createTag(tagDto);
+      if (responseEntity.getStatusCode() != HttpStatus.CREATED) {
+        return responseEntity;
+      }
+
+    }
+
+
+
+/*
+    for (TagCreateDto tagDto : tagsFromFrontend) {
+      // Cerca se il tag esiste già nel database
+      User user = null;
+      String userId = tagDto.createdBy();
+      if (userId == null || !userId.matches("^[0-9a-fA-F]{24}$")) {
+        response.put("msg", "User ID is not valid");
+      }
+
+      user = userRepository.findByUserId(userId);
+
+      if (user == null) {
+        response.put("msg", "User not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      Optional<Tag> existingTag = tagRepository.findTagByTagValueAndCreatedBy(tagDto.tagValue(), userId);
+
+      if (existingTag.isPresent()) {
+        // Se esiste, aggiungi l'ID alla lista
+        updatedTagIds.add(existingTag.get().getTagId());
+      } else {
+        // Se non esiste, crea un nuovo tag
+        Tag newTag = new Tag();
+        newTag.setValue(tagDto.tagValue());
+        newTag.setCreatedBy(tagDto.createdBy());
+        newTag.setColorHex(tagDto.colorHex());
+        tagRepository.save(newTag);
+
+        // Aggiungi l'ID del nuovo tag alla lista
+        updatedTagIds.add(newTag.getId());
+      }
+    }
+*/
+    // work in progress
+    return null;
+
   }
 }

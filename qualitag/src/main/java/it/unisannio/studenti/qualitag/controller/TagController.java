@@ -3,6 +3,7 @@ package it.unisannio.studenti.qualitag.controller;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagUpdateDto;
 import it.unisannio.studenti.qualitag.service.TagService;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +44,34 @@ public class TagController {
   }
 
   /**
+   * Adds tags to an artifact.
+   *
+   * @param tags       The tags to add.
+   * @param artifactId The id of the artifact to add the tags to.
+   * @return The response entity.
+   */
+  // TODO: dovremmo spostare questo metodo in artifactController?
+  @PostMapping("/{artifactId}/addtags")
+  public ResponseEntity<?> addTags(@RequestBody List<TagCreateDto> tags,
+      @PathVariable String artifactId) {
+    return this.tagService.addTagsToArtfactAndUser(tags, artifactId);
+  }
+
+  /**
+   * DO NOT USE, WORK IN PROGRESS.
+   * Updates the tags of an artifact.
+   *
+   * @param tags     The tags to update.
+   * @param artifactId  The id of the artifact to update the tags.
+   * @return  The response entity.
+   */
+  @PostMapping("/{artifactId}/updateTags")
+  public ResponseEntity<?> updateTags(@RequestBody List<TagCreateDto> tags,
+      @PathVariable String artifactId) {
+    return this.tagService.updateTagsOfAnArtifact(tags, artifactId);
+  }
+  
+  /**
    * Get a tag by its id.
    *
    * @param id The id of the tag to get.
@@ -51,6 +80,17 @@ public class TagController {
   @GetMapping("/{id}")
   public ResponseEntity<?> getTagById(@PathVariable String id) {
     return this.tagService.getTagById(id);
+  }
+
+  /**
+   * Get all tags of an user, from all the artifacts.
+   *
+   * @param userIdOrEmailOrUsername user id or email.
+   * @return The response entity containing a list of tags.
+   */
+  @GetMapping("byuser/{userIdOrEmailOrUsername}/all")
+  public ResponseEntity<?> getTagsByUser(@PathVariable String userIdOrEmailOrUsername) {
+    return this.tagService.getTagsByUser(userIdOrEmailOrUsername);
   }
 
   /**

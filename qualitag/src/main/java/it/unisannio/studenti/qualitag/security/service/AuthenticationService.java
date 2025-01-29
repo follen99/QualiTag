@@ -199,7 +199,7 @@ public class AuthenticationService {
      */
     UserResponseDto returnDto = new UserResponseDto(user.getUsername(), user.getEmail(),
         user.getName(), user.getSurname(), user.getProjectIds(), user.getTeamIds(),
-        user.getTagIds(), user.getProjectRolesAsString());
+        user.getTagIds(), user.getProjectRolesAsString(), user.getUserId());
 
     response.put("msg", "User logged in successfully.");
     response.put("token", jwt);

@@ -35,4 +35,5 @@ export async function refreshUserData() {
     localStorage.setItem('user-projectIds', JSON.stringify(projectIds));
     localStorage.setItem('user-tagIds', JSON.stringify(teamIds));
     localStorage.setItem('user-lastFetch', Date.now());
+    localStorage.setItem('user-userId', JSON.stringify(user.userId));
   }

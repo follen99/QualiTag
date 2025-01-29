@@ -48,10 +48,8 @@
 <script>
   $(function () {
     // Carica dinamicamente il contenuto
-    $("#nav-placeholder").load("/assets/html/nav.html", function () {
-      // Il contenuto è stato caricato, ora esegui il codice JavaScript
+    $("#nav-placeholder").load("/html/nav.html", function () {
       const navBarEvent = new Event('navbarLoaded');
-      console.log("navbar event dispatched");
       document.dispatchEvent(navBarEvent);
 
       // A questo punto, il codice JavaScript che dipende dal contenuto della navbar può essere eseguito
@@ -73,20 +71,24 @@
 
         <form id="createProjectForm">
           <div class="mb-3">
-<!--            <label for="projectName" class="form-label">Project Name</label>-->
-            <input type="text" class="form-control" id="projectName" name="projectName" placeholder="Project Name" required>
+            <!--            <label for="projectName" class="form-label">Project Name</label>-->
+            <input type="text" class="form-control" id="projectName" name="projectName"
+                   placeholder="Project Name" required>
           </div>
           <div class="mb-3">
-<!--            <label for="projectDescription" class="form-label">Project Description</label>-->
-            <textarea class="form-control" id="projectDescription" name="projectDescription" rows="3" placeholder="Project Description" required></textarea>
+            <!--            <label for="projectDescription" class="form-label">Project Description</label>-->
+            <textarea class="form-control" id="projectDescription" name="projectDescription"
+                      rows="3" placeholder="Project Description" required></textarea>
           </div>
           <div class="mb-3">
-<!--            <label for="deadline" class="form-label">Deadline</label>-->
-            <input type="date" class="form-control" id="deadline" name="deadline" placeholder="Deadline" required>
+            <label for="deadline" class="form-label">Deadline</label>
+            <input type="date" class="form-control" id="deadline" name="deadline"
+                   placeholder="Deadline" required>
           </div>
           <div class="mb-3">
-<!--            <label for="userEmails" class="form-label">User Emails</label>-->
-            <input type="email" class="form-control" id="userEmails" name="userEmails" placeholder="User Emails" multiple required>
+            <!--            <label for="userEmails" class="form-label">User Emails</label>-->
+            <input type="email" class="form-control" id="userEmails" name="userEmails"
+                   placeholder="User Emails" multiple required>
             <small class="form-text text-muted">Separate emails with commas.</small>
           </div>
           <button type="submit" class="btn btn-primary">Create Project</button>
@@ -96,94 +98,96 @@
     </div>
   </div>
 
-  <!-- Loading modal -->
-<!--  TODO: usare questo modal per sostituire tutti gli alert predefiniti (nice to have) -->
-  <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-body text-center">
-          <div class="d-flex justify-content-center">
-            <div id="loadingWheel" class="spinner-border" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-          </div>
-          <p id="modalMessage">Saving project and sending emails...</p>
-        </div>
+  <!-- begin of loading modal -->
+  <div id="loading-modal-placeholder"></div>
+  <script>
+    $(function () {
+      // Carica dinamicamente il contenuto
+      $("#loading-modal-placeholder").load("/html/loading_modal.html", function () {
+        const modalEvent = new Event('modalLoaded');
+        document.dispatchEvent(modalEvent);
 
-        <button type="button" class="btn button-custom mx-auto" id="closeModalButton" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
+      });
+    });
+  </script>
   <!-- end of loading modal -->
 </section>
 
 <script>
-  document.getElementById('createProjectForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    var done = false;
+  document.addEventListener('modalLoaded', function () {
+    document.getElementById('createProjectForm').addEventListener('submit', function (event) {
 
-    // show loading modal
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    const modalMessage = document.getElementById('modalMessage');
-    const loadingWheel = document.getElementById('loadingWheel');
-    const closeModalButton = document.getElementById('closeModalButton');
-    closeModalButton.style.display = 'none';
-    closeModalButton.addEventListener('click', function() {
-      loadingModal.hide();
+      event.preventDefault();
+      var done = false;
 
-      if (done) {
-        window.location.href = '/project/' + localStorage.getItem('username') + "/projects";
-        return;
-      }
+      // show loading modal
+      const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+      const modalMessage = document.getElementById('modalMessage');
+      const loadingWheel = document.getElementById('loadingWheel');
+      const closeModalButton = document.getElementById('closeModalButton');
+      closeModalButton.style.display = 'none';
+      closeModalButton.addEventListener('click', function () {
+        loadingModal.hide();
 
-      // restoring default values
-      loadingWheel.style.display = 'block';     // showing loading wheel
-      closeModalButton.style.display = 'none';  // hiding close button
+        if (done) {
+          window.location.href = '/project/' + localStorage.getItem('username') + "/projects";
+          return;
+        }
 
-      modalMessage.innerText = "Saving project and sending emails..."; // setting default message
+        // restoring default values
+        loadingWheel.style.display = 'block';     // showing loading wheel
+        closeModalButton.style.display = 'none';  // hiding close button
 
-    });
+        modalMessage.innerText = "Saving project and sending emails..."; // setting default message
 
-    loadingModal.show();
+      });
 
-    const projectName = document.getElementById('projectName').value;
-    const projectDescription = document.getElementById('projectDescription').value;
-    const deadline = new Date(document.getElementById('deadline').value).toISOString();
-    const userEmails = document.getElementById('userEmails').value.split(',');
+      loadingModal.show();
 
+      const projectName = document.getElementById('projectName').value;
+      const projectDescription = document.getElementById('projectDescription').value;
+      const deadline = new Date(document.getElementById('deadline').value).toISOString();
+      const userEmails = document.getElementById('userEmails').value.split(',');
 
-    fetch('/api/v1/project', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-      },
-      body: JSON.stringify({
-        projectName: projectName,
-        projectDescription: projectDescription,
-        deadlineDate: deadline,
-        userEmails: userEmails
+      fetch('/api/v1/project', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+        },
+        body: JSON.stringify({
+          projectName: projectName,
+          projectDescription: projectDescription,
+          deadlineDate: deadline,
+          userEmails: userEmails
+        })
       })
-    })
-    .then(response => {
-      // loadingModal.hide();
-      if (!response.ok) {
-        loadingWheel.style.display = 'none';                // hiding loading wheel
-        closeModalButton.style.display = 'block';           // showing close button
-        return response.json().then(errorData => {
-          modalMessage.innerText = "Error: " + errorData.msg; // setting error message
-        });
-      }
-      else{
-        loadingWheel.style.display = 'none';                // hiding loading wheel
-        closeModalButton.style.display = 'block';           // showing close button
-        modalMessage.innerText = "Project created successfully!"; // setting success message
-        done = true;
-      }
-    })
-    .catch((error) => {
-      loadingModal.hide();
-      console.error('Error:', error);
+      .then(response => {
+        // loadingModal.hide();
+        if (!response.ok) {
+          loadingWheel.style.display = 'none';                // hiding loading wheel
+          closeModalButton.style.display = 'block';           // showing close button
+          return response.json().then(errorData => {
+            modalMessage.innerText = "Error: " + errorData.msg; // setting error message
+          });
+        } else {
+          loadingWheel.style.display = 'none';                // hiding loading wheel
+          closeModalButton.style.display = 'block';           // showing close button
+          modalMessage.innerText = "Project created successfully!"; // setting success message
+          done = true;
+
+          // updating local cache
+          const projectIds = JSON.parse(localStorage.getItem('user-projectIds')) || [];
+          response.json().then(data => {
+            projectIds.push(data.projectId);
+            localStorage.setItem('user-projectIds', JSON.stringify(projectIds));
+          });
+        }
+      })
+      .catch((error) => {
+        loadingModal.hide();
+        console.error('Error:', error);
+      });
     });
   });
 </script>
