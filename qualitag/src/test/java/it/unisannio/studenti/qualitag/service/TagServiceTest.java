@@ -60,14 +60,14 @@ public class TagServiceTest {
     MockitoAnnotations.openMocks(this);
 
     //Initialize the objects
-    tag1 = new Tag("tag1", "user1Id", "#fff8de");
+    tag1 = new Tag("tag1", "6798e2740b80b85362a8ba90", "#fff8de");
     tag1.setTagId("tag1Id");
-    tag2 = new Tag("tag2", "user1Id", "#295f98");
+    tag2 = new Tag("tag2", "6798e2740b80b85362a8ba90", "#295f98");
     tag2.setTagId("tag2Id");
 
     user = new User("user1", "user1@example.com",
         "password1", "Jane", "Doe");
-    user.setUserId("user1Id");
+    user.setUserId("6798e2740b80b85362a8ba90");
     user.setTagIds(new ArrayList<>(Arrays.asList("tag1Id", "tag2Id")));
 
     artifact = new Artifact("artifactName",
@@ -76,7 +76,7 @@ public class TagServiceTest {
     artifact.setTags(new ArrayList<>(Arrays.asList("tagId1", "tagId2")));
 
     //Initialize the DTO
-    tagCreateDto = new TagCreateDto("tag3", "user1Id", "#fff8de");
+    tagCreateDto = new TagCreateDto("tag3", "6798e2740b80b85362a8ba90", "#fff8de");
 
     //Initiliaze authorization details
     // Mock SecurityContextHolder to provide an authenticated user
@@ -102,12 +102,12 @@ public class TagServiceTest {
       throws TagValidationException,
       NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     //Arrange
-    Tag newTag = new Tag("tag3", "user1Id", "#fff8de");
+    Tag newTag = new Tag("tag3", "6798e2740b80b85362a8ba90", "#fff8de");
     TagService tagServiceSpy = Mockito.spy(tagService);
 
-    when(userRepository.findByUserId("user1Id")).thenReturn(user);
+    when(userRepository.findByUserId("6798e2740b80b85362a8ba90")).thenReturn(user);
     when(userRepository.existsByUsername("user1")).thenReturn(true);
-    when(userRepository.existsById("user1Id")).thenReturn(true);
+    when(userRepository.existsById("6798e2740b80b85362a8ba90")).thenReturn(true);
     when(userRepository.save(user)).thenReturn(user);
     when(userRepository.save(any(User.class))).thenReturn(user);
     when(tagRepository.save(any(Tag.class))).thenReturn(newTag);

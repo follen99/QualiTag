@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -978,9 +979,11 @@ public class TeamServiceTest {
     //Act
     ResponseEntity<?> response = teamService.deleteTeam("teamId");
 
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team deleted successfully.");
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("Team deleted successfully.", response.getBody());
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1090,10 +1093,12 @@ public class TeamServiceTest {
 
     //Act
     ResponseEntity<?> response = teamService.deleteTeam("teamId");
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team not deleted.");
 
     //Assert
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    assertEquals("Team not deleted", response.getBody());
+    assertEquals(responseBody, response.getBody());
   }
 
   /**

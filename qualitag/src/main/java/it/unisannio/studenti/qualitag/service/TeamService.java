@@ -69,7 +69,7 @@ public class TeamService {
 
     Team team = this.teamRepository.findTeamByTeamId(teamId);
     if (team == null) {
-      response.put("msg", "Team not found");
+      response.put("msg", "Team not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     System.out.println("Team found: " + team);
@@ -79,7 +79,7 @@ public class TeamService {
     for (String email : userEmails) {
       User user = userRepository.findByEmail(email);
       if (user == null) {
-        response.put("msg", "User with email " + email + " not found");
+        response.put("msg", "User with email " + email + " not found.");
         System.out.println("Resp: " + response.get("msg"));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
@@ -445,11 +445,11 @@ public class TeamService {
     // Delete team from repository
     teamRepository.deleteById(teamId);
     if (teamRepository.existsById(teamId)) {
-      response.put("msg", "Team not deleted");
+      response.put("msg", "Team not deleted.");
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    response.put("msg", "Team deleted successfully");
+    response.put("msg", "Team deleted successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
