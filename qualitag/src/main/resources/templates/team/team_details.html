@@ -402,19 +402,22 @@
         if (response.ok) {
           return response.json();
         } else {
-          return response.json().then(errorData => {
+          /*return response.json().then(errorData => {
             console.error("Error message: " + errorData.msg);
             alert("Error: " + errorData.msg);
             throw new Error(errorData.msg);
-          });
+          });*/
+          // If the IRR cannot be calculated, return an invalid default value
+          return { irr: 5 };
         }
       });
     }
 
     function displayTeamIrr(irr) {
+
       const sliderBar = document.querySelector('.irr-slider-bar');
       const irrValue = document.getElementById('irr-value');
-      irrValue.textContent = irr.toFixed(3);
+      // irrValue.textContent = irr.toFixed(3);
       const sliderCenter = document.querySelector('.irr-slider-center');
 
       // Update the IRR value text
@@ -425,7 +428,16 @@
       sliderBar.style.left = '50%';
       sliderBar.style.backgroundColor = 'transparent';
 
-      if (irr > 0) {
+      if (irr > 1 || irr < -1) {
+        // Invalid IRR: show orange circle
+        sliderBar.style.backgroundColor = 'transparent';
+        sliderCenter.classList.add('visible'); // Show the circle
+        sliderCenter.style.width = `100%`;
+        sliderCenter.style.backgroundColor = `red`;
+        sliderCenter.style.borderRadius = `0%`;
+
+        irrValue.textContent = "There was an error calculating the IRR. ";
+      } else if (irr > 0) {
         // Positive IRR: fill to the right with green
         const fillWidth = (irr * 50); // Calculate proportional width
         sliderBar.style.width = `${fillWidth}%`; // Fill to the right
