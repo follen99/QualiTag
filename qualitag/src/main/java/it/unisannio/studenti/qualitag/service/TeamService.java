@@ -382,6 +382,8 @@ public class TeamService {
       data.add(innerData);
     }
 
+    System.out.println("Data: " + data);
+
     String jsonAlpha = null;
     try {
       jsonAlpha = pythonClientService.getKrippendorffAlpha(data);
