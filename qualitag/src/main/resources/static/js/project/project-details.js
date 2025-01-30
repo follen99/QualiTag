@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     showElementsInsideDropdown(teamsDropdown, project.teams, true, '/team/',
-        '/details', 'teamId', teamIcon, 'teamName');
+        `/details/${project.owner.username}`, 'teamId', teamIcon, 'teamName');
 
     // adding team list
     const artifactsDropdown = document.querySelector(

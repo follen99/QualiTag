@@ -52,9 +52,12 @@ public class TeamViewController {
    *
    * @return the team details view
    */
-  @GetMapping("/{teamid}/details")
+  @GetMapping("/{teamid}/details/{projectOwnerUsername}")
   public String getTeamDetails(@PathVariable("teamid") String teamId,
+      @PathVariable("projectOwnerUsername") String projectOwnerUsername,
       Model model) {
+
+
     WholeTeamHeavyDto responseTeam = null;
     try {
       Team team = teamRepository.findById(teamId)
@@ -90,12 +93,21 @@ public class TeamViewController {
           team.getCreationTimeStamp(),
           team.getTeamDescription()
       );
+
+      // returning the owner username to the view
+      User owner = userRepository.findById(project.getOwnerId())
+          .orElseThrow(() -> new NoSuchElementException("Owner not found"));
+
+      model.addAttribute("ownerUsername", owner.getUsername());
     } catch (NoSuchElementException e) {
       // TODO: handle exception
     }
 
     System.out.println("whole team: " + responseTeam);
     model.addAttribute("team", responseTeam);
+
+
+
     return "team/team_details";
   }
 }

@@ -174,7 +174,7 @@
   <div class="container-fluid">
     <div class="row align-items-center">
       <!-- team info -->
-      <div class="col-md-8">
+      <div class="col-md-8" id="details-div">
         <div class="container py-5">
           <div class="row mb-4 mb-lg-5">
             <div class="row">
@@ -231,9 +231,9 @@
 
                     <!-- Bottone per aprire il dialog -->
                     <!-- TODO: visualizzare o meno questo bottone nel caso in cui l'utente che visualizza la pagina puo effettivamente modificare la lista degli utenti del progetto.-->
-                    <button id="openDialogBtn" class="btn btn-primary">Edit
-                      users
-                    </button>
+                    <div class="d-flex justify-content-center align-items-center">
+                      <button id="openDialogBtn" class="btn btn-primary">Edit users</button>
+                    </div>
 
 
                     <!-- Dialog Bootstrap -->
@@ -281,7 +281,7 @@
                   </div>
 
                   <!-- delete team -->
-                  <div>
+                  <div class="d-flex justify-content-center align-items-center">
                     <button type="button" class="btn btn-danger mx-auto" id="deleteTeamButton"
                             style="margin-bottom:1em;">Delete Team
                     </button>
@@ -341,7 +341,7 @@
       <div class="col-md-4 mx-auto">
         <div class="container-fluid d-flex justify-content-center">
           <!-- IRR container -->
-          <div class="irr-card" style="margin-top: 2em">
+          <div class="irr-card" id="irr-card-id" style="margin-top: 2em">
             <div class="irr-title">Team inter-rater agreement</div>
             <div class="irr-subtitle">Calculated using Krippendorff's Alpha.</div>
             <div id="irr-container">
@@ -361,13 +361,36 @@
 </section>
 
 <script th:inline="javascript">
-  document.addEventListener('navbarLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function () {
     let teamId = /*[[${team.teamId}]]*/ "";     // Team ID using thymeleaf
+    const dialogButton = document.getElementById("openDialogBtn");
+    const deleteTeamButton = document.getElementById("deleteTeamButton");
+    const irrContainer = document.getElementById("irr-card-id");
 
-    fetchTeamIrr(teamId).then(data => {
-      const irr = data.irr;
-      displayTeamIrr(irr);
-    });
+    const projectOwnerUsername = /*[[${ownerUsername}]]*/ "";
+    console.log("projectOwnerUsername: " + projectOwnerUsername);
+
+    if (projectOwnerUsername === localStorage.getItem('username')) {
+      dialogButton.style.display = "block";
+      deleteTeamButton.style.display = "block";
+      irrContainer.style.display = "block";
+
+      fetchTeamIrr(teamId).then(data => {
+        const irr = data.irr;
+        displayTeamIrr(irr);
+      });
+
+    } else {
+      dialogButton.style.display = "none";
+      deleteTeamButton.style.display = "none";
+      irrContainer.style.display = "none";
+
+      const detailsDiv = document.getElementById("details-div");
+      detailsDiv.classList.remove('col-md-8');
+      detailsDiv.classList.add("col-md-12");
+    }
+
+
 
     async function fetchTeamIrr(teamId){
       return fetch(`/api/v1/team/${teamId}/irr`, {
@@ -429,6 +452,10 @@
 <!-- dialog to edit users -->
 <!-- do not move the script source otherwise it will not work (dk why) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- showing or hiding edit users / delete team buttons (only the owner can view them) -->
+
+
 <script th:inline="javascript">
 
   let users = /*[[${team.users}]]*/ "";       // Array of users using thymeleaf
