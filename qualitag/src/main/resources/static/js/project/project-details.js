@@ -99,7 +99,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // redirecting to create team page, passing the project id which is needed to link the team to the project
             window.location.href = `/artifact/${project.projectId}/create`;
           });
+
+      startStopTaggingButtons(project.artifacts.map(artifact => artifact.artifactId));
     } else {
+      // normal user stuff
       document.getElementById('projectOwner').innerText = localStorage.getItem(
           'username');
     }
@@ -158,6 +161,61 @@ document.addEventListener('DOMContentLoaded', function () {
     console.error('Error:', error);
   });
 });
+
+function startStopTaggingButtons(artifactIds){
+  const startTaggingButton = document.getElementById('startTaggingButton');
+  const stopTaggingButton = document.getElementById('stopTaggingButton');
+
+  startTaggingButton.style.display = 'block';
+  stopTaggingButton.style.display = 'block';
+
+  startTaggingButton.addEventListener('click', () => {
+    console.log(artifactIds);
+    startTagging(artifactIds);
+  });
+
+  stopTaggingButton.addEventListener('click', () => {
+    stopTagging(artifactIds);
+  });
+}
+
+function stopTagging(artifactIds){
+  fetch(`/api/v1/artifact/stoptagging`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    },
+    body: JSON.stringify(artifactIds)
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert(data.msg);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while stopping tagging.');
+  });
+}
+
+function startTagging(artifactIds){
+  fetch(`/api/v1/artifact/starttagging`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    },
+    body: JSON.stringify(artifactIds)
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert(data.msg);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while stopping tagging.');
+  });
+}
 
 function deleteProjectButtonLogic() {
   // get project id from url

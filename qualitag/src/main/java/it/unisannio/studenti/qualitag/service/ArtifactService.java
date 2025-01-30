@@ -51,16 +51,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ArtifactService {
 
+  private static final String UPLOAD_DIR = "artifacts/";
   private final ArtifactRepository artifactRepository;
   private final ProjectRepository projectRepository;
   private final TagRepository tagRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
-
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
-
-  private static final String UPLOAD_DIR = "artifacts/";
 
   // POST
 
@@ -507,6 +505,11 @@ public class ArtifactService {
 
   // UTILITY METHODS
 
+  /**
+   * Retrieves the ID of the logged in user.
+   *
+   * @return the ID of the logged in user
+   */
   private String getLoggedInUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
@@ -521,6 +524,13 @@ public class ArtifactService {
         "Unexpected authentication principal type: " + principal.getClass());
   }
 
+  /**
+   * Saves a file to the server's file system.
+   *
+   * @param file the file to save
+   * @return the path to the saved file
+   * @throws IOException if an I/O error occurs
+   */
   private String saveFile(MultipartFile file) throws IOException {
     // Generate a unique file name by appending a UUID to the original file name.
     String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
@@ -539,6 +549,12 @@ public class ArtifactService {
     return path.toString();
   }
 
+  /**
+   * Retrieves all tags created by a user.
+   *
+   * @param userIdOrEmailOrUsername the id, email, or username of the user to retrieve the tags of
+   * @return the response entity
+   */
   public ResponseEntity<?> getTagsByUser(String artifactId, String userIdOrEmailOrUsername) {
     Map<String, Object> response = new HashMap<>();
     User user = null;
@@ -588,6 +604,12 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
+  /**
+   * Retrieves all tags of an artifact.
+   *
+   * @param artifactId the id of the artifact to retrieve the tags of
+   * @return the response entity
+   */
   public ResponseEntity<?> getAllTags(String artifactId) {
     Map<String, Object> response = new HashMap<>();
     if (artifactId == null || artifactId.isEmpty()) {
@@ -627,6 +649,12 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
+  /**
+   * Starts the tagging process for an artifact.
+   *
+   * @param artifactId the id of the artifact to start tagging
+   * @return the response entity
+   */
   public ResponseEntity<?> startTagging(String artifactId) {
     Map<String, Object> response = new HashMap<>();
 
@@ -649,6 +677,42 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
+  /**
+   * Starts the tagging process for a list of artifacts.
+   *
+   * @param artifactIds the list of artifact ids to start tagging
+   * @return the response entity
+   */
+  public ResponseEntity<?> startTagging(List<String> artifactIds) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (artifactIds == null || artifactIds.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    for (String id : artifactIds) {
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(id);
+      if (artifact == null) {
+        response.put("msg", "Artifact not found.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      artifact.setTaggingOpen(true);
+
+      artifactRepository.save(artifact);
+    }
+
+    response.put("msg", "Tagging started successfully for all artifacts.");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
+   * Stops the tagging process for an artifact.
+   *
+   * @param artifactId the id of the artifact to stop tagging
+   * @return the response entity
+   */
   public ResponseEntity<?> stopTagging(String artifactId) {
     Map<String, Object> response = new HashMap<>();
 
@@ -667,7 +731,37 @@ public class ArtifactService {
 
     artifactRepository.save(artifact);
 
-    response.put("msg", "Tagging stopped successfully");
+    response.put("msg", "Tagging stopped successfully.");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
+   * Stops the tagging process for a list of artifacts.
+   *
+   * @param artifactIds the list of artifact ids to stop tagging
+   * @return the response entity
+   */
+  public ResponseEntity<?> stopTagging(List<String> artifactIds) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (artifactIds == null || artifactIds.isEmpty()) {
+      response.put("msg", "Artifact id is null or empty.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    for (String id : artifactIds) {
+      Artifact artifact = artifactRepository.findArtifactByArtifactId(id);
+      if (artifact == null) {
+        response.put("msg", "Artifact not found.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      artifact.setTaggingOpen(false);
+
+      artifactRepository.save(artifact);
+    }
+
+    response.put("msg", "Tagging stopped successfully for all artifacts.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }

@@ -3,6 +3,7 @@ package it.unisannio.studenti.qualitag.controller;
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.service.ArtifactService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -120,6 +121,17 @@ public class ArtifactController {
   }
 
   /**
+   * Starts the tagging process for a list of artifacts.
+   *
+   * @param artifactIds the list of artifact ids to start tagging
+   * @return the response entity
+   */
+  @PutMapping("/starttagging")
+  public ResponseEntity<?> startTaggingList(@RequestBody List<String> artifactIds) {
+    return this.artifactService.startTagging(artifactIds);
+  }
+
+  /**
    * Stops the tagging process for an artifact.
    *
    * @param artifactId the id of the artifact to stop tagging
@@ -128,6 +140,17 @@ public class ArtifactController {
   @PutMapping("/{artifactId}/stoptagging")
   public ResponseEntity<?> stopTagging(@PathVariable String artifactId) {
     return this.artifactService.stopTagging(artifactId);
+  }
+
+  /**
+   * Stops the tagging process for a list of artifacts.
+   *
+   * @param artifactIds the list of artifact ids to stop tagging
+   * @return the response entity
+   */
+  @PutMapping("/stoptagging")
+  public ResponseEntity<?> stopTaggingList(@RequestBody List<String> artifactIds) {
+    return this.artifactService.stopTagging(artifactIds);
   }
 
   // DELETE Methods
