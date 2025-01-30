@@ -78,21 +78,21 @@ public class ArtifactService {
       Set<ConstraintViolation<ArtifactCreateDto>> violations = validator.validate(
           artifactCreateDto);
       if (!violations.isEmpty()) {
-        response.put("msg", "Invalid artifact data");
+        response.put("msg", "Invalid artifact data.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       }
 
       // Check if the project exists
       Project project = projectRepository.findProjectByProjectId(artifactCreateDto.projectId());
       if (project == null) {
-        response.put("msg", "Project not found");
+        response.put("msg", "Project not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
 
-      // Check if the logged in user is the owner of the project
+      // Check if the logged-in user is the owner of the project
       User user = userRepository.findByUserId(project.getOwnerId());
       if (AuthenticationService.getAuthority(user.getUsername())) {
-        response.put("msg", "User is not the project owner");
+        response.put("msg", "User is not the project owner.");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
       }
 
@@ -134,16 +134,16 @@ public class ArtifactService {
       team.getArtifactIds().add(artifact.getArtifactId());
       teamRepository.save(team);
     } catch (IOException e) {
-      response.put("msg", "File upload failed");
+      response.put("msg", "File upload failed.");
       response.put("error_message", e.getMessage());
       response.put("error", e);
       return ResponseEntity.status(500).body(response);
     } catch (Exception e) {
-      response.put("msg", "An error occurred");
+      response.put("msg", "An error occurred.");
       return ResponseEntity.status(500).body(response);
     }
 
-    response.put("msg", "Artifact created successfully");
+    response.put("msg", "Artifact created successfully.");
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -161,7 +161,7 @@ public class ArtifactService {
     // Retrieve the artifact data
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -169,19 +169,19 @@ public class ArtifactService {
     User user = userRepository.findByUserId(getLoggedInUserId());
     Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
     if (user == null) {
-      response.put("msg", "User not found");
+      response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
         .contains(artifact.getTeamId()))) {
-      response.put("msg", "User is not authorized to view this artifact");
+      response.put("msg", "User is not authorized to view this artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // Check if the file exists
     Path filePath = Paths.get(artifact.getFilePath());
     if (!Files.exists(filePath)) {
-      response.put("msg", "File not found");
+      response.put("msg", "File not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -190,7 +190,7 @@ public class ArtifactService {
       Resource file = new FileSystemResource(filePath);
       String contentType = Files.probeContentType(filePath);
 
-      // Fallback if cannot determine the content type
+      // Fallback if it cannot determine the content type
       if (contentType == null) {
         contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
       }
@@ -222,7 +222,7 @@ public class ArtifactService {
     // Retrieve the artifact
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -230,19 +230,19 @@ public class ArtifactService {
     User user = userRepository.findByUserId(getLoggedInUserId());
     Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
     if (user == null) {
-      response.put("msg", "User not found");
+      response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
         .contains(artifact.getTeamId()))) {
-      response.put("msg", "User is not authorized to view this artifact");
+      response.put("msg", "User is not authorized to view this artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // Convert the entity to a DTO
     WholeArtifactDto artifactDto = ArtifactMapper.toWholeArtifactDto(artifact);
 
-    response.put("msg", "Artifact metadata retrieved successfully");
+    response.put("msg", "Artifact metadata retrieved successfully.");
     response.put("artifact", artifactDto);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
@@ -281,7 +281,7 @@ public class ArtifactService {
      * ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); }
      */
 
-    response.put("msg", "Method not implemented yet");
+    response.put("msg", "Method not implemented yet.");
     return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
   }
 
@@ -297,19 +297,19 @@ public class ArtifactService {
     // Validate the DTO
     Set<ConstraintViolation<AddTagsToArtifactDto>> violations = validator.validate(dto);
     if (!violations.isEmpty()) {
-      response.put("msg", "Invalid data");
+      response.put("msg", "Invalid data.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Check artifact
     if (artifactId == null || artifactId.isEmpty()) {
-      response.put("msg", "Artifact id is null or empty");
+      response.put("msg", "Artifact id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     // Retrieve the artifact
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -317,20 +317,20 @@ public class ArtifactService {
     for (String tagId : dto.tagIds()) {
       // Check if the tag id is null or empty
       if (tagId == null || tagId.isEmpty()) {
-        response.put("msg", "Tag id is null or empty");
+        response.put("msg", "Tag id is null or empty.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       }
 
       // Retrieve the tag
       Tag tag = tagRepository.findTagByTagId(tagId);
       if (tag == null) {
-        response.put("msg", "Tag not found");
+        response.put("msg", "Tag not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
 
       // Check if the tag is already in the artifact
       if (artifact.getTags().contains(tagId)) {
-        response.put("msg", "Tag already exists in artifact");
+        response.put("msg", "Tag already exists in artifact.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       }
 
@@ -343,10 +343,10 @@ public class ArtifactService {
           team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
               .equals(user.getUserId())))) {
         if (!project.getOwnerId().equals(user.getUserId())) {
-          response.put("msg", "User is not the project owner");
+          response.put("msg", "User is not the project owner.");
           return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         } else {
-          response.put("msg", "User is not authorized to add this tag to the artifact");
+          response.put("msg", "User is not authorized to add this tag to the artifact.");
           return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
       }
@@ -362,7 +362,7 @@ public class ArtifactService {
       artifactRepository.save(artifact);
     }
 
-    response.put("msg", "Tags added successfully");
+    response.put("msg", "Tags added successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -379,34 +379,34 @@ public class ArtifactService {
 
     // Check if the id is null or empty
     if (id == null || id.isEmpty()) {
-      response.put("msg", "Artifact id is null or empty");
+      response.put("msg", "Artifact id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Check if the artifact exists and retrieve it
     Artifact artifact = artifactRepository.findArtifactByArtifactId(id);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Retrieve the project the artifact belongs to
     Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
     if (project == null) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Check if the project owner is the one deleting the artifact
     if (!project.getOwnerId().equals(getLoggedInUserId())) {
-      response.put("msg", "User is not the project owner");
+      response.put("msg", "User is not the project owner.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // Retrieve the team the artifact belongs to
     Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
     if (team == null) {
-      response.put("msg", "Team not found");
+      response.put("msg", "Team not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -433,22 +433,22 @@ public class ArtifactService {
       Path filePath = Paths.get(artifact.getFilePath());
       Files.delete(filePath);
     } catch (IOException e) {
-      response.put("msg", "File deletion failed");
+      response.put("msg", "File deletion failed.");
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     // Check if the artifact was deleted
     if (!artifactRepository.existsById(id)) {
-      response.put("msg", "Artifact deleted successfully");
+      response.put("msg", "Artifact deleted successfully.");
       return ResponseEntity.status(HttpStatus.OK).body(response);
     } else {
-      response.put("msg", "Artifact not deleted");
+      response.put("msg", "Artifact not deleted.");
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
   }
 
   /**
-   * Removss a tag of an artifact.
+   * Removes a tag of an artifact.
    *
    * @param artifactId the id of the artifact which tag we want to remove
    * @param tagId      the id of the tag to remove
@@ -459,18 +459,18 @@ public class ArtifactService {
 
     // Check if the IDs are null or empty
     if (artifactId == null || artifactId.isEmpty()) {
-      response.put("msg", "Artifact id is null or empty");
+      response.put("msg", "Artifact id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     if (tagId == null || tagId.isEmpty()) {
-      response.put("msg", "Tag id is null or empty");
+      response.put("msg", "Tag id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Retrieve the artifact
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -482,14 +482,14 @@ public class ArtifactService {
     if (!(project.getOwnerId().equals(user.getUserId()) || (
         team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
             .equals(user.getUserId())))) {
-      response.put("msg", "User is not authorized to remove this tag from the artifact");
+      response.put("msg", "User is not authorized to remove this tag from the artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // Check if the tag is in the artifact
     List<String> tagIds = artifact.getTags();
     if (!tagIds.contains(tagId)) {
-      response.put("msg", "Tag not found in artifact");
+      response.put("msg", "Tag not found in artifact.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -501,7 +501,7 @@ public class ArtifactService {
     artifact.getTags().remove(tagId);
     artifactRepository.save(artifact);
 
-    response.put("msg", "Tag removed successfully");
+    response.put("msg", "Tag removed successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -510,7 +510,7 @@ public class ArtifactService {
   private String getLoggedInUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
-      throw new IllegalStateException("No authenticated user found");
+      throw new IllegalStateException("No authenticated user found.");
     }
 
     Object principal = authentication.getPrincipal();
@@ -518,7 +518,7 @@ public class ArtifactService {
       return user.getUserId();
     }
     throw new IllegalStateException(
-        "Unexpected authentication principal type: " + principal.getClass());
+        "Unexpected authentication principal type: " + principal.getClass() +".");
   }
 
   private String saveFile(MultipartFile file) throws IOException {
@@ -554,14 +554,14 @@ public class ArtifactService {
     }
 
     if (user == null) {
-      response.put("msg", "User not found");
+      response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Retrieve the artifact
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -569,7 +569,7 @@ public class ArtifactService {
     Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
     if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
         .contains(artifact.getTeamId()))) {
-      response.put("msg", "User is not authorized to view this artifact");
+      response.put("msg", "User is not authorized to view this artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -583,7 +583,7 @@ public class ArtifactService {
       }
     }
 
-    response.put("msg", "Tags retrieved successfully");
+    response.put("msg", "Tags retrieved successfully.");
     response.put("tags", tags);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
@@ -591,13 +591,13 @@ public class ArtifactService {
   public ResponseEntity<?> getAllTags(String artifactId) {
     Map<String, Object> response = new HashMap<>();
     if (artifactId == null || artifactId.isEmpty()) {
-      response.put("msg", "Artifact id is null or empty");
+      response.put("msg", "Artifact id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -606,12 +606,12 @@ public class ArtifactService {
     for (String tagId : tagIds) {
       Tag tag = tagRepository.findTagByTagId(tagId);
       if (tag == null) {
-        response.put("msg", "Tag not found");
+        response.put("msg", "Tag not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       User user = userRepository.findByUserId(tag.getCreatedBy());
       if (user == null) {
-        response.put("msg", "User not found");
+        response.put("msg", "User not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
 
@@ -622,7 +622,7 @@ public class ArtifactService {
       tags.add(tagMapper.getResponseDto(tag));
     }
 
-    response.put("msg", "Tags retrieved successfully");
+    response.put("msg", "Tags retrieved successfully.");
     response.put("tags", tags);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
@@ -631,13 +631,13 @@ public class ArtifactService {
     Map<String, Object> response = new HashMap<>();
 
     if (artifactId == null || artifactId.isEmpty()) {
-      response.put("msg", "Artifact id is null or empty");
+      response.put("msg", "Artifact id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -645,7 +645,7 @@ public class ArtifactService {
 
     artifactRepository.save(artifact);
 
-    response.put("msg", "Tagging started successfully");
+    response.put("msg", "Tagging started successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -653,13 +653,13 @@ public class ArtifactService {
     Map<String, Object> response = new HashMap<>();
 
     if (artifactId == null || artifactId.isEmpty()) {
-      response.put("msg", "Artifact id is null or empty");
+      response.put("msg", "Artifact id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -667,7 +667,7 @@ public class ArtifactService {
 
     artifactRepository.save(artifact);
 
-    response.put("msg", "Tagging stopped successfully");
+    response.put("msg", "Tagging stopped successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }

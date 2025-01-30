@@ -115,9 +115,9 @@ public class TeamServiceTest {
     user3.setTeamIds(new ArrayList<>());
 
     //tags and artifacts
-    tag1 = new Tag("tag1Id", "tag1Name", "projectId");
+    tag1 = new Tag("6744ba6c60e0564864250e89", "tag1Name", "projectId");
     tag1.setCreatedBy(user1.getUserId());
-    tag2 = new Tag("tag2Id", "tag2Name", "projectId");
+    tag2 = new Tag("6755b79afc22f97c06a34275", "tag2Name", "projectId");
     tag2.setCreatedBy(user2.getUserId());
 
     artifact = new Artifact("artifactName",
@@ -166,8 +166,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    assertEquals("Team added successfully",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team added successfully.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -184,9 +185,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Invalid team data", ((Map<String, String>)
-        response.getBody()).get("msg"));
-
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Invalid team data.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -204,8 +205,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Project not found", ((Map<String, String>) response.getBody())
-        .get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project not found.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -226,8 +228,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Only the project owner can create a team",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Only the project owner can create a team.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -250,8 +253,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Team name is too short",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team name is too short.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -274,8 +278,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Team name is too long",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team name is too long.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -299,9 +304,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Owner email must not be in the list",
-        ((Map<String, String>) response.getBody()).get("msg"));
-
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Owner email must not be in the list.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -324,10 +329,10 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("A team must have at least " + TeamConstants.MIN_TEAM_USERS
-            + " users",
-        ((Map<String, String>) response.getBody()).get("msg"));
-
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "A team must have at least " + TeamConstants.MIN_TEAM_USERS
+        + " users.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -414,9 +419,10 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("A team cannot have more than " +
-            TeamConstants.MAX_TEAM_USERS + " users",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "A team cannot have more than " +
+        TeamConstants.MAX_TEAM_USERS + " users.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -438,9 +444,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("There is an empty email in the list. Remove it.",
-        ((Map<String, String>) response.getBody()).get("msg"));
-
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "There is an empty email in the list. Remove it.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -460,8 +466,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("There is an empty email in the list. Remove it.",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "There is an empty email in the list. Remove it.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -481,8 +488,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("User with email user1@example.com does not exist",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User with email user1@example.com does not exist.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -516,11 +524,11 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Team description is too long. Max is "
-            + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH + " "
-            + "characters including whitespaces.",
-        ((Map<String, String>) response.getBody()).get("msg"));
-
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team description is too long. Max is "
+        + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH +
+        " characters including whitespaces.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -599,8 +607,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("User with ID user1Id does not exist",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User with ID user1Id does not exist.");
+    assertEquals(responseBody, response.getBody());
   }
 
   //TODO: Add test for when an user is the team is already in an another team
@@ -626,8 +635,9 @@ public class TeamServiceTest {
 
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("User with ID user1Id is not part of the project",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User with ID user1Id is not part of the project.");
+    assertEquals(responseBody, response.getBody());
   }
 
 
@@ -704,7 +714,7 @@ public class TeamServiceTest {
     assertNotNull(cause, "Expected an exception cause but found null.");
     assertInstanceOf(TeamValidationException.class, cause,
         "Expected a TeamValidationException.");
-    assertEquals("Team cannot be null", cause.getMessage());
+    assertEquals("Team cannot be null.", cause.getMessage());
   }
 
   /**
@@ -734,7 +744,7 @@ public class TeamServiceTest {
     assertNotNull(cause, "Expected an exception cause but found null.");
     assertInstanceOf(TeamValidationException.class, cause,
         "Expected a TeamValidationException.");
-    assertEquals("User ID is null or empty", cause.getMessage());
+    assertEquals("User ID is null or empty.", cause.getMessage());
   }
 
   /**
@@ -764,7 +774,7 @@ public class TeamServiceTest {
     assertNotNull(cause, "Expected an exception cause but found null.");
     assertInstanceOf(TeamValidationException.class, cause,
         "Expected a TeamValidationException.");
-    assertEquals("User ID is null or empty", cause.getMessage());
+    assertEquals("User ID is null or empty.", cause.getMessage());
   }
 
 
@@ -796,7 +806,7 @@ public class TeamServiceTest {
     assertNotNull(cause, "Expected an exception cause but found null.");
     assertInstanceOf(TeamValidationException.class, cause,
         "Expected a TeamValidationException.");
-    assertEquals("User with ID nonexistentUser does not exist", cause.getMessage());
+    assertEquals("User with ID nonexistentUser does not exist.", cause.getMessage());
   }
 
   /**
@@ -831,7 +841,7 @@ public class TeamServiceTest {
     assertNotNull(cause, "Expected an exception cause but found null.");
     assertInstanceOf(TeamValidationException.class, cause,
         "Expected a TeamValidationException.");
-    assertEquals("User with ID user2Id is not part of the project",
+    assertEquals("User with ID user2Id is not part of the project.",
         cause.getMessage());
   }
 
@@ -863,7 +873,7 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Project ID is null or empty", response.getBody());
+    assertEquals("Project ID is null or empty.", response.getBody());
   }
 
   /**
@@ -876,7 +886,7 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Project ID is null or empty", response.getBody());
+    assertEquals("Project ID is null or empty.", response.getBody());
   }
 
   /**
@@ -893,7 +903,7 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("No teams found for project ID projectId", response.getBody());
+    assertEquals("No teams found for project ID projectId.", response.getBody());
   }
 
   /**
@@ -924,7 +934,7 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("User ID is null or empty", response.getBody());
+    assertEquals("User ID is null or empty.", response.getBody());
   }
 
   /**
@@ -937,7 +947,7 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("User ID is null or empty", response.getBody());
+    assertEquals("User ID is null or empty.", response.getBody());
   }
 
   /**
@@ -954,7 +964,7 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("No teams found for user ID userId", response.getBody());
+    assertEquals("No teams found for user ID userId.", response.getBody());
   }
 
   /**
@@ -979,10 +989,10 @@ public class TeamServiceTest {
     //Act
     ResponseEntity<?> response = teamService.deleteTeam("teamId");
 
-    Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Team deleted successfully.");
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team deleted successfully.");
     assertEquals(responseBody, response.getBody());
   }
 
@@ -996,8 +1006,9 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Team ID is null or empty",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team ID is null or empty.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1010,8 +1021,9 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Team ID is null or empty",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team ID is null or empty.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1027,8 +1039,9 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("Team not found",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team not found.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1045,8 +1058,9 @@ public class TeamServiceTest {
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("Project not found",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project not found.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1067,9 +1081,10 @@ public class TeamServiceTest {
     ResponseEntity<?> response = teamService.deleteTeam("teamId");
 
     //Assert
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User with ID user2Id not found.");
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("User with ID user2Id not found",
-        ((Map<String, String>) response.getBody()).get("msg"));
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1093,10 +1108,10 @@ public class TeamServiceTest {
 
     //Act
     ResponseEntity<?> response = teamService.deleteTeam("teamId");
-    Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Team not deleted.");
 
     //Assert
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team not deleted.");
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     assertEquals(responseBody, response.getBody());
   }
@@ -1109,8 +1124,8 @@ public class TeamServiceTest {
     //Arrange
     when(teamRepository.findTeamByTeamId("teamId")).thenReturn(team);
     when(artifactRepository.findArtifactByArtifactId("artifactId")).thenReturn(artifact);
-    when(tagRepository.findTagByTagId("tag1Id")).thenReturn(tag1);
-    when(tagRepository.findTagByTagId("tag2Id")).thenReturn(tag2);
+    when(tagRepository.findTagByTagId("6744ba6c60e0564864250e89")).thenReturn(tag1);
+    when(tagRepository.findTagByTagId("6755b79afc22f97c06a34275")).thenReturn(tag2);
 
     String mockAlphaResponse = "{\"alpha\": 0.85}";
     when(pythonClientService.getKrippendorffAlpha(Mockito.anyList())).thenReturn(mockAlphaResponse);
@@ -1121,10 +1136,11 @@ public class TeamServiceTest {
     //Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
-    assertNotNull(responseBody);
-    assertEquals("Successfully retrieved Krippendorff's alpha", responseBody.get("msg"));
-    assertEquals(0.85, responseBody.get("irr"));
+    assertNotNull(response.getBody());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Successfully retrieved Krippendorff's alpha.");
+    responseBody.put("irr", 0.85);
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1141,9 +1157,10 @@ public class TeamServiceTest {
     //Assert
     assertNotNull(response);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
-    assertNotNull(responseBody);
-    assertEquals("Team not found", responseBody.get("msg"));
+    assertNotNull(response.getBody());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team not found.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1161,9 +1178,10 @@ public class TeamServiceTest {
     //Assert
     assertNotNull(response);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Artifact not found.");
     assertNotNull(responseBody);
-    assertEquals("Artifact not found", responseBody.get("msg"));
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1185,10 +1203,11 @@ public class TeamServiceTest {
     //Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
-    assertNotNull(responseBody);
-    assertEquals("Successfully retrieved Krippendorff's alpha", responseBody.get("msg"));
-    assertEquals(1.0, responseBody.get("irr")); // Default alpha value
+    assertNotNull(response.getBody());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Successfully retrieved Krippendorff's alpha.");
+    responseBody.put("irr", 1.0); //Default alpha value
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -1213,10 +1232,11 @@ public class TeamServiceTest {
     //Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
-    assertNotNull(responseBody);
-    assertEquals("Successfully retrieved Krippendorff's alpha", responseBody.get("msg"));
-    assertEquals(0.0, responseBody.get("irr")); // Alpha drops due to mismatch
+    assertNotNull(response.getBody());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Successfully retrieved Krippendorff's alpha.");
+    responseBody.put("irr", 0.0); //Alpha drops due to mismatch
+    assertEquals(responseBody, response.getBody());
   }
 
   /**

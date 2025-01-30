@@ -24,6 +24,7 @@ import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
 import it.unisannio.studenti.qualitag.security.service.JwtService;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,7 +81,7 @@ public class UserServiceTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    //Initiliaza the users object
+    //Initialize the users object
     user1 = new User("user1", "user1@example.com",
         "password1", "Jane", "Doe");
     user1.setUserId("user1Id");
@@ -91,7 +92,7 @@ public class UserServiceTest {
         "password2", "Alice", "Smith");
     owner.setUserId("ownerId");
 
-    //Initializa the project
+    //Initialize the project
     project = new Project("projectName", "projectDescription",
         0L, 0L, "ownerId", new ArrayList<>());
     project.setProjectId("projectId");
@@ -101,10 +102,11 @@ public class UserServiceTest {
 
     //Initialize the tag objects
     tag1 = new Tag("tag1", "user1Id", "fff8de");
-    tag1.setTagId("tag1Id");
+    tag1.setTagId("6744ba6c60e0564864250e89");
     tag2 = new Tag("tag2", "user1Id", "#295f98");
-    tag2.setTagId("tag2Id");
-    user1.setTagIds(new ArrayList<>(Arrays.asList("tag1Id", "tag2Id")));
+    tag2.setTagId("6755b79afc22f97c06a34275");
+    user1.setTagIds(new ArrayList<>(
+        Arrays.asList("6744ba6c60e0564864250e89", "6755b79afc22f97c06a34275")));
 
     //Initialize the team object
     team = new Team("teamName", "projectId",
@@ -120,13 +122,13 @@ public class UserServiceTest {
     artifact.setArtifactId("artifactId");
     artifact.setTags(new ArrayList<>(Arrays.asList("tagId1", "tagId2")));
 
-    //Initialize the dtos
+    //Initialize the dto
     userModifyDto = new UserModifyDto("user1Figo", "user1Figo@example.com",
         "Jane", "Doe");
     passwordUpdateDto = new PasswordUpdateDto("pAssword12$",
         "pAssword12$");
 
-    //Initiliaze authorization details
+    //Initialize authorization details
     // Mock SecurityContextHolder to provide an authenticated user
     Authentication authentication = mock(Authentication.class);
     when(authentication.isAuthenticated()).thenReturn(true);
@@ -175,25 +177,25 @@ public class UserServiceTest {
   void testGetUserTags_Success() {
     //Arrange
     when(userRepository.findByUsername("user1")).thenReturn(user1);
-    when(tagRepository.findTagByTagId("tag1Id")).thenReturn(tag1);
-    when(tagRepository.findTagByTagId("tag2Id")).thenReturn(tag2);
+    when(tagRepository.findTagByTagId("6744ba6c60e0564864250e89")).thenReturn(tag1);
+    when(tagRepository.findTagByTagId("6755b79afc22f97c06a34275")).thenReturn(tag2);
 
     //Act
     ResponseEntity<?> response = userService.getUserTags("user1");
 
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("Tags retrieved successfully.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
-    assertEquals(Arrays.asList(tag1, tag2),
-        ((Map<String, Object>) response.getBody()).get("tags"));
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tags retrieved successfully.");
+    responseBody.put("tags", Arrays.asList(tag1, tag2));
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
    * Tests an execution of getUserTags method when the user is not authorized
    */
   @Test
-  void testGetUsetTags_Unauthorized() {
+  void testGetUserTags_Unauthorized() {
     //Arrange
     Authentication authentication = mock(Authentication.class);
     when(authentication.isAuthenticated()).thenReturn(true);
@@ -207,8 +209,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    assertEquals("You are not authorized to access to this user.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "You are not authorized to access to this user.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -224,8 +227,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("User not found.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User not found.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -245,13 +249,15 @@ public class UserServiceTest {
     //Assert
     verify(jwtService, times(1)).generateToken
         (new CustomUserDetails(user1));
-    ;
+
     verify(userMapper, times(1)).updateEntity(userModifyDto, user1);
     verify(userRepository, times(1)).save(user1);
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("User updated successfully.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
-
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User updated successfully.");
+    responseBody.put("wholeuser", null);
+    responseBody.put("token", null);
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -275,15 +281,16 @@ public class UserServiceTest {
     //Assert
     verify(jwtService, times(1)).generateToken
         (new CustomUserDetails(user1));
-    ;
+
     verify(userMapper, times(1))
         .updateEntity(noChangeUserModifyDto, user1);
     verify(userRepository, times(1)).save(user1);
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("User updated successfully.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
-
-
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User updated successfully.");
+    responseBody.put("wholeuser", null);
+    responseBody.put("token", null);
+    assertEquals(responseBody, response.getBody());
   }
 
 
@@ -305,8 +312,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    assertEquals("You are not authorized to modify this user.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "You are not authorized to modify this user.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -327,8 +335,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("All fields must be filled.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "All fields must be filled.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -349,8 +358,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Invalid username.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Invalid username.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -371,8 +381,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Invalid email address.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Invalid email address.");
+    assertEquals(responseBody, response.getBody());
   }
 
 
@@ -389,8 +400,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("User not found.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User not found.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -407,8 +419,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Username already taken.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Username already taken.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -426,8 +439,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Email already taken.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Email already taken.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -449,8 +463,9 @@ public class UserServiceTest {
     verify(userMapper, times(1)).updateEntity(passwordUpdateDto, user1);
     verify(userRepository, times(1)).save(user1);
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("Password updated successfully.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Password updated successfully.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -475,8 +490,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    assertEquals("You are not authorized to modify this user.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "You are not authorized to modify this user.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -496,8 +512,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("All fields must be filled.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "All fields must be filled.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -518,8 +535,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Invalid password.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Invalid password.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -540,8 +558,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Passwords do not match.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Passwords do not match.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -558,8 +577,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("User not found.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User not found.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /***
@@ -580,11 +600,12 @@ public class UserServiceTest {
     verify(userRepository, times(1)).deleteByUsername("user1");
     verify(projectRepository, times(1)).save(project);
     verify(teamRepository, times(1)).save(team);
-    verify(tagService, times(1)).deleteTag("tag1Id");
-    verify(tagService, times(1)).deleteTag("tag2Id");
+    verify(tagService, times(1)).deleteTag("6744ba6c60e0564864250e89");
+    verify(tagService, times(1)).deleteTag("6755b79afc22f97c06a34275");
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("User deleted successfully.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User deleted successfully.");
+    assertEquals(responseBody, response.getBody());
     assertEquals(Arrays.asList("ownerId", "user2Id"), project.getUserIds());
     assertEquals(Arrays.asList("user2Id"), team.getUserIds());
   }
@@ -607,8 +628,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    assertEquals("You are not authorized to delete this user.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "You are not authorized to delete this user.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -624,8 +646,9 @@ public class UserServiceTest {
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("User not found.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User not found.");
+    assertEquals(responseBody, response.getBody());
   }
 
   /**
@@ -657,8 +680,9 @@ public class UserServiceTest {
     verify(userRepository, times(1)).deleteByUsername("owner");
     verify(projectService, times(1)).deleteProject("projectId");
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("User deleted successfully.",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User deleted successfully.");
+    assertEquals(responseBody, response.getBody());
   }
 
 }

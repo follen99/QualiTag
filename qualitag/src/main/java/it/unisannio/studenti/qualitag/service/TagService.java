@@ -64,13 +64,13 @@ public class TagService {
 
       this.tagRepository.save(tag);
       if (this.addTagToUser(tag)) {
-        response.put("msg", "Tag added successfully");
+        response.put("msg", "Tag added successfully.");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
       }
 
       // If it was impossible to add the tag to the user, rollback
       this.tagRepository.delete(tag);
-      response.put("msg", "Tag already exists");
+      response.put("msg", "Tag already exists.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     } catch (TagValidationException e) {
       response.put("msg", e.getMessage());
@@ -78,7 +78,7 @@ public class TagService {
     }
   }
 
-  public ResponseEntity<?> addTagsToArtfactAndUser(List<TagCreateDto> tags, String artifactId) {
+  public ResponseEntity<?> addTagsToArtifactAndUser(List<TagCreateDto> tags, String artifactId) {
     Map<String, Object> response = new HashMap<>();
     System.out.println("tags: " + tags);
     // for every tag added...
@@ -94,7 +94,7 @@ public class TagService {
       if (!this.addTagToUser(tag)) {
         // If it was impossible to add the tag to the user, rollback
         this.tagRepository.delete(tag);
-        response.put("msg", "Tag already exists");
+        response.put("msg", "Tag already exists.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       }
 
@@ -104,7 +104,7 @@ public class TagService {
       artifactRepository.save(artifact);
     }
 
-    response.put("msg", "Tags added successfully");
+    response.put("msg", "Tags added successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -143,7 +143,7 @@ public class TagService {
       Tag userTag = tagRepository.findTagByTagId(tagId);
       // check if the tag already exists with the same value
       if (userTag.getTagValue().equals(tag.getTagValue())) {
-        // check if the tag if from the same artifact
+        // check if the tag is from the same artifact
         if (userTag.getArtifactIds().equals(tag.getArtifactIds())) {
           return false;
         }
@@ -167,24 +167,24 @@ public class TagService {
 
     // ID check
     if (id == null || id.isEmpty()) {
-      response.put("msg", "Tag id is null or empty");
+      response.put("msg", "Tag id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Retrieve tag
     Tag tag = tagRepository.findById(id).orElse(null);
     if (tag == null) {
-      response.put("msg", "Tag not found");
+      response.put("msg", "Tag not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Check if the logged user is the creator of the tag
     if (!tag.getCreatedBy().equals(getLoggedInUserId())) {
-      response.put("msg", "You are not the creator of the tag");
+      response.put("msg", "You are not the creator of the tag.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
-    response.put("msg", "Tag found");
+    response.put("msg", "Tag found.");
     response.put("tag", tag);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
@@ -200,20 +200,20 @@ public class TagService {
 
     // ID check
     if (id == null || id.isEmpty()) {
-      response.put("msg", "Tag id is null or empty");
+      response.put("msg", "Tag id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Retrieve tag
     Tag tag = tagRepository.findTagByTagId(id);
     if (tag == null) {
-      response.put("msg", "Tag not found");
+      response.put("msg", "Tag not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Check if the logged user is the creator of the tag
     if (!tag.getCreatedBy().equals(getLoggedInUserId())) {
-      response.put("msg", "You are not the creator of the tag");
+      response.put("msg", "You are not the creator of the tag.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -234,10 +234,10 @@ public class TagService {
 
     // Check if the tag has been properly deleted
     if (!tagRepository.existsById(id)) {
-      response.put("msg", "Tag deleted successfully");
+      response.put("msg", "Tag deleted successfully.");
       return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    response.put("msg", "Tag not deleted");
+    response.put("msg", "Tag not deleted.");
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 
@@ -249,15 +249,15 @@ public class TagService {
    */
   public ResponseEntity<?> getTagsByValue(String value) {
     if (value == null || value.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag value is null or empty");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tag value is null or empty.");
     }
 
-    List<TagResponseDto> responseDtos =
+    List<TagResponseDto> responseDto =
         tagMapper.getResponseDtoList(tagRepository.findByTagValueContaining(value.toUpperCase()));
-    if (responseDtos.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tags found for the given value");
+    if (responseDto.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tags found for the given value.");
     }
-    return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
+    return ResponseEntity.status(HttpStatus.OK).body(responseDto);
   }
 
   /**
@@ -272,19 +272,19 @@ public class TagService {
 
     // ID check
     if (id == null || id.isEmpty()) {
-      response.put("msg", "Tag id is null or empty");
+      response.put("msg", "Tag id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     Tag tag = tagRepository.findTagByTagId(id);
     if (tag == null) {
-      response.put("msg", "Tag not found");
+      response.put("msg", "Tag not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Check if the logged user is the creator of the tag
     if (!tag.getCreatedBy().equals(getLoggedInUserId())) {
-      response.put("msg", "You are not the creator of the tag");
+      response.put("msg", "You are not the creator of the tag.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -298,7 +298,7 @@ public class TagService {
       for (String tagId : userTagIds) {
         Tag userTag = tagRepository.findTagByTagId(tagId);
         if (userTag.getTagValue().equals(correctedDto.tagValue())) {
-          throw new TagValidationException("User already has a tag with the same value");
+          throw new TagValidationException("User already has a tag with the same value.");
         }
       }
 
@@ -309,7 +309,7 @@ public class TagService {
       // Save tag
       tagRepository.save(tag);
 
-      response.put("msg", "Tag updated successfully");
+      response.put("msg", "Tag updated successfully.");
       return ResponseEntity.status(HttpStatus.OK).body(response);
 
     } catch (TagValidationException e) {
@@ -327,18 +327,18 @@ public class TagService {
   private TagCreateDto validateTag(TagCreateDto tagDto) {
     // Validate DTO
     if (!isValidTagCreateDto(tagDto)) {
-      throw new TagValidationException("Tag information is not valid");
+      throw new TagValidationException("Tag information is not valid.");
     }
 
     // Validate tag value length
     String tagValue = tagDto.tagValue();
     if (tagValue.length() > TagConstants.MAX_TAG_VALUE_LENGTH) {
       throw new TagValidationException(
-          "Tag value cannot be longer than " + TagConstants.MAX_TAG_VALUE_LENGTH + " characters");
+          "Tag value cannot be longer than " + TagConstants.MAX_TAG_VALUE_LENGTH + " characters.");
     }
     if (tagValue.length() < TagConstants.MIN_TAG_VALUE_LENGTH) {
       throw new TagValidationException(
-          "Tag value must be at least " + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long");
+          "Tag value must be at least " + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long.");
     }
 
     // Tag color validation
@@ -363,13 +363,13 @@ public class TagService {
           + " characters including '#' symbol.");
     }
     if (!tagColor.matches("^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")) {
-      throw new TagValidationException("Tag color must be a hexadecimal value");
+      throw new TagValidationException("Tag color must be a hexadecimal value.");
     }
 
     // User validation
     String createdBy = tagDto.createdBy();
     if (createdBy == null || createdBy.isEmpty()) {
-      throw new TagValidationException("User information is null or empty");
+      throw new TagValidationException("User information is null or empty.");
     }
 
     User user = null;
@@ -380,7 +380,7 @@ public class TagService {
     }
 
     if (user == null) {
-      throw new TagValidationException("User does not exist");
+      throw new TagValidationException("User does not exist.");
     }
 
 // Use the userId for further processing
@@ -393,18 +393,18 @@ public class TagService {
     Set<ConstraintViolation<TagUpdateDto>> violations = validator.validate(tagDto);
 
     if (!violations.isEmpty()) {
-      throw new TagValidationException("Tag information is not valid");
+      throw new TagValidationException("Tag information is not valid.");
     }
 
     // Validate tag value length
     String tagValue = tagDto.tagValue();
     if (tagValue.length() > TagConstants.MAX_TAG_VALUE_LENGTH) {
       throw new TagValidationException(
-          "Tag value cannot be longer than " + TagConstants.MAX_TAG_VALUE_LENGTH + " characters");
+          "Tag value cannot be longer than " + TagConstants.MAX_TAG_VALUE_LENGTH + " characters.");
     }
     if (tagValue.length() < TagConstants.MIN_TAG_VALUE_LENGTH) {
       throw new TagValidationException(
-          "Tag value must be at least " + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long");
+          "Tag value must be at least " + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long.");
     }
 
     // Tag color validation
@@ -429,7 +429,7 @@ public class TagService {
           + " characters including '#' symbol.");
     }
     if (!tagColor.matches("^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")) {
-      throw new TagValidationException("Tag color must be a hexadecimal value");
+      throw new TagValidationException("Tag color must be a hexadecimal value.");
     }
 
     return new TagUpdateDto(tagValue, tagColor);
@@ -444,7 +444,7 @@ public class TagService {
   private String getLoggedInUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
-      throw new IllegalStateException("No authenticated user found");
+      throw new IllegalStateException("No authenticated user found.");
     }
 
     Object principal = authentication.getPrincipal();
@@ -452,19 +452,19 @@ public class TagService {
       return user.getUserId();
     }
     throw new IllegalStateException(
-        "Unexpected authentication principal type: " + principal.getClass());
+        "Unexpected authentication principal type: " + principal.getClass() + ".");
   }
 
   public ResponseEntity<?> getTagsByUser(String userIdOrEmailOrUsername) {
     Map<String, Object> response = new HashMap<>();
     if (userIdOrEmailOrUsername == null || userIdOrEmailOrUsername.isEmpty()) {
-      response.put("msg", "User id is null or empty");
+      response.put("msg", "User id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     User user = this.findUser(userIdOrEmailOrUsername);
     if (user == null) {
-      response.put("msg", "User not found");
+      response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -481,7 +481,7 @@ public class TagService {
     for (String tagId : tagIds) {
       Tag tag = tagRepository.findTagByTagId(tagId);
       if (tag == null) {
-        response.put("msg", "Tag not found");
+        response.put("msg", "Tag not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       tags.add(tag);
@@ -516,14 +516,14 @@ public class TagService {
 
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     List<String> artifactTagIds = artifact.getTags();
     if (artifactTagIds.isEmpty()) {
       // add all tags right away
-      System.out.println("Adding all tags");
+      System.out.println("Adding all tags.");
     }
 
     // prendo tutti i Tag dell'artefatto solo se creati dall'utente in questione

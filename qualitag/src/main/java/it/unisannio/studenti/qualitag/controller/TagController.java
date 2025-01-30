@@ -54,7 +54,7 @@ public class TagController {
   @PostMapping("/{artifactId}/addtags")
   public ResponseEntity<?> addTags(@RequestBody List<TagCreateDto> tags,
       @PathVariable String artifactId) {
-    return this.tagService.addTagsToArtfactAndUser(tags, artifactId);
+    return this.tagService.addTagsToArtifactAndUser(tags, artifactId);
   }
 
   /**

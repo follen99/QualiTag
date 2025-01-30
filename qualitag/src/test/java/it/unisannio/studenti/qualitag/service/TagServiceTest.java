@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,14 +62,15 @@ public class TagServiceTest {
 
     //Initialize the objects
     tag1 = new Tag("tag1", "6798e2740b80b85362a8ba90", "#fff8de");
-    tag1.setTagId("tag1Id");
+    tag1.setTagId("6744ba6c60e0564864250e89");
     tag2 = new Tag("tag2", "6798e2740b80b85362a8ba90", "#295f98");
-    tag2.setTagId("tag2Id");
+    tag2.setTagId("6755b79afc22f97c06a34275");
 
     user = new User("user1", "user1@example.com",
         "password1", "Jane", "Doe");
     user.setUserId("6798e2740b80b85362a8ba90");
-    user.setTagIds(new ArrayList<>(Arrays.asList("tag1Id", "tag2Id")));
+    user.setTagIds(new ArrayList<>
+        (Arrays.asList("6744ba6c60e0564864250e89", "6755b79afc22f97c06a34275")));
 
     artifact = new Artifact("artifactName",
         "projectId", "teamId", "filePath");
@@ -78,7 +80,7 @@ public class TagServiceTest {
     //Initialize the DTO
     tagCreateDto = new TagCreateDto("tag3", "6798e2740b80b85362a8ba90", "#fff8de");
 
-    //Initiliaze authorization details
+    //Initialize authorization details
     // Mock SecurityContextHolder to provide an authenticated user
     Authentication authentication = mock(Authentication.class);
     when(authentication.isAuthenticated()).thenReturn(true);
@@ -102,7 +104,8 @@ public class TagServiceTest {
       throws TagValidationException,
       NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     //Arrange
-    Tag newTag = new Tag("tag3", "6798e2740b80b85362a8ba90", "#fff8de");
+    Tag newTag = new Tag("tag3",
+        "6798e2740b80b85362a8ba90", "#fff8de");
     TagService tagServiceSpy = Mockito.spy(tagService);
 
     when(userRepository.findByUserId("6798e2740b80b85362a8ba90")).thenReturn(user);
@@ -111,8 +114,8 @@ public class TagServiceTest {
     when(userRepository.save(user)).thenReturn(user);
     when(userRepository.save(any(User.class))).thenReturn(user);
     when(tagRepository.save(any(Tag.class))).thenReturn(newTag);
-    when(tagRepository.findTagByTagId("tag1Id")).thenReturn(tag1);
-    when(tagRepository.findTagByTagId("tag2Id")).thenReturn(tag2);
+    when(tagRepository.findTagByTagId("6744ba6c60e0564864250e89")).thenReturn(tag1);
+    when(tagRepository.findTagByTagId("6755b79afc22f97c06a34275")).thenReturn(tag2);
 
     Method validateTagMethod = TagService.class.getDeclaredMethod(
         "validateTag", TagCreateDto.class);
@@ -128,8 +131,9 @@ public class TagServiceTest {
 
     //Assert
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    assertEquals("Tag added successfully",
-        ((Map<String, Object>) response.getBody()).get("msg"));
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag added successfully.");
+    assertEquals(responseBody, response.getBody());
   }
 
 

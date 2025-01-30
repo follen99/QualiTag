@@ -108,7 +108,7 @@ public class ProjectService {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       }
 
-      response.put("msg", "Project created successfully");
+      response.put("msg", "Project created successfully.");
       response.put("projectId", project.getProjectId());
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (ProjectValidationException e) {
@@ -134,22 +134,22 @@ public class ProjectService {
 
     // Check if there's a problem with the owner ID
     if (ownerId == null || ownerId.isEmpty()) {
-      response.put("msg", "Owner ID cannot be null or empty");
+      response.put("msg", "Owner ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     if (!userRepository.existsById(ownerId)) {
-      response.put("msg", "Owner not found");
+      response.put("msg", "Owner not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Retrieve the projects of the owner. If none, return message
     List<Project> projects = projectRepository.findProjectsByOwnerId(ownerId);
     if (projects == null || projects.isEmpty()) {
-      response.put("msg", "No projects found for the owner");
+      response.put("msg", "No projects found for the owner.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    response.put("msg", "Projects found successfully");
+    response.put("msg", "Projects found successfully.");
     response.put("projects", projects);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
@@ -165,14 +165,14 @@ public class ProjectService {
 
     // Check if there's a problem with the project ID
     if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Retrieve the project
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found.");
     }
 
     WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
@@ -191,14 +191,14 @@ public class ProjectService {
 
     // Check if there's a problem with the project ID
     if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Retrieve the project
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -212,7 +212,7 @@ public class ProjectService {
     // Retrieve the project's artifacts
     List<String> artifactIds = project.getArtifactIds();
     if (artifactIds == null || artifactIds.isEmpty()) {
-      response.put("msg", "No artifacts found for the project");
+      response.put("msg", "No artifacts found for the project.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -221,13 +221,13 @@ public class ProjectService {
     for (String artifactId : artifactIds) {
       Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
-        response.put("msg", "Artifact with ID " + artifactId + " not found");
+        response.put("msg", "Artifact with ID " + artifactId + " not found.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
       tags.addAll(artifact.getTags());
     }
 
-    response.put("msg", "Tags found successfully");
+    response.put("msg", "Tags found successfully.");
     response.put("tags", tags);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
@@ -244,19 +244,19 @@ public class ProjectService {
     Map<String, Object> response = new HashMap<>();
 
     if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     List<String> artifactIds = project.getArtifactIds();
     if (artifactIds == null || artifactIds.isEmpty()) {
-      response.put("msg", "No artifacts found for the project");
+      response.put("msg", "No artifacts found for the project.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -264,13 +264,13 @@ public class ProjectService {
     for (String artifactId : artifactIds) {
       Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
-        response.put("msg", "Artifact with ID " + artifactId + " not found");
+        response.put("msg", "Artifact with ID " + artifactId + " not found.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
       artifacts.add(artifact);
     }
 
-    response.put("msg", "Artifacts found successfully");
+    response.put("msg", "Artifacts found successfully.");
     response.put("artifacts", artifacts);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
@@ -284,7 +284,7 @@ public class ProjectService {
   public ResponseEntity<?> getProjectsByIds(List<String> projectIds) {
     if (projectIds == null || projectIds.isEmpty()) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Project IDs cannot be null or empty");
+          .body("Project IDs cannot be null or empty.");
     }
 
     // new ArrayList to store the projects
@@ -295,7 +295,7 @@ public class ProjectService {
       Project project = projectRepository.findProjectByProjectId(projectId);
       if (project == null) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("Project with ID " + projectId + " not found");
+            .body("Project with ID " + projectId + " not found.");
       }
       projects.add(project.toProjectInfoDto());
     }
@@ -312,53 +312,53 @@ public class ProjectService {
     Map<String, Object> response = new HashMap<>();
 
     if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     if (!projectRepository.existsById(projectId)) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     
     // users
-    List<UserShortResponseDto> shorResponseUserDtos = new ArrayList<>();
+    List<UserShortResponseDto> shorResponseUserDto = new ArrayList<>();
     for (String userId : project.getUserIds()) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
-        response.put("msg", "User with ID " + userId + " not found");
+        response.put("msg", "User with ID " + userId + " not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      shorResponseUserDtos.add(UserMapper.toUserShortResponseDto(user));
+      shorResponseUserDto.add(UserMapper.toUserShortResponseDto(user));
     }
-    List<WholeTeamDto> wholeTeamDtos = new ArrayList<>();
+    List<WholeTeamDto> wholeTeamDto = new ArrayList<>();
     for (String teamId : project.getTeamIds()) {
       Team team = teamsRepository.findTeamByTeamId(teamId);
       if (team == null) {
-        response.put("msg", "Team with ID " + teamId + " not found");
+        response.put("msg", "Team with ID " + teamId + " not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      wholeTeamDtos.add(TeamMapper.toWholeTeamDto(team));
+      wholeTeamDto.add(TeamMapper.toWholeTeamDto(team));
     }
 
     // artifacts
-    List<WholeArtifactDto> wholeArtifactDtos = new ArrayList<>();
+    List<WholeArtifactDto> wholeArtifactDto = new ArrayList<>();
     for (String artifactId : project.getArtifactIds()) {
       Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
-        response.put("msg", "Artifact with ID " + artifactId + " not found");
+        response.put("msg", "Artifact with ID " + artifactId + " not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      wholeArtifactDtos.add(ArtifactMapper.toWholeArtifactDto(artifact));
+      wholeArtifactDto.add(ArtifactMapper.toWholeArtifactDto(artifact));
     }
 
     User owner = userRepository.findByUserId(project.getOwnerId());
     if (owner == null) {
-      response.put("msg", "Owner not found");
+      response.put("msg", "Owner not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     UserShortResponseDto ownerDto = UserMapper.toUserShortResponseDto(owner);
@@ -372,9 +372,9 @@ public class ProjectService {
                 project.getProjectDeadline(), 
                 ownerDto,
                 project.getProjectStatus().name(), 
-                shorResponseUserDtos, 
-                wholeArtifactDtos,
-                wholeTeamDtos));
+                shorResponseUserDto,
+                wholeArtifactDto,
+                wholeTeamDto));
   }
 
   // PUT
@@ -391,14 +391,14 @@ public class ProjectService {
 
     // Check if the project ID is null or empty
     if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Retrieve the project to modify
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -420,7 +420,7 @@ public class ProjectService {
 
       projectRepository.save(project);
 
-      response.put("msg", "Project updated successfully");
+      response.put("msg", "Project updated successfully.");
       return ResponseEntity.status(HttpStatus.OK).body(response);
     } catch (ProjectValidationException e) {
       response.put("msg", e.getMessage());
@@ -439,12 +439,12 @@ public class ProjectService {
     // Check if the project exists and retrieve it
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      throw new ProjectValidationException("Project with ID " + projectId + " not found");
+      throw new ProjectValidationException("Project with ID " + projectId + " not found.");
     }
 
     // Check that the logged-in user is the owner
     if (!getLoggedInUserId().equals(project.getOwnerId())) {
-      throw new ProjectValidationException("Only the owner can add users to the project");
+      throw new ProjectValidationException("Only the owner can add users to the project.");
     }
 
     // Validate emails
@@ -495,31 +495,31 @@ public class ProjectService {
     Map<String, Object> response = new HashMap<>();
 
     if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     if (project.getProjectStatus() == ProjectStatus.CLOSED) {
-      response.put("msg", "Project is already closed");
+      response.put("msg", "Project is already closed.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     String currentUserId = getLoggedInUserId();
     if (!project.getOwnerId().equals(currentUserId)) {
-      response.put("msg", "Only the project owner can close the project");
+      response.put("msg", "Only the project owner can close the project.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     project.setProjectStatus(ProjectStatus.CLOSED);
     projectRepository.save(project);
 
-    response.put("msg", "Project closed successfully");
+    response.put("msg", "Project closed successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -537,11 +537,11 @@ public class ProjectService {
     // TODO: NON ELIMINA BENE I TEAMS!
     // Check if there's a problem with the project ID
     if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     if (!projectRepository.existsById(projectId)) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -586,11 +586,11 @@ public class ProjectService {
 
     // checking if the project has been deleted correctly
     if (projectRepository.existsById(projectId)) {
-      response.put("msg", "Project not deleted");
+      response.put("msg", "Project not deleted.");
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    response.put("msg", "Project deleted successfully");
+    response.put("msg", "Project deleted successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -600,7 +600,7 @@ public class ProjectService {
   private void addProjectToUsers(Project project) throws Exception {
     User owner = userRepository.findByUserId(project.getOwnerId());
     if (owner == null) {
-      throw new ProjectValidationException("User with ID " + project.getOwnerId() + " not found");
+      throw new ProjectValidationException("User with ID " + project.getOwnerId() + " not found.");
     }
 
     // Add project to owner
@@ -644,7 +644,7 @@ public class ProjectService {
 
       // Check if the email is duplicated in the list
       if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
-        return "User with email " + email + " is mentioned more than once";
+        return "User with email " + email + " is mentioned more than once.";
       }
 
       // Check if the email is registered. If not, add to a list of missing emails
@@ -659,7 +659,7 @@ public class ProjectService {
   private String getLoggedInUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
-      throw new IllegalStateException("No authenticated user found");
+      throw new IllegalStateException("No authenticated user found.");
     }
 
     Object principal = authentication.getPrincipal();
@@ -667,7 +667,7 @@ public class ProjectService {
       return user.getUserId();
     }
     throw new IllegalStateException(
-        "Unexpected authentication principal type: " + principal.getClass());
+        "Unexpected authentication principal type: " + principal.getClass() + ".");
   }
 
   private boolean isValidProjectCreateDto(ProjectCreateDto dto) {
@@ -678,13 +678,13 @@ public class ProjectService {
 
   private CompletedProjectCreationDto validateProject(ProjectCreateDto projectCreateDto) {
     if (!isValidProjectCreateDto(projectCreateDto)) {
-      throw new ProjectValidationException("All fields must be filled");
+      throw new ProjectValidationException("All fields must be filled.");
     }
 
     // Validate the project name
     String name = projectCreateDto.projectName();
     if (projectRepository.existsByProjectName(name)) {
-      throw new ProjectValidationException("Project with name '" + name + "' already exists");
+      throw new ProjectValidationException("Project with name '" + name + "' already exists.");
     }
 
     // Validate the deadline date and set creation date
@@ -692,7 +692,7 @@ public class ProjectService {
         DateTimeFormatter.ISO_DATE_TIME);
     ZonedDateTime creationDate = ZonedDateTime.now();
     if (deadlineDate.isBefore(creationDate)) {
-      throw new ProjectValidationException("Deadline date cannot be before the creation date");
+      throw new ProjectValidationException("Deadline date cannot be before the creation date.");
     }
 
     ZonedDateTime maxDeadline = ZonedDateTime.now()
@@ -700,24 +700,24 @@ public class ProjectService {
     if (deadlineDate.isAfter(maxDeadline)) {
       throw new ProjectValidationException(
           "Deadline date cannot be after " + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS
-              + " years from now");
+              + " years from now.");
     }
 
     // Validate the owner
     String ownerId = getLoggedInUserId();
     if (ownerId == null || ownerId.isEmpty()) {
-      throw new ProjectValidationException("Owner cannot be null or empty");
+      throw new ProjectValidationException("Owner cannot be null or empty.");
     }
 
     User owner = userRepository.findByUserId(ownerId);
     if (owner == null) {
-      throw new ProjectValidationException("User with ID " + ownerId + " does not exist");
+      throw new ProjectValidationException("User with ID " + ownerId + " does not exist.");
     }
 
     // Owner must not be part of users
     List<String> userEmails = projectCreateDto.userEmails();
     if (userEmails.contains(owner.getEmail())) {
-      throw new ProjectValidationException("Owner must not be part of the list of users");
+      throw new ProjectValidationException("Owner must not be part of the list of users.");
     }
 
     // Validate the user emails
@@ -731,7 +731,7 @@ public class ProjectService {
     for (String email : userEmails) {
       User user = userRepository.findByEmail(email);
       if (user == null) {
-        throw new ProjectValidationException("User with email " + email + " does not exist");
+        throw new ProjectValidationException("User with email " + email + " does not exist.");
       }
       userIds.add(user.getUserId());
     }
@@ -743,21 +743,21 @@ public class ProjectService {
 
   private CompletedProjectUpdateDto validateUpdate(ProjectCreateDto projectCreateDto) {
     if (!isValidProjectCreateDto(projectCreateDto)) {
-      throw new ProjectValidationException("All fields must be filled");
+      throw new ProjectValidationException("All fields must be filled.");
     }
 
     // Validate the project name
     String name = projectCreateDto.projectName();
     if (projectRepository.existsByProjectName(name) && !projectCreateDto.projectName()
         .equals(name)) {
-      throw new ProjectValidationException("Project with name " + name + " already exists");
+      throw new ProjectValidationException("Project with name " + name + " already exists.");
     }
 
     // Validate the deadline date and set creation date
     ZonedDateTime deadlineDate = ZonedDateTime.parse(projectCreateDto.deadlineDate(),
         DateTimeFormatter.ISO_DATE_TIME);
     if (deadlineDate.isBefore(ZonedDateTime.now())) {
-      throw new ProjectValidationException("Deadline date cannot be before the creation date");
+      throw new ProjectValidationException("Deadline date cannot be before the creation date.");
     }
 
     ZonedDateTime maxDeadline = ZonedDateTime.now()
@@ -765,7 +765,7 @@ public class ProjectService {
     if (deadlineDate.isAfter(maxDeadline)) {
       throw new ProjectValidationException(
           "Deadline date cannot be after " + ProjectConstants.MAX_PROJECT_DEADLINE_YEARS
-              + " years from now");
+              + " years from now.");
     }
 
     // Owner must not be part of users
@@ -773,7 +773,7 @@ public class ProjectService {
     User owner = userRepository.findByUserId(ownerId);
     List<String> userEmails = projectCreateDto.userEmails();
     if (userEmails.contains(owner.getEmail())) {
-      throw new ProjectValidationException("Owner must not be part of the list of users");
+      throw new ProjectValidationException("Owner must not be part of the list of users.");
     }
 
     // Validate the user emails and eventually make a list of missing emails
@@ -788,7 +788,7 @@ public class ProjectService {
       // Check if the email is duplicated in the list
       if (userEmails.indexOf(email) != userEmails.lastIndexOf(email)) {
         throw new ProjectValidationException(
-            "User with email " + email + " is mentioned more than once");
+            "User with email " + email + " is mentioned more than once.");
       }
 
       // Check if the email is registered. If not, add to a list of missing emails
@@ -806,7 +806,7 @@ public class ProjectService {
     for (String email : userEmails) {
       User user = userRepository.findByEmail(email);
       if (user == null) {
-        throw new ProjectValidationException("User with email " + email + " does not exist");
+        throw new ProjectValidationException("User with email " + email + " does not exist.");
       }
       userIds.add(user.getUserId());
     }
@@ -818,13 +818,13 @@ public class ProjectService {
   public ResponseEntity<?> getProjectsTeams(String projectId) {
     Map<String, Object> response = new HashMap<>();
     if (projectId == null || projectId.isEmpty()) {
-      response.put("msg", "Project ID cannot be null or empty");
+      response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     Project project = projectRepository.findProjectByProjectId(projectId);
 
     if (project == null) {
-      response.put("msg", "Project not found");
+      response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -834,13 +834,13 @@ public class ProjectService {
     for (String teamId : teamIds) {
       Team team = teamsRepository.findTeamByTeamId(teamId);
       if (team == null) {
-        response.put("msg", "Team with ID " + teamId + " not found");
+        response.put("msg", "Team with ID " + teamId + " not found.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
       teams.add(TeamMapper.toWholeTeamDto(team));
     }
 
-    response.put("msg", "Teams found successfully");
+    response.put("msg", "Teams found successfully.");
     response.put("teams", teams);
     return ResponseEntity.status(HttpStatus.OK).body(response);
 
