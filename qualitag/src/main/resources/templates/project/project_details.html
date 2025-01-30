@@ -152,8 +152,8 @@
                       <!-- Bottone New Team -->
                       <div>
                         <button id="newTeamButton" type="button"
-                                class="common-button-size button-custom me-2"
-                                style="background-color: #0d6efd;">
+                                class="common-button-size button-custom me-2 d-flex align-items-center"
+                                style="background-color: #0d6efd; display: none !important;">
                           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
                                fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16"
                                style="margin-right: 0.5em;">
@@ -189,7 +189,7 @@
                       <div>
                         <button id="newArtifactButton" type="button"
                                 class="common-button-size button-custom me-2"
-                                style="background-color: #0d6efd;">
+                                style="background-color: #0d6efd; display: none">
                           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
                                fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16"
                                style="margin-right: 0.5em;">
@@ -209,61 +209,16 @@
 
 
                 <div>
-                  <button type="button" class="common-button-size button-custom" id="deleteTeamButton"
-                          style="margin-bottom:1em; margin-top:0.5em; background-color: #d11a2a">Delete Project
+                  <button type="button" class="common-button-size button-custom"
+                          id="deleteProjectButton"
+                          style="
+                            margin-bottom:1em;
+                            margin-top:0.5em;
+                            background-color: #d11a2a;
+                            display: none">
+                    Delete Project
                   </button>
 
-                  <script>
-                    // get project id from url
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const projectId = urlParams.get('id');
-
-                    document.getElementById('deleteTeamButton').addEventListener('click', () => {
-                      if (projectId === "" || projectId === null || projectId === undefined) {
-                        alert("Error: team ID not found");
-                        return;
-                      }
-
-                      const confirmation = confirm(
-                          'Are you sure you want to delete this team? This action is ' +
-                          'irreversible and will also delete all the teams and artifacts ' +
-                          'associated with it.');
-                      if (!confirmation) {
-                        return;
-                      }
-
-                      // deleting the team
-                      fetch("/api/v1/project/" + projectId, {
-                        method: 'DELETE', headers: {
-                          'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
-                        }
-                      })
-                      .then(response => {
-                        if (response.ok) {
-                          return response.json().then(data => {
-
-                            // updating local cache
-                            const projectIds = JSON.parse(localStorage.getItem('user-projectIds')) || [];
-                            const updatedProjectIds = projectIds.filter(id => id !== projectId);
-                            localStorage.setItem('user-projectIds', JSON.stringify(updatedProjectIds));
-
-                            alert(data.msg);
-                            const redirectUrl = "/project/"
-                                + localStorage.getItem("username")
-                                + "/projects";
-                            console.log("redirect: " + redirectUrl);
-                            window.location.href = redirectUrl;
-                          });
-                        } else {
-                          return response.json().then(body => {
-                            console.log("response: " + body.msg);
-                            alert("Error updating emails: " + body.msg);
-                          });
-                        }
-                      })
-                      .catch(error => console.error('Error fetching user projects:', error));
-                    });
-                  </script>
                 </div>
               </div>
             </div>

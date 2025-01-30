@@ -1,6 +1,5 @@
 /*
 * This script fetches user data from the localStorage object.
-* TODO: refresh data from the server after a certain period of time.
 * */
 
 document.addEventListener('DOMContentLoaded', function () {

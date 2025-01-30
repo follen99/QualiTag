@@ -1,4 +1,3 @@
-let globalProjectData;
 const artifactsIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-card-text" viewBox="0 0 16 16">
                       <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
                       <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8m0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/>
@@ -17,6 +16,7 @@ const defaultIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="
     + '  <path d="M11 2a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zM5 1a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4z"/>\n'
     + '</svg>'
 
+// main control flow
 document.addEventListener('DOMContentLoaded', function () {
   // Token validation
   const token = localStorage.getItem('authToken');
@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
     return response.json(); // Se la risposta è ok, continua con il parsing dei dati
   })
   .then(project => {
-    globalProjectData = project;
     console.log("fetched project" + JSON.stringify(project));
 
     /**
@@ -76,13 +75,34 @@ document.addEventListener('DOMContentLoaded', function () {
         'projectStartingDate').innerText = `Creation date: ${new Date(
         project.projectCreationDate).toLocaleDateString()}`;
 
-    // if the project is owned by the user, show "you" next to the owner name
+    // showing / hiding owner-only buttons
     if (project.owner.username === localStorage.getItem('username')) {
-      document.getElementById('projectOwner').innerText = project.owner.username + " (you)";
-    }else {
-      document.getElementById('projectOwner').innerText = project.owner.username;
-    }
+      console.log("Owner is the user");
+      // if the project is owned by the user, show "you" next to the owner name
+      document.getElementById('projectOwner').innerText = project.owner.username
+          + " (you)";
 
+      // the owner can delete the project
+      deleteProjectButtonLogic();
+
+      // showing and adding event listener to the new team button
+      document.getElementById('newTeamButton').style.display = 'block';
+      document.getElementById('newTeamButton').addEventListener('click', () => {
+        // redirecting to create team page, passing the project id which is needed to link the team to the project
+        window.location.href = `/team/${project.projectId}/create`;
+      });
+
+      // showing ad adding event listener to the new artifact button
+      document.getElementById('newArtifactButton').style.display = 'block';
+      document.getElementById('newArtifactButton').addEventListener('click',
+          () => {
+            // redirecting to create team page, passing the project id which is needed to link the team to the project
+            window.location.href = `/artifact/${project.projectId}/create`;
+          });
+    } else {
+      document.getElementById('projectOwner').innerText = localStorage.getItem(
+          'username');
+    }
 
     // adding user list
     const usersDropdown = document.querySelector(
@@ -137,18 +157,63 @@ document.addEventListener('DOMContentLoaded', function () {
   .catch(error => {
     console.error('Error:', error);
   });
-
-  document.getElementById('newTeamButton').addEventListener('click', () => {
-    // redirecting to create team page, passing the project id which is needed to link the team to the project
-    window.location.href = `/team/${globalProjectData.projectId}/create`;
-  });
-
-  document.getElementById('newArtifactButton').addEventListener('click', () => {
-    // redirecting to create team page, passing the project id which is needed to link the team to the project
-    window.location.href = `/artifact/${globalProjectData.projectId}/create`;
-  });
-
 });
+
+function deleteProjectButtonLogic() {
+  // get project id from url
+  const urlParams = new URLSearchParams(window.location.search);
+  const projectId = urlParams.get('id');
+
+  const deleteProjectButton = document.getElementById('deleteProjectButton');
+  deleteProjectButton.style.display = 'block';
+  deleteProjectButton.addEventListener('click', () => {
+    if (projectId === "" || projectId === null || projectId === undefined) {
+      alert("Error: team ID not found");
+      return;
+    }
+
+    const confirmation = confirm(
+        'Are you sure you want to delete this project? This action is ' +
+        'irreversible and will also delete all the teams and artifacts ' +
+        'associated with it.');
+    if (!confirmation) {
+      return;
+    }
+
+    // deleting the team
+    fetch("/api/v1/project/" + projectId, {
+      method: 'DELETE', headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json().then(data => {
+
+          // updating local cache
+          const projectIds = JSON.parse(localStorage.getItem('user-projectIds'))
+              || [];
+          const updatedProjectIds = projectIds.filter(id => id !== projectId);
+          localStorage.setItem('user-projectIds',
+              JSON.stringify(updatedProjectIds));
+
+          alert(data.msg);
+          const redirectUrl = "/project/"
+              + localStorage.getItem("username")
+              + "/projects";
+          console.log("redirect: " + redirectUrl);
+          window.location.href = redirectUrl;
+        });
+      } else {
+        return response.json().then(body => {
+          console.log("response: " + body.msg);
+          alert("Error updating emails: " + body.msg);
+        });
+      }
+    })
+    .catch(error => console.error('Error fetching user projects:', error));
+  });
+}
 
 /**
  * Show elements inside a dropdown.

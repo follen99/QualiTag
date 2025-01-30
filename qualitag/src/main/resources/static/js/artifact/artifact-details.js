@@ -220,8 +220,6 @@ function detectLanguage(contentType) {
 }
 
 async function populateSidebarOwner(artifactId, metadata) {
-  // TODO: mostrare tutti i tag aggiunti dagli altri utenti finora, mostrare IRR
-
   const sidebarContainer = document.getElementById('sidebar-container');
   sidebarContainer.innerHTML = ''; // Clear existing content
 
