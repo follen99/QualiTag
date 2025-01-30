@@ -382,7 +382,13 @@ public class TeamService {
       data.add(innerData);
     }
 
-    String jsonAlpha = pythonClientService.getKrippendorffAlpha(data);
+    String jsonAlpha = null;
+    try {
+      jsonAlpha = pythonClientService.getKrippendorffAlpha(data);
+    } catch (Exception e) {
+      response.put("msg", "Error while retrieving Krippendorff's alpha");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
     JSONObject jsonObject = new JSONObject(jsonAlpha);
     double alphaValue = jsonObject.getDouble("alpha");
 
