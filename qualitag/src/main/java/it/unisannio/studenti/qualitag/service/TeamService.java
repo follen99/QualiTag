@@ -22,15 +22,12 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -74,8 +71,19 @@ public class TeamService {
     }
     System.out.println("Team found: " + team);
 
-    List<String> newUserIds = new ArrayList<>();
+    // Check owner
+    Project project = projectRepository.findProjectByProjectId(team.getProjectId());
+    if (project == null) {
+      response.put("msg", "Project not found.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    if (!project.getOwnerId().equals(getLoggedInUserId())) {
+      response.put("msg", "Only the project owner can update the team users.");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
 
+    // Check if the users belong to the project
+    List<String> newUserIds = new ArrayList<>();
     for (String email : userEmails) {
       User user = userRepository.findByEmail(email);
       if (user == null) {
@@ -83,47 +91,17 @@ public class TeamService {
         System.out.println("Resp: " + response.get("msg"));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
+      if (!project.getUserIds().contains(user.getUserId())) {
+        response.put("msg", "User with email " + email + " is not part of the project.");
+        System.out.println("Resp: " + response.get("msg"));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+      }
       newUserIds.add(user.getUserId());
       System.out.println("Added userId from email: " + email + " -> " + user.getUserId());
     }
 
-    // updating user ids
-    System.out.println("Setting new user IDs for team: " + newUserIds);
-    team.setUserIds(newUserIds);
-
-    // saving on db
-    System.out.println("Saved updated team: " + team);
-    teamRepository.save(team);
-
-    // Find and add team to new users
-    Set<String> addedUserIds = new HashSet<>(newUserIds);
-    List<String> previousUserIds = new ArrayList<>(team.getUserIds());
-
-    System.out.println("New user IDs to add to the team: " + addedUserIds);
-
-    // addedUserIds = newUserIds - previousUserIds
-    previousUserIds.forEach(addedUserIds::remove);
-    System.out.println("Previous Ids: "+ previousUserIds);
-    System.out.println("added user Ids: "+ addedUserIds);
-    for (String userId : addedUserIds) {
-      User user = userRepository.findByUserId(userId);
-      if (user == null) {
-        response.put("msg", "User with ID " + userId + " not found.");
-        System.out.println("User not found with ID: " + userId);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-      }
-      user.getTeamIds().add(teamId);
-      userRepository.save(user);
-      System.out.println("Added team ID to user: " + user);
-    }
-
-    // find and remove team from old users
-    Set<String> removedUserIds = new HashSet<>(previousUserIds);
-
-    // removedUserIds = previousUserIds - newUserIds
-    newUserIds.forEach(removedUserIds::remove);
-    System.out.println("New Users Ids: " + newUserIds);
-    for (String userId : removedUserIds) {
+    // Remove team from old users
+    for (String userId : team.getUserIds()) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
         response.put("msg", "User with ID " + userId + " not found.");
@@ -132,8 +110,42 @@ public class TeamService {
       }
       user.getTeamIds().remove(teamId);
       userRepository.save(user);
+      System.out.println("Removed team ID from user: " + user);
+    }
+
+    // Insert team to new users
+    for (String userId : newUserIds) {
+      User user = userRepository.findByUserId(userId);
+      if (user == null) {
+        response.put("msg", "User with ID " + userId + " not found.");
+        System.out.println("User not found with ID: " + userId);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      }
+
+      // If user is already in another team, switch it
+      for (String id : project.getTeamIds()) {
+        Team existingTeam = teamRepository.findTeamByTeamId(id);
+        if (existingTeam != null && existingTeam.getUserIds().contains(userId)) {
+          // Remove user from existing team
+          existingTeam.getUserIds().remove(userId);
+          teamRepository.save(existingTeam);
+
+          // Remove team from user
+          user.getTeamIds().remove(existingTeam.getTeamId());
+          userRepository.save(user);
+        }
+      }
+
+      // Add team to user
+      user.getTeamIds().add(teamId);
+      userRepository.save(user);
       System.out.println("Added team ID to user: " + user);
     }
+
+    // Update the team's user IDs
+    System.out.println("Setting new user IDs for team: " + newUserIds);
+    team.setUserIds(newUserIds);
+    teamRepository.save(team);
 
     response.put("msg", "Team users updated successfully.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
