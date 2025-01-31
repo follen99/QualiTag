@@ -104,6 +104,7 @@ public class TeamService {
     // addedUserIds = newUserIds - previousUserIds
     previousUserIds.forEach(addedUserIds::remove);
     System.out.println("Previous Ids: "+ previousUserIds);
+    System.out.println("added user Ids: "+ addedUserIds);
     for (String userId : addedUserIds) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {

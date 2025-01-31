@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import it.unisannio.studenti.qualitag.constants.TagConstants;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagUpdateDto;
 import it.unisannio.studenti.qualitag.exception.TagValidationException;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
@@ -55,6 +56,7 @@ public class TagServiceTest {
   private User user;
 
   private TagCreateDto tagCreateDto1, tagCreateDto2;
+  private TagUpdateDto tagUpdateDto;
 
   /**
    * Sets up the test environment.
@@ -88,6 +90,7 @@ public class TagServiceTest {
         "6798e2740b80b85362a8ba90", "#fff8de");
     tagCreateDto2 = new TagCreateDto("TAG4",
         "6798e2740b80b85362a8ba90", "#295f98");
+    tagUpdateDto = new TagUpdateDto("NEWVALUE", "#d0e8c5");
 
     //Initialize authorization details
     // Mock SecurityContextHolder to provide an authenticated user
@@ -787,7 +790,7 @@ public class TagServiceTest {
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
-    responseBody.put("tags", new  ArrayList<>());
+    responseBody.put("tags", new ArrayList<>());
     assertEquals(responseBody, response.getBody());
   }
 
@@ -927,6 +930,239 @@ public class TagServiceTest {
     assertEquals(responseBody, response.getBody());
   }
 
+  /**
+   * Tests a successuful execution of the updateTag method
+   */
+  @Test
+  public void testUpdateTag_Success() {
+    //Arrange
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
+    when(userRepository.findByUserId(tag1.getCreatedBy())).thenReturn(user);
+    when(tagRepository.save(tag1)).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag updated successfully.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the tagId is null
+   */
+  @Test
+  public void testUpdateTag_TagIdNull() {
+    //Arrange
+    String tagIdNull = null;
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, tagIdNull);
+
+    //Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag id is null or empty.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the tagId is empty
+   */
+  @Test
+  public void testUpdateTag_TagIdEmpty() {
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, "");
+
+    //Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag id is null or empty.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the tag is not found
+   */
+  @Test
+  public void testUpdateTag_TagNotFound() {
+    //Arrange
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(null);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the user is not the creator of the tag
+   */
+  @Test
+  public void testUpdateTag_UserNotCreator() {
+    //Arrange
+    tag1.setCreatedBy("67557b9355d04b383badf456");
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "You are not the creator of the tag.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the new tag information is not valid
+   */
+  @Test
+  public void testUpdateTag_InvalidTag() {
+    //Arrange
+    TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("", "");
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag information is not valid.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the tag value is too short
+   */
+  @Test
+  public void testUpdateTag_ValueTooShort() {
+    //Arrange
+    TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("AB", "#d0e8c5");
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag value must be at least "
+        + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the tag value is too long
+   */
+  @Test
+  public void testUpdateTag_ValueTooLong() {
+    //Arrange
+    TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("SIXTEENCHARACTERS", "#d0e8c5");
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag value cannot be longer than "
+        + TagConstants.MAX_TAG_VALUE_LENGTH + " characters.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the tag color is too long
+   */
+  @Test
+  public void testUpdateTag_ColorTooLong() {
+    //Arrange
+    TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("tag3", "#ffff8de");
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
+
+    //Assert
+    int expectedLength = TagConstants.TAG_COLOR_LENGTH + 1;
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag color cannot be longer than " + expectedLength
+        + " characters including '#' symbol.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the tag color is too long (without #)
+   */
+  @Test
+  public void testUpdateTag_ColorTooLongWithoutSymbol() {
+    //Arrange
+    TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("tag3", "ffff8de");
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag color cannot be longer than " + TagConstants.TAG_COLOR_LENGTH
+        + " characters including '#' symbol.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the tag color is not a hexadecimal value
+   */
+  @Test
+  public void testUpdateTag_ColorNotHexadecimal() {
+    //Arrange
+    TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("tag3", "#ffff8z");
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tag color must be a hexadecimal value.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the updateTag method where the user already has a tag with the same
+   * value
+   */
+  @Test
+  public void testUpdateTag_TagAlreadyExist() {
+    //Arrange
+    TagUpdateDto sameTagUpdateDto = new TagUpdateDto("TAG2", "#d0e8c5");
+
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
+    when(userRepository.findByUserId(tag1.getCreatedBy())).thenReturn(user);
+    when(tagRepository.save(tag1)).thenReturn(tag1);
+
+    //Act
+    ResponseEntity<?> response = tagService.updateTag(sameTagUpdateDto, tag1.getTagId());
+
+    //Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, String> responseBody = new HashMap<>();
+    responseBody.put("msg", "User already has a tag with the same value.");
+    assertEquals(responseBody, response.getBody());
+  }
 
 }
 

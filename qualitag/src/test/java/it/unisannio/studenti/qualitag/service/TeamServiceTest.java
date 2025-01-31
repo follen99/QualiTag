@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
@@ -34,10 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -153,13 +150,14 @@ public class TeamServiceTest {
   @Test
   void testAddTeam_success() {
     // Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId()))
+        .thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(teamRepository.save(any(Team.class))).thenReturn(team);
-    when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    when(userRepository.findByUserId("user1Id")).thenReturn(user1);
-    when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
-    when(userRepository.findByUserId("user2Id")).thenReturn(user2);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -198,7 +196,8 @@ public class TeamServiceTest {
   @Test
   void testAddTeam_ProjectNotFound() throws TeamValidationException {
     // Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(null);
+    when(projectRepository.findProjectByProjectId(project.getProjectId()))
+        .thenReturn(null);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -218,8 +217,9 @@ public class TeamServiceTest {
   @Test
   void testAddTeam_UserNotProjectOwner() throws TeamValidationException {
     // Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId()))
+        .thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     project.setOwnerId("NotOwnerId");
 
@@ -245,8 +245,9 @@ public class TeamServiceTest {
         "projectId", new ArrayList<>(Arrays.asList("user2@example.com",
         "user3@example.com")));
 
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId()))
+        .thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -270,8 +271,9 @@ public class TeamServiceTest {
         "teamDescription", "projectId",
         new ArrayList<>(Arrays.asList("user2@example.com", "user3@example.com")));
 
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId()))
+        .thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -296,8 +298,8 @@ public class TeamServiceTest {
             "user2@example.com")));
 
     // Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -321,8 +323,9 @@ public class TeamServiceTest {
         "projectId", new ArrayList<>(Arrays.asList("user2@example.com")));
 
     // Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId()))
+        .thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -386,30 +389,30 @@ public class TeamServiceTest {
         , "user7@example.com", "user8@example.com", "user9@example.com", "user10@example.com",
         "user11@example.com")));
 
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
-    when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
-    when(userRepository.findByEmail("user3@example.com")).thenReturn(user3);
-    when(userRepository.findByEmail("user4@example.com")).thenReturn(user4);
-    when(userRepository.findByEmail("user5@example.com")).thenReturn(user5);
-    when(userRepository.findByEmail("user6@example.com")).thenReturn(user6);
-    when(userRepository.findByEmail("user7@example.com")).thenReturn(user7);
-    when(userRepository.findByEmail("user8@example.com")).thenReturn(user8);
-    when(userRepository.findByEmail("user9@example.com")).thenReturn(user9);
-    when(userRepository.findByEmail("user10@example.com")).thenReturn(user10);
-    when(userRepository.findByEmail("user11@example.com")).thenReturn(user11);
-    when(userRepository.findByUserId("user1Id")).thenReturn(user1);
-    when(userRepository.findByUserId("user2Id")).thenReturn(user2);
-    when(userRepository.findByUserId("user3Id")).thenReturn(user3);
-    when(userRepository.findByUserId("user4Id")).thenReturn(user4);
-    when(userRepository.findByUserId("user5Id")).thenReturn(user5);
-    when(userRepository.findByUserId("user6Id")).thenReturn(user6);
-    when(userRepository.findByUserId("user7Id")).thenReturn(user7);
-    when(userRepository.findByUserId("user8Id")).thenReturn(user8);
-    when(userRepository.findByUserId("user9Id")).thenReturn(user9);
-    when(userRepository.findByUserId("user10Id")).thenReturn(user10);
-    when(userRepository.findByUserId("user11Id")).thenReturn(user11);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
+    when(userRepository.findByEmail(user3.getEmail())).thenReturn(user3);
+    when(userRepository.findByEmail(user4.getEmail())).thenReturn(user4);
+    when(userRepository.findByEmail(user5.getEmail())).thenReturn(user5);
+    when(userRepository.findByEmail(user6.getEmail())).thenReturn(user6);
+    when(userRepository.findByEmail(user7.getEmail())).thenReturn(user7);
+    when(userRepository.findByEmail(user8.getEmail())).thenReturn(user8);
+    when(userRepository.findByEmail(user9.getEmail())).thenReturn(user9);
+    when(userRepository.findByEmail(user10.getEmail())).thenReturn(user10);
+    when(userRepository.findByEmail(user11.getEmail())).thenReturn(user11);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
+    when(userRepository.findByUserId(user3.getUserId())).thenReturn(user3);
+    when(userRepository.findByUserId(user4.getUserId())).thenReturn(user4);
+    when(userRepository.findByUserId(user5.getUserId())).thenReturn(user5);
+    when(userRepository.findByUserId(user6.getUserId())).thenReturn(user6);
+    when(userRepository.findByUserId(user7.getUserId())).thenReturn(user7);
+    when(userRepository.findByUserId(user8.getUserId())).thenReturn(user8);
+    when(userRepository.findByUserId(user9.getUserId())).thenReturn(user9);
+    when(userRepository.findByUserId(user10.getUserId())).thenReturn(user10);
+    when(userRepository.findByUserId(user11.getUserId())).thenReturn(user11);
 
     project.setUserIds(Arrays.asList("ownerId", "user1Id", "user2Id", "user3Id", "user4Id",
         "user5Id", "user6Id", "user7Id", "user8Id", "user9Id", "user10Id", "user11Id"));
@@ -436,8 +439,8 @@ public class TeamServiceTest {
     teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
         "projectId", new ArrayList<>(Arrays.asList("", "user2@example.come")));
 
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -458,8 +461,8 @@ public class TeamServiceTest {
     teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
         "projectId", new ArrayList<>(Arrays.asList(null, "user2@example.come")));
 
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -479,9 +482,9 @@ public class TeamServiceTest {
   @Test
   void addTeam_EmailDoesNotExist() throws TeamValidationException {
     // Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
-    when(userRepository.findByEmail("user1@example.com")).thenReturn(null);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(null);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -489,7 +492,7 @@ public class TeamServiceTest {
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "User with email user1@example.com does not exist.");
+    responseBody.put("msg", "User with email " + user1.getEmail() + " does not exist.");
     assertEquals(responseBody, response.getBody());
   }
 
@@ -512,12 +515,12 @@ public class TeamServiceTest {
         "projectId", new ArrayList<>(Arrays.asList("user1@example.com",
         "user2@example.com")));
 
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
-    when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    when(userRepository.findByUserId("user1Id")).thenReturn(user1);
-    when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
-    when(userRepository.findByUserId("user2Id")).thenReturn(user2);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user2);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -534,9 +537,9 @@ public class TeamServiceTest {
   /**
    * Tests an execution of the addTeam method where the team description is empty
    *
-   * @throws NoSuchMethodException  if the validateTeam method is not found
+   * @throws NoSuchMethodException     if the validateTeam method is not found
    * @throws InvocationTargetException if the validateTeam method cannot be invoked
-   * @throws IllegalAccessException  if the validateTeam method cannot be accessed
+   * @throws IllegalAccessException    if the validateTeam method cannot be accessed
    */
   @Test
   void testAddTeam_TeamDescriptionEmpty()
@@ -549,12 +552,12 @@ public class TeamServiceTest {
     //Arrange: Set up mock objects and spy on the service class
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
-    when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    when(userRepository.findByUserId("user1Id")).thenReturn(user1);
-    when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
-    when(userRepository.findByUserId("user2Id")).thenReturn(user2);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -572,20 +575,6 @@ public class TeamServiceTest {
     assertEquals("Hi, we are team teamName!", result.teamDescription());
   }
 
-  //TODO: Add test for addTeam method where the team is null
-
-  /**
-   * Tests an execution of the addTeam method where the team is null
-   *
-   * @throws TeamValidationException if the team is null
-   */
-  @Test
-  void testAddTeam_NullTeam() throws TeamValidationException {
-  }
-
-  //TODO: Add test for addTeam method where user is null
-  //TODO: Add test for addTeam method where user is empty
-
   /**
    * Tests an execution of the addTeam method where the user does not exist in the database
    *
@@ -594,13 +583,13 @@ public class TeamServiceTest {
   @Test
   void testAddTeam_UserIdDoesNotExist() throws TeamValidationException {
     // Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(teamRepository.save(any(Team.class))).thenReturn(team);
-    when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    when(userRepository.findByUserId("user1Id")).thenReturn(null);
-    when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
-    when(userRepository.findByEmail("user2Id")).thenReturn(user2);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(null);
+    when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
+    when(userRepository.findByEmail(user2.getUserId())).thenReturn(user2);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -608,7 +597,7 @@ public class TeamServiceTest {
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "User with ID user1Id does not exist.");
+    responseBody.put("msg", "User with ID " + user1.getUserId() + " does not exist.");
     assertEquals(responseBody, response.getBody());
   }
 
@@ -620,13 +609,13 @@ public class TeamServiceTest {
   @Test
   void testAddTeam_UserIsNotPartOfProject() {
     // Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(teamRepository.save(any(Team.class))).thenReturn(team);
-    when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    when(userRepository.findByUserId("user1Id")).thenReturn(user1);
-    when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
-    when(userRepository.findByEmail("user2Id")).thenReturn(user2);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
+    when(userRepository.findByEmail(user2.getUserId())).thenReturn(user2);
 
     project.setUserIds(Arrays.asList("ownerId", "user2Id"));
 
@@ -636,7 +625,7 @@ public class TeamServiceTest {
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "User with ID user1Id is not part of the project.");
+    responseBody.put("msg", "User with ID " + user1.getUserId() + " is not part of the project.");
     assertEquals(responseBody, response.getBody());
   }
 
@@ -661,10 +650,10 @@ public class TeamServiceTest {
         new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
 
     // Mock necessary repository calls
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(userRepository.findByUserId("ownerId")).thenReturn(owner);
-    when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    when(userRepository.findByEmail("user2@example.com")).thenReturn(user2);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
 
     // Prepare the expected CompletedTeamCreateDto
     CompletedTeamCreateDto expectedDto = new CompletedTeamCreateDto("teamName",
@@ -789,9 +778,9 @@ public class TeamServiceTest {
     // Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
-    team.setUserIds(Arrays.asList("nonexistentUser", "user1Id"));
+    team.setUserIds(Arrays.asList("nonexistentUser", user1.getUserId()));
     when(userRepository.findByUserId("nonexistentUser")).thenReturn(null);
-    when(userRepository.findByUserId("user1")).thenReturn(user1);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
 
     // Act & Assert
     InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
@@ -821,9 +810,9 @@ public class TeamServiceTest {
     //Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
-    team.setProjectId("projectId");
-    when(userRepository.findByUserId("user1Id")).thenReturn(user1);
-    when(userRepository.findByUserId("user2Id")).thenReturn(user2);
+    team.setProjectId(project.getProjectId());
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
 
     project.setUserIds(Arrays.asList("user1Id", "user3Id")); // User not in project
     when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
@@ -841,7 +830,7 @@ public class TeamServiceTest {
     assertNotNull(cause, "Expected an exception cause but found null.");
     assertInstanceOf(TeamValidationException.class, cause,
         "Expected a TeamValidationException.");
-    assertEquals("User with ID user2Id is not part of the project.",
+    assertEquals("User with ID " + user2.getUserId() + " is not part of the project.",
         cause.getMessage());
   }
 
@@ -851,12 +840,13 @@ public class TeamServiceTest {
   @Test
   void testGetTeamsByProject() {
     //Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(teamRepository.existsByProjectId("projectId")).thenReturn(true);
-    when(teamRepository.findTeamsByProjectId("projectId")).thenReturn(Arrays.asList(team));
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(teamRepository.existsByProjectId(project.getProjectId())).thenReturn(true);
+    when(teamRepository.findTeamsByProjectId(project.getProjectId()))
+        .thenReturn(Arrays.asList(team));
 
     //Act
-    ResponseEntity<?> response = teamService.getTeamsByProject("projectId");
+    ResponseEntity<?> response = teamService.getTeamsByProject(project.getProjectId());
 
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -895,8 +885,8 @@ public class TeamServiceTest {
   @Test
   void testGetTeamsByProject_NoTeamsFound() {
     //Arrange
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(teamRepository.existsByProjectId("projectId")).thenReturn(false);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(teamRepository.existsByProjectId(project.getProjectId())).thenReturn(false);
 
     //Act
     ResponseEntity<?> response = teamService.getTeamsByProject("projectId");
@@ -912,12 +902,12 @@ public class TeamServiceTest {
   @Test
   void testGetTeamsByUser() {
     //Arrange
-    when(userRepository.findByUserId("userId")).thenReturn(user1);
-    when(teamRepository.existsByUserIdsContaining("userId")).thenReturn(true);
-    when(teamRepository.findByUserIdsContaining("userId")).thenReturn(Arrays.asList(team));
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(teamRepository.existsByUserIdsContaining(user1.getUserId())).thenReturn(true);
+    when(teamRepository.findByUserIdsContaining(user1.getUserId())).thenReturn(Arrays.asList(team));
 
     //Act
-    ResponseEntity<?> response = teamService.getTeamsByUser("userId");
+    ResponseEntity<?> response = teamService.getTeamsByUser(user1.getUserId());
 
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -956,15 +946,16 @@ public class TeamServiceTest {
   @Test
   void testGetTeamsByUser_NoTeamsFound() {
     //Arrange
-    when(userRepository.findByUserId("userId")).thenReturn(user1);
-    when(teamRepository.existsByUserIdsContaining("userId")).thenReturn(false);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(teamRepository.existsByUserIdsContaining(user1.getUserId())).thenReturn(false);
 
     //Act
-    ResponseEntity<?> response = teamService.getTeamsByUser("userId");
+    ResponseEntity<?> response = teamService.getTeamsByUser(user1.getUserId());
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("No teams found for user ID userId.", response.getBody());
+    assertEquals("No teams found for user ID " + user1.getUserId() + "."
+        , response.getBody());
   }
 
   /**
@@ -973,21 +964,21 @@ public class TeamServiceTest {
   @Test
   void testDeleteTeam() {
     //Arrange
-    when(teamRepository.findById("teamId")).thenReturn(Optional.ofNullable(team));
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.ofNullable(team));
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(projectRepository.save(project)).thenReturn(project);
 
-    when(userRepository.findById("user2Id")).thenReturn(Optional.ofNullable(user2));
+    when(userRepository.findById(user2.getUserId())).thenReturn(Optional.ofNullable(user2));
     when(userRepository.save(user2)).thenReturn(user2);
-    when(userRepository.findById("user1Id")).thenReturn(Optional.ofNullable(user1));
+    when(userRepository.findById(user1.getUserId())).thenReturn(Optional.ofNullable(user1));
     when(userRepository.save(user1)).thenReturn(user1);
-    when(teamRepository.existsById("teamId")).thenReturn(false);
+    when(teamRepository.existsById(team.getTeamId())).thenReturn(false);
 
-    when(artifactService.deleteArtifact("artifactId")).
+    when(artifactService.deleteArtifact(artifact.getArtifactId())).
         thenReturn(ResponseEntity.ok().build());
 
     //Act
-    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+    ResponseEntity<?> response = teamService.deleteTeam(team.getTeamId());
 
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1032,10 +1023,10 @@ public class TeamServiceTest {
   @Test
   void testDeleteTeam_TeamNotFound() {
     //Arrange
-    when(teamRepository.findById("teamId")).thenReturn(Optional.empty());
+    when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.empty());
 
     //Act
-    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+    ResponseEntity<?> response = teamService.deleteTeam(team.getTeamId());
 
     //Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -1050,8 +1041,8 @@ public class TeamServiceTest {
   @Test
   void testDeleteTeam_ProjectNotFound() {
     //Arrange
-    when(teamRepository.findById("teamId")).thenReturn(Optional.ofNullable(team));
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(null);
+    when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.ofNullable(team));
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
     //Act
     ResponseEntity<?> response = teamService.deleteTeam("teamId");
@@ -1069,20 +1060,20 @@ public class TeamServiceTest {
   @Test
   void testDeleteTeam_UserNotFound() {
     //Arrange
-    when(teamRepository.findById("teamId")).thenReturn(Optional.ofNullable(team));
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.ofNullable(team));
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(projectRepository.save(project)).thenReturn(project);
 
-    when(userRepository.findById("user1Id")).thenReturn(Optional.ofNullable(user1));
+    when(userRepository.findById(user1.getUserId())).thenReturn(Optional.ofNullable(user1));
     when(userRepository.save(user1)).thenReturn(user1);
-    when(userRepository.findById("user2Id")).thenReturn(Optional.empty());
+    when(userRepository.findById(user2.getUserId())).thenReturn(Optional.empty());
 
     //Act
-    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+    ResponseEntity<?> response = teamService.deleteTeam(team.getTeamId());
 
     //Assert
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "User with ID user2Id not found.");
+    responseBody.put("msg", "User with ID " + user2.getUserId() + " not found.");
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     assertEquals(responseBody, response.getBody());
   }
@@ -1093,21 +1084,21 @@ public class TeamServiceTest {
   @Test
   void testDeleteTeam_TeamNotDeleted() {
     //Arrange
-    when(teamRepository.findById("teamId")).thenReturn(Optional.ofNullable(team));
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
+    when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.ofNullable(team));
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(projectRepository.save(project)).thenReturn(project);
 
-    when(userRepository.findById("user2Id")).thenReturn(Optional.ofNullable(user2));
+    when(userRepository.findById(user2.getUserId())).thenReturn(Optional.ofNullable(user2));
     when(userRepository.save(user2)).thenReturn(user2);
-    when(userRepository.findById("user1Id")).thenReturn(Optional.ofNullable(user1));
+    when(userRepository.findById(user1.getUserId())).thenReturn(Optional.ofNullable(user1));
     when(userRepository.save(user1)).thenReturn(user1);
-    when(teamRepository.existsById("teamId")).thenReturn(true);
+    when(teamRepository.existsById(team.getTeamId())).thenReturn(true);
 
-    when(artifactService.deleteArtifact("artifactId")).
+    when(artifactService.deleteArtifact(artifact.getArtifactId())).
         thenReturn(ResponseEntity.ok().build());
 
     //Act
-    ResponseEntity<?> response = teamService.deleteTeam("teamId");
+    ResponseEntity<?> response = teamService.deleteTeam(team.getTeamId());
 
     //Assert
     Map<String, String> responseBody = new HashMap<>();
@@ -1122,16 +1113,16 @@ public class TeamServiceTest {
   @Test
   void testGetTeamIrr_Success() {
     //Arrange
-    when(teamRepository.findTeamByTeamId("teamId")).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId("artifactId")).thenReturn(artifact);
-    when(tagRepository.findTagByTagId("6744ba6c60e0564864250e89")).thenReturn(tag1);
-    when(tagRepository.findTagByTagId("6755b79afc22f97c06a34275")).thenReturn(tag2);
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(artifact);
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
 
     String mockAlphaResponse = "{\"alpha\": 0.85}";
     when(pythonClientService.getKrippendorffAlpha(Mockito.anyList())).thenReturn(mockAlphaResponse);
 
     //Act
-    ResponseEntity<?> response = teamService.getTeamIrr("teamId");
+    ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
     //Assert
     assertNotNull(response);
@@ -1149,10 +1140,10 @@ public class TeamServiceTest {
   @Test
   void testGetTeamIrr_TeamNotFound() {
     //Arrange
-    when(teamRepository.findTeamByTeamId("teamId")).thenReturn(null);
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(null);
 
     //Act
-    ResponseEntity<?> response = teamService.getTeamIrr("teamId");
+    ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
     //Assert
     assertNotNull(response);
@@ -1169,11 +1160,11 @@ public class TeamServiceTest {
   @Test
   void testGetTeamIrr_ArtifactNotFound() {
     //Arrange
-    when(teamRepository.findTeamByTeamId("teamId")).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId("artifactId")).thenReturn(null);
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(null);
 
     //Act
-    ResponseEntity<?> response = teamService.getTeamIrr("teamId");
+    ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
     //Assert
     assertNotNull(response);
@@ -1191,14 +1182,14 @@ public class TeamServiceTest {
   void testGetTeamIrr_NoTagsForArtifact() {
     //Arrange
     artifact.setTags(new ArrayList<>()); // Artifact has no tags
-    when(teamRepository.findTeamByTeamId("teamId")).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId("artifactId")).thenReturn(artifact);
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(artifact);
 
     String mockAlphaResponse = "{\"alpha\": 1.0}";
     when(pythonClientService.getKrippendorffAlpha(Mockito.anyList())).thenReturn(mockAlphaResponse);
 
     //Act
-    ResponseEntity<?> response = teamService.getTeamIrr("teamId");
+    ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
     //Assert
     assertNotNull(response);
@@ -1216,18 +1207,18 @@ public class TeamServiceTest {
   @Test
   void testGetTeamIrr_TagCreatedByUserMismatch() {
     //Arrange
-    when(teamRepository.findTeamByTeamId("teamId")).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId("artifactId")).thenReturn(artifact);
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(artifact);
 
     tag1.setCreatedBy("otherUserId"); // No user in the team matches this creator
-    when(tagRepository.findTagByTagId("tagId1")).thenReturn(tag1);
-    when(tagRepository.findTagByTagId("tagId2")).thenReturn(tag2);
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
 
     String mockAlphaResponse = "{\"alpha\": 0.0}";
     when(pythonClientService.getKrippendorffAlpha(Mockito.anyList())).thenReturn(mockAlphaResponse);
 
     //Act
-    ResponseEntity<?> response = teamService.getTeamIrr("teamId");
+    ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
     //Assert
     assertNotNull(response);
@@ -1242,30 +1233,72 @@ public class TeamServiceTest {
   /**
    * Test a successful execution of UpdateTeamUsers method
    */
-  //@Test
-  //void testUpdateTeamUsers_Success() {
-    // Arrange
-    //when(teamRepository.findTeamByTeamId("teamId")).thenReturn(team);
-    //when(userRepository.findByEmail("user1@example.com")).thenReturn(user1);
-    //when(userRepository.findByEmail("user3@example.com")).thenReturn(user3);
-    //when(userRepository.findByUserId("user1Id")).thenReturn(user1);
-    //when(userRepository.findByUserId("user3Id")).thenReturn(user3);
-    //when(userRepository.save(user3)).thenReturn(user3);
+  @Test
+  void testUpdateTeamUsers_Success() {
+    //Arrange
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByEmail(user3.getEmail())).thenReturn(user3);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByUserId(user3.getUserId())).thenReturn(user3);
+    when(userRepository.save(user3)).thenReturn(user3);
 
-    //List<String> userEmails = Arrays.asList("user1@example.com", "user3@example.com");
+    List<String> userEmails = Arrays.asList(user1.getEmail(), user3.getEmail());
 
-    // Act
-    //ResponseEntity<?> response = teamService.updateTeamUsers("teamId", userEmails);
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(), userEmails);
 
-    // Assert
-    //assertNotNull(response);
-    //assertEquals(HttpStatus.OK, response.getStatusCode());
-    //assertEquals("Team users updated successfully",
-    //    ((Map<String, String>) response.getBody()).get("msg"));
-    //verify(teamRepository).save(team);
-    //assertEquals(Arrays.asList("user1Id", "user3Id"), team.getUserIds());
-    //assertTrue(user3.getTeamIds().contains("teamId"));
-  //}
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team users updated successfully.");
+    assertEquals(responseBody, response.getBody());
+    verify(teamRepository).save(team);
+    assertEquals(Arrays.asList(user1.getUserId(), user3.getUserId()), team.getUserIds());
+    //assertTrue(user3.getTeamIds().contains("teamId")); //This doesn't work apparently...
+    //assertFalse(user2.getTeamIds().contains("teamId"));
+  }
+
+  /**
+   * Tests an execution of testUpdateUsers where the team is null
+   */
+  @Test
+  void testUpdateTeamUsers_TeamNull() {
+    //Arrange
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(null);
+    List<String> userEmails = Arrays.asList(user1.getEmail(), user3.getEmail());
+
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(), userEmails);
+
+    //Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution for updateTeamUses where the user is not found
+   */
+  @Test
+  void testUpdateTeamUsers_UserNotFound() {
+    //Arrange
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(null);
+    List<String> userEmails = Arrays.asList(user1.getEmail(), user3.getEmail());
+
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(), userEmails);
+
+    //
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "User with email " + user1.getEmail() + " not found.");
+    assertEquals(responseBody, response.getBody());
+
+  }
 
 
 }

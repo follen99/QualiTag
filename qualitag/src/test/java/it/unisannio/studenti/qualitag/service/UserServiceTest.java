@@ -589,8 +589,8 @@ public class UserServiceTest {
   void testDeleteUser_Success() {
     //Arrange
     when(userRepository.findByUsername("user1")).thenReturn(user1);
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(teamRepository.findTeamByTeamId("teamId")).thenReturn(team);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
     when(userRepository.save(user1)).thenReturn(user1);
 
     //Act
@@ -600,8 +600,8 @@ public class UserServiceTest {
     verify(userRepository, times(1)).deleteByUsername("user1");
     verify(projectRepository, times(1)).save(project);
     verify(teamRepository, times(1)).save(team);
-    verify(tagService, times(1)).deleteTag("6744ba6c60e0564864250e89");
-    verify(tagService, times(1)).deleteTag("6755b79afc22f97c06a34275");
+    verify(tagService, times(1)).deleteTag(tag1.getTagId());
+    verify(tagService, times(1)).deleteTag(tag2.getTagId());
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "User deleted successfully.");
@@ -668,9 +668,10 @@ public class UserServiceTest {
 
     //Arrange
     when(userRepository.findByUsername("owner")).thenReturn(owner);
-    when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
-    when(teamRepository.findTeamByTeamId("teamId")).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId("artifactId")).thenReturn(artifact);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(artifactRepository.findArtifactByArtifactId
+        (artifact.getArtifactId())).thenReturn(artifact);
     when(userRepository.save(owner)).thenReturn(owner);
 
     //Act
@@ -678,7 +679,7 @@ public class UserServiceTest {
 
     //Assert
     verify(userRepository, times(1)).deleteByUsername("owner");
-    verify(projectService, times(1)).deleteProject("projectId");
+    verify(projectService, times(1)).deleteProject(project.getProjectId());
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "User deleted successfully.");
