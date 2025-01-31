@@ -1113,7 +1113,7 @@ public class TagServiceTest {
     //Act
     ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
 
-    //Assert
+    //Assertee
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag color cannot be longer than " + TagConstants.TAG_COLOR_LENGTH

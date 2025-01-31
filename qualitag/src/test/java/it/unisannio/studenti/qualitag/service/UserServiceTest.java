@@ -677,7 +677,7 @@ public class UserServiceTest {
     //Act
     ResponseEntity<?> response = userService.deleteUser("owner");
 
-    //Assert
+    //Asserte
     verify(userRepository, times(1)).deleteByUsername("owner");
     verify(projectService, times(1)).deleteProject(project.getProjectId());
     assertEquals(HttpStatus.OK, response.getStatusCode());
