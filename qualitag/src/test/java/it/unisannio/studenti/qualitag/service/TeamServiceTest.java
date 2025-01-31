@@ -503,7 +503,7 @@ public class TeamServiceTest {
    */
   @Test
   void addTeam_TeamDescriptionTooLong() throws TeamValidationException {
-    // Arrangee
+    // Arrange
     teamCreateDto = new TeamCreateDto("teamName",
         "This is a very long team description that is intentionally written to"
             + " exceed the maximum allowed length of 300 characters. The purpose of this "
