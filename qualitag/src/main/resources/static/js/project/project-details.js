@@ -145,7 +145,8 @@ document.addEventListener('DOMContentLoaded', function () {
       showElementsInsideDropdown(artifactsDropdown, [noArtifact], false,
           '', '', '', defaultIcon, 'artifactName');
     } else {
-      console.log(project.owner)
+      console.log("Artifacts: " + JSON.stringify(project.artifacts));
+      // TODO: mostra solo gli artefatti a cui l'utente ha accesso!
       showElementsInsideDropdown(artifactsDropdown,
           project.artifacts,
           true,
