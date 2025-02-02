@@ -69,7 +69,6 @@ public class TeamService {
       response.put("msg", "Team not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    System.out.println("Team found: " + team);
 
     // Check owner
     Project project = projectRepository.findProjectByProjectId(team.getProjectId());
@@ -88,16 +87,13 @@ public class TeamService {
       User user = userRepository.findByEmail(email);
       if (user == null) {
         response.put("msg", "User with email " + email + " not found.");
-        System.out.println("Resp: " + response.get("msg"));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       if (!project.getUserIds().contains(user.getUserId())) {
         response.put("msg", "User with email " + email + " is not part of the project.");
-        System.out.println("Resp: " + response.get("msg"));
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
       }
       newUserIds.add(user.getUserId());
-      System.out.println("Added userId from email: " + email + " -> " + user.getUserId());
     }
 
     // Remove team from old users
@@ -105,12 +101,10 @@ public class TeamService {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
         response.put("msg", "User with ID " + userId + " not found.");
-        System.out.println("User not found with ID: " + userId);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       user.getTeamIds().remove(teamId);
       userRepository.save(user);
-      System.out.println("Removed team ID from user: " + user);
     }
 
     // Insert team to new users
@@ -118,7 +112,6 @@ public class TeamService {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
         response.put("msg", "User with ID " + userId + " not found.");
-        System.out.println("User not found with ID: " + userId);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
 
@@ -139,11 +132,9 @@ public class TeamService {
       // Add team to user
       user.getTeamIds().add(teamId);
       userRepository.save(user);
-      System.out.println("Added team ID to user: " + user);
     }
 
     // Update the team's user IDs
-    System.out.println("Setting new user IDs for team: " + newUserIds);
     team.setUserIds(newUserIds);
     teamRepository.save(team);
 

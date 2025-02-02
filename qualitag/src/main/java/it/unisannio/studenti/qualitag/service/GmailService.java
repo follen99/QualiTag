@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +38,6 @@ import org.apache.commons.codec.binary.Base64;
  * This class is used to send e-mails using the Gmail API.
  */
 public class GmailService {
-  // TODO: poter copiare stored credentials nelle risorse
   private static final String TEST_EMAIL = "qualitag.project@gmail.com";
   private static final String FROM_EMAIL = "qualitag.project@gmail.com";
   private final Gmail service;
@@ -83,7 +81,6 @@ public class GmailService {
 
     String resourcePath = "/credentials/tokens/StoredCredential";
     if (isResourceFileExists(resourcePath)) {
-      System.out.println("StoredCredential file found in resources");
       try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
         Files.copy(in, tempDir.resolve("StoredCredential"), StandardCopyOption.REPLACE_EXISTING);
       }
@@ -104,10 +101,6 @@ public class GmailService {
 
     if (!isResourceFileExists(resourcePath)) {
       if (!isRunningFromJar()) {
-        System.out.println("\n\n");
-        System.out.println("Copying StoredCredential file to resources");
-        System.out.println(Paths.get(getClass().getClassLoader().getResource("credentials/tokens").toURI()));
-        System.out.println("\n\n");
         Files.copy(tempDir.resolve("StoredCredential"), 
             Paths.get(getClass().getClassLoader().getResource("credentials/tokens").toURI()).resolve("StoredCredential"), 
             StandardCopyOption.REPLACE_EXISTING);
@@ -140,14 +133,6 @@ public class GmailService {
 
   private boolean isResourceFileExists(String resourcePath) throws URISyntaxException {
     try (InputStream resourceStream = getClass().getResourceAsStream(resourcePath)) {
-      URL resourceUrl = getClass().getResource(resourcePath);
-      if (resourceUrl != null) {
-        Path resource = Paths.get(resourceUrl.toURI());
-        System.out.println("Absolute path: " + resource.toAbsolutePath());
-      } else {
-        System.err.println("Resource not found: " + resourcePath);
-      }
-      
       return resourceStream != null;
     } catch (IOException e) {
       return false;
