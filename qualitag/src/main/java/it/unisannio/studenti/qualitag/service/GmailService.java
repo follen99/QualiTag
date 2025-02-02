@@ -23,11 +23,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -63,10 +68,11 @@ public class GmailService {
    * @param jsonFactory   the JSON factory.
    * @return the Gmail service instance.
    * @throws IOException if an error occurs while loading the credentials.
+   * @throws URISyntaxException if an error occurs while copying the credentials. 
    */
   private Credential getCredentials(final NetHttpTransport httpTransport,
       GsonFactory jsonFactory)
-      throws IOException {
+      throws IOException, URISyntaxException {
     // Load client secrets from the credentials file
     GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory,
         new InputStreamReader(GmailService.class.getResourceAsStream(
@@ -77,6 +83,7 @@ public class GmailService {
 
     String resourcePath = "/credentials/tokens/StoredCredential";
     if (isResourceFileExists(resourcePath)) {
+      System.out.println("StoredCredential file found in resources");
       try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
         Files.copy(in, tempDir.resolve("StoredCredential"), StandardCopyOption.REPLACE_EXISTING);
       }
@@ -95,23 +102,52 @@ public class GmailService {
     // Authorize the credentials
     Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
-    // Delete the temporary directory
-    // try (Stream<Path> walk = Files.walk(tempDir)) {
-    //   walk.sorted(Comparator.reverseOrder())
-    //       .forEach(p -> {
-    //         try {
-    //           Files.delete(p);
-    //         } catch (IOException e) {
-    //           e.printStackTrace();
-    //         }
-    //       });
-    // }
+    if (!isResourceFileExists(resourcePath)) {
+      if (!isRunningFromJar()) {
+        System.out.println("\n\n");
+        System.out.println("Copying StoredCredential file to resources");
+        System.out.println(Paths.get(getClass().getClassLoader().getResource("credentials/tokens").toURI()));
+        System.out.println("\n\n");
+        Files.copy(tempDir.resolve("StoredCredential"), 
+            Paths.get(getClass().getClassLoader().getResource("credentials/tokens").toURI()).resolve("StoredCredential"), 
+            StandardCopyOption.REPLACE_EXISTING);
+      }
+
+      // Delete the temporary directory
+      try (Stream<Path> walk = Files.walk(tempDir)) {
+        walk.sorted(Comparator.reverseOrder())
+            .forEach(p -> {
+              try {
+                Files.delete(p);
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            });
+      }
+    }
 
     return credential;
   }
 
-  private boolean isResourceFileExists(String resourcePath) {
+  private boolean isRunningFromJar() {
+    String className = getClass().getName().replace('.', '/');
+    String classJar = getClass().getResource("/" + className + ".class").toString();
+    
+    System.out.println("Class name: " + className);
+    System.out.println("Class jar: " + classJar);
+    return classJar.startsWith("jar:");
+  }
+
+  private boolean isResourceFileExists(String resourcePath) throws URISyntaxException {
     try (InputStream resourceStream = getClass().getResourceAsStream(resourcePath)) {
+      URL resourceUrl = getClass().getResource(resourcePath);
+      if (resourceUrl != null) {
+        Path resource = Paths.get(resourceUrl.toURI());
+        System.out.println("Absolute path: " + resource.toAbsolutePath());
+      } else {
+        System.err.println("Resource not found: " + resourcePath);
+      }
+      
       return resourceStream != null;
     } catch (IOException e) {
       return false;
