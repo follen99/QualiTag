@@ -416,7 +416,56 @@ public class ProjectService {
       project.setProjectName(correctProjectUpdateDto.projectName());
       project.setProjectDescription(correctProjectUpdateDto.projectDescription());
       project.setProjectDeadline(correctProjectUpdateDto.projectDeadline());
-      project.setUserIds(correctProjectUpdateDto.userIds());
+
+      // Remove unneded users
+      for (String userId : project.getUserIds()) {
+        if (!correctProjectUpdateDto.userIds().contains(userId)) {
+          User user = userRepository.findByUserId(userId);
+          user.getProjectIds().remove(projectId);
+
+          List<Team> teams = teamsRepository.findTeamsByProjectId(projectId);
+          for (Team team : teams) {
+            if (team.getUserIds().contains(userId)) {
+              team.getUserIds().remove(userId);
+              teamsRepository.save(team);
+
+              user.getTeamIds().remove(team.getTeamId());
+            }
+          }
+
+          userRepository.save(user);
+
+          project.getUserIds().remove(userId);
+        }
+      }
+
+      // Add new users
+      for (String userId : correctProjectUpdateDto.userIds()) {
+        if (!project.getUserIds().contains(userId)) {
+          User user = userRepository.findByUserId(userId);
+          user.getProjectIds().add(projectId);
+          userRepository.save(user);
+
+          // Send email to user
+          String emailMessage = String.format("""
+            Dear %s,
+            
+            You have been invited to join the project: %s.
+            
+            Project Description: %s
+            
+            We look forward to your valuable contributions.
+            
+            Best regards,
+            %s
+            """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+          userRepository.findByUserId(project.getOwnerId()).getName() + " "
+            + userRepository.findByUserId(project.getOwnerId()).getSurname());
+          new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
+
+          project.getUserIds().add(userId);
+        }
+      }
 
       projectRepository.save(project);
 
@@ -425,6 +474,11 @@ public class ProjectService {
     } catch (ProjectValidationException e) {
       response.put("msg", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    } catch (Exception e) {
+        e.printStackTrace();
+        
+        response.put("msg", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
   }
 
