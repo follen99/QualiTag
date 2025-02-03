@@ -84,6 +84,7 @@ function fetchAllArtifactTags(artifactId) {
  * @param username the username of the user to fetch tags for
  */
 function fetchTagsFromUser(artifactId, username) {
+  console.log("username: " + username);
   return fetch(`/api/v1/artifact/${artifactId}/${username}/tags`, {
     method: 'GET',
     headers: {
@@ -370,7 +371,7 @@ async function startTaggingOperation(artifactId) {
   });
 }
 
-async function populateSidebarUser(artifactId, username) {
+async function populateSidebarUser(artifactId) {
   const metadata = await fetchArtifactMetadata(artifactId);
 
   if (metadata.artifact.isTaggingOpen) {
@@ -412,7 +413,7 @@ async function populateSidebarUser(artifactId, username) {
       alert("Errore: " + error.message);
     });
 
-    populateExistingTags(artifactId, username);
+    populateExistingTags(artifactId);
 
     // when the user clicks the confirm button
     confirmButton.addEventListener('click', () => {
@@ -461,10 +462,10 @@ function removeDuplicates(array, key) {
   return uniqueTags;
 }
 
-function populateExistingTags(artifactId, username) {
+function populateExistingTags(artifactId) {
   const existingTagList = document.getElementById('existingTagsList');
 
-  fetchTagsFromUser(artifactId, username).then(tags => {
+  fetchTagsFromUser(artifactId, localStorage.getItem("username")).then(tags => {
     console.log("tags:", tags.tags);
     // tagInput.value = tags.tags.map(tag => tag.tagValue).join(', ');
     existingTagList.innerHTML = ''; // Clear existing tags
