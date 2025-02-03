@@ -53,7 +53,6 @@ def krippendorff_compute():
 def process_tags():
   try:
     received = request.json  # Directly access the JSON payload
-    print(f"Data (Python): {received}")
 
     result = mf.reduce_similar_tags(received, threshold=0.7)
     return jsonify(result=result)

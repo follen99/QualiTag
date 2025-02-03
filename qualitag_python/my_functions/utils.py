@@ -18,7 +18,7 @@ def reduce_similar_tags(tags: list[str], threshold: float = 0.7) -> list[str]:
   print(f"Processed tags: {processed_tags}")
 
   grouped_tags = group_tags_by_average_similarity(processed_tags, threshold)
-  print(f"\n\nGrouped tags new method: {grouped_tags}\n\n")
+  print(f"\n\nGrouped tags: {grouped_tags}\n\n")
 
   reduced_tags = []
   for group in grouped_tags:

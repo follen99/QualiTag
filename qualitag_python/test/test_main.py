@@ -46,4 +46,4 @@ def test_process_tags(test_client):  # pylint: disable=redefined-outer-name
   data = resp.get_json()
   assert "result" in data
   print(data["result"])
-  assert data["result"] == ["ai", "buggy", "data science", "machine learning"]
+  assert data["result"] == ["ai", "bug", "data science", "machine learning"]

@@ -62,19 +62,41 @@ def group_tags_by_average_similarity(tags: list[str],
 
 def suggest_common_tag(tags: list[str]) -> str:
   """
-    Suggest a common tag that could represent all input tags.
+    Suggest a common tag that could represent all input tags, 
+    preferring shorter tags.
   """
   if not tags:
     return "No tags provided"
+
+  print(f"\nReceived tags: {tags}")
+
   processed_tags = [preprocess_text(tag) for tag in tags]
   embeddings = model.encode(processed_tags, convert_to_tensor=True)
   avg_embedding = sum(embeddings) / len(embeddings)
 
   # Finding the closest tag to the average embedding
   similarities = util.cos_sim(avg_embedding, embeddings).squeeze().tolist()
-  best_index = similarities.index(max(similarities))
 
-  print(f"Received tags: {tags}")
+  # Adjust similarities based on tag length
+  # Shorter tags are preferred by reducing their similarity score less
+  length_penalties = [len(tag) for tag in tags]
+  max_length = max(length_penalties)
+  adjusted_similarities = [
+      similarity * (1 - (len(tag) / (2 * max_length)))
+      for similarity, tag in zip(similarities, tags)
+  ]
+
+  # Print each tag with its original and adjusted similarity
+  print("Tag Analysis:")
+  for tag, similarity, adjusted_similarity in zip(tags, similarities,
+                                                  adjusted_similarities):
+    print(f"Tag: {tag} \t| Original Similarity: {similarity:.4f} \t| \
+          Adjusted Similarity: {adjusted_similarity:.4f}")
+
+  best_index = adjusted_similarities.index(max(adjusted_similarities))
+
   print(f"Selected tag: {tags[best_index]}")
 
-  return tags[best_index]  # Return the tag closest to the average embedding
+  # Return the tag closest to the average embedding with preference
+  # for shorter tags
+  return tags[best_index]
