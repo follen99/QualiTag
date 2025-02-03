@@ -145,9 +145,23 @@ document.addEventListener('DOMContentLoaded', function () {
           '', '', '', defaultIcon, 'artifactName');
     } else {
       console.log("Artifacts: " + JSON.stringify(project.artifacts));
+
+
       // TODO: mostra solo gli artefatti a cui l'utente ha accesso!
+      // se l'utente appartiene allo stesso progetto riportato nell'artefatto
+      // allora lo puo vedere
+      const user = project.users.find(user => user.username === localStorage.getItem('username'));
+      if (user === undefined) {
+        alert("Error: user not found in project");
+        return;
+      }
+      const userTeamIds = user.teamIds;
+
+      const visibleArtifacts = project.artifacts.filter(artifact => userTeamIds.includes(artifact.teamId));
+
+
       showElementsInsideDropdown(artifactsDropdown,
-          project.artifacts,
+          visibleArtifacts,
           true,
           '/artifact/',
           '/tag' + `/${project.owner.username}`,

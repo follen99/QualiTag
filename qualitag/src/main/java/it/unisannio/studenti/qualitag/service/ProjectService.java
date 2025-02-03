@@ -10,6 +10,7 @@ import it.unisannio.studenti.qualitag.dto.project.WholeProjectDto;
 import it.unisannio.studenti.qualitag.dto.project.WholeProjectHeavyDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
+import it.unisannio.studenti.qualitag.dto.user.UserResponseDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
@@ -326,14 +327,14 @@ public class ProjectService {
     }
     
     // users
-    List<UserShortResponseDto> shorResponseUserDtos = new ArrayList<>();
+    List<UserResponseDto> responseUserDtos = new ArrayList<>();
     for (String userId : project.getUserIds()) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
         response.put("msg", "User with ID " + userId + " not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      shorResponseUserDtos.add(UserMapper.toUserShortResponseDto(user));
+      responseUserDtos.add(UserMapper.toUserResponseDto(user));
     }
     List<WholeTeamDto> wholeTeamDtos = new ArrayList<>();
     for (String teamId : project.getTeamIds()) {
@@ -372,7 +373,7 @@ public class ProjectService {
                 project.getProjectDeadline(), 
                 ownerDto,
                 project.getProjectStatus().name(), 
-                shorResponseUserDtos, 
+                responseUserDtos,
                 wholeArtifactDtos,
                 wholeTeamDtos));
   }
