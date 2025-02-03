@@ -103,8 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
       startStopTaggingButtons(project.artifacts.map(artifact => artifact.artifactId));
     } else {
       // normal user stuff
-      document.getElementById('projectOwner').innerText = localStorage.getItem(
-          'username');
+      document.getElementById('projectOwner').innerText = project.owner.username + ` (mail: ${project.owner.email})`;
     }
 
     // adding user list
