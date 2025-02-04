@@ -139,6 +139,7 @@ public class ArtifactService {
       response.put("error", e);
       return ResponseEntity.status(500).body(response);
     } catch (Exception e) {
+      e.printStackTrace();
       response.put("msg", "An error occurred.");
       return ResponseEntity.status(500).body(response);
     }

@@ -1,6 +1,7 @@
 package it.unisannio.studenti.qualitag.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -92,7 +93,7 @@ public class TeamServiceTest {
     project = new Project("projectName", "projectDescription",
         0L, 0L, "ownerId", new ArrayList<>());
     project.setProjectId("projectId");
-    project.setUserIds(Arrays.asList("ownerId", "user1Id", "user2Id"));
+    project.setUserIds(Arrays.asList("ownerId", "user1Id", "user2Id", "user3Id"));
     owner = new User("username", "user@example.com",
         "hashedPassword123", "John", "Doe");
     owner.setUserId("ownerId");
@@ -1114,7 +1115,8 @@ public class TeamServiceTest {
   void testGetTeamIrr_Success() {
     //Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(
+        artifact);
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
 
@@ -1183,7 +1185,8 @@ public class TeamServiceTest {
     //Arrange
     artifact.setTags(new ArrayList<>()); // Artifact has no tags
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(
+        artifact);
 
     String mockAlphaResponse = "{\"alpha\": 1.0}";
     when(pythonClientService.getKrippendorffAlpha(Mockito.anyList())).thenReturn(mockAlphaResponse);
@@ -1208,7 +1211,8 @@ public class TeamServiceTest {
   void testGetTeamIrr_TagCreatedByUserMismatch() {
     //Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(
+        artifact);
 
     tag1.setCreatedBy("otherUserId"); // No user in the team matches this creator
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
@@ -1237,9 +1241,12 @@ public class TeamServiceTest {
   void testUpdateTeamUsers_Success() {
     //Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
     when(userRepository.findByEmail(user3.getEmail())).thenReturn(user3);
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
     when(userRepository.findByUserId(user3.getUserId())).thenReturn(user3);
     when(userRepository.save(user3)).thenReturn(user3);
 
@@ -1247,6 +1254,8 @@ public class TeamServiceTest {
 
     //Act
     ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(), userEmails);
+
+    System.out.println(response.getBody());
 
     //Assert
     assertNotNull(response);
@@ -1256,8 +1265,8 @@ public class TeamServiceTest {
     assertEquals(responseBody, response.getBody());
     verify(teamRepository).save(team);
     assertEquals(Arrays.asList(user1.getUserId(), user3.getUserId()), team.getUserIds());
-    //assertTrue(user3.getTeamIds().contains("teamId")); //This doesn't work apparently...
-    //assertFalse(user2.getTeamIds().contains("teamId"));
+    assertTrue(user3.getTeamIds().contains("teamId")); //This doesn't work apparently...
+    assertFalse(user2.getTeamIds().contains("teamId"));
   }
 
   /**
@@ -1286,6 +1295,7 @@ public class TeamServiceTest {
   void testUpdateTeamUsers_UserNotFound() {
     //Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(null);
     List<String> userEmails = Arrays.asList(user1.getEmail(), user3.getEmail());
 
