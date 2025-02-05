@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,8 @@ public class ArtifactService {
   private final TagRepository tagRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
+
+  private final PythonClientService pythonClientService;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -141,6 +144,54 @@ public class ArtifactService {
 
     response.put("msg", "Artifact created successfully");
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  /**
+   * Processes the tags of an artifact.
+   *
+   * @param artifactId the ID of the artifact to process the tags
+   * @return the response entity with the result of the tag processing
+   */
+  public ResponseEntity<?> processTags(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Retrieve the artifact
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the user is authorized to view the artifact
+    User user = userRepository.findByUserId(getLoggedInUserId());
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    if (!project.getOwnerId().equals(user.getUserId())) {
+      response.put("msg", "User is not authorized to view this artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Get the value of all the tags
+    List<String> tagValues = new ArrayList<>();
+    for (String tagId : artifact.getTags()) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      tagValues.add(tag.getTagValue());
+    }
+
+    // Call the Python service to process the tags
+    String processedTags = pythonClientService.processTags(tagValues);
+
+    // Remove tags from artifact
+
+    // Create tags from the processed tags
+
+    // Add tags to artifact
+
+    response.put("msg", "Method not implemented yet");
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
   }
 
   // GET
