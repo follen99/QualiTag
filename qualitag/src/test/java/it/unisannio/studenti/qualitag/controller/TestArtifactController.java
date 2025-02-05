@@ -52,13 +52,14 @@ public class TestArtifactController {
     MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain",
         "test data".getBytes());
     ArtifactCreateDto artifactCreateDto = new ArtifactCreateDto("artifactName", "description",
-        "projectId", file);
+        "projectId", "teamId", file);
     when(artifactService.addArtifact(artifactCreateDto)).thenReturn(ResponseEntity.ok().build());
     mockMvc.perform(multipart("/api/v1/artifact")
             .file(file)
             .param("artifactName", "artifactName")
             .param("description", "description")
-            .param("projectId", "projectId"))
+            .param("projectId", "projectId")
+            .param("teamId", "teamId"))
         .andExpect(status().isOk());
     verify(artifactService, times(1)).addArtifact(artifactCreateDto);
     verifyNoMoreInteractions(artifactService);

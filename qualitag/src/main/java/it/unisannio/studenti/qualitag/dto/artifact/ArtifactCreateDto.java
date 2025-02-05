@@ -11,5 +11,6 @@ public record ArtifactCreateDto(
     @NotBlank String artifactName,
     String description,
     @NotBlank String projectId,
+    String teamId,
     @NotNull MultipartFile file) {
 }

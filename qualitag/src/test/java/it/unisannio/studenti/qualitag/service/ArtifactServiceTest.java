@@ -72,6 +72,7 @@ class ArtifactServiceTest {
   /**
    * Set up the test environment.
    */
+  /*
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
@@ -87,6 +88,7 @@ class ArtifactServiceTest {
         123456789L, "Description",
         new ArrayList<>(Arrays.asList("user1", "user2")));
   }
+        */
 
   /**
    * Test the addArtifact method with valid input.

@@ -87,6 +87,13 @@ public class ArtifactService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
 
+      // Check if the team belongs to the project or is null
+      Team team = teamRepository.findTeamByTeamId(artifactCreateDto.teamId());
+      if (team != null && !project.getTeamIds().contains(team.getTeamId())) {
+        response.put("msg", "Team does not belong to the project");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      }
+
       // Check if the logged in user is the owner of the project
       User user = userRepository.findByUserId(project.getOwnerId());
       if (AuthenticationService.getAuthority(user.getUsername())) {
@@ -102,23 +109,26 @@ public class ArtifactService {
       artifact.setFilePath(filePath);
       artifact.setTaggingOpen(true);
 
-      // Find the team with the least artifacts
-      String minTeamId = null;
-      int minSize = Integer.MAX_VALUE;
-      List<String> teamIds = project.getTeamIds();
+      // If teamId is null, find the team with the least artifacts
+      if (artifactCreateDto.teamId() == null) {
+        String minTeamId = null;
+        int minSize = Integer.MAX_VALUE;
+        List<String> teamIds = project.getTeamIds();
 
-      for (String teamId : teamIds) {
-        Team team = teamRepository.findTeamByTeamId(teamId);
-        List<String> artifactIds = team.getArtifactIds();
+        for (String teamId : teamIds) {
+          team = teamRepository.findTeamByTeamId(teamId);
+          List<String> artifactIds = team.getArtifactIds();
 
-        if (artifactIds.size() < minSize) {
-          minSize = artifactIds.size();
-          minTeamId = teamId;
+          if (artifactIds.size() < minSize) {
+            minSize = artifactIds.size();
+            minTeamId = teamId;
+          }
         }
+
+        // Add the artifact to the team with the least artifacts
+        team = teamRepository.findTeamByTeamId(minTeamId);
       }
 
-      // Add the artifact to the team with the least artifacts
-      Team team = teamRepository.findTeamByTeamId(minTeamId);
       artifact.setTeamId(team.getTeamId());
 
       // Save the artifact to the database
@@ -199,7 +209,7 @@ public class ArtifactService {
       headers.setContentType(MediaType.parseMediaType(contentType));
       headers.setContentLength(Files.size(filePath));
 
-//      return new ResponseEntity<>(file, headers, HttpStatus.OK);
+      // return new ResponseEntity<>(file, headers, HttpStatus.OK);
       return ResponseEntity.ok().headers(headers).body(file);
     } catch (IOException e) {
       // Log the exception properly
