@@ -87,12 +87,6 @@ public class ArtifactService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
 
-      // Check if the team belongs to the project or is null
-      Team team = teamRepository.findTeamByTeamId(artifactCreateDto.teamId());
-      if (team != null && !project.getTeamIds().contains(team.getTeamId())) {
-        response.put("msg", "Team does not belong to the project");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-      }
 
       // Check if the logged in user is the owner of the project
       User user = userRepository.findByUserId(project.getOwnerId());
@@ -109,8 +103,9 @@ public class ArtifactService {
       artifact.setFilePath(filePath);
       artifact.setTaggingOpen(true);
 
+      Team team = null;
       // If teamId is null, find the team with the least artifacts
-      if (artifactCreateDto.teamId() == null) {
+      if (artifactCreateDto.teamId().equals("null")) {
         String minTeamId = null;
         int minSize = Integer.MAX_VALUE;
         List<String> teamIds = project.getTeamIds();
@@ -127,6 +122,13 @@ public class ArtifactService {
 
         // Add the artifact to the team with the least artifacts
         team = teamRepository.findTeamByTeamId(minTeamId);
+      }else {
+        // Check if the team belongs to the project or is null
+        team = teamRepository.findTeamByTeamId(artifactCreateDto.teamId());
+        if (team != null && !project.getTeamIds().contains(team.getTeamId())) {
+          response.put("msg", "Team does not belong to the project");
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
       }
 
       artifact.setTeamId(team.getTeamId());

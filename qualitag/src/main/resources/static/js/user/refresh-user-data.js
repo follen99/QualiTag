@@ -15,7 +15,7 @@ export async function refreshUserData() {
   
       if (response.ok) {
         const user = responseData;
-        refreshLocally(user.username, user.email, user.projectRoles, user.name, user.surname, user.projectIds, user.teamIds);
+        refreshLocally(user.username, user.email, user.projectRoles, user.name, user.surname, user.projectIds, user.teamIds, user.userId);
 
       } else {
         console.error('Failed to refresh user data:', responseData.message);
@@ -26,7 +26,7 @@ export async function refreshUserData() {
     window.location.reload();
   }
 
-  export async function refreshLocally(username, email, projectRoles, name, surname, projectIds, teamIds) {
+  export async function refreshLocally(username, email, projectRoles, name, surname, projectIds, teamIds, userId) {
     localStorage.setItem('username', username);
     localStorage.setItem('user-email', email);
     localStorage.setItem('user-projectRoles', JSON.stringify(projectRoles));
@@ -35,5 +35,5 @@ export async function refreshUserData() {
     localStorage.setItem('user-projectIds', JSON.stringify(projectIds));
     localStorage.setItem('user-tagIds', JSON.stringify(teamIds));
     localStorage.setItem('user-lastFetch', Date.now());
-    localStorage.setItem('user-userId', JSON.stringify(user.userId));
+    localStorage.setItem('user-userId', JSON.stringify(userId));
   }

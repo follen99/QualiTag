@@ -143,7 +143,7 @@
 
     confirmButton.addEventListener('click', function () {
       // getting the team id
-      const teamId = document.querySelector('#dropdownMenuButtonTeams').dataset.teamId;
+      let teamId = document.querySelector('#dropdownMenuButtonTeams').dataset.teamId;
 
       // getting the files
       const files = document.querySelector('#formFileMultiple').files;
@@ -163,10 +163,11 @@
       }
 
       if (!teamId) {
-        // TODO: se si vuole usare la selezione automatica lasciare questo invariato
-        alert('Please select a team to upload the artifacts.');
-        return;
-
+        if (!confirm('You have not selected a team. \n' +
+            'The target team(s) will be selected automatically by the system.')) {
+          return;
+        }
+        teamId = null;
       }
 
       if (!confirm('Are you sure you want to upload the artifacts?')) {
@@ -196,6 +197,7 @@
         formData.append('description', description || 'No description for this artifact.');
         formData.append('projectId', projectId);
         formData.append('file', files[i]);
+        formData.append('teamId', teamId);
 
         console.log(formData);
 

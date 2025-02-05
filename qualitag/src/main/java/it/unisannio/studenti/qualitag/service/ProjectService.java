@@ -1,5 +1,6 @@
 package it.unisannio.studenti.qualitag.service;
 
+import com.google.api.client.auth.oauth2.TokenResponseException;
 import it.unisannio.studenti.qualitag.constants.ProjectConstants;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.dto.project.CompletedProjectCreationDto;
@@ -79,10 +80,11 @@ public class ProjectService {
     Map<String, Object> response = new HashMap<>();
 
     // Project validation
+    Project project = null;
     try {
       CompletedProjectCreationDto correctProjectDto = validateProject(projectCreateDto);
 
-      Project project = ProjectMapper.toEntity(correctProjectDto);
+      project = ProjectMapper.toEntity(correctProjectDto);
 
       // Save project to get ID
       projectRepository.save(project);
@@ -100,6 +102,7 @@ public class ProjectService {
 
       // Add the project to the users
       try {
+        // se il token mail non funziona, questo lancia l'eccezione
         this.addProjectToUsers(project);
       } catch (ProjectValidationException e) {
         // If there's a problem, rollback the project creation
@@ -112,10 +115,31 @@ public class ProjectService {
       response.put("msg", "Project created successfully");
       response.put("projectId", project.getProjectId());
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
     } catch (ProjectValidationException e) {
       response.put("msg", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     } catch (Exception e) {
+      if (e instanceof TokenResponseException) {
+        TokenResponseException tokenException = (TokenResponseException) e;
+        if (tokenException.getStatusCode() == 400 && tokenException.getContent().contains("invalid_grant") && tokenException.getContent().contains("Token has been expired or revoked.")) {
+          // Specific behavior for this exception
+          response.put("msg", """
+              Internal server error: mailing service is not working.
+              
+              But do not worry, the project was created successfully.
+              Please notify the users manually.""");
+
+          response.put("createdAnyway", true);
+          response.put("projectId", project.getProjectId());
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } else {
+          // Other behavior for different exceptions
+          System.out.println("Different TokenResponseException occurred.");
+          response.put("msg", "Internal server error: " + e.getMessage());
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+      }
       throw new RuntimeException(e);
     }
   }

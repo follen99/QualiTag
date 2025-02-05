@@ -147,17 +147,20 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log("Artifacts: " + JSON.stringify(project.artifacts));
 
 
-      // TODO: mostra solo gli artefatti a cui l'utente ha accesso!
-      // se l'utente appartiene allo stesso progetto riportato nell'artefatto
-      // allora lo puo vedere
-      const user = project.users.find(user => user.username === localStorage.getItem('username'));
-      if (user === undefined) {
-        alert("Error: user not found in project");
-        return;
-      }
-      const userTeamIds = user.teamIds;
+      // if the user is not the owner, show only the artifacts that are assigned to the user
+      let visibleArtifacts = project.artifacts;
+      if (localStorage.getItem('username') !== project.owner.username) {
+        const user = project.users.find(user => user.username === localStorage.getItem('username'));
+        if (user === undefined) {
+          alert("Error: user not found in project");
+          return;
+        }
+        const userTeamIds = user.teamIds;
 
-      const visibleArtifacts = project.artifacts.filter(artifact => userTeamIds.includes(artifact.teamId));
+        visibleArtifacts = project.artifacts.filter(artifact => userTeamIds.includes(artifact.teamId));
+      }
+
+
 
 
       showElementsInsideDropdown(artifactsDropdown,
