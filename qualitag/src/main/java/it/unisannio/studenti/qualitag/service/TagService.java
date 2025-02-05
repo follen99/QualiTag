@@ -63,6 +63,7 @@ public class TagService {
       this.tagRepository.save(tag);
       if (this.addTagToUser(tag)) {
         response.put("msg", "Tag added successfully");
+        response.put("tagId", tag.getTagId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
       }
 

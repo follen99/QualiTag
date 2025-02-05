@@ -47,6 +47,11 @@ public class ArtifactController {
     return this.artifactService.addArtifact(artifactCreateDto);
   }
 
+  @PostMapping("/{artifactId}/process-tags")
+  public ResponseEntity<?> processTags(@PathVariable String artifactId) {
+    return this.artifactService.processTags(artifactId);
+  }
+
   // GET Methods
 
   /**

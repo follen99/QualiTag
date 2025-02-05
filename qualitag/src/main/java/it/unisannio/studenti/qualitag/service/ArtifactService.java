@@ -3,6 +3,7 @@ package it.unisannio.studenti.qualitag.service;
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
 import it.unisannio.studenti.qualitag.model.Project;
@@ -56,6 +57,7 @@ public class ArtifactService {
   private final UserRepository userRepository;
 
   private final PythonClientService pythonClientService;
+  private final TagService tagService;
 
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
@@ -181,17 +183,47 @@ public class ArtifactService {
       tagValues.add(tag.getTagValue());
     }
 
+    // Remove tags from artifact
+    for (String tagId : artifact.getTags()) {
+      ResponseEntity<?> removeTagResponse = removeTag(artifactId, tagId);
+      if (removeTagResponse.getStatusCode() != HttpStatus.OK) {
+        response.put("msg", "Error removing tags from artifact");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      }
+    }
+
     // Call the Python service to process the tags
     String processedTags = pythonClientService.processTags(tagValues);
 
-    // Remove tags from artifact
+    // Create tags from the processed tags and add them
+    List<String> tagIds = new ArrayList<>();
+    for (String tagValue : processedTags.split(",")) {
+      ResponseEntity<?> responseRequest = tagService.createTag(new TagCreateDto(tagValue, this.getLoggedInUserId(), "#000000"));
 
-    // Create tags from the processed tags
+      if (responseRequest.getStatusCode() != HttpStatus.CREATED) {
+        response.put("msg", "Error creating tags from processed tags");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      }
+
+      // Access the body of responseRequest
+      Object responseBodyObj = responseRequest.getBody();
+      if (responseBodyObj instanceof Map) {
+        @SuppressWarnings("unchecked")
+        Map<String, String> responseBody = (Map<String, String>) responseBodyObj;
+        String tagId = responseBody.get("tagId");
+        tagIds.add(tagId);
+      } else {
+        response.put("msg", "Error: response body is not a map");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      }
+    }
 
     // Add tags to artifact
+    this.addTags(artifactId, new AddTagsToArtifactDto(tagIds));
 
-    response.put("msg", "Method not implemented yet");
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
+    response.put("msg", "Tags processed successfully");
+    response.put("processedTags", processedTags);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   // GET
