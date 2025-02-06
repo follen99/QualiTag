@@ -897,6 +897,5 @@ public class ProjectService {
     response.put("msg", "Teams found successfully.");
     response.put("teams", teams);
     return ResponseEntity.status(HttpStatus.OK).body(response);
-
   }
 }
