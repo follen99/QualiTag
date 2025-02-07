@@ -22,9 +22,11 @@ import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
 import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
 import it.unisannio.studenti.qualitag.security.service.JwtService;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,12 +95,14 @@ public class UserServiceTest {
     owner.setUserId("ownerId");
 
     //Initialize the project
+    long creationDate = Instant.now().toEpochMilli();
+    long deadline = Instant.parse("2025-12-31T23:59:59Z").toEpochMilli();
     project = new Project("projectName", "projectDescription",
-        0L, 0L, "ownerId", new ArrayList<>());
+        creationDate, deadline, owner.getUserId(), new ArrayList<>());
     project.setProjectId("projectId");
     project.setUserIds(new ArrayList<>(Arrays.asList("ownerId", "user1Id", "user2Id")));
-    user1.setProjectIds(new ArrayList<>(Arrays.asList("projectId")));
-    owner.setProjectIds(new ArrayList<>(Arrays.asList("projectId")));
+    user1.setProjectIds(new ArrayList<>(List.of("projectId")));
+    owner.setProjectIds(new ArrayList<>(List.of("projectId")));
 
     //Initialize the tag objects
     tag1 = new Tag("tag1", "user1Id", "fff8de");
@@ -113,8 +117,8 @@ public class UserServiceTest {
         123456789L, "teamDescription",
         new ArrayList<>(Arrays.asList("user1Id", "user2Id")));
     team.setTeamId("teamId");
-    user1.setTeamIds(new ArrayList<>(Arrays.asList("teamId")));
-    user2.setTeamIds(new ArrayList<>(Arrays.asList("teamId")));
+    user1.setTeamIds(new ArrayList<>(List.of("teamId")));
+    user2.setTeamIds(new ArrayList<>(List.of("teamId")));
 
     //Initialize the artifact object
     artifact = new Artifact("artifactName",
@@ -607,7 +611,7 @@ public class UserServiceTest {
     responseBody.put("msg", "User deleted successfully.");
     assertEquals(responseBody, response.getBody());
     assertEquals(Arrays.asList("ownerId", "user2Id"), project.getUserIds());
-    assertEquals(Arrays.asList("user2Id"), team.getUserIds());
+    assertEquals(List.of("user2Id"), team.getUserIds());
   }
 
   /**

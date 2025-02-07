@@ -324,16 +324,16 @@ public class ProjectService {
       response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    
+
     // users
-    List<UserShortResponseDto> shorResponseUserDto = new ArrayList<>();
+    List<UserShortResponseDto> shortResponseUserDto = new ArrayList<>();
     for (String userId : project.getUserIds()) {
       User user = userRepository.findByUserId(userId);
       if (user == null) {
         response.put("msg", "User with ID " + userId + " not found.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
-      shorResponseUserDto.add(UserMapper.toUserShortResponseDto(user));
+      shortResponseUserDto.add(UserMapper.toUserShortResponseDto(user));
     }
     List<WholeTeamDto> wholeTeamDto = new ArrayList<>();
     for (String teamId : project.getTeamIds()) {
@@ -365,16 +365,16 @@ public class ProjectService {
 
     return ResponseEntity.status(HttpStatus.OK).body(
         new WholeProjectHeavyDto(
-                projectId, 
-                project.getProjectName(), 
-                project.getProjectDescription(),
-                project.getProjectCreationDate(), 
-                project.getProjectDeadline(), 
-                ownerDto,
-                project.getProjectStatus().name(), 
-                shorResponseUserDto,
-                wholeArtifactDto,
-                wholeTeamDto));
+            projectId,
+            project.getProjectName(),
+            project.getProjectDescription(),
+            project.getProjectCreationDate(),
+            project.getProjectDeadline(),
+            ownerDto,
+            project.getProjectStatus().name(),
+            shortResponseUserDto,
+            wholeArtifactDto,
+            wholeTeamDto));
   }
 
   // PUT
@@ -417,26 +417,32 @@ public class ProjectService {
       project.setProjectDescription(correctProjectUpdateDto.projectDescription());
       project.setProjectDeadline(correctProjectUpdateDto.projectDeadline());
 
-      // Remove unneded users
+      // Remove unneeded users
+      List<String> usersToRemove = new ArrayList<>();
+
+      // Collect users to remove
       for (String userId : project.getUserIds()) {
         if (!correctProjectUpdateDto.userIds().contains(userId)) {
-          User user = userRepository.findByUserId(userId);
-          user.getProjectIds().remove(projectId);
-
-          List<Team> teams = teamsRepository.findTeamsByProjectId(projectId);
-          for (Team team : teams) {
-            if (team.getUserIds().contains(userId)) {
-              team.getUserIds().remove(userId);
-              teamsRepository.save(team);
-
-              user.getTeamIds().remove(team.getTeamId());
-            }
-          }
-
-          userRepository.save(user);
-
-          project.getUserIds().remove(userId);
+          usersToRemove.add(userId);
         }
+      }
+
+      // Remove users separately
+      for (String userId : usersToRemove) {
+        User user = userRepository.findByUserId(userId);
+        user.getProjectIds().remove(projectId);
+
+        List<Team> teams = teamsRepository.findTeamsByProjectId(projectId);
+        for (Team team : teams) {
+          if (team.getUserIds().contains(userId)) {
+            team.getUserIds().remove(userId);
+            teamsRepository.save(team);
+            user.getTeamIds().remove(team.getTeamId());
+          }
+        }
+
+        userRepository.save(user);
+        project.getUserIds().remove(userId); // Now it's safe to modify
       }
 
       // Add new users
@@ -448,19 +454,19 @@ public class ProjectService {
 
           // Send email to user
           String emailMessage = String.format("""
-            Dear %s,
-            
-            You have been invited to join the project: %s.
-            
-            Project Description: %s
-            
-            We look forward to your valuable contributions.
-            
-            Best regards,
-            %s
-            """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
-          userRepository.findByUserId(project.getOwnerId()).getName() + " "
-            + userRepository.findByUserId(project.getOwnerId()).getSurname());
+                  Dear %s,
+                  
+                  You have been invited to join the project: %s.
+                  
+                  Project Description: %s
+                  
+                  We look forward to your valuable contributions.
+                  
+                  Best regards,
+                  %s
+                  """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+              userRepository.findByUserId(project.getOwnerId()).getName() + " "
+                  + userRepository.findByUserId(project.getOwnerId()).getSurname());
           new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
 
           project.getUserIds().add(userId);
@@ -475,10 +481,10 @@ public class ProjectService {
       response.put("msg", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     } catch (Exception e) {
-        e.printStackTrace();
-        
-        response.put("msg", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      e.printStackTrace();
+
+      response.put("msg", e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
   }
 
@@ -802,8 +808,7 @@ public class ProjectService {
 
     // Validate the project name
     String name = projectCreateDto.projectName();
-    if (projectRepository.existsByProjectName(name) && !projectCreateDto.projectName()
-        .equals(name)) {
+    if (projectRepository.existsByProjectName(name)) {
       throw new ProjectValidationException("Project with name " + name + " already exists.");
     }
 

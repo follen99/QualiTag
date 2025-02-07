@@ -35,6 +35,7 @@ import jakarta.validation.Validator;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -136,8 +137,10 @@ class ArtifactServiceTest {
     tag1.setArtifactIds(new ArrayList<>(Collections.singletonList(artifact.getArtifactId())));
     tag2.setArtifactIds(new ArrayList<>(Collections.singletonList(artifact.getArtifactId())));
 
+    long creationDate = Instant.now().toEpochMilli();
+    long deadline = Instant.parse("2025-12-31T23:59:59Z").toEpochMilli();
     project = new Project("projectName", "projectDescription",
-        0L, 0L, "6998e2740b87d85362a8ba58",
+        creationDate, deadline, owner.getUserId(),
         new ArrayList<>());
     project.setProjectId("projectId");
     project.setUserIds(new ArrayList<>(Arrays.asList("6998e2740b87d85362a8ba58",

@@ -82,8 +82,8 @@ public class TagServiceTest {
     artifact.setArtifactId("6754705c8d6446369ca02b62");
     artifact.setTags(new ArrayList<>(Arrays.asList(tag1.getTagId()
         , tag2.getTagId())));
-    tag1.setArtifactIds(new ArrayList<>(Arrays.asList(artifact.getArtifactId())));
-    tag2.setArtifactIds(new ArrayList<>(Arrays.asList(artifact.getArtifactId())));
+    tag1.setArtifactIds(new ArrayList<>(List.of(artifact.getArtifactId())));
+    tag2.setArtifactIds(new ArrayList<>(List.of(artifact.getArtifactId())));
 
     //Initialize the DTO
     tagCreateDto1 = new TagCreateDto("TAG3",
@@ -106,19 +106,14 @@ public class TagServiceTest {
   /**
    * Tests a successful execution of the createTag method.
    *
-   * @throws TagValidationException    if the tag is invalid
-   * @throws NoSuchMethodException     if the method does not exist
-   * @throws InvocationTargetException if the method cannot be invoked
-   * @throws IllegalAccessException    if the method cannot be accessed
+   * @throws TagValidationException if the tag is invalid
    */
   @Test
   public void testCreateTag_Success()
-      throws TagValidationException,
-      NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+      throws TagValidationException {
     //Arrange
     Tag newTag = new Tag("TAG3",
         "6798e2740b80b85362a8ba90", "#fff8de");
-    TagService tagServiceSpy = Mockito.spy(tagService);
 
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(userRepository.existsByUsername("user1")).thenReturn(true);
@@ -129,14 +124,7 @@ public class TagServiceTest {
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
 
-    Method validateTagMethod = TagService.class.getDeclaredMethod(
-        "validateTag", TagCreateDto.class);
-    validateTagMethod.setAccessible(true);
-
-    TagCreateDto validatedTagCreateDto =
-        (TagCreateDto) validateTagMethod.invoke(tagServiceSpy, tagCreateDto1);
-
-    when(tagMapper.toEntity(validatedTagCreateDto)).thenReturn(newTag);
+    when(tagMapper.toEntity(any(TagCreateDto.class))).thenReturn(newTag);
 
     //Act
     ResponseEntity<?> response = tagService.createTag(tagCreateDto1);
@@ -151,19 +139,13 @@ public class TagServiceTest {
   /**
    * Tests an execution of the createTag method when the tag has the same values but different
    * artifacts
-   *
-   * @throws NoSuchMethodException     if the method does not exist
-   * @throws InvocationTargetException if the method cannot be invoked
-   * @throws IllegalAccessException    if the method cannot be accessed
    */
   @Test
-  public void testCreateTag_SameTagButDifferentArtifacts()
-      throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void testCreateTag_SameTagButDifferentArtifacts() {
     //Arrange
-    TagService tagServiceSpy = Mockito.spy(tagService);
     Tag newTag = new Tag("TAG2",
         "6798e2740b80b85362a8ba90", "#fff8de");
-    newTag.setArtifactIds(new ArrayList<>(Arrays.asList("6754705c8d6446369ca02b64")));
+    newTag.setArtifactIds(new ArrayList<>(List.of("6754705c8d6446369ca02b64")));
 
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(userRepository.existsByUsername("user1")).thenReturn(true);
@@ -174,14 +156,7 @@ public class TagServiceTest {
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
 
-    Method validateTagMethod = TagService.class.getDeclaredMethod(
-        "validateTag", TagCreateDto.class);
-    validateTagMethod.setAccessible(true);
-
-    TagCreateDto validatedTagCreateDto =
-        (TagCreateDto) validateTagMethod.invoke(tagServiceSpy, tagCreateDto1);
-
-    when(tagMapper.toEntity(validatedTagCreateDto)).thenReturn(newTag);
+    when(tagMapper.toEntity(any(TagCreateDto.class))).thenReturn(newTag);
 
     //Act
     ResponseEntity<?> response = tagService.createTag(tagCreateDto1);
@@ -333,19 +308,13 @@ public class TagServiceTest {
 
   /**
    * Tests an execution of the createTag method when the tag already exist
-   *
-   * @throws NoSuchMethodException     if the method does not exist
-   * @throws InvocationTargetException if the method cannot be invoked
-   * @throws IllegalAccessException    if the method cannot be accessed
    */
   @Test
-  public void testCreateTag_TagAlreadyExist()
-      throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void testCreateTag_TagAlreadyExist() {
     //Arrange
-    TagService tagServiceSpy = Mockito.spy(tagService);
     Tag newTag = new Tag("TAG3",
         "6798e2740b80b85362a8ba90", "#fff8de");
-    newTag.setArtifactIds(new ArrayList<>(Arrays.asList("6754705c8d6446369ca02b62")));
+    newTag.setArtifactIds(new ArrayList<>(List.of("6754705c8d6446369ca02b62")));
 
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(userRepository.existsByUsername("user1")).thenReturn(true);
@@ -356,14 +325,7 @@ public class TagServiceTest {
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(newTag);
 
-    Method validateTagMethod = TagService.class.getDeclaredMethod(
-        "validateTag", TagCreateDto.class);
-    validateTagMethod.setAccessible(true);
-
-    TagCreateDto validatedTagCreateDto =
-        (TagCreateDto) validateTagMethod.invoke(tagServiceSpy, tagCreateDto1);
-
-    when(tagMapper.toEntity(validatedTagCreateDto)).thenReturn(newTag);
+    when(tagMapper.toEntity(any(TagCreateDto.class))).thenReturn(newTag);
 
     //Act
     ResponseEntity<?> response = tagService.createTag(tagCreateDto1);
@@ -591,16 +553,16 @@ public class TagServiceTest {
         tag1.getCreatedBy(), tag1.getColorHex());
 
     when(tagRepository.findByTagValueContaining(tag1.getTagValue().toUpperCase()))
-        .thenReturn(new ArrayList<>(Arrays.asList(tag1)));
-    when(tagMapper.getResponseDtoList(new ArrayList<>(Arrays.asList(tag1))))
-        .thenReturn(new ArrayList<>(Arrays.asList(tagResponseDto)));
+        .thenReturn(new ArrayList<>(List.of(tag1)));
+    when(tagMapper.getResponseDtoList(new ArrayList<>(List.of(tag1))))
+        .thenReturn(new ArrayList<>(List.of(tagResponseDto)));
 
     //Act
     ResponseEntity<?> response = tagService.getTagsByValue(tag1.getTagValue());
 
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals(Arrays.asList(tagResponseDto), response.getBody());
+    assertEquals(List.of(tagResponseDto), response.getBody());
   }
 
   /**

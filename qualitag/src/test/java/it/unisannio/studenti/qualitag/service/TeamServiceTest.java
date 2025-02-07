@@ -28,6 +28,7 @@ import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -71,7 +72,7 @@ public class TeamServiceTest {
   private TeamService teamService;
 
   private TeamCreateDto teamCreateDto;
-  private CompletedTeamCreateDto completedTeamCreateDto;
+  //  private CompletedTeamCreateDto completedTeamCreateDto;
   private Team team;
   private Project project;
   private User owner, user1, user2, user3;
@@ -90,8 +91,10 @@ public class TeamServiceTest {
         new ArrayList<>(Arrays.asList("user1Id", "user2Id")));
     team.setTeamId("teamId");
 
+    long creationDate = Instant.now().toEpochMilli();
+    long deadline = Instant.parse("2025-12-31T23:59:59Z").toEpochMilli();
     project = new Project("projectName", "projectDescription",
-        0L, 0L, "ownerId", new ArrayList<>());
+        creationDate, deadline, "ownerId", new ArrayList<>());
     project.setProjectId("projectId");
     project.setUserIds(Arrays.asList("ownerId", "user1Id", "user2Id", "user3Id"));
     owner = new User("username", "user@example.com",
@@ -102,11 +105,11 @@ public class TeamServiceTest {
     user1 = new User("user1", "user1@example.com",
         "password", "Jane", "Doe");
     user1.setUserId("user1Id");
-    user1.setTeamIds(new ArrayList<>(Arrays.asList("teamId")));
+    user1.setTeamIds(new ArrayList<>(List.of("teamId")));
     user2 = new User("user2", "user2@example.com",
         "password", "Alice", "Smith");
     user2.setUserId("user2Id");
-    user2.setTeamIds(new ArrayList<>(Arrays.asList("teamId")));
+    user2.setTeamIds(new ArrayList<>(List.of("teamId")));
     user3 = new User("user3", "user3@example.com", "password",
         "Bob", "Johnson");
     user3.setUserId("user3Id");
@@ -124,16 +127,16 @@ public class TeamServiceTest {
     artifact.setTags(new ArrayList<>(Arrays.asList("tagId1", "tagId2")));
 
     //add artifact to team
-    team.setArtifactIds(Arrays.asList("artifactId"));
+    team.setArtifactIds(List.of("artifactId"));
 
     //Initialize DTO
     teamCreateDto = new TeamCreateDto("teamName", "teamDescription",
         "projectId", new ArrayList<>(Arrays.asList("user1@example.com",
         "user2@example.com")));
-    completedTeamCreateDto = new CompletedTeamCreateDto("teamName",
-        "projectId", 123456789L, "teamDescription",
-        Arrays.asList("user1", "user2")
-    );
+//    completedTeamCreateDto = new CompletedTeamCreateDto("teamName",
+//        "projectId", 123456789L, "teamDescription",
+//        Arrays.asList("user1", "user2")
+//    );
 
     // Mock SecurityContextHolder to provide an authenticated user
     Authentication authentication = mock(Authentication.class);
@@ -321,7 +324,7 @@ public class TeamServiceTest {
   void testAddTeam_NotEnoughUsers() throws TeamValidationException {
     // Arrange
     teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
-        "projectId", new ArrayList<>(Arrays.asList("user2@example.com")));
+        "projectId", new ArrayList<>(List.of(user2.getEmail())));
 
     // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId()))
@@ -680,14 +683,9 @@ public class TeamServiceTest {
 
   /**
    * Tests the method addTeamToUsers with reflection, in the case where the team i null
-   *
-   * @throws NoSuchMethodException     if the addTeamToUsers method is not found
-   * @throws InvocationTargetException if the addTeamToUsers method cannot be invoked
-   * @throws IllegalAccessException    if the addTeamToUsers method cannot be accessed
    */
   @Test
-  void testAddTeamToUsers_TeamNull() throws NoSuchMethodException,
-      InvocationTargetException, IllegalAccessException {
+  void testAddTeamToUsers_TeamNull() {
     //Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
     team = null;
@@ -709,13 +707,9 @@ public class TeamServiceTest {
 
   /**
    * Tests the method addTeamToUsers with reflection, in the case where the team has a null user
-   *
-   * @throws NoSuchMethodException  if the addTeamToUsers method is not found
-   * @throws IllegalAccessException if the addTeamToUsers method cannot be accessed
    */
   @Test
-  void testAddTeamToUsers_UserIdNull()
-      throws NoSuchMethodException, IllegalAccessException {
+  void testAddTeamToUsers_UserIdNull() {
     // Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
@@ -739,13 +733,9 @@ public class TeamServiceTest {
 
   /**
    * Tests the method addTeamToUsers with reflection, in the case where the team has an empty user
-   *
-   * @throws NoSuchMethodException  if the addTeamToUsers method is not found
-   * @throws IllegalAccessException if the addTeamToUsers method cannot be accessed
    */
   @Test
-  void testAddTeamToUsers_UserIdEmpty()
-      throws NoSuchMethodException, IllegalAccessException {
+  void testAddTeamToUsers_UserIdEmpty() {
     // Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
@@ -770,12 +760,9 @@ public class TeamServiceTest {
 
   /**
    * Tests the method addTeamToUsers with reflection, in the case where the user does not exist
-   *
-   * @throws NoSuchMethodException  if the addTeamToUsers method is not found
-   * @throws IllegalAccessException if the addTeamToUsers method cannot be accessed
    */
   @Test
-  void testAddTeamToUsers_UserDoesNotExist() throws NoSuchMethodException, IllegalAccessException {
+  void testAddTeamToUsers_UserDoesNotExist() {
     // Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
@@ -802,12 +789,9 @@ public class TeamServiceTest {
   /**
    * Tests the method addTeamToUsers with reflection, in the case where the user is not part of the
    * project
-   *
-   * @throws NoSuchMethodException  if the addTeamToUsers method is not found
-   * @throws IllegalAccessException if the addTeamToUsers method cannot be accessed
    */
   @Test
-  void testAddTeamToUsers_UserNotInProject() throws NoSuchMethodException, IllegalAccessException {
+  void testAddTeamToUsers_UserNotInProject() {
     //Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
@@ -844,14 +828,14 @@ public class TeamServiceTest {
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(teamRepository.existsByProjectId(project.getProjectId())).thenReturn(true);
     when(teamRepository.findTeamsByProjectId(project.getProjectId()))
-        .thenReturn(Arrays.asList(team));
+        .thenReturn(List.of(team));
 
     //Act
     ResponseEntity<?> response = teamService.getTeamsByProject(project.getProjectId());
 
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals(Arrays.asList(team), response.getBody());
+    assertEquals(List.of(team), response.getBody());
   }
 
   /**
@@ -905,14 +889,14 @@ public class TeamServiceTest {
     //Arrange
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
     when(teamRepository.existsByUserIdsContaining(user1.getUserId())).thenReturn(true);
-    when(teamRepository.findByUserIdsContaining(user1.getUserId())).thenReturn(Arrays.asList(team));
+    when(teamRepository.findByUserIdsContaining(user1.getUserId())).thenReturn(List.of(team));
 
     //Act
     ResponseEntity<?> response = teamService.getTeamsByUser(user1.getUserId());
 
     //Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals(Arrays.asList(team), response.getBody());
+    assertEquals(List.of(team), response.getBody());
   }
 
   /**
