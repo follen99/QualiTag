@@ -1,5 +1,8 @@
 package it.unisannio.studenti.qualitag.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
@@ -194,35 +197,73 @@ public class ArtifactService {
 
     // Call the Python service to process the tags
     String processedTags = pythonClientService.processTags(tagValues);
+    if (processedTags == null) {
+      response.put("msg", "Error processing tags");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
 
+    // Parse the processed tags and put them in a list
+    List<String> processedTagsList = new ArrayList<>();
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      JsonNode jsonNode = objectMapper.readTree(processedTags);
+
+      JsonNode resultNode = jsonNode.get("result");
+
+      if (resultNode.isArray()) {
+        for (JsonNode element : resultNode) {  // Iterate through the array
+          processedTagsList.add(element.asText()); // Add each element as a string to the list
+        }
+      } else {
+        response.put("msg", "Error: 'result' is not an array.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      }
+    } catch (JsonProcessingException e) {
+      response.put("msg", "Error processing JSON");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(response + e.getMessage());
+    }
+
+    // TODO: Handle same tag values for owner
     // Create tags from the processed tags and add them
     List<String> tagIds = new ArrayList<>();
-    for (String tagValue : processedTags.split(",")) {
-      ResponseEntity<?> responseRequest = tagService.createTag(new TagCreateDto(tagValue, this.getLoggedInUserId(), "#000000"));
+    for (String tagValue : processedTagsList) {
+      ResponseEntity<?> responseRequest = 
+          tagService.createTag(new TagCreateDto(tagValue, this.getLoggedInUserId(), "#000000"));
 
       if (responseRequest.getStatusCode() != HttpStatus.CREATED) {
         response.put("msg", "Error creating tags from processed tags");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
+      
+      System.out.println("\n\nResponse: " + responseRequest + "\n\n");
 
-      // Access the body of responseRequest
-      Object responseBodyObj = responseRequest.getBody();
-      if (responseBodyObj instanceof Map) {
-        @SuppressWarnings("unchecked")
-        Map<String, String> responseBody = (Map<String, String>) responseBodyObj;
-        String tagId = responseBody.get("tagId");
-        tagIds.add(tagId);
-      } else {
-        response.put("msg", "Error: response body is not a map");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      // Insert tag ID in tagIds
+      Map<String, String> map = new HashMap<>();
+      String responseBody = responseRequest.getBody().toString();
+
+      // Remove curly braces and split into key-value pairs
+      String[] pairs = responseBody.substring(1, responseBody.length() - 1).split(",");
+      
+      for (String pair : pairs) {
+        String[] keyValue = pair.split("=");
+        if (keyValue.length == 2) { // Handle cases where a key might not have a value
+          map.put(keyValue[0].trim(), keyValue[1].trim()); // Trim whitespace
+        } else if (keyValue.length == 1) {
+          map.put(keyValue[0].trim(), ""); // Handle missing values
+        }
       }
+
+      tagIds.add(map.get("tagId"));
     }
 
     // Add tags to artifact
-    this.addTags(artifactId, new AddTagsToArtifactDto(tagIds));
+    ResponseEntity<?> response2 = this.addTags(artifactId, 
+        new AddTagsToArtifactDto(tagIds));
+    System.out.println("\n\nResponse2: " + response2 + "\n\n");
 
     response.put("msg", "Tags processed successfully");
-    response.put("processedTags", processedTags);
+    response.put("processedTags", processedTagsList);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
