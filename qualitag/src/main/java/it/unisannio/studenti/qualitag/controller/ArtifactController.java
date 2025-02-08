@@ -47,11 +47,6 @@ public class ArtifactController {
     return this.artifactService.addArtifact(artifactCreateDto);
   }
 
-  @PostMapping("/{artifactId}/process-tags")
-  public ResponseEntity<?> processTags(@PathVariable String artifactId) {
-    return this.artifactService.processTags(artifactId);
-  }
-
   // GET Methods
 
   /**
@@ -101,6 +96,17 @@ public class ArtifactController {
   public ResponseEntity<?> addTags(@PathVariable String artifactId,
       @RequestBody AddTagsToArtifactDto dto) {
     return this.artifactService.addTags(artifactId, dto);
+  }
+
+  /**
+   * Processes the tags of an artifact.
+   *
+   * @param artifactId the id of the artifact to process the tags of
+   * @return the response entity
+   */
+  @PutMapping("/{artifactId}/process-tags")
+  public ResponseEntity<?> processTags(@PathVariable String artifactId) {
+    return this.artifactService.processTags(artifactId);
   }
 
   // DELETE Methods
