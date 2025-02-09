@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import it.unisannio.studenti.qualitag.dto.project.ProjectInfoDto;
+import it.unisannio.studenti.qualitag.dto.project.WholeProjectDto;
 import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -232,6 +234,14 @@ public class ProjectTest {
   }
 
   /**
+   * Test the equals method with the same object.
+   */
+  @Test
+  public void testEqualsSameObject() {
+    assertTrue(project.equals(project));
+  }
+
+  /**
    * Test the equals method with null.
    */
   @Test
@@ -239,13 +249,15 @@ public class ProjectTest {
     assertFalse(project.equals(null));
   }
 
+
   /**
    * Test the equals method with a different class.
    */
   @Test
   public void testNotEquals() {
-    assertFalse(project.equals(differentProject));
+    assertFalse(project.equals("differentProject"));
   }
+
 
   /**
    * Test the hashCode method.
@@ -273,6 +285,125 @@ public class ProjectTest {
         + "projectDeadline=0, ownerId='ownerId', usersIds=[], teamsIds=[], artifactsIds=[]}";
     assertEquals(expected, project.toString());
   }
+
+  /**
+   * Tests the toProjectInfoDto method
+   */
+  @Test
+  public void testToProjectInfoDto() {
+    ProjectInfoDto projectInfoDto = project.toProjectInfoDto();
+    assertEquals(project.getProjectName(), projectInfoDto.projectName());
+    assertEquals(project.getProjectDescription(), projectInfoDto.projectDescription());
+    assertEquals(project.getProjectStatus().toString(), projectInfoDto.projectStatus());
+    assertEquals(project.getProjectId(), projectInfoDto.projectId());
+  }
+
+  /**
+   * Tests the toProjectInfoDto method with a null projectStatus
+   */
+  @Test
+  public void testToProjectInfoDtoNullProjectStatus() {
+    project.setProjectStatus(null);
+    ProjectInfoDto projectInfoDto = project.toProjectInfoDto();
+    assertEquals(project.getProjectName(), projectInfoDto.projectName());
+    assertEquals(project.getProjectDescription(), projectInfoDto.projectDescription());
+    assertEquals("NO_INFO", projectInfoDto.projectStatus());
+    assertEquals(project.getProjectId(), projectInfoDto.projectId());
+  }
+
+  /**
+   * Tests the toProjectInfoDto method with a null project name
+   */
+  @Test
+  public void testToProjectInfoDtoNullProjectName() {
+    project.setProjectName(null);
+    ProjectInfoDto projectInfoDto = project.toProjectInfoDto();
+    assertEquals("", projectInfoDto.projectName());
+    assertEquals(project.getProjectDescription(), projectInfoDto.projectDescription());
+    assertEquals(project.getProjectStatus().toString(), projectInfoDto.projectStatus());
+    assertEquals(project.getProjectId(), projectInfoDto.projectId());
+  }
+
+  /**
+   * Tests the toProjectInfoDto method with a null project description
+   */
+  @Test
+  public void testToProjectInfoDtoNullProjectDescription() {
+    project.setProjectDescription(null);
+    ProjectInfoDto projectInfoDto = project.toProjectInfoDto();
+    assertEquals(project.getProjectName(), projectInfoDto.projectName());
+    assertEquals("", projectInfoDto.projectDescription());
+    assertEquals(project.getProjectStatus().toString(), projectInfoDto.projectStatus());
+    assertEquals(project.getProjectId(), projectInfoDto.projectId());
+  }
+
+  /**
+   * Tests the toResponseProjectDto method
+   */
+  @Test
+  public void testToResponseProjectDto() {
+    WholeProjectDto responseProjectDto = project.toResponseProjectDto();
+    assertEquals(project.getProjectName(), responseProjectDto.projectName());
+    assertEquals(project.getProjectDescription(), responseProjectDto.projectDescription());
+    assertEquals(project.getProjectCreationDate(), responseProjectDto.projectCreationDate());
+    assertEquals(project.getProjectDeadline(), responseProjectDto.projectDeadline());
+    assertEquals(project.getOwnerId(), responseProjectDto.ownerId());
+    assertEquals(project.getUserIds(), responseProjectDto.users());
+    assertEquals(project.getTeamIds(), responseProjectDto.teams());
+    assertEquals(project.getArtifactIds(), responseProjectDto.artifacts());
+  }
+
+  /**
+   * Tests the toResponseProjectDto method with a null project name
+   */
+  @Test
+  public void testToResponseProjectDtoNullProjectName() {
+    project.setProjectName(null);
+    WholeProjectDto responseProjectDto = project.toResponseProjectDto();
+    assertEquals("", responseProjectDto.projectName());
+    assertEquals(project.getProjectDescription(), responseProjectDto.projectDescription());
+    assertEquals(project.getProjectCreationDate(), responseProjectDto.projectCreationDate());
+    assertEquals(project.getProjectDeadline(), responseProjectDto.projectDeadline());
+    assertEquals(project.getOwnerId(), responseProjectDto.ownerId());
+    assertEquals(project.getUserIds(), responseProjectDto.users());
+    assertEquals(project.getTeamIds(), responseProjectDto.teams());
+    assertEquals(project.getArtifactIds(), responseProjectDto.artifacts());
+  }
+
+  /**
+   * Tests the toResponseProjectDto method with a null project description
+   */
+  @Test
+  public void testToResponseProjectDtoNullProjectDescription() {
+    project.setProjectDescription(null);
+    WholeProjectDto responseProjectDto = project.toResponseProjectDto();
+    assertEquals(project.getProjectName(), responseProjectDto.projectName());
+    assertEquals("", responseProjectDto.projectDescription());
+    assertEquals(project.getProjectCreationDate(), responseProjectDto.projectCreationDate());
+    assertEquals(project.getProjectDeadline(), responseProjectDto.projectDeadline());
+    assertEquals(project.getOwnerId(), responseProjectDto.ownerId());
+    assertEquals(project.getUserIds(), responseProjectDto.users());
+    assertEquals(project.getTeamIds(), responseProjectDto.teams());
+    assertEquals(project.getArtifactIds(), responseProjectDto.artifacts());
+  }
+
+  /**
+   * Tests the toResponseProjectDto method with a null project status
+   */
+  @Test
+  public void testToResponseProjectDtoNullProjectStatus() {
+    project.setProjectStatus(null);
+    WholeProjectDto responseProjectDto = project.toResponseProjectDto();
+    assertEquals(project.getProjectName(), responseProjectDto.projectName());
+    assertEquals(project.getProjectDescription(), responseProjectDto.projectDescription());
+    assertEquals(project.getProjectCreationDate(), responseProjectDto.projectCreationDate());
+    assertEquals(project.getProjectDeadline(), responseProjectDto.projectDeadline());
+    assertEquals(project.getOwnerId(), responseProjectDto.ownerId());
+    assertEquals(project.getUserIds(), responseProjectDto.users());
+    assertEquals(project.getTeamIds(), responseProjectDto.teams());
+    assertEquals(project.getArtifactIds(), responseProjectDto.artifacts());
+  }
+
 }
 
 

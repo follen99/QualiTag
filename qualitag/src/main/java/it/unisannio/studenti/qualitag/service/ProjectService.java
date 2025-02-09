@@ -172,7 +172,8 @@ public class ProjectService {
     // Retrieve the project
     Project project = projectRepository.findProjectByProjectId(projectId);
     if (project == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found.");
+      response.put("msg", "Project not found.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
@@ -192,7 +193,7 @@ public class ProjectService {
     // Check if there's a problem with the project ID
     if (projectId == null || projectId.isEmpty()) {
       response.put("msg", "Project ID cannot be null or empty.");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Retrieve the project
@@ -206,7 +207,7 @@ public class ProjectService {
     String currentUserId = getLoggedInUserId();
     if (!project.getOwnerId().equals(currentUserId)) {
       response.put("msg", "Only the project owner can see the tags!");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // Retrieve the project's artifacts
@@ -222,7 +223,7 @@ public class ProjectService {
       Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
         response.put("msg", "Artifact with ID " + artifactId + " not found.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       tags.addAll(artifact.getTags());
     }
@@ -265,7 +266,7 @@ public class ProjectService {
       Artifact artifact = artifactsRepository.findArtifactByArtifactId(artifactId);
       if (artifact == null) {
         response.put("msg", "Artifact with ID " + artifactId + " not found.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       artifacts.add(artifact);
     }
@@ -894,7 +895,7 @@ public class ProjectService {
       Team team = teamsRepository.findTeamByTeamId(teamId);
       if (team == null) {
         response.put("msg", "Team with ID " + teamId + " not found.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
       teams.add(TeamMapper.toWholeTeamDto(team));
     }
