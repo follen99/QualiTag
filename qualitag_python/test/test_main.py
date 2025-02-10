@@ -32,3 +32,18 @@ def test_krippendorff_compute(test_client):  # pylint: disable=redefined-outer-n
   data = resp.get_json()
   assert "alpha" in data
   assert data["alpha"] == -0.12673611111111116
+
+
+def test_process_tags(test_client):  # pylint: disable=redefined-outer-name
+  test_payload = [
+      "Artificial Intelligence", "AI", "Data Science", "Machine Learning",
+      "Bug", "Bugged", "Buggy"
+  ]
+  resp = test_client.post("/api/process-tags",
+                          data=json.dumps(test_payload),
+                          content_type="application/json")
+  assert resp.status_code == 200
+  data = resp.get_json()
+  assert "result" in data
+  print(data["result"])
+  assert data["result"] == ["ai", "bug", "data science", "machine learning"]

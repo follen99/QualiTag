@@ -31,4 +31,4 @@ echo -e "\n\nRunning the Java tests..."
 docker compose exec -T qualitag-java ./gradlew test
 
 echo -e "\n\nRunning the Python tests..."
-docker compose exec -T qualitag-python pytest
+docker compose exec -T qualitag-python pytest -s

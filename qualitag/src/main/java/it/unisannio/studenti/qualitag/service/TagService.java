@@ -64,14 +64,16 @@ public class TagService {
 
       this.tagRepository.save(tag);
       if (this.addTagToUser(tag)) {
-        response.put("msg", "Tag added successfully.");
+        response.put("msg", "Tag added successfully");
+        response.put("tagId", tag.getTagId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
       }
 
       // If it was impossible to add the tag to the user, rollback
       this.tagRepository.delete(tag);
-      response.put("msg", "Tag already exists.");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+      response.put("msg", "Tag already exists");
+      response.put("tagId", getExistantTagId(tag));
     } catch (TagValidationException e) {
       response.put("msg", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -154,6 +156,20 @@ public class TagService {
     user.getTagIds().add(tag.getTagId());
     userRepository.save(user);
     return true;
+  }
+
+  private String getExistantTagId(Tag tag) {
+    User user = userRepository.findByUserId(tag.getCreatedBy());
+
+    List<String> userTagIds = user.getTagIds();
+    for (String tagId : userTagIds) {
+      Tag userTag = tagRepository.findTagByTagId(tagId);
+      if (userTag.getTagValue().equals(tag.getTagValue())) {
+        return userTag.getTagId();
+      }
+    }
+
+    return null;
   }
 
 

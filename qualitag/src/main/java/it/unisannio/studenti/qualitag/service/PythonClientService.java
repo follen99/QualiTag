@@ -38,4 +38,20 @@ public class PythonClientService {
         .bodyToMono(String.class)
         .block();
   }
+
+  /**
+   * Calls the Python service to process the tags.
+   *
+   * @param tags the tags to process
+   * @return the processed tags
+   */
+  public String processTags(List<String> tags) {
+    return webClient.post()
+        .uri("/api/process-tags")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(tags)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
+  }
 }

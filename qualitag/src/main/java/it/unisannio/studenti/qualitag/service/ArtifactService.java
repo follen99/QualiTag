@@ -1,9 +1,13 @@
 package it.unisannio.studenti.qualitag.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
@@ -57,6 +61,10 @@ public class ArtifactService {
   private final TagRepository tagRepository;
   private final TeamRepository teamRepository;
   private final UserRepository userRepository;
+
+  private final PythonClientService pythonClientService;
+  private final TagService tagService;
+
   private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
   private final Validator validator = factory.getValidator();
 
@@ -73,8 +81,8 @@ public class ArtifactService {
 
     try {
       // Validate the DTO
-      Set<ConstraintViolation<ArtifactCreateDto>> violations = validator.validate(
-          artifactCreateDto);
+      Set<ConstraintViolation<ArtifactCreateDto>> violations =
+          validator.validate(artifactCreateDto);
       if (!violations.isEmpty()) {
         response.put("msg", "Invalid artifact data.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -171,9 +179,9 @@ public class ArtifactService {
       response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
-        .contains(artifact.getTeamId()))) {
-      response.put("msg", "User is not authorized to view this artifact.");
+    if (!(project.getOwnerId().equals(user.getUserId())
+        || user.getTeamIds().contains(artifact.getTeamId()))) {
+      response.put("msg", "User is not authorized to view this artifact");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -232,9 +240,9 @@ public class ArtifactService {
       response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
-        .contains(artifact.getTeamId()))) {
-      response.put("msg", "User is not authorized to view this artifact.");
+    if (!(project.getOwnerId().equals(user.getUserId())
+        || user.getTeamIds().contains(artifact.getTeamId()))) {
+      response.put("msg", "User is not authorized to view this artifact");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -254,7 +262,7 @@ public class ArtifactService {
    * Modifies an existing artifact.
    *
    * @param artifactModifyDto the dto used to modify the artifact
-   * @param artifactId        the id of the artifact to modify
+   * @param artifactId the id of the artifact to modify
    * @return the response entity
    */
   public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
@@ -338,9 +346,9 @@ public class ArtifactService {
       Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
       Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
 
-      if (!(project.getOwnerId().equals(user.getUserId()) || (
-          team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
-              .equals(user.getUserId())))) {
+      if (!(project.getOwnerId().equals(user.getUserId())
+          || (team.getUserIds().contains(user.getUserId())
+              && tag.getCreatedBy().equals(user.getUserId())))) {
         if (!project.getOwnerId().equals(user.getUserId())) {
           response.put("msg", "User is not the project owner.");
           return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
@@ -362,6 +370,119 @@ public class ArtifactService {
     }
 
     response.put("msg", "Tags added successfully.");
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  /**
+   * Processes the tags of an artifact.
+   *
+   * @param artifactId the ID of the artifact to process the tags
+   * @return the response entity with the result of the tag processing
+   */
+  public ResponseEntity<?> processTags(String artifactId) {
+    Map<String, Object> response = new HashMap<>();
+
+    // Retrieve the artifact
+    Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
+    if (artifact == null) {
+      response.put("msg", "Artifact not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Check if the user is authorized to view the artifact
+    User user = userRepository.findByUserId(getLoggedInUserId());
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (user == null) {
+      response.put("msg", "User not found");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    if (!project.getOwnerId().equals(user.getUserId())) {
+      response.put("msg", "User is not authorized to view this artifact");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Get the value of all the tags
+    List<String> tagValues = new ArrayList<>();
+    for (String tagId : artifact.getTags()) {
+      Tag tag = tagRepository.findTagByTagId(tagId);
+      tagValues.add(tag.getTagValue());
+    }
+
+    // Remove tags from artifact
+    for (String tagId : artifact.getTags()) {
+      ResponseEntity<?> removeTagResponse = removeTag(artifactId, tagId);
+      if (removeTagResponse.getStatusCode() != HttpStatus.OK) {
+        response.put("msg", "Error removing tags from artifact");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      }
+    }
+
+    // Call the Python service to process the tags
+    String processedTags = pythonClientService.processTags(tagValues);
+    if (processedTags == null) {
+      response.put("msg", "Error processing tags");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    // Parse the processed tags and put them in a list
+    List<String> processedTagsList = new ArrayList<>();
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      JsonNode jsonNode = objectMapper.readTree(processedTags);
+
+      JsonNode resultNode = jsonNode.get("result");
+
+      if (resultNode.isArray()) {
+        for (JsonNode element : resultNode) { // Iterate through the array
+          processedTagsList.add(element.asText()); // Add each element as a string to the list
+        }
+      } else {
+        response.put("msg", "Error: 'result' is not an array.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      }
+    } catch (JsonProcessingException e) {
+      response.put("msg", "Error processing JSON");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(response + e.getMessage());
+    }
+
+    // Create tags from the processed tags and add them
+    List<String> tagIds = new ArrayList<>();
+    for (String tagValue : processedTagsList) {
+      ResponseEntity<?> responseRequest =
+          tagService.createTag(new TagCreateDto(tagValue, this.getLoggedInUserId(), "#000000"));
+
+      if (responseRequest.getStatusCode() != HttpStatus.CREATED
+          && responseRequest.getStatusCode() != HttpStatus.CONFLICT) {
+        response.put("msg", "Error creating tags from processed tags");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+      }
+
+      // Insert tag ID in tagIds
+      Map<String, String> map = new HashMap<>();
+      String responseBody = responseRequest.getBody().toString();
+
+      // Remove curly braces and split into key-value pairs
+      String[] pairs = responseBody.substring(1, responseBody.length() - 1).split(",");
+
+      for (String pair : pairs) {
+        String[] keyValue = pair.split("=");
+        if (keyValue.length == 2) { // Handle cases where a key might not have a value
+          map.put(keyValue[0].trim(), keyValue[1].trim()); // Trim whitespace
+        } else if (keyValue.length == 1) {
+          map.put(keyValue[0].trim(), ""); // Handle missing values
+        }
+      }
+
+      tagIds.add(map.get("tagId"));
+    }
+
+    // Add tags to artifact
+    ResponseEntity<?> response2 = this.addTags(artifactId, new AddTagsToArtifactDto(tagIds));
+    System.out.println("\n\nResponse2: " + response2 + "\n\n");
+
+    response.put("msg", "Tags processed successfully");
+    response.put("processedTags", processedTagsList);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -450,7 +571,7 @@ public class ArtifactService {
    * Removes a tag of an artifact.
    *
    * @param artifactId the id of the artifact which tag we want to remove
-   * @param tagId      the id of the tag to remove
+   * @param tagId the id of the tag to remove
    * @return the response entity
    */
   public ResponseEntity<?> removeTag(String artifactId, String tagId) {
@@ -478,10 +599,10 @@ public class ArtifactService {
     Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
     Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
     Tag tag = tagRepository.findTagByTagId(tagId);
-    if (!(project.getOwnerId().equals(user.getUserId()) || (
-        team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
-            .equals(user.getUserId())))) {
-      response.put("msg", "User is not authorized to remove this tag from the artifact.");
+    if (!(project.getOwnerId().equals(user.getUserId())
+        || (team.getUserIds().contains(user.getUserId())
+            && tag.getCreatedBy().equals(user.getUserId())))) {
+      response.put("msg", "User is not authorized to remove this tag from the artifact");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 

@@ -153,6 +153,17 @@ public class ArtifactController {
     return this.artifactService.stopTagging(artifactIds);
   }
 
+  /**
+   * Processes the tags of an artifact.
+   *
+   * @param artifactId the id of the artifact to process the tags of
+   * @return the response entity
+   */
+  @PutMapping("/{artifactId}/process-tags")
+  public ResponseEntity<?> processTags(@PathVariable String artifactId) {
+    return this.artifactService.processTags(artifactId);
+  }
+
   // DELETE Methods
 
   /**
