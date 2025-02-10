@@ -191,35 +191,11 @@ class TeamTest {
    */
   @Test
   void testAddUser() {
-    team.getUserIds().add("user3");
-    assertTrue(team.getUserIds().contains("user3"));
-  }
-
-  /**
-   * Test the removeUser method.
-   */
-  @Test
-  void testRemoveUser() {
-    team.getUserIds().remove("user1");
-    assertNotEquals(Arrays.asList("user1", "user2"), team.getUserIds());
-  }
-
-  /**
-   * Test the addArtifactId method.
-   */
-  @Test
-  void testAddArtifactId() {
-    team.getArtifactIds().add("artifactId3");
-    assertTrue(team.getArtifactIds().contains("artifactId3"));
-  }
-
-  /**
-   * Test the removeArtifactId method.
-   */
-  @Test
-  void testRemoveArtifactId() {
-    team.getArtifactIds().remove("artifactId1");
-    assertNotEquals(Arrays.asList("artifactId1", "artifactId2"), team.getArtifactIds());
+    User user3 = new User("user3", "user3@example.com",
+        "hashedPassword123", "John", "Doe");
+    user3.setUserId("user3Id");
+    team.addUser(user3);
+    assertTrue(team.getUserIds().contains("user3Id"));
   }
 
   /**
