@@ -133,6 +133,7 @@ public class TagServiceTest {
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag added successfully.");
+    responseBody.put("tagId", newTag.getTagId());
     assertEquals(responseBody, response.getBody());
   }
 
@@ -165,6 +166,7 @@ public class TagServiceTest {
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag added successfully.");
+    responseBody.put("tagId", newTag.getTagId());
     assertEquals(responseBody, response.getBody());
   }
 
@@ -331,9 +333,10 @@ public class TagServiceTest {
     ResponseEntity<?> response = tagService.createTag(tagCreateDto1);
 
     //Assert
-    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag already exists.");
+    responseBody.put("tagId", newTag.getTagId());
     assertEquals(responseBody, response.getBody());
   }
 

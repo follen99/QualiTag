@@ -64,16 +64,16 @@ public class TagService {
 
       this.tagRepository.save(tag);
       if (this.addTagToUser(tag)) {
-        response.put("msg", "Tag added successfully");
+        response.put("msg", "Tag added successfully.");
         response.put("tagId", tag.getTagId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
       }
 
       // If it was impossible to add the tag to the user, rollback
       this.tagRepository.delete(tag);
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-      response.put("msg", "Tag already exists");
+      response.put("msg", "Tag already exists.");
       response.put("tagId", getExistantTagId(tag));
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     } catch (TagValidationException e) {
       response.put("msg", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);

@@ -181,7 +181,7 @@ public class ArtifactService {
     }
     if (!(project.getOwnerId().equals(user.getUserId())
         || user.getTeamIds().contains(artifact.getTeamId()))) {
-      response.put("msg", "User is not authorized to view this artifact");
+      response.put("msg", "User is not authorized to view this artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -242,7 +242,7 @@ public class ArtifactService {
     }
     if (!(project.getOwnerId().equals(user.getUserId())
         || user.getTeamIds().contains(artifact.getTeamId()))) {
-      response.put("msg", "User is not authorized to view this artifact");
+      response.put("msg", "User is not authorized to view this artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -602,7 +602,7 @@ public class ArtifactService {
     if (!(project.getOwnerId().equals(user.getUserId())
         || (team.getUserIds().contains(user.getUserId())
             && tag.getCreatedBy().equals(user.getUserId())))) {
-      response.put("msg", "User is not authorized to remove this tag from the artifact");
+      response.put("msg", "User is not authorized to remove this tag from the artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
