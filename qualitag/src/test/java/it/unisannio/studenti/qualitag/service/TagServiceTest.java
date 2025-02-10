@@ -37,6 +37,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * Tests the TagService class.
+ */
 public class TagServiceTest {
 
   @Mock
@@ -51,11 +54,13 @@ public class TagServiceTest {
   @InjectMocks
   private TagService tagService;
 
-  private Tag tag1, tag2;
+  private Tag tag1;
+  private Tag tag2;
   private Artifact artifact;
   private User user;
 
-  private TagCreateDto tagCreateDto1, tagCreateDto2;
+  private TagCreateDto tagCreateDto1;
+  private TagCreateDto tagCreateDto2;
   private TagUpdateDto tagUpdateDto;
 
   /**
@@ -65,34 +70,28 @@ public class TagServiceTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    //Initialize the objects
+    // Initialize the objects
     tag1 = new Tag("TAG1", "6798e2740b80b85362a8ba90", "#fff8de");
     tag1.setTagId("6744ba6c60e0564864250e89");
     tag2 = new Tag("TAG2", "6798e2740b80b85362a8ba90", "#295f98");
     tag2.setTagId("6755b79afc22f97c06a34275");
 
-    user = new User("user1", "user1@example.com",
-        "password1", "Jane", "Doe");
+    user = new User("user1", "user1@example.com", "password1", "Jane", "Doe");
     user.setUserId("6798e2740b80b85362a8ba90");
-    user.setTagIds(new ArrayList<>
-        (Arrays.asList(tag1.getTagId(), tag2.getTagId())));
+    user.setTagIds(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag2.getTagId())));
 
-    artifact = new Artifact("artifactName",
-        "projectId", "teamId", "filePath");
+    artifact = new Artifact("artifactName", "projectId", "teamId", "filePath");
     artifact.setArtifactId("6754705c8d6446369ca02b62");
-    artifact.setTags(new ArrayList<>(Arrays.asList(tag1.getTagId()
-        , tag2.getTagId())));
+    artifact.setTags(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag2.getTagId())));
     tag1.setArtifactIds(new ArrayList<>(List.of(artifact.getArtifactId())));
     tag2.setArtifactIds(new ArrayList<>(List.of(artifact.getArtifactId())));
 
-    //Initialize the DTO
-    tagCreateDto1 = new TagCreateDto("TAG3",
-        "6798e2740b80b85362a8ba90", "#fff8de");
-    tagCreateDto2 = new TagCreateDto("TAG4",
-        "6798e2740b80b85362a8ba90", "#295f98");
+    // Initialize the DTO
+    tagCreateDto1 = new TagCreateDto("TAG3", "6798e2740b80b85362a8ba90", "#fff8de");
+    tagCreateDto2 = new TagCreateDto("TAG4", "6798e2740b80b85362a8ba90", "#295f98");
     tagUpdateDto = new TagUpdateDto("NEWVALUE", "#d0e8c5");
 
-    //Initialize authorization details
+    // Initialize authorization details
     // Mock SecurityContextHolder to provide an authenticated user
     Authentication authentication = mock(Authentication.class);
     when(authentication.isAuthenticated()).thenReturn(true);
@@ -109,11 +108,9 @@ public class TagServiceTest {
    * @throws TagValidationException if the tag is invalid
    */
   @Test
-  public void testCreateTag_Success()
-      throws TagValidationException {
-    //Arrange
-    Tag newTag = new Tag("TAG3",
-        "6798e2740b80b85362a8ba90", "#fff8de");
+  public void testCreateTagSuccess() throws TagValidationException {
+    // Arrange
+    Tag newTag = new Tag("TAG3", "6798e2740b80b85362a8ba90", "#fff8de");
 
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(userRepository.existsByUsername("user1")).thenReturn(true);
@@ -126,10 +123,10 @@ public class TagServiceTest {
 
     when(tagMapper.toEntity(any(TagCreateDto.class))).thenReturn(newTag);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(tagCreateDto1);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag added successfully.");
@@ -138,14 +135,13 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the createTag method when the tag has the same values but different
+   * Tests an execution of the createTag method when the tag has the same values but different.
    * artifacts
    */
   @Test
-  public void testCreateTag_SameTagButDifferentArtifacts() {
-    //Arrange
-    Tag newTag = new Tag("TAG2",
-        "6798e2740b80b85362a8ba90", "#fff8de");
+  public void testCreateTagSameTagButDifferentArtifacts() {
+    // Arrange
+    Tag newTag = new Tag("TAG2", "6798e2740b80b85362a8ba90", "#fff8de");
     newTag.setArtifactIds(new ArrayList<>(List.of("6754705c8d6446369ca02b64")));
 
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
@@ -159,10 +155,10 @@ public class TagServiceTest {
 
     when(tagMapper.toEntity(any(TagCreateDto.class))).thenReturn(newTag);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(tagCreateDto1);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag added successfully.");
@@ -174,14 +170,14 @@ public class TagServiceTest {
    * Tests an execution of the createTag method with an invalid tag.
    */
   @Test
-  public void testCreateTag_InvalidTag() {
-    //Arrange
+  public void testCreateTagInvalidTag() {
+    // Arrange
     TagCreateDto invalidTagCreateDto = new TagCreateDto("", "", "");
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(invalidTagCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag information is not valid.");
@@ -192,19 +188,19 @@ public class TagServiceTest {
    * Tests an execution of the createTag method with a tag value that is too short.
    */
   @Test
-  public void testCreateTag_ValueTooShort() {
-    //Arrange
-    TagCreateDto invalidTagCreateDto = new TagCreateDto("AB",
-        "6798e2740b80b85362a8ba90", "#fff8de");
+  public void testCreateTagValueTooShort() {
+    // Arrange
+    TagCreateDto invalidTagCreateDto =
+        new TagCreateDto("AB", "6798e2740b80b85362a8ba90", "#fff8de");
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(invalidTagCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Tag value must be at least "
-        + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long.");
+    responseBody.put("msg",
+        "Tag value must be at least " + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long.");
     assertEquals(responseBody, response.getBody());
   }
 
@@ -212,19 +208,19 @@ public class TagServiceTest {
    * Tests an execution of the createTag method with a tag value that is too long.
    */
   @Test
-  public void testCreateTag_ValueTooLong() {
-    //Arrange
-    TagCreateDto invalidTagCreateDto = new TagCreateDto("SIXTEENCHARACTERS",
-        "6798e2740b80b85362a8ba90", "#fff8de");
+  public void testCreateTagValueTooLong() {
+    // Arrange
+    TagCreateDto invalidTagCreateDto =
+        new TagCreateDto("SIXTEENCHARACTERS", "6798e2740b80b85362a8ba90", "#fff8de");
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(invalidTagCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Tag value cannot be longer than "
-        + TagConstants.MAX_TAG_VALUE_LENGTH + " characters.");
+    responseBody.put("msg",
+        "Tag value cannot be longer than " + TagConstants.MAX_TAG_VALUE_LENGTH + " characters.");
     assertEquals(responseBody, response.getBody());
   }
 
@@ -232,41 +228,41 @@ public class TagServiceTest {
    * Tests an execution of the createTag method with a tag color that is too long.
    */
   @Test
-  public void testCreateTag_ColorTooLong() {
-    //Arrange
-    TagCreateDto invalidTagCreateDto = new TagCreateDto("tag3",
-        "6798e2740b80b85362a8ba90", "#ffff8de");
+  public void testCreateTagColorTooLong() {
+    // Arrange
+    TagCreateDto invalidTagCreateDto =
+        new TagCreateDto("tag3", "6798e2740b80b85362a8ba90", "#ffff8de");
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(invalidTagCreateDto);
 
-    //Assert
+    // Assert
     int expectedLength = TagConstants.TAG_COLOR_LENGTH + 1;
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Tag color cannot be longer than " + expectedLength
-        + " characters including '#' symbol.");
+    responseBody.put("msg",
+        "Tag color cannot be longer than " + expectedLength + " characters including '#' symbol.");
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Tests an execution of the createTag method with a tag color that is too long (without #)
+   * Tests an execution of the createTag method with a tag color that is too long (without #).
    */
   @Test
-  public void testCreateTag_ColorTooLongWithoutSymbol() {
-    //Arrange
-    TagCreateDto invalidTagCreateDto = new TagCreateDto("tag3",
-        "6798e2740b80b85362a8ba90", "ffff8de");
+  public void testCreateTagColorTooLongWithoutSymbol() {
+    // Arrange
+    TagCreateDto invalidTagCreateDto =
+        new TagCreateDto("tag3", "6798e2740b80b85362a8ba90", "ffff8de");
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(invalidTagCreateDto);
 
-    //Assert
+    // Assert
     int expectedLength = TagConstants.TAG_COLOR_LENGTH;
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Tag color cannot be longer than " + expectedLength
-        + " characters including '#' symbol.");
+    responseBody.put("msg",
+        "Tag color cannot be longer than " + expectedLength + " characters including '#' symbol.");
     assertEquals(responseBody, response.getBody());
   }
 
@@ -274,15 +270,15 @@ public class TagServiceTest {
    * Tests an execution of the createTag method with a tag color is not a hexadecimal value.
    */
   @Test
-  public void testCreateTag_ColorNotHexadecimal() {
-    //Arrange
-    TagCreateDto invalidTagCreateDto = new TagCreateDto("tag3",
-        "6798e2740b80b85362a8ba90", "#ffff8z");
+  public void testCreateTagColorNotHexadecimal() {
+    // Arrange
+    TagCreateDto invalidTagCreateDto =
+        new TagCreateDto("tag3", "6798e2740b80b85362a8ba90", "#ffff8z");
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(invalidTagCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag color must be a hexadecimal value.");
@@ -290,18 +286,18 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the createTag method when createdBy camp is too long
+   * Tests an execution of the createTag method when createdBy camp is too long.
    */
   @Test
-  public void testCreateTag_CreatedByTooLong() {
-    //Arrange
-    TagCreateDto invalidTagCreateDto = new TagCreateDto("tag3",
-        "InvalidUserItsInvalidOhMy", "#fff8de");
+  public void testCreateTagCreatedByTooLong() {
+    // Arrange
+    TagCreateDto invalidTagCreateDto =
+        new TagCreateDto("tag3", "InvalidUserItsInvalidOhMy", "#fff8de");
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(invalidTagCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "User does not exist.");
@@ -309,13 +305,12 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the createTag method when the tag already exist
+   * Tests an execution of the createTag method when the tag already exist.
    */
   @Test
-  public void testCreateTag_TagAlreadyExist() {
-    //Arrange
-    Tag newTag = new Tag("TAG3",
-        "6798e2740b80b85362a8ba90", "#fff8de");
+  public void testCreateTagTagAlreadyExist() {
+    // Arrange
+    Tag newTag = new Tag("TAG3", "6798e2740b80b85362a8ba90", "#fff8de");
     newTag.setArtifactIds(new ArrayList<>(List.of("6754705c8d6446369ca02b62")));
 
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
@@ -329,10 +324,10 @@ public class TagServiceTest {
 
     when(tagMapper.toEntity(any(TagCreateDto.class))).thenReturn(newTag);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.createTag(tagCreateDto1);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag already exists.");
@@ -341,25 +336,21 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests a successful execution of the addTagsToArtifactAndUser method
+   * Tests a successful execution of the addTagsToArtifactAndUser method.
    *
-   * @throws NoSuchMethodException     if the method does not exist
+   * @throws NoSuchMethodException if the method does not exist
    * @throws InvocationTargetException if the method cannot be invoked
-   * @throws IllegalAccessException    if the method cannot be accessed
+   * @throws IllegalAccessException if the method cannot be accessed
    */
   @Test
-  public void testAddTagsToArtifactAndUser_Success()
+  public void testAddTagsToArtifactAndUserSuccess()
       throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    //Arrange
-    TagService tagServiceSpy = Mockito.spy(tagService);
-    Tag newTag1 = new Tag("TAG3",
-        "6798e2740b80b85362a8ba90", "#fff8de");
+    // Arrange
+    Tag newTag1 = new Tag("TAG3", "6798e2740b80b85362a8ba90", "#fff8de");
     newTag1.setTagId("67a1bc2d90e123456789ab76");
-    Tag newTag2 = new Tag("TAG4",
-        "6798e2740b80b85362a8ba90", "#295f98");
+    Tag newTag2 = new Tag("TAG4", "6798e2740b80b85362a8ba90", "#295f98");
     newTag2.setTagId("67a1bc2d90e123456789ab77");
 
-    List<TagCreateDto> tagList = new ArrayList<>(Arrays.asList(tagCreateDto1, tagCreateDto2));
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(userRepository.existsByUsername("user1")).thenReturn(true);
     when(userRepository.existsById(user.getUserId())).thenReturn(true);
@@ -374,10 +365,11 @@ public class TagServiceTest {
     when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
         .thenReturn(artifact);
 
-    Method validateTagMethod = TagService.class.getDeclaredMethod(
-        "validateTag", TagCreateDto.class);
+    Method validateTagMethod =
+        TagService.class.getDeclaredMethod("validateTag", TagCreateDto.class);
     validateTagMethod.setAccessible(true);
 
+    TagService tagServiceSpy = Mockito.spy(tagService);
     TagCreateDto validatedTagCreateDto1 =
         (TagCreateDto) validateTagMethod.invoke(tagServiceSpy, tagCreateDto1);
 
@@ -387,11 +379,12 @@ public class TagServiceTest {
     when(tagMapper.toEntity(validatedTagCreateDto1)).thenReturn(newTag1);
     when(tagMapper.toEntity(validatedTagCreateDto2)).thenReturn(newTag2);
 
-    //Act
-    ResponseEntity<?> response = tagService.addTagsToArtifactAndUser(tagList,
-        artifact.getArtifactId());
+    // Act
+    List<TagCreateDto> tagList = new ArrayList<>(Arrays.asList(tagCreateDto1, tagCreateDto2));
+    ResponseEntity<?> response =
+        tagService.addTagsToArtifactAndUser(tagList, artifact.getArtifactId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tags added successfully.");
@@ -399,21 +392,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the addTagsToArtifactAndUser method when one of the tags already exists
+   * Tests an execution of the addTagsToArtifactAndUser method when one of the tags already exists.
    */
   @Test
-  public void testAddTagsToArtifactAndUser_TagAlreadyExist()
+  public void testAddTagsToArtifactAndUserTagAlreadyExist()
       throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    //Arrange
-    TagService tagServiceSpy = Mockito.spy(tagService);
-    Tag newTag1 = new Tag("TAG3",
-        "6798e2740b80b85362a8ba90", "#fff8de");
+    // Arrange
+    Tag newTag1 = new Tag("TAG3", "6798e2740b80b85362a8ba90", "#fff8de");
     newTag1.setTagId("67a1bc2d90e123456789ab76");
-    Tag newTag2 = new Tag("TAG2",
-        "6798e2740b80b85362a8ba90", "#295f98");
+    Tag newTag2 = new Tag("TAG2", "6798e2740b80b85362a8ba90", "#295f98");
     newTag2.setTagId("67a1bc2d90e123456789ab77");
 
-    List<TagCreateDto> tagList = new ArrayList<>(Arrays.asList(tagCreateDto1, tagCreateDto2));
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(userRepository.existsByUsername("user1")).thenReturn(true);
     when(userRepository.existsById(user.getUserId())).thenReturn(true);
@@ -428,10 +417,11 @@ public class TagServiceTest {
     when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
         .thenReturn(artifact);
 
-    Method validateTagMethod = TagService.class.getDeclaredMethod(
-        "validateTag", TagCreateDto.class);
+    Method validateTagMethod =
+        TagService.class.getDeclaredMethod("validateTag", TagCreateDto.class);
     validateTagMethod.setAccessible(true);
 
+    TagService tagServiceSpy = Mockito.spy(tagService);
     TagCreateDto validatedTagCreateDto1 =
         (TagCreateDto) validateTagMethod.invoke(tagServiceSpy, tagCreateDto1);
 
@@ -441,11 +431,12 @@ public class TagServiceTest {
     when(tagMapper.toEntity(validatedTagCreateDto1)).thenReturn(newTag1);
     when(tagMapper.toEntity(validatedTagCreateDto2)).thenReturn(newTag2);
 
-    //Act
-    ResponseEntity<?> response = tagService.addTagsToArtifactAndUser(tagList,
-        artifact.getArtifactId());
+    // Act
+    List<TagCreateDto> tagList = new ArrayList<>(Arrays.asList(tagCreateDto1, tagCreateDto2));
+    ResponseEntity<?> response =
+        tagService.addTagsToArtifactAndUser(tagList, artifact.getArtifactId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag already exists.");
@@ -453,17 +444,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests a successful execution of the getTagById method
+   * Tests a successful execution of the getTagById method.
    */
   @Test
-  public void testGetTagById_Success() {
-    //Arrange
+  public void testGetTagByIdSuccess() {
+    // Arrange
     when(tagRepository.findById(tag1.getTagId())).thenReturn(java.util.Optional.of(tag1));
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagById(tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag found.");
@@ -472,17 +463,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the getTagById method when the tag is null
+   * Tests an execution of the getTagById method when the tag is null.
    */
   @Test
-  public void testGetTagById_TagIsNull() {
-    //Arrange
+  public void testGetTagByIdTagIsNull() {
+    // Arrange
     String tagId = null;
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagById(tagId);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag id is null or empty.");
@@ -490,17 +481,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the getTagById method when the tag is empty
+   * Tests an execution of the getTagById method when the tag is empty.
    */
   @Test
-  public void testGetTagById_TagIsEmpty() {
-    //Arrange
+  public void testGetTagByIdTagIsEmpty() {
+    // Arrange
     String tagId = "";
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagById(tagId);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag id is null or empty.");
@@ -508,17 +499,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the getTagById method when the tag is not found
+   * Tests an execution of the getTagById method when the tag is not found.
    */
   @Test
-  public void testGetTagById_TagNotFound() {
-    //Arrange
+  public void testGetTagByIdTagNotFound() {
+    // Arrange
     when(tagRepository.findById(tag1.getTagId())).thenReturn(java.util.Optional.empty());
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagById(tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag not found.");
@@ -527,19 +518,19 @@ public class TagServiceTest {
 
   /**
    * Tests an execution of the getTagsByArtifactId method when the logged-in user is not the creator
-   * of the tag
+   * of the tag.
    */
   @Test
-  public void testGetTagsById_NotCreator() {
+  public void testGetTagsByIdNotCreator() {
 
     tag1.setCreatedBy("67557b9355d04b383badf456");
 
     when(tagRepository.findById(tag1.getTagId())).thenReturn(java.util.Optional.of(tag1));
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagById(tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "You are not the creator of the tag.");
@@ -547,11 +538,11 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests a successful execution of getTagsByValue method
+   * Tests a successful execution of getTagsByValue method.
    */
   @Test
-  public void testGetTagsByValue_Success() {
-    //Arrange
+  public void testGetTagsByValueSuccess() {
+    // Arrange
     TagResponseDto tagResponseDto = new TagResponseDto(tag1.getTagId(), tag1.getTagValue(),
         tag1.getCreatedBy(), tag1.getColorHex());
 
@@ -560,79 +551,79 @@ public class TagServiceTest {
     when(tagMapper.getResponseDtoList(new ArrayList<>(List.of(tag1))))
         .thenReturn(new ArrayList<>(List.of(tagResponseDto)));
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByValue(tag1.getTagValue());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(List.of(tagResponseDto), response.getBody());
   }
 
   /**
-   * Tests an execution of the getTagsByValue method when the tag value is null
+   * Tests an execution of the getTagsByValue method when the tag value is null.
    */
   @Test
-  public void testGetTagsByValue_TagValueIsNull() {
-    //Arrange
+  public void testGetTagsByValueTagValueIsNull() {
+    // Arrange
     String tagValue = null;
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByValue(tagValue);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Tag value is null or empty.", response.getBody());
   }
 
   /**
-   * Tests an execution of the getTagsByValue method when the tag value is empty
+   * Tests an execution of the getTagsByValue method when the tag value is empty.
    */
   @Test
-  public void testGetTagsByValue_TagValueIsEmpty() {
-    //Arrange
+  public void testGetTagsByValueTagValueIsEmpty() {
+    // Arrange
     String tagValue = "";
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByValue(tagValue);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Tag value is null or empty.", response.getBody());
   }
 
   /**
-   * Tests an execution of the getTagsByValue method when no tags are found
+   * Tests an execution of the getTagsByValue method when no tags are found.
    */
   @Test
-  public void testGetTagsByValue_NoTagsFound() {
-    //Arrange
+  public void testGetTagsByValueNoTagsFound() {
+    // Arrange
     when(tagRepository.findByTagValueContaining(tag1.getTagValue().toUpperCase()))
         .thenReturn(new ArrayList<>());
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByValue(tag1.getTagValue());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     assertEquals("No tags found for the given value.", response.getBody());
   }
 
   /**
-   * Tests a successful execution of the getTagsByUser method (Input: UserId)
+   * Tests a successful execution of the getTagsByUser method (Input: UserId).
    */
   @Test
   public void testGetTagsByUserId() {
-    //Arrange
+    // Arrange
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
     when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByUser(user.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     List<Tag> tags = new ArrayList<>(Arrays.asList(tag1, tag2));
     Map<String, Object> responseBody = new HashMap<>();
@@ -640,45 +631,45 @@ public class TagServiceTest {
     assertEquals(responseBody, response.getBody());
   }
 
-  /**
-   * Tests a successful execution of the getTagsByUser method (Input: Email)
-   */
-//  @Test
-//  public void testGetTagsByUserEmail() {
-//    //Arrange
-//    when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
-//    when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
-//    when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
-//    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
-//    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
-//
-//    //Act
-//    ResponseEntity<?> response = tagService.getTagsByUser(user.getEmail());
-//
-//    //Assert
-//    assertEquals(HttpStatus.OK, response.getStatusCode());
-//    List<Tag> tags = new ArrayList<>(Arrays.asList(tag1, tag2));
-//    Map<String, Object> responseBody = new HashMap<>();
-//    responseBody.put("tags", tags);
-//    assertEquals(responseBody, response.getBody());
-//  }
+  // /**
+  //  * Tests a successful execution of the getTagsByUser method (Input: Email)
+  //  */
+  // @Test
+  // public void testGetTagsByUserEmail() {
+  // //Arrange
+  // when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
+  // when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
+  // when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
+  // when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+  // when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
+  //
+  // //Act
+  // ResponseEntity<?> response = tagService.getTagsByUser(user.getEmail());
+  //
+  // //Assert
+  // assertEquals(HttpStatus.OK, response.getStatusCode());
+  // List<Tag> tags = new ArrayList<>(Arrays.asList(tag1, tag2));
+  // Map<String, Object> responseBody = new HashMap<>();
+  // responseBody.put("tags", tags);
+  // assertEquals(responseBody, response.getBody());
+  // }
 
   /**
-   * Tests a successful execution of the getTagsByUser method (Input: Username)
+   * Tests a successful execution of the getTagsByUser method (Input: Username).
    */
   @Test
   public void testGetTagsByUsername() {
-    //Arrange
+    // Arrange
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
     when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByUser(user.getUsername());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     List<Tag> tags = new ArrayList<>(Arrays.asList(tag1, tag2));
     Map<String, Object> responseBody = new HashMap<>();
@@ -687,17 +678,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the getTagsByUser method when the user id is null
+   * Tests an execution of the getTagsByUser method when the user id is null.
    */
   @Test
-  public void testGetTagsByUser_UserIdIsNull() {
-    //Arrange
+  public void testGetTagsByUserUserIdIsNull() {
+    // Arrange
     String userId = null;
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByUser(userId);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "User id is null or empty.");
@@ -705,17 +696,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the getTagsByUser method when the user id is empty
+   * Tests an execution of the getTagsByUser method when the user id is empty.
    */
   @Test
-  public void testGetTagsByUser_UserIdIsEmpty() {
-    //Arrange
+  public void testGetTagsByUserUserIdIsEmpty() {
+    // Arrange
     String userId = "";
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByUser(userId);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "User id is null or empty.");
@@ -723,17 +714,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the getTagsByUser method when the user is not found
+   * Tests an execution of the getTagsByUser method when the user is not found.
    */
   @Test
-  public void testGetTagsByUser_UserNotFound() {
-    //Arrange
+  public void testGetTagsByUserUserNotFound() {
+    // Arrange
     when(userRepository.findByUserId(user.getUserId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByUser(user.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "User not found.");
@@ -741,18 +732,18 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the getTagsByUser method when the user doesn't have any tags
+   * Tests an execution of the getTagsByUser method when the user doesn't have any tags.
    */
   @Test
-  public void testGetTagsByUser_UserHasNoTags() {
-    //Arrange
+  public void testGetTagsByUserUserHasNoTags() {
+    // Arrange
     user.setTagIds(new ArrayList<>());
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByUser(user.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("tags", new ArrayList<>());
@@ -760,19 +751,19 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the getTagsByUser method when the tags are not found
+   * Tests an execution of the getTagsByUser method when the tags are not found.
    */
   @Test
-  public void testGetTagsByUser_TagsNotFound() {
-    //Arrange
+  public void testGetTagsByUserTagsNotFound() {
+    // Arrange
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(null);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.getTagsByUser(user.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag not found.");
@@ -780,21 +771,21 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests a successful execution of the deleteTag method
+   * Tests a successful execution of the deleteTag method.
    */
   @Test
-  public void testDeleteTag_Success() {
-    //Arrange
+  public void testDeleteTagSuccess() {
+    // Arrange
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
     when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
         .thenReturn(artifact);
     when(tagRepository.existsById(tag1.getTagId())).thenReturn(false);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.deleteTag(tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag deleted successfully.");
@@ -802,17 +793,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTag method when the tag id is null
+   * Tests an execution of the deleteTag method when the tag id is null.
    */
   @Test
-  public void testDeleteTag_TagIdNull() {
-    //Arrange
+  public void testDeleteTagTagIdNull() {
+    // Arrange
     String tagIdNull = null;
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.deleteTag(tagIdNull);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag id is null or empty.");
@@ -820,14 +811,14 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTag method when the tag id is null
+   * Tests an execution of the deleteTag method when the tag id is null.
    */
   @Test
-  public void testDeleteTag_TagIdEmpty() {
-    //Act
+  public void testDeleteTagTagIdEmpty() {
+    // Act
     ResponseEntity<?> response = tagService.deleteTag("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag id is null or empty.");
@@ -835,17 +826,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTag method where the tag is not found
+   * Tests an execution of the deleteTag method where the tag is not found.
    */
   @Test
-  public void testDeleteTag_TagNotFound() {
-    //Arrange
+  public void testDeleteTagTagNotFound() {
+    // Arrange
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.deleteTag(tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag not found.");
@@ -853,20 +844,20 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTag method where the user is not the creator of the tag
+   * Tests an execution of the deleteTag method where the user is not the creator of the tag.
    */
   @Test
-  public void testDeleteTag_UserNotCreator() {
-    //Arrange
+  public void testDeleteTagUserNotCreator() {
+    // Arrange
     tag1.setCreatedBy("67557b9355d04b383badf456");
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.deleteTag(tag1.getTagId());
 
     System.out.println(response.getBody());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "You are not the creator of the tag.");
@@ -874,21 +865,21 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTag method where the tag is not deleted
+   * Tests an execution of the deleteTag method where the tag is not deleted.
    */
   @Test
-  public void testDeleteTag_TagNotDeleted() {
-    //Arrange
+  public void testDeleteTagTagNotDeleted() {
+    // Arrange
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(userRepository.findByUserId(user.getUserId())).thenReturn(user);
-    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).
-        thenReturn(artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
     when(tagRepository.existsById(tag1.getTagId())).thenReturn(true);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.deleteTag(tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag not deleted.");
@@ -896,20 +887,20 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests a successuful execution of the updateTag method
+   * Tests a successuful execution of the updateTag method.
    */
   @Test
-  public void testUpdateTag_Success() {
-    //Arrange
+  public void testUpdateTagSuccess() {
+    // Arrange
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
     when(userRepository.findByUserId(tag1.getCreatedBy())).thenReturn(user);
     when(tagRepository.save(tag1)).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag updated successfully.");
@@ -917,17 +908,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the updateTag method where the tagId is null
+   * Tests an execution of the updateTag method where the tagId is null.
    */
   @Test
-  public void testUpdateTag_TagIdNull() {
-    //Arrange
+  public void testUpdateTagTagIdNull() {
+    // Arrange
     String tagIdNull = null;
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, tagIdNull);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag id is null or empty.");
@@ -935,14 +926,14 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the updateTag method where the tagId is empty
+   * Tests an execution of the updateTag method where the tagId is empty.
    */
   @Test
-  public void testUpdateTag_TagIdEmpty() {
-    //Act
+  public void testUpdateTagTagIdEmpty() {
+    // Act
     ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, "");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag id is null or empty.");
@@ -950,17 +941,17 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the updateTag method where the tag is not found
+   * Tests an execution of the updateTag method where the tag is not found.
    */
   @Test
-  public void testUpdateTag_TagNotFound() {
-    //Arrange
+  public void testUpdateTagTagNotFound() {
+    // Arrange
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag not found.");
@@ -968,18 +959,18 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the updateTag method where the user is not the creator of the tag
+   * Tests an execution of the updateTag method where the user is not the creator of the tag.
    */
   @Test
-  public void testUpdateTag_UserNotCreator() {
-    //Arrange
+  public void testUpdateTagUserNotCreator() {
+    // Arrange
     tag1.setCreatedBy("67557b9355d04b383badf456");
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(tagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "You are not the creator of the tag.");
@@ -987,18 +978,18 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the updateTag method where the new tag information is not valid
+   * Tests an execution of the updateTag method where the new tag information is not valid.
    */
   @Test
-  public void testUpdateTag_InvalidTag() {
-    //Arrange
+  public void testUpdateTagInvalidTag() {
+    // Arrange
     TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("", "");
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag information is not valid.");
@@ -1006,79 +997,79 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the updateTag method where the tag value is too short
+   * Tests an execution of the updateTag method where the tag value is too short.
    */
   @Test
-  public void testUpdateTag_ValueTooShort() {
-    //Arrange
+  public void testUpdateTagValueTooShort() {
+    // Arrange
     TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("AB", "#d0e8c5");
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Tag value must be at least "
-        + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long.");
+    responseBody.put("msg",
+        "Tag value must be at least " + TagConstants.MIN_TAG_VALUE_LENGTH + " characters long.");
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Tests an execution of the updateTag method where the tag value is too long
+   * Tests an execution of the updateTag method where the tag value is too long.
    */
   @Test
-  public void testUpdateTag_ValueTooLong() {
-    //Arrange
+  public void testUpdateTagValueTooLong() {
+    // Arrange
     TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("SIXTEENCHARACTERS", "#d0e8c5");
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Tag value cannot be longer than "
-        + TagConstants.MAX_TAG_VALUE_LENGTH + " characters.");
+    responseBody.put("msg",
+        "Tag value cannot be longer than " + TagConstants.MAX_TAG_VALUE_LENGTH + " characters.");
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Tests an execution of the updateTag method where the tag color is too long
+   * Tests an execution of the updateTag method where the tag color is too long.
    */
   @Test
-  public void testUpdateTag_ColorTooLong() {
-    //Arrange
+  public void testUpdateTagColorTooLong() {
+    // Arrange
     TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("tag3", "#ffff8de");
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     int expectedLength = TagConstants.TAG_COLOR_LENGTH + 1;
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "Tag color cannot be longer than " + expectedLength
-        + " characters including '#' symbol.");
+    responseBody.put("msg",
+        "Tag color cannot be longer than " + expectedLength + " characters including '#' symbol.");
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Tests an execution of the updateTag method where the tag color is too long (without #)
+   * Tests an execution of the updateTag method where the tag color is too long (without #).
    */
   @Test
-  public void testUpdateTag_ColorTooLongWithoutSymbol() {
-    //Arrange
+  public void testUpdateTagColorTooLongWithoutSymbol() {
+    // Arrange
     TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("tag3", "ffff8de");
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag color cannot be longer than " + TagConstants.TAG_COLOR_LENGTH
@@ -1087,18 +1078,18 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the updateTag method where the tag color is not a hexadecimal value
+   * Tests an execution of the updateTag method where the tag color is not a hexadecimal value.
    */
   @Test
-  public void testUpdateTag_ColorNotHexadecimal() {
-    //Arrange
+  public void testUpdateTagColorNotHexadecimal() {
+    // Arrange
     TagUpdateDto invalidTagUpdateDto = new TagUpdateDto("tag3", "#ffff8z");
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(invalidTagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Tag color must be a hexadecimal value.");
@@ -1106,12 +1097,12 @@ public class TagServiceTest {
   }
 
   /**
-   * Tests an execution of the updateTag method where the user already has a tag with the same
-   * value
+   * Tests an execution of the updateTag method where the user already has a tag with the same 
+   * value.
    */
   @Test
-  public void testUpdateTag_TagAlreadyExist() {
-    //Arrange
+  public void testUpdateTagTagAlreadyExist() {
+    // Arrange
     TagUpdateDto sameTagUpdateDto = new TagUpdateDto("TAG2", "#d0e8c5");
 
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
@@ -1119,10 +1110,10 @@ public class TagServiceTest {
     when(userRepository.findByUserId(tag1.getCreatedBy())).thenReturn(user);
     when(tagRepository.save(tag1)).thenReturn(tag1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = tagService.updateTag(sameTagUpdateDto, tag1.getTagId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "User already has a tag with the same value.");
