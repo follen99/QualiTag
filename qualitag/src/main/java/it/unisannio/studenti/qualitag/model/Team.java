@@ -1,6 +1,5 @@
 package it.unisannio.studenti.qualitag.model;
 
-import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

@@ -38,8 +38,7 @@ public class UserTest {
    * Test the empty constructor of the User class.
    */
   @Test
-  public void
-  testEmptyConstructor() {
+  public void testEmptyConstructor() {
     User newUser = new User();
     assertNull(newUser.getUserId());
     assertNull(newUser.getUsername());

@@ -287,7 +287,7 @@ public class ProjectTest {
   }
 
   /**
-   * Tests the toProjectInfoDto method
+   * Tests the toProjectInfoDto method.
    */
   @Test
   public void testToProjectInfoDto() {
@@ -299,7 +299,7 @@ public class ProjectTest {
   }
 
   /**
-   * Tests the toProjectInfoDto method with a null projectStatus
+   * Tests the toProjectInfoDto method with a null projectStatus.
    */
   @Test
   public void testToProjectInfoDtoNullProjectStatus() {
@@ -312,7 +312,7 @@ public class ProjectTest {
   }
 
   /**
-   * Tests the toProjectInfoDto method with a null project name
+   * Tests the toProjectInfoDto method with a null project name.
    */
   @Test
   public void testToProjectInfoDtoNullProjectName() {
@@ -325,7 +325,7 @@ public class ProjectTest {
   }
 
   /**
-   * Tests the toProjectInfoDto method with a null project description
+   * Tests the toProjectInfoDto method with a null project description.
    */
   @Test
   public void testToProjectInfoDtoNullProjectDescription() {
@@ -338,7 +338,7 @@ public class ProjectTest {
   }
 
   /**
-   * Tests the toResponseProjectDto method
+   * Tests the toResponseProjectDto method.
    */
   @Test
   public void testToResponseProjectDto() {
@@ -354,7 +354,7 @@ public class ProjectTest {
   }
 
   /**
-   * Tests the toResponseProjectDto method with a null project name
+   * Tests the toResponseProjectDto method with a null project name.
    */
   @Test
   public void testToResponseProjectDtoNullProjectName() {
@@ -371,7 +371,7 @@ public class ProjectTest {
   }
 
   /**
-   * Tests the toResponseProjectDto method with a null project description
+   * Tests the toResponseProjectDto method with a null project description.
    */
   @Test
   public void testToResponseProjectDtoNullProjectDescription() {
@@ -388,7 +388,7 @@ public class ProjectTest {
   }
 
   /**
-   * Tests the toResponseProjectDto method with a null project status
+   * Tests the toResponseProjectDto method with a null project status.
    */
   @Test
   public void testToResponseProjectDtoNullProjectStatus() {

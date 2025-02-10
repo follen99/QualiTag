@@ -298,7 +298,8 @@ public class TeamService {
       // Check if user is part of the project
       Project project = projectRepository.findProjectByProjectId(team.getProjectId());
       if (!project.getUserIds().contains(userId)) {
-        throw new TeamValidationException("User with ID " + userId + " is not part of the project.");
+        throw new TeamValidationException("User with ID " + userId 
+            + " is not part of the project.");
       }
 
       // If user is already in another team, switch it

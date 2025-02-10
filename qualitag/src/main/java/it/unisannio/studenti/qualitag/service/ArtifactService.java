@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
-import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
 import it.unisannio.studenti.qualitag.model.Artifact;
@@ -208,7 +208,7 @@ public class ArtifactService {
       headers.setContentType(MediaType.parseMediaType(contentType));
       headers.setContentLength(Files.size(filePath));
 
-//      return new ResponseEntity<>(file, headers, HttpStatus.OK);
+      // return new ResponseEntity<>(file, headers, HttpStatus.OK);
       return ResponseEntity.ok().headers(headers).body(file);
     } catch (IOException e) {
       // Log the exception properly
@@ -659,6 +659,13 @@ public class ArtifactService {
     return path.toString();
   }
 
+  /**
+   * Retrieves the tags created by a user for a specific artifact.
+   *
+   * @param artifactId the id of the artifact
+   * @param userIdOrEmailOrUsername the id, email, or username of the user
+   * @return the response entity
+   */
   public ResponseEntity<?> getTagsByUser(String artifactId, String userIdOrEmailOrUsername) {
     Map<String, Object> response = new HashMap<>();
     User user = null;
@@ -708,6 +715,12 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
+  /**
+   * Retrieves all the tags of an artifact.
+   *
+   * @param artifactId the id of the artifact
+   * @return the response entity
+   */
   public ResponseEntity<?> getAllTags(String artifactId) {
     Map<String, Object> response = new HashMap<>();
     if (artifactId == null || artifactId.isEmpty()) {
@@ -747,6 +760,12 @@ public class ArtifactService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
+  /**
+   * Starts the tagging process for an artifact.
+   *
+   * @param artifactId the id of the artifact to start tagging
+   * @return the response entity
+   */
   public ResponseEntity<?> startTagging(String artifactId) {
     Map<String, Object> response = new HashMap<>();
 

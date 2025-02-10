@@ -102,7 +102,8 @@ public class GmailService {
     if (!isResourceFileExists(resourcePath)) {
       if (!isRunningFromJar()) {
         Files.copy(tempDir.resolve("StoredCredential"), 
-            Paths.get(getClass().getClassLoader().getResource("credentials/tokens").toURI()).resolve("StoredCredential"), 
+            Paths.get(getClass().getClassLoader().getResource("credentials/tokens")
+                .toURI()).resolve("StoredCredential"), 
             StandardCopyOption.REPLACE_EXISTING);
       }
 

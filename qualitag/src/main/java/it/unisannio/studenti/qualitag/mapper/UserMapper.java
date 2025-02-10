@@ -25,6 +25,7 @@ public class UserMapper {
   /**
    * Converts the user to a UserSortResponseDTO.
    *
+   * @param user The user to convert.
    * @return The UserSortResponseDTO.
    */
   public static UserShortResponseDto toUserShortResponseDto(User user) {
@@ -35,6 +36,12 @@ public class UserMapper {
         user.getProjectRolesAsString());
   }
 
+  /**
+   * CConverts the user to a UserResponseDto.
+   *
+   * @param user The user to convert.
+   * @return The UserResponseDTO.
+   */
   public static UserResponseDto toUserResponseDto(User user) {
     return new UserResponseDto(user.getUsername(),
         user.getEmail(),

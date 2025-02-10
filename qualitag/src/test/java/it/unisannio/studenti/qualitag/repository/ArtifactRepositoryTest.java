@@ -1,8 +1,8 @@
 package it.unisannio.studenti.qualitag.repository;
 
-import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.when;
 
 import it.unisannio.studenti.qualitag.model.Artifact;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,14 +47,14 @@ class ArtifactRepositoryTest {
    * Test the findArtifactByArtifactId method when the artifact is not found.
    */
   @Test
-  void testFindArtifactByArtifactId_NotFound() {
+  void testFindArtifactByArtifactIdNotFound() {
     when(artifactRepository.findArtifactByArtifactId("artifactId2")).thenReturn(null);
     Artifact foundArtifact = artifactRepository.findArtifactByArtifactId("artifactId2");
     assertNull(foundArtifact);
   }
 
   /**
-   * Test the delete artifact by id method
+   * Test the delete artifact by id method.
    */
   @Test
   void testDeleteArtifactByArtifactId() {

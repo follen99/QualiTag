@@ -65,7 +65,7 @@ public class ArtifactTest {
   }
 
   /**
-   * Test the constructor wit taggingOpen
+   * Test the constructor with tagging open.
    */
   @Test
   public void testConstructorWithTaggingOpen() {
@@ -288,7 +288,8 @@ public class ArtifactTest {
     artifact.setTaggingOpen(true);
     String expected = "Artifact{artifactId='null', "
         + "artifactName='artifactName', description='description', "
-        + "projectId='projectId', teamId='teamId', filePath='filePath', tags=[], isTaggingOpen=true}";
+        + "projectId='projectId', teamId='teamId', filePath='filePath', "
+        + "tags=[], isTaggingOpen=true}";
     assertEquals(expected, artifact.toString());
   }
 

@@ -78,7 +78,7 @@ public class UserService {
       }
     }
 
-//    UserInfoDisplayDto dto = userMapper.toDisplayDto(user);
+    // UserInfoDisplayDto dto = userMapper.toDisplayDto(user);
     UserResponseDto returnDto = new UserResponseDto(user.getUsername(), user.getEmail(),
         user.getName(), user.getSurname(), user.getProjectIds(), user.getTeamIds(),
         user.getTagIds(), user.getProjectRolesAsString(), user.getUserId());

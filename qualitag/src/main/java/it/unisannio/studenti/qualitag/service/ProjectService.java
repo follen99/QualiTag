@@ -122,7 +122,9 @@ public class ProjectService {
     } catch (Exception e) {
       if (e instanceof TokenResponseException) {
         TokenResponseException tokenException = (TokenResponseException) e;
-        if (tokenException.getStatusCode() == 400 && tokenException.getContent().contains("invalid_grant") && tokenException.getContent().contains("Token has been expired or revoked.")) {
+        if (tokenException.getStatusCode() == 400 
+            && tokenException.getContent().contains("invalid_grant") 
+            && tokenException.getContent().contains("Token has been expired or revoked.")) {
           // Specific behavior for this exception
           response.put("msg", """
               Internal server error: mailing service is not working.
@@ -490,7 +492,8 @@ public class ProjectService {
                   
                   Best regards,
                   %s
-                  """, user.getUsername(), project.getProjectName(), project.getProjectDescription(),
+                  """, 
+              user.getUsername(), project.getProjectName(), project.getProjectDescription(),
               userRepository.findByUserId(project.getOwnerId()).getName() + " "
                   + userRepository.findByUserId(project.getOwnerId()).getSurname());
           new GmailService().sendMail("Project Invitation", user.getEmail(), emailMessage);
@@ -900,6 +903,12 @@ public class ProjectService {
         deadlineDate.toInstant().toEpochMilli(), userIds);
   }
 
+  /**
+   * Retrieves the teams of a project.
+   *
+   * @param projectId the id of the project
+   * @return the response entity containing the list of teams or an error message
+   */
   public ResponseEntity<?> getProjectsTeams(String projectId) {
     Map<String, Object> response = new HashMap<>();
     if (projectId == null || projectId.isEmpty()) {

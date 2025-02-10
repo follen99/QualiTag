@@ -80,15 +80,29 @@ public class TagService {
     }
   }
 
+  /**
+   * Adds tags to an artifact and to the user who created them.
+   *
+   * @param tags       The tags to add.
+   * @param artifactId The id of the artifact to add the tags to.
+   * @return The response entity.
+   */
   public ResponseEntity<?> addTagsToArtifactAndUser(List<TagCreateDto> tags, String artifactId) {
     Map<String, Object> response = new HashMap<>();
     System.out.println("tags: " + tags);
     // for every tag added...
-    // TODO: si puo ottimizzare l'operazione prendendo i tag gia esistenti e vedendo le differenze con quelli passati ed aggiungere/togliere solo quelli necessari
+    /*
+      TODO: si puo ottimizzare l'operazione prendendo i tag già
+      esistenti e vedendo le differenze con quelli passati ed 
+      aggiungere/togliere solo quelli necessari
+    */
     for (TagCreateDto tagCreateDto : tags) {
       TagCreateDto correctTagDto = validateTag(tagCreateDto);
       Tag tag = tagMapper.toEntity(correctTagDto);
-      // TODO: A CHE serve avere una lista di artifacts se poi ogni tag è legato ad un singolo artifact?!
+      /*
+        TODO: A che serve avere una lista di artifacts
+        se poi ogni tag è legato ad un singolo artifact?
+      */
       tag.getArtifactIds().add(artifactId);
 
       this.tagRepository.save(tag);
@@ -399,7 +413,7 @@ public class TagService {
       throw new TagValidationException("User does not exist.");
     }
 
-// Use the userId for further processing
+    // Use the userId for further processing
     String userId = user.getUserId();
 
     return new TagCreateDto(tagValue, userId, tagColor);
@@ -471,6 +485,12 @@ public class TagService {
         "Unexpected authentication principal type: " + principal.getClass() + ".");
   }
 
+  /**
+   * Get all tags created by a user.
+   *
+   * @param userIdOrEmailOrUsername The id, email or username of the user.
+   * @return The response entity.
+   */
   public ResponseEntity<?> getTagsByUser(String userIdOrEmailOrUsername) {
     Map<String, Object> response = new HashMap<>();
     if (userIdOrEmailOrUsername == null || userIdOrEmailOrUsername.isEmpty()) {
@@ -491,7 +511,10 @@ public class TagService {
       return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    // TODO: si potrebbe ritornare una mappa con i tag e relativi numeri di occorrenze, così da mostrare quelli piu' usati
+    /*
+      TODO: si potrebbe ritornare una mappa con i tag 
+      e relativi numeri di occorrenze, così da mostrare quelli piu' usati
+    */
     List<Tag> tags = new ArrayList<>();
 
     for (String tagId : tagIds) {
@@ -522,8 +545,16 @@ public class TagService {
     return user;
   }
 
-  // TODO this is too fucking difficult to do...
-  public ResponseEntity<?> updateTagsOfAnArtifact(List<TagCreateDto> tagsFromFrontend, String artifactId) {
+  // TODO this is too difficult to do...
+  /**
+   * Updates the tags of an artifact.
+   *
+   * @param tagsFromFrontend The tags to update.
+   * @param artifactId The id of the artifact to update.
+   * @return The response entity.
+   */
+  public ResponseEntity<?> updateTagsOfAnArtifact(List<TagCreateDto> tagsFromFrontend,
+      String artifactId) {
     Map<String, Object> response = new HashMap<>();
     System.out.println("tags: " + tagsFromFrontend);
 
@@ -571,7 +602,7 @@ public class TagService {
 
 
 
-/*
+    /*
     for (TagCreateDto tagDto : tagsFromFrontend) {
       // Cerca se il tag esiste già nel database
       User user = null;
@@ -587,7 +618,8 @@ public class TagService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
       }
 
-      Optional<Tag> existingTag = tagRepository.findTagByTagValueAndCreatedBy(tagDto.tagValue(), userId);
+      Optional<Tag> existingTag = tagRepository.findTagByTagValueAndCreatedBy(
+          tagDto.tagValue(), userId);
 
       if (existingTag.isPresent()) {
         // Se esiste, aggiungi l'ID alla lista
@@ -604,9 +636,9 @@ public class TagService {
         updatedTagIds.add(newTag.getId());
       }
     }
-*/
+    */
+
     // work in progress
     return null;
-
   }
 }
