@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
 
 import it.unisannio.studenti.qualitag.constants.TeamConstants;
 import it.unisannio.studenti.qualitag.dto.team.CompletedTeamCreateDto;
@@ -72,12 +72,20 @@ public class TeamServiceTest {
   private TeamService teamService;
 
   private TeamCreateDto teamCreateDto;
-  //  private CompletedTeamCreateDto completedTeamCreateDto;
+  // private CompletedTeamCreateDto completedTeamCreateDto;
   private Team team;
+
   private Project project;
-  private User owner, user1, user2, user3;
+
+  private User owner;
+  private User user1;
+  private User user2;
+  private User user3;
+
   private Artifact artifact;
-  private Tag tag1, tag2;
+
+  private Tag tag1;
+  private Tag tag2;
 
   /**
    * Sets up the test environment.
@@ -85,58 +93,51 @@ public class TeamServiceTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    //Initialize entities
-    team = new Team("teamName", "projectId",
-        123456789L, "teamDescription",
+    // Initialize entities
+    team = new Team("teamName", "projectId", 123456789L, "teamDescription",
         new ArrayList<>(Arrays.asList("user1Id", "user2Id")));
     team.setTeamId("teamId");
 
     long creationDate = Instant.now().toEpochMilli();
     long deadline = Instant.parse("2025-12-31T23:59:59Z").toEpochMilli();
-    project = new Project("projectName", "projectDescription",
-        creationDate, deadline, "ownerId", new ArrayList<>());
+    project = new Project("projectName", "projectDescription", creationDate, deadline, "ownerId",
+        new ArrayList<>());
     project.setProjectId("projectId");
     project.setUserIds(Arrays.asList("ownerId", "user1Id", "user2Id", "user3Id"));
-    owner = new User("username", "user@example.com",
-        "hashedPassword123", "John", "Doe");
+    owner = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
     owner.setUserId("ownerId");
 
-    //additional users
-    user1 = new User("user1", "user1@example.com",
-        "password", "Jane", "Doe");
+    // additional users
+    user1 = new User("user1", "user1@example.com", "password", "Jane", "Doe");
     user1.setUserId("user1Id");
     user1.setTeamIds(new ArrayList<>(List.of("teamId")));
-    user2 = new User("user2", "user2@example.com",
-        "password", "Alice", "Smith");
+    user2 = new User("user2", "user2@example.com", "password", "Alice", "Smith");
     user2.setUserId("user2Id");
     user2.setTeamIds(new ArrayList<>(List.of("teamId")));
-    user3 = new User("user3", "user3@example.com", "password",
-        "Bob", "Johnson");
+    user3 = new User("user3", "user3@example.com", "password", "Bob", "Johnson");
     user3.setUserId("user3Id");
     user3.setTeamIds(new ArrayList<>());
 
-    //tags and artifacts
+    // tags and artifacts
     tag1 = new Tag("6744ba6c60e0564864250e89", "tag1Name", "projectId");
     tag1.setCreatedBy(user1.getUserId());
     tag2 = new Tag("6755b79afc22f97c06a34275", "tag2Name", "projectId");
     tag2.setCreatedBy(user2.getUserId());
 
-    artifact = new Artifact("artifactName",
-        "projectId", "teamId", "filePath");
+    artifact = new Artifact("artifactName", "projectId", "teamId", "filePath");
     artifact.setArtifactId("artifactId");
     artifact.setTags(new ArrayList<>(Arrays.asList("tagId1", "tagId2")));
 
-    //add artifact to team
+    // add artifact to team
     team.setArtifactIds(List.of("artifactId"));
 
-    //Initialize DTO
-    teamCreateDto = new TeamCreateDto("teamName", "teamDescription",
-        "projectId", new ArrayList<>(Arrays.asList("user1@example.com",
-        "user2@example.com")));
-//    completedTeamCreateDto = new CompletedTeamCreateDto("teamName",
-//        "projectId", 123456789L, "teamDescription",
-//        Arrays.asList("user1", "user2")
-//    );
+    // Initialize DTO
+    teamCreateDto = new TeamCreateDto("teamName", "teamDescription", "projectId",
+        new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
+    // completedTeamCreateDto = new CompletedTeamCreateDto("teamName",
+    // "projectId", 123456789L, "teamDescription",
+    // Arrays.asList("user1", "user2")
+    // );
 
     // Mock SecurityContextHolder to provide an authenticated user
     Authentication authentication = mock(Authentication.class);
@@ -149,13 +150,12 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests a successful execution of the addTeam Method
+   * Tests a successful execution of the addTeam Method.
    */
   @Test
-  void testAddTeam_success() {
+  void testAddTeamsuccess() {
     // Arrange
-    when(projectRepository.findProjectByProjectId(project.getProjectId()))
-        .thenReturn(project);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(teamRepository.save(any(Team.class))).thenReturn(team);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
@@ -174,13 +174,12 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where the TeamCreateDto is invalid
+   * Tests an execution of the addTeam method where the TeamCreateDto is invalid.
    */
   @Test
-  void testAddTeam_InvalidDto() {
+  void testAddTeamInvalidDto() {
     // Arrange
-    TeamCreateDto invalidDto = new TeamCreateDto("",
-        "", "", new ArrayList<>());
+    TeamCreateDto invalidDto = new TeamCreateDto("", "", "", new ArrayList<>());
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(invalidDto);
@@ -193,15 +192,14 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where the project is not found
+   * Tests an execution of the addTeam method where the project is not found.
    *
    * @throws TeamValidationException if the project is not found
    */
   @Test
-  void testAddTeam_ProjectNotFound() throws TeamValidationException {
+  void testAddTeamProjectNotFound() throws TeamValidationException {
     // Arrange
-    when(projectRepository.findProjectByProjectId(project.getProjectId()))
-        .thenReturn(null);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
@@ -214,15 +212,14 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where the user is not the project owner
+   * Tests an execution of the addTeam method where the user is not the project owner.
    *
    * @throws TeamValidationException if the user is not the project owner
    */
   @Test
-  void testAddTeam_UserNotProjectOwner() throws TeamValidationException {
+  void testAddTeamUserNotProjectOwner() throws TeamValidationException {
     // Arrange
-    when(projectRepository.findProjectByProjectId(project.getProjectId()))
-        .thenReturn(project);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     project.setOwnerId("NotOwnerId");
@@ -238,19 +235,17 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where the team name is too short
+   * Tests an execution of the addTeam method where the team name is too short.
    *
    * @throws TeamValidationException if the team name is too short
    */
   @Test
-  void testAddTeam_NameTooShort() throws TeamValidationException {
+  void testAddTeamNameTooShort() throws TeamValidationException {
     // Arrange
-    teamCreateDto = new TeamCreateDto("aa", "teamDescription",
-        "projectId", new ArrayList<>(Arrays.asList("user2@example.com",
-        "user3@example.com")));
+    teamCreateDto = new TeamCreateDto("aa", "teamDescription", "projectId",
+        new ArrayList<>(Arrays.asList("user2@example.com", "user3@example.com")));
 
-    when(projectRepository.findProjectByProjectId(project.getProjectId()))
-        .thenReturn(project);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
@@ -264,19 +259,17 @@ public class TeamServiceTest {
   }
 
   /**
-   * tests an execution of the addTeam method where the team name is too long
+   * tests an execution of the addTeam method where the team name is too long.
    *
    * @throws TeamValidationException if the team name is too long
    */
   @Test
-  void testAddTeam_NameTooLong() throws TeamValidationException {
+  void testAddTeamNameTooLong() throws TeamValidationException {
     // Arrange
-    teamCreateDto = new TeamCreateDto("teamNameIsTooLong",
-        "teamDescription", "projectId",
+    teamCreateDto = new TeamCreateDto("teamNameIsTooLong", "teamDescription", "projectId",
         new ArrayList<>(Arrays.asList("user2@example.com", "user3@example.com")));
 
-    when(projectRepository.findProjectByProjectId(project.getProjectId()))
-        .thenReturn(project);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
@@ -290,16 +283,14 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where the owner email is in the list
+   * Tests an execution of the addTeam method where the owner email is in the list.
    *
    * @throws TeamValidationException if the owner email is in the list
    */
   @Test
-  void testAddTeam_OwnerEmailNotInList() throws TeamValidationException {
-    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
-        "projectId",
-        new ArrayList<>(Arrays.asList("user@example.com", "user1@example.com",
-            "user2@example.com")));
+  void testAddTeamOwnerEmailNotInList() throws TeamValidationException {
+    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription", "projectId", new ArrayList<>(
+        Arrays.asList("user@example.com", "user1@example.com", "user2@example.com")));
 
     // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
@@ -316,19 +307,18 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where the team has not enough users
+   * Tests an execution of the addTeam method where the team has not enough users.
    *
    * @throws TeamValidationException if the team has not enough users
    */
   @Test
-  void testAddTeam_NotEnoughUsers() throws TeamValidationException {
+  void testAddTeamNotEnoughUsers() throws TeamValidationException {
     // Arrange
-    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
-        "projectId", new ArrayList<>(List.of(user2.getEmail())));
+    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription", "projectId",
+        new ArrayList<>(List.of(user2.getEmail())));
 
     // Arrange
-    when(projectRepository.findProjectByProjectId(project.getProjectId()))
-        .thenReturn(project);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
     // Act
@@ -337,61 +327,51 @@ public class TeamServiceTest {
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "A team must have at least " + TeamConstants.MIN_TEAM_USERS
-        + " users.");
+    responseBody.put("msg", "A team must have at least " 
+        + TeamConstants.MIN_TEAM_USERS + " users.");
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Tests an execution of the addTeam method where the team has too many users
+   * Tests an execution of the addTeam method where the team has too many users.
    *
    * @throws TeamValidationException if the team has too many users
    */
   @Test
-  void testAddTeam_TooManyUsers() throws TeamValidationException {
-    //Creation of all the users
-    User user3 = new User("user3", "user3@example.com",
-        "password", "FirstName3", "LastName3");
+  void testAddTeamTooManyUsers() throws TeamValidationException {
+    // Creation of all the users
+    User user3 = new User("user3", "user3@example.com", "password", "FirstName3", "LastName3");
     user3.setUserId("user3Id");
 
-    User user4 = new User("user4", "user4@example.com",
-        "password", "FirstName4", "LastName4");
+    User user4 = new User("user4", "user4@example.com", "password", "FirstName4", "LastName4");
     user4.setUserId("user4Id");
 
-    User user5 = new User("user5", "user5@example.com",
-        "password", "FirstName5", "LastName5");
+    User user5 = new User("user5", "user5@example.com", "password", "FirstName5", "LastName5");
     user5.setUserId("user5Id");
 
-    User user6 = new User("user6", "user6@example.com",
-        "password", "FirstName6", "LastName6");
+    User user6 = new User("user6", "user6@example.com", "password", "FirstName6", "LastName6");
     user6.setUserId("user6Id");
 
-    User user7 = new User("user7", "user7@example.com",
-        "password", "FirstName7", "LastName7");
+    User user7 = new User("user7", "user7@example.com", "password", "FirstName7", "LastName7");
     user7.setUserId("user7Id");
 
-    User user8 = new User("user8", "user8@example.com",
-        "password", "FirstName8", "LastName8");
+    User user8 = new User("user8", "user8@example.com", "password", "FirstName8", "LastName8");
     user8.setUserId("user8Id");
 
-    User user9 = new User("user9", "user9@example.com",
-        "password", "FirstName9", "LastName9");
+    User user9 = new User("user9", "user9@example.com", "password", "FirstName9", "LastName9");
     user9.setUserId("user9Id");
 
-    User user10 = new User("user10", "user10@example.com",
-        "password", "FirstName10", "LastName10");
+    User user10 = new User("user10", "user10@example.com", "password", "FirstName10", "LastName10");
     user10.setUserId("user10Id");
 
-    User user11 = new User("user11", "user11@example.com",
-        "password", "FirstName11", "LastName11");
+    User user11 = new User("user11", "user11@example.com", "password", "FirstName11", "LastName11");
     user11.setUserId("user11Id");
 
     // Arrange
-    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
-        "projectId", new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com"
-        , "user3@example.com", "user4@example.com", "user5@example.com", "user6@example.com"
-        , "user7@example.com", "user8@example.com", "user9@example.com", "user10@example.com",
-        "user11@example.com")));
+    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription", "projectId",
+        new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com", "user3@example.com",
+            "user4@example.com", "user5@example.com", "user6@example.com", "user7@example.com",
+            "user8@example.com", "user9@example.com", "user10@example.com", "user11@example.com")));
 
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
@@ -427,21 +407,21 @@ public class TeamServiceTest {
     // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
-    responseBody.put("msg", "A team cannot have more than " +
-        TeamConstants.MAX_TEAM_USERS + " users.");
+    responseBody.put("msg",
+        "A team cannot have more than " + TeamConstants.MAX_TEAM_USERS + " users.");
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Tests an execution of the addTeam method where there is an empty email in the list
+   * Tests an execution of the addTeam method where there is an empty email in the list.
    *
    * @throws TeamValidationException if there is an empty email in the list
    */
   @Test
-  void testAddTeam_EmptyEmail() throws TeamValidationException {
+  void testAddTeamEmptyEmail() throws TeamValidationException {
     // Arrange
-    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
-        "projectId", new ArrayList<>(Arrays.asList("", "user2@example.come")));
+    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription", "projectId",
+        new ArrayList<>(Arrays.asList("", "user2@example.come")));
 
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
@@ -457,13 +437,13 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where there is a null email in the list
+   * Tests an execution of the addTeam method where there is a null email in the list.
    */
   @Test
-  void testAddTeam_NullEmail() {
+  void testAddTeamNullEmail() {
     // Arrange
-    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription",
-        "projectId", new ArrayList<>(Arrays.asList(null, "user2@example.come")));
+    teamCreateDto = new TeamCreateDto("TeamName", "teamDescription", "projectId",
+        new ArrayList<>(Arrays.asList(null, "user2@example.come")));
 
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
@@ -479,12 +459,12 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where the email does not exist
+   * Tests an execution of the addTeam method where the email does not exist.
    *
    * @throws TeamValidationException if the email does not exist
    */
   @Test
-  void addTeam_EmailDoesNotExist() throws TeamValidationException {
+  void addTeamEmailDoesNotExist() throws TeamValidationException {
     // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
@@ -501,12 +481,12 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the addTeam method where the team description is too long
+   * Tests an execution of the addTeam method where the team description is too long.
    *
    * @throws TeamValidationException if the team description is too long
    */
   @Test
-  void addTeam_TeamDescriptionTooLong() throws TeamValidationException {
+  void addTeamTeamDescriptionTooLong() throws TeamValidationException {
     // Arrange
     teamCreateDto = new TeamCreateDto("teamName",
         "This is a very long team description that is intentionally written to"
@@ -516,8 +496,7 @@ public class TeamServiceTest {
             + "By including a variety of words and phrases, we can make sure that the description "
             + "is sufficiently lengthy to trigger the validation error. This should be more than "
             + "enough characters to exceed the limit.",
-        "projectId", new ArrayList<>(Arrays.asList("user1@example.com",
-        "user2@example.com")));
+        "projectId", new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
 
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
@@ -533,29 +512,25 @@ public class TeamServiceTest {
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Team description is too long. Max is "
-        + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH +
-        " characters including whitespaces.");
+        + TeamConstants.MAX_TEAM_DESCRIPTION_LENGTH + " characters including whitespaces.");
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Tests an execution of the addTeam method where the team description is empty
+   * Tests an execution of the addTeam method where the team description is empty.
    *
-   * @throws NoSuchMethodException     if the validateTeam method is not found
+   * @throws NoSuchMethodException if the validateTeam method is not found
    * @throws InvocationTargetException if the validateTeam method cannot be invoked
-   * @throws IllegalAccessException    if the validateTeam method cannot be accessed
+   * @throws IllegalAccessException if the validateTeam method cannot be accessed
    */
   @Test
-  void testAddTeam_TeamDescriptionEmpty()
+  void testAddTeamTeamDescriptionEmpty()
       throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    //Arrange
-    teamCreateDto = new TeamCreateDto("teamName", null,
-        "projectId", new ArrayList<>(Arrays.asList("user1@example.com",
-        "user2@example.com")));
+    // Arrange
+    teamCreateDto = new TeamCreateDto("teamName", null, "projectId",
+        new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
 
-    //Arrange: Set up mock objects and spy on the service class
-    TeamService teamServiceSpy = Mockito.spy(teamService);
-
+    // Arrange: Set up mock objects and spy on the service class
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
@@ -563,29 +538,31 @@ public class TeamServiceTest {
     when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
 
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+
     // Act
     ResponseEntity<?> response = teamService.addTeam(teamCreateDto);
 
-    //Use reflection to invoke the private method 'validateTeam'
-    Method validateTeamMethod = TeamService.class.getDeclaredMethod("validateTeam",
-        TeamCreateDto.class);
+    // Use reflection to invoke the private method 'validateTeam'
+    Method validateTeamMethod =
+        TeamService.class.getDeclaredMethod("validateTeam", TeamCreateDto.class);
     validateTeamMethod.setAccessible(true); // Make the method accessible
 
-    CompletedTeamCreateDto result = (CompletedTeamCreateDto) validateTeamMethod.
-        invoke(teamServiceSpy, teamCreateDto);
+    CompletedTeamCreateDto result =
+        (CompletedTeamCreateDto) validateTeamMethod.invoke(teamServiceSpy, teamCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
     assertEquals("Hi, we are team teamName!", result.teamDescription());
   }
 
   /**
-   * Tests an execution of the addTeam method where the user does not exist in the database
+   * Tests an execution of the addTeam method where the user does not exist in the database.
    *
    * @throws TeamValidationException if the user does not exist
    */
   @Test
-  void testAddTeam_UserIdDoesNotExist() throws TeamValidationException {
+  void testAddTeamUserIdDoesNotExist() throws TeamValidationException {
     // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
@@ -605,13 +582,13 @@ public class TeamServiceTest {
     assertEquals(responseBody, response.getBody());
   }
 
-  //TODO: Add test for when an user is the team is already in an another team
+  // TODO: Add test for when an user is the team is already in an another team
 
   /**
-   * Tests the addTeam method where the user is not part of the project
+   * Tests the addTeam method where the user is not part of the project.
    */
   @Test
-  void testAddTeam_UserIsNotPartOfProject() {
+  void testAddTeamUserIsNotPartOfProject() {
     // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
@@ -636,22 +613,15 @@ public class TeamServiceTest {
 
   /**
    * Tests and AddTeam execution by using reflection to see if the CompletedTeamCreateDto is created
-   * correctly
+   * correctly.
    *
-   * @throws NoSuchMethodException     if the validateTeam method is not found
+   * @throws NoSuchMethodException if the validateTeam method is not found
    * @throws InvocationTargetException if the validateTeam method cannot be invoked
-   * @throws IllegalAccessException    if the validateTeam method cannot be accessed
+   * @throws IllegalAccessException if the validateTeam method cannot be accessed
    */
   @Test
-  void testAddTeam_success_usingReflection()
+  void testAddTeamsuccessusingReflection()
       throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    // Arrange: Set up mock objects and spy on TeamService
-    TeamService teamServiceSpy = Mockito.spy(teamService);
-
-    // Prepare DTO
-    TeamCreateDto teamCreateDto = new TeamCreateDto("teamName",
-        "teamDescription", "projectId",
-        new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
 
     // Mock necessary repository calls
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
@@ -659,19 +629,25 @@ public class TeamServiceTest {
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
     when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
 
+    // Arrange: Set up mock objects and spy on TeamService
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+
+    // Prepare DTO
+    TeamCreateDto teamCreateDto = new TeamCreateDto("teamName", "teamDescription", "projectId",
+        new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
+
     // Prepare the expected CompletedTeamCreateDto
-    CompletedTeamCreateDto expectedDto = new CompletedTeamCreateDto("teamName",
-        "projectId", 123456789L,
-        "teamDescription", Arrays.asList("user1Id", "user2Id"));
+    CompletedTeamCreateDto expectedDto = new CompletedTeamCreateDto("teamName", "projectId",
+        123456789L, "teamDescription", Arrays.asList("user1Id", "user2Id"));
 
     // Use reflection to invoke the private method 'validateTeam'
-    Method validateTeamMethod = TeamService.class.getDeclaredMethod("validateTeam",
-        TeamCreateDto.class);
+    Method validateTeamMethod =
+        TeamService.class.getDeclaredMethod("validateTeam", TeamCreateDto.class);
     validateTeamMethod.setAccessible(true); // Make the method accessible
 
     // Act: Invoke the private method
-    CompletedTeamCreateDto result = (CompletedTeamCreateDto) validateTeamMethod.
-        invoke(teamServiceSpy, teamCreateDto);
+    CompletedTeamCreateDto result =
+        (CompletedTeamCreateDto) validateTeamMethod.invoke(teamServiceSpy, teamCreateDto);
 
     // Assert: Check if 'creationDate' is non-negative and if userIds match
     assertTrue(result.creationDate() >= 0); // Ensure creationDate is valid (non-negative)
@@ -682,34 +658,33 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests the method addTeamToUsers with reflection, in the case where the team i null
+   * Tests the method addTeamToUsers with reflection, in the case where the team is null.
    */
   @Test
-  void testAddTeamToUsers_TeamNull() {
-    //Arrange
+  void testAddTeamToUsersTeamNull() {
+    // Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
     team = null;
 
     InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
-      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod("addTeamToUsers",
-          Team.class);
+      Method addTeamToUsersMethod =
+          TeamService.class.getDeclaredMethod("addTeamToUsers", Team.class);
       addTeamToUsersMethod.setAccessible(true);
       addTeamToUsersMethod.invoke(teamServiceSpy, team);
     });
 
-    //Assert
+    // Assert
     Throwable cause = exception.getCause();
     assertNotNull(cause, "Expected an exception cause but found null.");
-    assertInstanceOf(TeamValidationException.class, cause,
-        "Expected a TeamValidationException.");
+    assertInstanceOf(TeamValidationException.class, cause, "Expected a TeamValidationException.");
     assertEquals("Team cannot be null.", cause.getMessage());
   }
 
   /**
-   * Tests the method addTeamToUsers with reflection, in the case where the team has a null user
+   * Tests the method addTeamToUsers with reflection, in the case where the team has a null user.
    */
   @Test
-  void testAddTeamToUsers_UserIdNull() {
+  void testAddTeamToUsersUserIdNull() {
     // Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
@@ -717,8 +692,8 @@ public class TeamServiceTest {
 
     // Act & Assert
     InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
-      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod(
-          "addTeamToUsers", Team.class);
+      Method addTeamToUsersMethod =
+          TeamService.class.getDeclaredMethod("addTeamToUsers", Team.class);
       addTeamToUsersMethod.setAccessible(true);
       addTeamToUsersMethod.invoke(teamServiceSpy, team);
     });
@@ -726,16 +701,15 @@ public class TeamServiceTest {
     // Assert the cause
     Throwable cause = exception.getCause();
     assertNotNull(cause, "Expected an exception cause but found null.");
-    assertInstanceOf(TeamValidationException.class, cause,
-        "Expected a TeamValidationException.");
+    assertInstanceOf(TeamValidationException.class, cause, "Expected a TeamValidationException.");
     assertEquals("User ID is null or empty.", cause.getMessage());
   }
 
   /**
-   * Tests the method addTeamToUsers with reflection, in the case where the team has an empty user
+   * Tests the method addTeamToUsers with reflection, in the case where the team has an empty user.
    */
   @Test
-  void testAddTeamToUsers_UserIdEmpty() {
+  void testAddTeamToUsersUserIdEmpty() {
     // Arrange
     TeamService teamServiceSpy = Mockito.spy(teamService);
 
@@ -743,8 +717,8 @@ public class TeamServiceTest {
 
     // Act & Assert
     InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
-      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod(
-          "addTeamToUsers", Team.class);
+      Method addTeamToUsersMethod =
+          TeamService.class.getDeclaredMethod("addTeamToUsers", Team.class);
       addTeamToUsersMethod.setAccessible(true);
       addTeamToUsersMethod.invoke(teamServiceSpy, team);
     });
@@ -752,28 +726,28 @@ public class TeamServiceTest {
     // Assert the cause
     Throwable cause = exception.getCause();
     assertNotNull(cause, "Expected an exception cause but found null.");
-    assertInstanceOf(TeamValidationException.class, cause,
-        "Expected a TeamValidationException.");
+    assertInstanceOf(TeamValidationException.class, cause, "Expected a TeamValidationException.");
     assertEquals("User ID is null or empty.", cause.getMessage());
   }
 
 
   /**
-   * Tests the method addTeamToUsers with reflection, in the case where the user does not exist
+   * Tests the method addTeamToUsers with reflection, in the case where the user does not exist.
    */
   @Test
-  void testAddTeamToUsers_UserDoesNotExist() {
+  void testAddTeamToUsersUserDoesNotExist() {
     // Arrange
-    TeamService teamServiceSpy = Mockito.spy(teamService);
 
     team.setUserIds(Arrays.asList("nonexistentUser", user1.getUserId()));
     when(userRepository.findByUserId("nonexistentUser")).thenReturn(null);
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
 
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+
     // Act & Assert
     InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
-      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod(
-          "addTeamToUsers", Team.class);
+      Method addTeamToUsersMethod =
+          TeamService.class.getDeclaredMethod("addTeamToUsers", Team.class);
       addTeamToUsersMethod.setAccessible(true);
       addTeamToUsersMethod.invoke(teamServiceSpy, team);
     });
@@ -781,174 +755,170 @@ public class TeamServiceTest {
     // Assert the cause
     Throwable cause = exception.getCause();
     assertNotNull(cause, "Expected an exception cause but found null.");
-    assertInstanceOf(TeamValidationException.class, cause,
-        "Expected a TeamValidationException.");
+    assertInstanceOf(TeamValidationException.class, cause, "Expected a TeamValidationException.");
     assertEquals("User with ID nonexistentUser does not exist.", cause.getMessage());
   }
 
   /**
    * Tests the method addTeamToUsers with reflection, in the case where the user is not part of the
-   * project
+   * project.
    */
   @Test
-  void testAddTeamToUsers_UserNotInProject() {
-    //Arrange
-    TeamService teamServiceSpy = Mockito.spy(teamService);
-
+  void testAddTeamToUsersUserNotInProject() {
+    // Arrange
     team.setProjectId(project.getProjectId());
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
 
+    TeamService teamServiceSpy = Mockito.spy(teamService);
+
     project.setUserIds(Arrays.asList("user1Id", "user3Id")); // User not in project
     when(projectRepository.findProjectByProjectId("projectId")).thenReturn(project);
 
-    //Act
+    // Act
     InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
-      Method addTeamToUsersMethod = TeamService.class.getDeclaredMethod
-          ("addTeamToUsers", Team.class);
+      Method addTeamToUsersMethod =
+          TeamService.class.getDeclaredMethod("addTeamToUsers", Team.class);
       addTeamToUsersMethod.setAccessible(true);
       addTeamToUsersMethod.invoke(teamServiceSpy, team);
     });
 
-    //Assert
+    // Assert
     Throwable cause = exception.getCause();
     assertNotNull(cause, "Expected an exception cause but found null.");
-    assertInstanceOf(TeamValidationException.class, cause,
-        "Expected a TeamValidationException.");
+    assertInstanceOf(TeamValidationException.class, cause, "Expected a TeamValidationException.");
     assertEquals("User with ID " + user2.getUserId() + " is not part of the project.",
         cause.getMessage());
   }
 
   /**
-   * Tests a successful execution of the  getTeamsByProject method
+   * Tests a successful execution of the getTeamsByProject method.
    */
   @Test
   void testGetTeamsByProject() {
-    //Arrange
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(teamRepository.existsByProjectId(project.getProjectId())).thenReturn(true);
-    when(teamRepository.findTeamsByProjectId(project.getProjectId()))
-        .thenReturn(List.of(team));
+    when(teamRepository.findTeamsByProjectId(project.getProjectId())).thenReturn(List.of(team));
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamsByProject(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(List.of(team), response.getBody());
   }
 
   /**
-   * Tests an execution of the getTeamsByProject method where the project is null
+   * Tests an execution of the getTeamsByProject method where the project is null.
    */
   @Test
-  void testGetTeamsByProject_ProjectNull() {
-    //Act
+  void testGetTeamsByProjectProjectNull() {
+    // Act
     ResponseEntity<?> response = teamService.getTeamsByProject(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Project ID is null or empty.", response.getBody());
   }
 
   /**
-   * Tests an execution of the getTeamsByProject method where the project is empty
+   * Tests an execution of the getTeamsByProject method where the project is empty.
    */
   @Test
-  void testGetTeamsByProject_ProjectEmpty() {
-    //Act
+  void testGetTeamsByProjectProjectEmpty() {
+    // Act
     ResponseEntity<?> response = teamService.getTeamsByProject("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Project ID is null or empty.", response.getBody());
   }
 
   /**
-   * Tests an execution of the getTeamsByProject method where there no teams found for the project
+   * Tests an execution of the getTeamsByProject method where there no teams found for the project.
    */
   @Test
-  void testGetTeamsByProject_NoTeamsFound() {
-    //Arrange
+  void testGetTeamsByProjectNoTeamsFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(teamRepository.existsByProjectId(project.getProjectId())).thenReturn(false);
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamsByProject("projectId");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     assertEquals("No teams found for project ID projectId.", response.getBody());
   }
 
   /**
-   * Tests a successful execution of the getTeamByUser method
+   * Tests a successful execution of the getTeamByUser method.
    */
   @Test
   void testGetTeamsByUser() {
-    //Arrange
+    // Arrange
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
     when(teamRepository.existsByUserIdsContaining(user1.getUserId())).thenReturn(true);
     when(teamRepository.findByUserIdsContaining(user1.getUserId())).thenReturn(List.of(team));
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamsByUser(user1.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(List.of(team), response.getBody());
   }
 
   /**
-   * Tests an execution of the getTeamsByUser method where the user is null
+   * Tests an execution of the getTeamsByUser method where the user is null.
    */
   @Test
-  void testGetTeamsByUser_UserNull() {
-    //Act
+  void testGetTeamsByUserUserNull() {
+    // Act
     ResponseEntity<?> response = teamService.getTeamsByUser(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("User ID is null or empty.", response.getBody());
   }
 
   /**
-   * Tests an execution of the getTeamsByUser method where the user is empty
+   * Tests an execution of the getTeamsByUser method where the user is empty.
    */
   @Test
-  void testGetTeamsByUser_UserEmpty() {
-    //Act
+  void testGetTeamsByUserUserEmpty() {
+    // Act
     ResponseEntity<?> response = teamService.getTeamsByUser("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("User ID is null or empty.", response.getBody());
   }
 
   /**
-   * Tests an execution of the getTeamsByUser method where there are no teams found for the user
+   * Tests an execution of the getTeamsByUser method where there are no teams found for the user.
    */
   @Test
-  void testGetTeamsByUser_NoTeamsFound() {
-    //Arrange
+  void testGetTeamsByUserNoTeamsFound() {
+    // Arrange
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
     when(teamRepository.existsByUserIdsContaining(user1.getUserId())).thenReturn(false);
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamsByUser(user1.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("No teams found for user ID " + user1.getUserId() + "."
-        , response.getBody());
+    assertEquals("No teams found for user ID " + user1.getUserId() + ".", response.getBody());
   }
 
   /**
-   * Tests a successful execution of the deleteTeam method
+   * Tests a successful execution of the deleteTeam method.
    */
   @Test
   void testDeleteTeam() {
-    //Arrange
+    // Arrange
     when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.ofNullable(team));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(projectRepository.save(project)).thenReturn(project);
@@ -959,13 +929,13 @@ public class TeamServiceTest {
     when(userRepository.save(user1)).thenReturn(user1);
     when(teamRepository.existsById(team.getTeamId())).thenReturn(false);
 
-    when(artifactService.deleteArtifact(artifact.getArtifactId())).
-        thenReturn(ResponseEntity.ok().build());
+    when(artifactService.deleteArtifact(artifact.getArtifactId()))
+        .thenReturn(ResponseEntity.ok().build());
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.deleteTeam(team.getTeamId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Team deleted successfully.");
@@ -973,14 +943,14 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTeam method where the team is null
+   * Tests an execution of the deleteTeam method where the team is null.
    */
   @Test
-  void testDeleteTeam_TeamNull() {
-    //Act
+  void testDeleteTeamTeamNull() {
+    // Act
     ResponseEntity<?> response = teamService.deleteTeam(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Team ID is null or empty.");
@@ -988,14 +958,14 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTeam method where the team is empty
+   * Tests an execution of the deleteTeam method where the team is empty.
    */
   @Test
-  void testDeleteTeam_TeamEmpty() {
-    //Act
+  void testDeleteTeamTeamEmpty() {
+    // Act
     ResponseEntity<?> response = teamService.deleteTeam("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Team ID is null or empty.");
@@ -1003,17 +973,17 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTeam method where the team is not found
+   * Tests an execution of the deleteTeam method where the team is not found.
    */
   @Test
-  void testDeleteTeam_TeamNotFound() {
-    //Arrange
+  void testDeleteTeamTeamNotFound() {
+    // Arrange
     when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.empty());
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.deleteTeam(team.getTeamId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Team not found.");
@@ -1021,18 +991,18 @@ public class TeamServiceTest {
   }
 
   /**
-   * Test an execution of the deleteTeam method where the project is not found
+   * Test an execution of the deleteTeam method where the project is not found.
    */
   @Test
-  void testDeleteTeam_ProjectNotFound() {
-    //Arrange
+  void testDeleteTeamProjectNotFound() {
+    // Arrange
     when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.ofNullable(team));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.deleteTeam("teamId");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -1040,11 +1010,11 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTeam method where the user is not found
+   * Tests an execution of the deleteTeam method where the user is not found.
    */
   @Test
-  void testDeleteTeam_UserNotFound() {
-    //Arrange
+  void testDeleteTeamUserNotFound() {
+    // Arrange
     when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.ofNullable(team));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(projectRepository.save(project)).thenReturn(project);
@@ -1053,10 +1023,10 @@ public class TeamServiceTest {
     when(userRepository.save(user1)).thenReturn(user1);
     when(userRepository.findById(user2.getUserId())).thenReturn(Optional.empty());
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.deleteTeam(team.getTeamId());
 
-    //Assert
+    // Assert
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "User with ID " + user2.getUserId() + " not found.");
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -1064,11 +1034,11 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteTeam method where the team is not deleted
+   * Tests an execution of the deleteTeam method where the team is not deleted.
    */
   @Test
-  void testDeleteTeam_TeamNotDeleted() {
-    //Arrange
+  void testDeleteTeamTeamNotDeleted() {
+    // Arrange
     when(teamRepository.findById(team.getTeamId())).thenReturn(Optional.ofNullable(team));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(projectRepository.save(project)).thenReturn(project);
@@ -1079,13 +1049,13 @@ public class TeamServiceTest {
     when(userRepository.save(user1)).thenReturn(user1);
     when(teamRepository.existsById(team.getTeamId())).thenReturn(true);
 
-    when(artifactService.deleteArtifact(artifact.getArtifactId())).
-        thenReturn(ResponseEntity.ok().build());
+    when(artifactService.deleteArtifact(artifact.getArtifactId()))
+        .thenReturn(ResponseEntity.ok().build());
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.deleteTeam(team.getTeamId());
 
-    //Assert
+    // Assert
     Map<String, String> responseBody = new HashMap<>();
     responseBody.put("msg", "Team not deleted.");
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -1093,24 +1063,24 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests a successful execution of the getTeamIrr method
+   * Tests a successful execution of the getTeamIrr method.
    */
   @Test
-  void testGetTeamIrr_Success() {
-    //Arrange
+  void testGetTeamIrrSuccess() {
+    // Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(
-        artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
     when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
 
     String mockAlphaResponse = "{\"alpha\": 0.85}";
     when(pythonClientService.getKrippendorffAlpha(Mockito.anyList())).thenReturn(mockAlphaResponse);
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -1121,17 +1091,17 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the getTeamIrr method where the team is not found
+   * Tests an execution of the getTeamIrr method where the team is not found.
    */
   @Test
-  void testGetTeamIrr_TeamNotFound() {
-    //Arrange
+  void testGetTeamIrrTeamNotFound() {
+    // Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -1141,18 +1111,18 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the getTeamIrr method where the artifact is not found
+   * Tests an execution of the getTeamIrr method where the artifact is not found.
    */
   @Test
-  void testGetTeamIrr_ArtifactNotFound() {
-    //Arrange
+  void testGetTeamIrrArtifactNotFound() {
+    // Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
     when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -1162,41 +1132,41 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution of the getTeamIrr method where the tag is not found
+   * Tests an execution of the getTeamIrr method where the tag is not found.
    */
   @Test
-  void testGetTeamIrr_NoTagsForArtifact() {
-    //Arrange
+  void testGetTeamIrrNoTagsForArtifact() {
+    // Arrange
     artifact.setTags(new ArrayList<>()); // Artifact has no tags
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(
-        artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
 
     String mockAlphaResponse = "{\"alpha\": 1.0}";
     when(pythonClientService.getKrippendorffAlpha(Mockito.anyList())).thenReturn(mockAlphaResponse);
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Successfully retrieved Krippendorff's alpha.");
-    responseBody.put("irr", 1.0); //Default alpha value
+    responseBody.put("irr", 1.0); // Default alpha value
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Tests an execution of the getTeamIrr method where the tag creator is mismatched
+   * Tests an execution of the getTeamIrr method where the tag creator is mismatched.
    */
   @Test
-  void testGetTeamIrr_TagCreatedByUserMismatch() {
-    //Arrange
+  void testGetTeamIrrTagCreatedByUserMismatch() {
+    // Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(
-        artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
 
     tag1.setCreatedBy("otherUserId"); // No user in the team matches this creator
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
@@ -1205,25 +1175,25 @@ public class TeamServiceTest {
     String mockAlphaResponse = "{\"alpha\": 0.0}";
     when(pythonClientService.getKrippendorffAlpha(Mockito.anyList())).thenReturn(mockAlphaResponse);
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.getTeamIrr(team.getTeamId());
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Successfully retrieved Krippendorff's alpha.");
-    responseBody.put("irr", 0.0); //Alpha drops due to mismatch
+    responseBody.put("irr", 0.0); // Alpha drops due to mismatch
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Test a successful execution of UpdateTeamUsers method
+   * Test a successful execution of UpdateTeamUsers method.
    */
   @Test
-  void testUpdateTeamUsers_Success() {
-    //Arrange
+  void testUpdateTeamUsersSuccess() {
+    // Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
@@ -1236,12 +1206,12 @@ public class TeamServiceTest {
 
     List<String> userEmails = Arrays.asList(user1.getEmail(), user3.getEmail());
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(), userEmails);
 
     System.out.println(response.getBody());
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -1249,23 +1219,23 @@ public class TeamServiceTest {
     assertEquals(responseBody, response.getBody());
     verify(teamRepository).save(team);
     assertEquals(Arrays.asList(user1.getUserId(), user3.getUserId()), team.getUserIds());
-    assertTrue(user3.getTeamIds().contains("teamId")); //This doesn't work apparently...
+    assertTrue(user3.getTeamIds().contains("teamId")); // This doesn't work apparently...
     assertFalse(user2.getTeamIds().contains("teamId"));
   }
 
   /**
-   * Tests an execution of testUpdateUsers where the team is null
+   * Tests an execution of testUpdateUsers where the team is null.
    */
   @Test
-  void testUpdateTeamUsers_TeamNull() {
-    //Arrange
+  void testUpdateTeamUsersTeamNull() {
+    // Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(null);
     List<String> userEmails = Arrays.asList(user1.getEmail(), user3.getEmail());
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(), userEmails);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Team not found.");
@@ -1273,17 +1243,17 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution for updateTeamUses where the user is not found
+   * Tests an execution for updateTeamUses where the user is not found.
    */
   @Test
-  void testUpdateTeamUsers_UserNotFound() {
-    //Arrange
+  void testUpdateTeamUsersUserNotFound() {
+    // Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(null);
     List<String> userEmails = Arrays.asList(user1.getEmail(), user3.getEmail());
 
-    //Act
+    // Act
     ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(), userEmails);
 
     //
