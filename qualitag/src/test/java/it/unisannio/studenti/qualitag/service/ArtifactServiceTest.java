@@ -98,7 +98,6 @@ class ArtifactServiceTest {
   /**
    * Set up the test environment.
    */
-  /*
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
@@ -159,7 +158,7 @@ class ArtifactServiceTest {
 
     //Initialize the DTO
     artifactCreateDto = new ArtifactCreateDto(artifact.getArtifactName(),
-        artifact.getDescription(), project.getProjectId(), file);
+        artifact.getDescription(), project.getProjectId(), null, file);
     wholeArtifactDto =
         new WholeArtifactDto(artifact.getArtifactId(),
             artifact.getArtifactName(), artifact.getDescription(), artifact.getProjectId(),
@@ -178,7 +177,6 @@ class ArtifactServiceTest {
     when(securityContext.getAuthentication()).thenReturn(authentication);
     SecurityContextHolder.setContext(securityContext);
   }
-        */
 
   /**
    * Tests a successful execution of the addArtifact method.
@@ -221,7 +219,7 @@ class ArtifactServiceTest {
   public void testAddArtifact_InvalidDto() {
     //Arrange
     ArtifactCreateDto invalidDto = new ArtifactCreateDto(null,
-        "artifactDescription", project.getProjectId(), file);
+        "artifactDescription", project.getProjectId(), null, file);
 
     //Act
     ResponseEntity<?> response = artifactService.addArtifact(invalidDto);

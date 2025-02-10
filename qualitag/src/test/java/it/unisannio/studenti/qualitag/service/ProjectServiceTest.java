@@ -23,6 +23,7 @@ import it.unisannio.studenti.qualitag.dto.project.WholeProjectDto;
 import it.unisannio.studenti.qualitag.dto.project.WholeProjectHeavyDto;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
+import it.unisannio.studenti.qualitag.dto.user.UserResponseDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import it.unisannio.studenti.qualitag.exception.ProjectValidationException;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
@@ -884,10 +885,10 @@ public class ProjectServiceTest {
         (artifact2.getArtifactId())).thenReturn(artifact2);
 
     //Create the expected WholeProjectHeavyDto
-    List<UserShortResponseDto> shortResponseUserDto = new ArrayList<>();
-    shortResponseUserDto.add(UserMapper.toUserShortResponseDto(owner));
-    shortResponseUserDto.add(UserMapper.toUserShortResponseDto(user1));
-    shortResponseUserDto.add(UserMapper.toUserShortResponseDto(user2));
+    List<UserResponseDto> shortResponseUserDto = new ArrayList<>();
+    shortResponseUserDto.add(UserMapper.toUserResponseDto(owner));
+    shortResponseUserDto.add(UserMapper.toUserResponseDto(user1));
+    shortResponseUserDto.add(UserMapper.toUserResponseDto(user2));
 
     List<WholeTeamDto> wholeTeamDto = new ArrayList<>();
     wholeTeamDto.add(TeamMapper.toWholeTeamDto(team));
