@@ -62,6 +62,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * Tests the ProjectService class.
+ */
 public class ProjectServiceTest {
 
   @Mock
@@ -81,12 +84,25 @@ public class ProjectServiceTest {
   @InjectMocks
   private ProjectService projectService;
 
-  private ProjectCreateDto projectCreateDto, projectModifyDto;
-  private Artifact artifact1, artifact2;
+  private ProjectCreateDto projectCreateDto;
+  private ProjectCreateDto projectModifyDto;
+
+  private Artifact artifact1;
+  private Artifact artifact2;
+
   private Project project;
-  private User user1, user2, owner, otherUser;
+
+  private User user1;
+  private User user2;
+  private User owner;
+  private User otherUser;
+
   private Team team;
-  private Tag tag1, tag2, tag3, tag4;
+
+  private Tag tag1;
+  private Tag tag2;
+  private Tag tag3;
+  private Tag tag4;
 
 
   /**
@@ -96,7 +112,7 @@ public class ProjectServiceTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    //Initialize the objects
+    // Initialize the objects
     tag1 = new Tag("TAG1", "6798e2740b80b85362a8ba90", "#fff8de");
     tag1.setTagId("6744ba6c60e0564864250e89");
     tag2 = new Tag("TAG2", "6798e2740b80b85362a8ba90", "#295f98");
@@ -106,68 +122,57 @@ public class ProjectServiceTest {
     tag4 = new Tag("TAG4", "6798e2740b80b85362a8ba90", "#295f98");
     tag4.setTagId("6755b79afc22f97c06a34277");
 
-    user1 = new User("user1", "user1@example.com",
-        "password1", "Jane", "Doe");
+    user1 = new User("user1", "user1@example.com", "password1", "Jane", "Doe");
     user1.setUserId("6798e2740b80b85362a8ba90");
-    user1.setTagIds(new ArrayList<>(Arrays.asList(tag1.getTagId()
-        , tag2.getTagId())));
-    user2 = new User("user2", "user2@example.com",
-        "password2", "John", "Doe");
+    user1.setTagIds(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag2.getTagId())));
+    user2 = new User("user2", "user2@example.com", "password2", "John", "Doe");
     user2.setUserId("6798e6740b70b85362a8ba91");
-    owner = new User("owner", "owner@example.com",
-        "password3", "Alice", "Smith");
+    owner = new User("owner", "owner@example.com", "password3", "Alice", "Smith");
     owner.setUserId("6998e2740b87d85362a8ba58");
-    otherUser = new User("otherUser", "other@example.com", "password",
-        "Bob", "Johnson");
+    otherUser = new User("otherUser", "other@example.com", "password", "Bob", "Johnson");
     otherUser.setUserId("6798e2740b80b85362a8ba92");
 
-    artifact1 = new Artifact("artifact1Name",
-        "projectId", "teamId", "filePath1");
+    artifact1 = new Artifact("artifact1Name", "projectId", "teamId", "filePath1");
     artifact1.setArtifactId("6754705c8d6446369ca02b62");
-    artifact1.setTags(new ArrayList<>(Arrays.asList(tag1.getTagId()
-        , tag2.getTagId())));
+    artifact1.setTags(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag2.getTagId())));
     tag1.setArtifactIds(new ArrayList<>(Collections.singletonList(artifact1.getArtifactId())));
     tag2.setArtifactIds(new ArrayList<>(Collections.singletonList(artifact1.getArtifactId())));
-    artifact2 = new Artifact("artifact2Name",
-        "projectId", "teamId", "filePath2");
+    artifact2 = new Artifact("artifact2Name", "projectId", "teamId", "filePath2");
     artifact2.setArtifactId("6754705c8d6446369ca02b63");
-    artifact2.setTags(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag3.getTagId()
-        , tag4.getTagId())));
-    tag1.setArtifactIds(new ArrayList<>(Arrays.asList(artifact1.getArtifactId(),
-        artifact2.getArtifactId())));
+    artifact2
+        .setTags(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag3.getTagId(), tag4.getTagId())));
+    tag1.setArtifactIds(
+        new ArrayList<>(Arrays.asList(artifact1.getArtifactId(), artifact2.getArtifactId())));
     tag3.setArtifactIds(new ArrayList<>(Collections.singletonList(artifact2.getArtifactId())));
     tag4.setArtifactIds(new ArrayList<>(Collections.singletonList(artifact2.getArtifactId())));
 
     long creationDate = Instant.now().toEpochMilli();
     long deadline = Instant.parse("2025-12-31T23:59:59Z").toEpochMilli();
-    project = new Project("projectName", "projectDescription",
-        creationDate, deadline, "6998e2740b87d85362a8ba58",
-        new ArrayList<>());
+    project = new Project("projectName", "projectDescription", creationDate, deadline,
+        "6998e2740b87d85362a8ba58", new ArrayList<>());
     project.setProjectId("projectId");
     project.setUserIds(new ArrayList<>(Arrays.asList("6998e2740b87d85362a8ba58",
         "6798e2740b80b85362a8ba90", "6798e6740b70b85362a8ba91")));
     user1.setProjectIds(new ArrayList<>(List.of("projectId")));
     owner.setProjectIds(new ArrayList<>(List.of("projectId")));
     project.setTeamIds(new ArrayList<>(List.of("teamId")));
-    project.setArtifactIds(new ArrayList<>(Arrays.asList(artifact1.getArtifactId(),
-        artifact2.getArtifactId())));
+    project.setArtifactIds(
+        new ArrayList<>(Arrays.asList(artifact1.getArtifactId(), artifact2.getArtifactId())));
 
-    team = new Team("teamName", "projectId",
-        123456789L, "teamDescription",
+    team = new Team("teamName", "projectId", 123456789L, "teamDescription",
         new ArrayList<>(Arrays.asList("6798e2740b80b85362a8ba90", "6798e6740b70b85362a8ba91")));
     team.setTeamId("teamId");
     user1.setTeamIds(new ArrayList<>(List.of("teamId")));
     user2.setTeamIds(new ArrayList<>(List.of("teamId")));
 
-    //Initialize the DTO
-    projectCreateDto = new ProjectCreateDto("projectName",
-        "projectDescription", "2025-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), user2.getEmail())));
-    projectModifyDto = new ProjectCreateDto("projectNewName",
-        "projectNewDescription", "2026-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), otherUser.getEmail())));
+    // Initialize the DTO
+    projectCreateDto = new ProjectCreateDto("projectName", "projectDescription",
+        "2025-12-31T23:59:59Z", new ArrayList<>(Arrays.asList(user1.getEmail(), user2.getEmail())));
+    projectModifyDto =
+        new ProjectCreateDto("projectNewName", "projectNewDescription", "2026-12-31T23:59:59Z",
+            new ArrayList<>(Arrays.asList(user1.getEmail(), otherUser.getEmail())));
 
-    //Initialize authorization details
+    // Initialize authorization details
     // Mock SecurityContextHolder to provide an authenticated user
     Authentication authentication = mock(Authentication.class);
     when(authentication.isAuthenticated()).thenReturn(true);
@@ -179,32 +184,31 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Test a successful execution of the createProject method
+   * Test a successful execution of the createProject method.
    */
   @Test
-  public void testCreateProject_Success() {
-    //Arrange
+  public void testCreateProjectSuccess() {
+    // Arrange
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
     when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
-    when(teamService.addTeam(any(TeamCreateDto.class))).
-        thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
+    when(teamService.addTeam(any(TeamCreateDto.class)))
+        .thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
 
-    //Mock static method before invoking validateProject
+    // Mock static method before invoking validateProject
     try (MockedStatic<ProjectMapper> mockedMapper = mockStatic(ProjectMapper.class);
-        MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class,
-            (mock, context) ->
-                doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
+        MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class, (mock,
+            context) -> doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
 
       mockedMapper.when(() -> ProjectMapper.toEntity(any(CompletedProjectCreationDto.class)))
-          .thenReturn(project); //Ensure this runs before validateProject
+          .thenReturn(project); // Ensure this runs before validateProject
 
-      //Act
+      // Act
       ResponseEntity<?> response = projectService.createProject(projectCreateDto);
 
-      //Assert
+      // Assert
       assertEquals(HttpStatus.CREATED, response.getStatusCode());
       Map<String, Object> responseBody = new HashMap<>();
       responseBody.put("msg", "Project created successfully.");
@@ -215,18 +219,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Test an execution of the createProject method with an invalidDto
+   * Test an execution of the createProject method with an invalidDto.
    */
   @Test
-  public void testCreateProject_InvalidDto() {
-    //Arrange
-    ProjectCreateDto invalidDto = new ProjectCreateDto("", "",
-        "", new ArrayList<>());
+  public void testCreateProjectInvalidDto() {
+    // Arrange
+    ProjectCreateDto invalidDto = new ProjectCreateDto("", "", "", new ArrayList<>());
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(invalidDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "All fields must be filled.");
@@ -234,17 +237,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Test an execution of the createProject method with an existing project name
+   * Test an execution of the createProject method with an existing project name.
    */
   @Test
-  public void testCreateProject_ExistingProjectName() {
-    //Arrange
+  public void testCreateProjectExistingProjectName() {
+    // Arrange
     when(projectRepository.existsByProjectName("projectName")).thenReturn(true);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(projectCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project with name 'projectName' already exists.");
@@ -252,19 +255,19 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Test an execution of the createProject method with the deadline in the past
+   * Test an execution of the createProject method with the deadline in the past.
    */
   @Test
-  public void testCreateProject_PastDeadline() {
-    //Arrange
-    ProjectCreateDto pastDeadlineDto = new ProjectCreateDto("projectName",
-        "projectDescription", "2020-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
+  public void testCreateProjectPastDeadline() {
+    // Arrange
+    ProjectCreateDto pastDeadlineDto =
+        new ProjectCreateDto("projectName", "projectDescription", "2020-12-31T23:59:59Z",
+            new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(pastDeadlineDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Deadline date cannot be before the creation date.");
@@ -272,19 +275,19 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Test an execution of the createProject method with the deadline to far in the future
+   * Test an execution of the createProject method with the deadline to far in the future.
    */
   @Test
-  public void testCreateProject_TooFarDeadline() {
-    //Arrange
-    ProjectCreateDto futureDeadlineDto = new ProjectCreateDto("projectName",
-        "projectDescription", "2035-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
+  public void testCreateProjectTooFarDeadline() {
+    // Arrange
+    ProjectCreateDto futureDeadlineDto =
+        new ProjectCreateDto("projectName", "projectDescription", "2035-12-31T23:59:59Z",
+            new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com")));
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(futureDeadlineDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Deadline date cannot be after "
@@ -293,17 +296,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the createProject method with an owner with an empty id
+   * Tests an execution of the createProject method with an owner with an empty id.
    */
   @Test
-  public void testCreateProject_OwnerIdEmpty() {
-    //Arrange
+  public void testCreateProjectOwnerIdEmpty() {
+    // Arrange
     owner.setUserId("");
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(projectCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Owner cannot be null or empty.");
@@ -311,17 +314,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the createProject method with an owner with a null id
+   * Tests an execution of the createProject method with an owner with a null id.
    */
   @Test
-  public void testCreateProject_OwnerIdNull() {
-    //Arrange
+  public void testCreateProjectOwnerIdNull() {
+    // Arrange
     owner.setUserId(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(projectCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Owner cannot be null or empty.");
@@ -329,17 +332,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the createProject method with an owner that does not exist
+   * Tests an execution of the createProject method with an owner that does not exist.
    */
   @Test
-  public void testCreateProject_OwnerNotFound() {
-    //Arrange
+  public void testCreateProjectOwnerNotFound() {
+    // Arrange
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(projectCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "User with ID " + owner.getUserId() + " does not exist.");
@@ -347,21 +350,21 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the createProject method with an owner that's part of the email list
+   * Tests an execution of the createProject method with an owner that's part of the email list.
    */
   @Test
-  public void testCreateProject_OwnerInEmailList() {
-    //Arrange
-    ProjectCreateDto ownerEmailDto = new ProjectCreateDto("projectName",
-        "projectDescription", "2025-12-31T23:59:59Z",
+  public void testCreateProjectOwnerInEmailList() {
+    // Arrange
+    ProjectCreateDto ownerEmailDto = new ProjectCreateDto("projectName", "projectDescription",
+        "2025-12-31T23:59:59Z",
         new ArrayList<>(Arrays.asList("user1@example.com", "user2@example.com", owner.getEmail())));
 
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(ownerEmailDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Owner must not be part of the list of users.");
@@ -369,21 +372,20 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the createProject method when there's an empty email in the list
+   * Tests an execution of the createProject method when there's an empty email in the list.
    */
   @Test
-  public void testCreateProject_EmptyEmail() {
-    //Arrange
-    ProjectCreateDto emptyEmailDto = new ProjectCreateDto("projectName",
-        "projectDescription", "2025-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), null)));
+  public void testCreateProjectEmptyEmail() {
+    // Arrange
+    ProjectCreateDto emptyEmailDto = new ProjectCreateDto("projectName", "projectDescription",
+        "2025-12-31T23:59:59Z", new ArrayList<>(Arrays.asList(user1.getEmail(), null)));
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(emptyEmailDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "There is an empty email in the list. Please remove it.");
@@ -391,20 +393,19 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the createProject method when there's a repeated email in the list
+   * Tests an execution of the createProject method when there's a repeated email in the list.
    */
   @Test
-  public void testCreateProject_RepeatedEmail() {
-    //Arrange
-    ProjectCreateDto repeatedEmailDto = new ProjectCreateDto("projectName",
-        "projectDescription", "2025-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), user1.getEmail())));
+  public void testCreateProjectRepeatedEmail() {
+    // Arrange
+    ProjectCreateDto repeatedEmailDto = new ProjectCreateDto("projectName", "projectDescription",
+        "2025-12-31T23:59:59Z", new ArrayList<>(Arrays.asList(user1.getEmail(), user1.getEmail())));
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(repeatedEmailDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg",
@@ -413,18 +414,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the createProject method when a user in the list does not exist
+   * Tests an execution of the createProject method when a user in the list does not exist.
    */
   @Test
-  public void testCreateProject_UserNotFound() {
-    //Arrange
+  public void testCreateProjectUserNotFound() {
+    // Arrange
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.createProject(projectCreateDto);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "User with email " + user1.getEmail() + " does not exist.");
@@ -432,12 +433,12 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the createProject method when the team creation fails
+   * Tests an execution of the createProject method when the team creation fails.
    */
   @Test
-  public void testCreateProject_FailureTeamCreation() {
-    //Arrange
-    //We use a spy so we test later if the deleteProject method was called
+  public void testCreateProjectFailureTeamCreation() {
+    // Arrange
+    // We use a spy so we test later if the deleteProject method was called
     ProjectService projectServiceSpy = Mockito.spy(projectService);
     when(projectRepository.existsByProjectName("projectName")).thenReturn(false);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
@@ -446,76 +447,73 @@ public class ProjectServiceTest {
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
-    //Simulate team creation failure (BAD_REQUEST instead of CREATED)
-    when(teamService.addTeam(any(TeamCreateDto.class))).
-        thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+    // Simulate team creation failure (BAD_REQUEST instead of CREATED)
+    when(teamService.addTeam(any(TeamCreateDto.class)))
+        .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-    //Mock the static method
+    // Mock the static method
     try (MockedStatic<ProjectMapper> mockedMapper = mockStatic(ProjectMapper.class)) {
       mockedMapper.when(() -> ProjectMapper.toEntity(any(CompletedProjectCreationDto.class)))
           .thenReturn(project);
 
-      //Act
+      // Act
       ResponseEntity<?> response = projectServiceSpy.createProject(projectCreateDto);
 
-      //Assert
+      // Assert
       assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-      //Verify that the project was saved initially
+      // Verify that the project was saved initially
       verify(projectRepository).save(any(Project.class));
-      //Verify that deleteProject was called to roll back the project
-      verify(projectServiceSpy, times(1))
-          .deleteProject(project.getProjectId());
+      // Verify that deleteProject was called to roll back the project
+      verify(projectServiceSpy, times(1)).deleteProject(project.getProjectId());
     }
   }
 
   /**
-   * Tests an execution of the createProject method when the addProjectToUser method fails
+   * Tests an execution of the createProject method when the addProjectToUser method fails.
    */
   @Test
-  public void testCreateProject_FailureAddProjectToUser() {
-    //Arrange
-    //Use a spy so we test later if the deleteProject method was called
+  public void testCreateProjectFailureAddProjectToUser() {
+    // Arrange
+    // Use a spy so we test later if the deleteProject method was called
     ProjectService projectServiceSpy = Mockito.spy(projectService);
-    //Set the project ownerId to null, so that the addProjectToUser method fails
+    // Set the project ownerId to null, so that the addProjectToUser method fails
     project.setOwnerId("otherUserId");
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
     when(userRepository.findByEmail(user2.getEmail())).thenReturn(user2);
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
-    when(teamService.addTeam(any(TeamCreateDto.class))).
-        thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
+    when(teamService.addTeam(any(TeamCreateDto.class)))
+        .thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
 
-    //Mock static method before invoking validateProject
+    // Mock static method before invoking validateProject
     try (MockedStatic<ProjectMapper> mockedMapper = mockStatic(ProjectMapper.class);
-        MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class,
-            (mock, context) ->
-                doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
+        MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class, (mock,
+            context) -> doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
 
       mockedMapper.when(() -> ProjectMapper.toEntity(any(CompletedProjectCreationDto.class)))
           .thenReturn(project);
 
-      //Act
+      // Act
       ResponseEntity<?> response = projectServiceSpy.createProject(projectCreateDto);
 
-      //Assert
+      // Assert
       assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
       Map<String, Object> responseBody = new HashMap<>();
       responseBody.put("msg", "User with ID otherUserId not found.");
       assertEquals(responseBody, response.getBody());
       verify(projectRepository).save(project);
-      verify(projectServiceSpy, times(1))
-          .deleteProject(project.getProjectId());
+      verify(projectServiceSpy, times(1)).deleteProject(project.getProjectId());
     }
 
   }
 
   /**
-   * Tests a successful execution of the updateProject method
+   * Tests a successful execution of the updateProject method.
    */
   @Test
-  public void testUpdateProject_Success() {
-    //Arrange
+  public void testUpdateProjectSuccess() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
@@ -525,25 +523,24 @@ public class ProjectServiceTest {
     when(userRepository.existsByEmail(otherUser.getEmail())).thenReturn(true);
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
     when(userRepository.findByUserId(otherUser.getUserId())).thenReturn(otherUser);
-    when(teamRepository.findTeamsByProjectId(project.getProjectId())).
-        thenReturn(new ArrayList<>(Collections.singletonList(team)));
+    when(teamRepository.findTeamsByProjectId(project.getProjectId()))
+        .thenReturn(new ArrayList<>(Collections.singletonList(team)));
     when(teamRepository.save(team)).thenReturn(team);
     when(userRepository.save(user1)).thenReturn(user1);
     when(userRepository.save(user2)).thenReturn(user2);
     when(userRepository.save(otherUser)).thenReturn(otherUser);
     when(projectRepository.save(project)).thenReturn(project);
 
-    try (MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class,
-        (mock, context) ->
-            doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
+    try (MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class, (mock,
+        context) -> doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
 
-      //Act
-      ResponseEntity<?> response = projectService.
-          updateProject(projectModifyDto, project.getProjectId());
+      // Act
+      ResponseEntity<?> response =
+          projectService.updateProject(projectModifyDto, project.getProjectId());
 
       System.out.println(response.getBody());
 
-      //Assert
+      // Assert
       assertEquals(HttpStatus.OK, response.getStatusCode());
       Map<String, Object> responseBody = new HashMap<>();
       responseBody.put("msg", "Project updated successfully.");
@@ -562,14 +559,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method with a null project id
+   * Tests an execution of the updateProject method with a null project id.
    */
   @Test
-  public void testUpdateProject_NullProjectId() {
-    //Act
+  public void testUpdateProjectNullProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.updateProject(projectModifyDto, null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -577,14 +574,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method with an empty project id
+   * Tests an execution of the updateProject method with an empty project id.
    */
   @Test
-  public void testUpdateProject_EmptyProjectId() {
-    //Act
+  public void testUpdateProjectEmptyProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.updateProject(projectModifyDto, "");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -592,18 +589,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method with a project id that does not exist
+   * Tests an execution of the updateProject method with a project id that does not exist.
    */
   @Test
-  public void testUpdateProject_ProjectIdNotFound() {
-    //Arrange
+  public void testUpdateProjectProjectIdNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(projectModifyDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(projectModifyDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -612,19 +609,19 @@ public class ProjectServiceTest {
 
   /**
    * Tests an execution of the updateProject method when a user that is not the owner tries to
-   * update the project
+   * update the project.
    */
   @Test
-  public void testUpdateProject_NotOwner() {
-    //Arrange
+  public void testUpdateProjectNotOwner() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     project.setOwnerId("otherUserId");
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(projectModifyDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(projectModifyDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Only the owner can modify the project!");
@@ -632,20 +629,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method with an invalidDto
+   * Tests an execution of the updateProject method with an invalidDto.
    */
   @Test
-  public void testUpdateProject_InvalidDto() {
-    //Arrange
-    ProjectCreateDto invalidDto = new ProjectCreateDto("", "",
-        "", new ArrayList<>());
+  public void testUpdateProjectInvalidDto() {
+    // Arrange
+    ProjectCreateDto invalidDto = new ProjectCreateDto("", "", "", new ArrayList<>());
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(invalidDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response = projectService.updateProject(invalidDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "All fields must be filled.");
@@ -653,21 +648,21 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method with an existing project name
+   * Tests an execution of the updateProject method with an existing project name.
    */
   @Test
-  public void testUpdateProject_ExistingProjectName() {
-    //Arrange
+  public void testUpdateProjectExistingProjectName() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(projectRepository.existsByProjectName("projectNewName")).thenReturn(true);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(projectModifyDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(projectModifyDto, project.getProjectId());
 
     System.out.println(response.getBody());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project with name projectNewName already exists.");
@@ -676,21 +671,21 @@ public class ProjectServiceTest {
 
 
   /**
-   * Tests an execution of the updateProject method with the deadline in the past
+   * Tests an execution of the updateProject method with the deadline in the past.
    */
   @Test
-  public void testUpdateProject_PastDeadline() {
-    //Arrange
-    ProjectCreateDto pastDeadlineDto = new ProjectCreateDto("projectNewName",
-        "projectNewDescription", "2020-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), owner.getEmail())));
+  public void testUpdateProjectPastDeadline() {
+    // Arrange
+    ProjectCreateDto pastDeadlineDto =
+        new ProjectCreateDto("projectNewName", "projectNewDescription", "2020-12-31T23:59:59Z",
+            new ArrayList<>(Arrays.asList(user1.getEmail(), owner.getEmail())));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(pastDeadlineDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(pastDeadlineDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Deadline date cannot be before the creation date.");
@@ -698,21 +693,21 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method with the deadline too far in the future
+   * Tests an execution of the updateProject method with the deadline too far in the future.
    */
   @Test
-  public void testUpdateProject_TooFarDeadline() {
-    //Arrange
-    ProjectCreateDto futureDeadlineDto = new ProjectCreateDto("projectNewName",
-        "projectNewDescription", "2035-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), otherUser.getEmail())));
+  public void testUpdateProjectTooFarDeadline() {
+    // Arrange
+    ProjectCreateDto futureDeadlineDto =
+        new ProjectCreateDto("projectNewName", "projectNewDescription", "2035-12-31T23:59:59Z",
+            new ArrayList<>(Arrays.asList(user1.getEmail(), otherUser.getEmail())));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(futureDeadlineDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(futureDeadlineDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Deadline date cannot be after "
@@ -721,23 +716,23 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method when the owner is part of the user list
+   * Tests an execution of the updateProject method when the owner is part of the user list.
    */
   @Test
-  public void testUpdateProject_OwnerInUserList() {
-    //Arrange
-    ProjectCreateDto ownerInUserListDto = new ProjectCreateDto("projectNewName",
-        "projectNewDescription", "2026-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), owner.getEmail())));
+  public void testUpdateProjectOwnerInUserList() {
+    // Arrange
+    ProjectCreateDto ownerInUserListDto =
+        new ProjectCreateDto("projectNewName", "projectNewDescription", "2026-12-31T23:59:59Z",
+            new ArrayList<>(Arrays.asList(user1.getEmail(), owner.getEmail())));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(ownerInUserListDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(ownerInUserListDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Owner must not be part of the list of users.");
@@ -745,23 +740,22 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method when there's an empty email in the list
+   * Tests an execution of the updateProject method when there's an empty email in the list.
    */
   @Test
-  public void testUpdateProject_EmptyEmail() {
-    //Arrange
-    ProjectCreateDto emptyEmailDto = new ProjectCreateDto("projectNewName",
-        "projectNewDescription", "2026-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), null)));
+  public void testUpdateProjectEmptyEmail() {
+    // Arrange
+    ProjectCreateDto emptyEmailDto = new ProjectCreateDto("projectNewName", "projectNewDescription",
+        "2026-12-31T23:59:59Z", new ArrayList<>(Arrays.asList(user1.getEmail(), null)));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(emptyEmailDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(emptyEmailDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "There is an empty email in the list. Please remove it.");
@@ -769,23 +763,23 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method when there's a repeated email in the list
+   * Tests an execution of the updateProject method when there's a repeated email in the list.
    */
   @Test
-  public void testUpdateProject_RepeatedEmail() {
-    //Arrange
-    ProjectCreateDto repeatedEmailDto = new ProjectCreateDto("projectNewName",
-        "projectNewDescription", "2026-12-31T23:59:59Z",
-        new ArrayList<>(Arrays.asList(user1.getEmail(), user1.getEmail())));
+  public void testUpdateProjectRepeatedEmail() {
+    // Arrange
+    ProjectCreateDto repeatedEmailDto =
+        new ProjectCreateDto("projectNewName", "projectNewDescription", "2026-12-31T23:59:59Z",
+            new ArrayList<>(Arrays.asList(user1.getEmail(), user1.getEmail())));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(repeatedEmailDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(repeatedEmailDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg",
@@ -794,21 +788,21 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method when an email in the list is not found
+   * Tests an execution of the updateProject method when an email in the list is not found.
    */
   @Test
-  public void testUpdateProject_UserNotFound() {
-    //Arrange
+  public void testUpdateProjectUserNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(projectModifyDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(projectModifyDto, project.getProjectId());
 
-    //Assert
-    List<String> emailsNotFound = new ArrayList<>(Arrays.asList(user1.getEmail(),
-        otherUser.getEmail()));
+    // Assert
+    List<String> emailsNotFound =
+        new ArrayList<>(Arrays.asList(user1.getEmail(), otherUser.getEmail()));
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "The following emails are not registered: " + emailsNotFound);
@@ -816,11 +810,11 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method one emails in the list is not found
+   * Tests an execution of the updateProject method one emails in the list is not found.
    */
   @Test
-  public void testUpdateProject_OneUserNotFound() {
-    //Arrange
+  public void testUpdateProjectOneUserNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.existsByEmail(user1.getEmail())).thenReturn(true);
@@ -828,11 +822,11 @@ public class ProjectServiceTest {
     when(userRepository.existsByEmail(otherUser.getEmail())).thenReturn(true);
     when(userRepository.findByEmail(otherUser.getEmail())).thenReturn(null);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(projectModifyDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(projectModifyDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "User with email " + otherUser.getEmail() + " does not exist.");
@@ -840,13 +834,13 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the updateProject method when the team update fails
+   * Tests an execution of the updateProject method when the team update fails.
    *
    * @throws NullPointerException since the team is not found
    */
   @Test
-  public void testUpdateProject_testUpdateFail() throws NullPointerException {
-    //Arrange
+  public void testUpdateProjecttestUpdateFail() throws NullPointerException {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.existsByEmail(user1.getEmail())).thenReturn(true);
@@ -855,11 +849,11 @@ public class ProjectServiceTest {
     when(userRepository.findByEmail(otherUser.getEmail())).thenReturn(otherUser);
     when(teamRepository.findTeamsByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
-    ResponseEntity<?> response = projectService.updateProject(projectModifyDto,
-        project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.updateProject(projectModifyDto, project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg",
@@ -868,23 +862,23 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests a successful execution of the getHumanReadableProjectStatus method
+   * Tests a successful execution of the getHumanReadableProjectStatus method.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_Success() {
-    //Arrange
+  public void testGetHumanReadableProjectStatusSuccess() {
+    // Arrange
     when(projectRepository.existsById(project.getProjectId())).thenReturn(true);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId
-        (artifact1.getArtifactId())).thenReturn(artifact1);
-    when(artifactRepository.findArtifactByArtifactId
-        (artifact2.getArtifactId())).thenReturn(artifact2);
+    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId()))
+        .thenReturn(artifact1);
+    when(artifactRepository.findArtifactByArtifactId(artifact2.getArtifactId()))
+        .thenReturn(artifact2);
 
-    //Create the expected WholeProjectHeavyDto
+    // Create the expected WholeProjectHeavyDto
     List<UserResponseDto> shortResponseUserDto = new ArrayList<>();
     shortResponseUserDto.add(UserMapper.toUserResponseDto(owner));
     shortResponseUserDto.add(UserMapper.toUserResponseDto(user1));
@@ -899,32 +893,31 @@ public class ProjectServiceTest {
 
     UserShortResponseDto ownerDto = UserMapper.toUserShortResponseDto(owner);
 
-    WholeProjectHeavyDto expectedWholeProjectHeavyDto =
-        new WholeProjectHeavyDto(project.getProjectId(), project.getProjectName(),
-            project.getProjectDescription(), project.getProjectCreationDate(),
-            project.getProjectDeadline(), ownerDto, project.getProjectStatus().name(),
-            shortResponseUserDto, wholeArtifactDto, wholeTeamDto);
+    WholeProjectHeavyDto expectedWholeProjectHeavyDto = new WholeProjectHeavyDto(
+        project.getProjectId(), project.getProjectName(), project.getProjectDescription(),
+        project.getProjectCreationDate(), project.getProjectDeadline(), ownerDto,
+        project.getProjectStatus().name(), shortResponseUserDto, wholeArtifactDto, wholeTeamDto);
 
-    //Act
-    ResponseEntity<?> response = projectService.
-        getHumanReadableProjectStatus(project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.getHumanReadableProjectStatus(project.getProjectId());
 
     System.out.println(response.getBody());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(expectedWholeProjectHeavyDto, response.getBody());
   }
 
   /**
-   * Tests an execution of the getHumanReadableProjectStatus method with a null project id
+   * Tests an execution of the getHumanReadableProjectStatus method with a null project id.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_NullProjectId() {
-    //Act
+  public void testGetHumanReadableProjectStatusNullProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getHumanReadableProjectStatus(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -932,14 +925,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getHumanReadableProjectStatus method with an empty project id
+   * Tests an execution of the getHumanReadableProjectStatus method with an empty project id.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_EmptyProjectId() {
-    //Act
+  public void testGetHumanReadableProjectStatusEmptyProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getHumanReadableProjectStatus("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -948,18 +941,18 @@ public class ProjectServiceTest {
 
   /**
    * Tests an execution of the getHumanReadableProjectStatus method with a project id that does not
-   * exist
+   * exist.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_ProjectIdNotFound() {
-    //Arrange
+  public void testGetHumanReadableProjectStatusProjectIdNotFound() {
+    // Arrange
     when(projectRepository.existsById(project.getProjectId())).thenReturn(false);
 
-    //Act
-    ResponseEntity<?> response = projectService.
-        getHumanReadableProjectStatus(project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.getHumanReadableProjectStatus(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -967,19 +960,19 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getHumanReadableProjectStatus method when the project is not found
+   * Tests an execution of the getHumanReadableProjectStatus method when the project is not found.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_ProjectNotFound() {
-    //Arrange
+  public void testGetHumanReadableProjectStatusProjectNotFound() {
+    // Arrange
     when(projectRepository.existsById(project.getProjectId())).thenReturn(true);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
-    ResponseEntity<?> response = projectService.
-        getHumanReadableProjectStatus(project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.getHumanReadableProjectStatus(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -987,20 +980,20 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getHumanReadableProjectStatus method when a user is not found
+   * Tests an execution of the getHumanReadableProjectStatus method when a user is not found.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_UserNotFound() {
-    //Arrange
+  public void testGetHumanReadableProjectStatusUserNotFound() {
+    // Arrange
     when(projectRepository.existsById(project.getProjectId())).thenReturn(true);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
 
-    //Act
-    ResponseEntity<?> response = projectService.
-        getHumanReadableProjectStatus(project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.getHumanReadableProjectStatus(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "User with ID " + user1.getUserId() + " not found.");
@@ -1008,11 +1001,11 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getHumanReadableProjectStatus method when a team is not found
+   * Tests an execution of the getHumanReadableProjectStatus method when a team is not found.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_TeamNotFound() {
-    //Arrange
+  public void testGetHumanReadableProjectStatusTeamNotFound() {
+    // Arrange
     when(projectRepository.existsById(project.getProjectId())).thenReturn(true);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
@@ -1020,11 +1013,11 @@ public class ProjectServiceTest {
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(null);
 
-    //Act
-    ResponseEntity<?> response = projectService.
-        getHumanReadableProjectStatus(project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.getHumanReadableProjectStatus(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Team with ID " + team.getTeamId() + " not found.");
@@ -1032,25 +1025,24 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getHumanReadableProjectStatus method when an artifact is not found
+   * Tests an execution of the getHumanReadableProjectStatus method when an artifact is not found.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_ArtifactNotFound() {
-    //Arrange
+  public void testGetHumanReadableProjectStatusArtifactNotFound() {
+    // Arrange
     when(projectRepository.existsById(project.getProjectId())).thenReturn(true);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId
-        (artifact1.getArtifactId())).thenReturn(null);
+    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId())).thenReturn(null);
 
-    //Act
-    ResponseEntity<?> response = projectService.
-        getHumanReadableProjectStatus(project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.getHumanReadableProjectStatus(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Artifact with ID " + artifact1.getArtifactId() + " not found.");
@@ -1059,11 +1051,11 @@ public class ProjectServiceTest {
 
   /**
    * Tests an execution of the getHumanReadableProjectStatus method when the project owner is not
-   * found
+   * found.
    */
   @Test
-  public void testGetHumanReadableProjectStatus_OwnerNotFound() {
-    //Arrange
+  public void testGetHumanReadableProjectStatusOwnerNotFound() {
+    // Arrange
     project.setOwnerId(otherUser.getUserId());
     when(projectRepository.existsById(project.getProjectId())).thenReturn(true);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
@@ -1071,16 +1063,16 @@ public class ProjectServiceTest {
     when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
-    when(artifactRepository.findArtifactByArtifactId
-        (artifact1.getArtifactId())).thenReturn(artifact1);
-    when(artifactRepository.findArtifactByArtifactId
-        (artifact2.getArtifactId())).thenReturn(artifact2);
+    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId()))
+        .thenReturn(artifact1);
+    when(artifactRepository.findArtifactByArtifactId(artifact2.getArtifactId()))
+        .thenReturn(artifact2);
 
-    //Act
-    ResponseEntity<?> response = projectService.
-        getHumanReadableProjectStatus(project.getProjectId());
+    // Act
+    ResponseEntity<?> response =
+        projectService.getHumanReadableProjectStatus(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Owner not found.");
@@ -1088,19 +1080,19 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests the getProjectsByOwner method
+   * Tests the getProjectsByOwner method.
    */
   @Test
   public void testGetProjectsByOwner() {
-    //Arrange
+    // Arrange
     when(userRepository.existsById(owner.getUserId())).thenReturn(true);
-    when(projectRepository.findProjectsByOwnerId(owner.getUserId())).
-        thenReturn(new ArrayList<>(Collections.singletonList(project)));
+    when(projectRepository.findProjectsByOwnerId(owner.getUserId()))
+        .thenReturn(new ArrayList<>(Collections.singletonList(project)));
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsByOwner(owner.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Projects found successfully.");
@@ -1109,14 +1101,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsByOwner method with a null owner id
+   * Tests an execution of the getProjectsByOwner method with a null owner id.
    */
   @Test
-  public void testGetProjectsByOwner_NullOwnerId() {
-    //Act
+  public void testGetProjectsByOwnerNullOwnerId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsByOwner(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Owner ID cannot be null or empty.");
@@ -1124,14 +1116,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsByOwner method with an empty owner id
+   * Tests an execution of the getProjectsByOwner method with an empty owner id.
    */
   @Test
-  public void testGetProjectsByOwner_EmptyOwnerId() {
-    //Act
+  public void testGetProjectsByOwnerEmptyOwnerId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsByOwner("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Owner ID cannot be null or empty.");
@@ -1139,17 +1131,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsByOwner method when the owner is not found
+   * Tests an execution of the getProjectsByOwner method when the owner is not found.
    */
   @Test
-  public void testGetProjectsByOwner_OwnerNotFound() {
-    //Arrange
+  public void testGetProjectsByOwnerOwnerNotFound() {
+    // Arrange
     when(userRepository.existsById(owner.getUserId())).thenReturn(false);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsByOwner(owner.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Owner not found.");
@@ -1157,19 +1149,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsByOwner method when no projects are found
+   * Tests an execution of the getProjectsByOwner method when no projects are found.
    */
   @Test
-  public void testGetProjectsByOwner_NoProjectsFound() {
-    //Arrange
+  public void testGetProjectsByOwnerNoProjectsFound() {
+    // Arrange
     when(userRepository.existsById(owner.getUserId())).thenReturn(true);
-    when(projectRepository.findProjectsByOwnerId(owner.getUserId())).
-        thenReturn(new ArrayList<>());
+    when(projectRepository.findProjectsByOwnerId(owner.getUserId())).thenReturn(new ArrayList<>());
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsByOwner(owner.getUserId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "No projects found for the owner.");
@@ -1177,21 +1168,21 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests a successful execution of the getProjectsTags method
+   * Tests a successful execution of the getProjectsTags method.
    */
   @Test
-  public void testGetProjectsTags_Success() {
-    //Arrange
+  public void testGetProjectsTagsSuccess() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
-    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId())).
-        thenReturn(artifact1);
-    when(artifactRepository.findArtifactByArtifactId(artifact2.getArtifactId())).
-        thenReturn(artifact2);
+    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId()))
+        .thenReturn(artifact1);
+    when(artifactRepository.findArtifactByArtifactId(artifact2.getArtifactId()))
+        .thenReturn(artifact2);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTags(project.getProjectId());
 
-    //Assert
+    // Assert
     List<String> tags = new ArrayList<>();
     tags.addAll(artifact1.getTags());
     tags.addAll(artifact2.getTags());
@@ -1203,14 +1194,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTags method with a null project id
+   * Tests an execution of the getProjectsTags method with a null project id.
    */
   @Test
-  public void testGetProjectsTags_NullProjectId() {
-    //Act
+  public void testGetProjectsTagsNullProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTags(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1218,14 +1209,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTags method with an empty project id
+   * Tests an execution of the getProjectsTags method with an empty project id.
    */
   @Test
-  public void testGetProjectsTags_EmptyProjectId() {
-    //Act
+  public void testGetProjectsTagsEmptyProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTags("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1233,17 +1224,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTags method when the project is not found
+   * Tests an execution of the getProjectsTags method when the project is not found.
    */
   @Test
-  public void testGetProjectsTags_ProjectNotFound() {
-    //Arrange
+  public void testGetProjectsTagsProjectNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTags(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -1251,18 +1242,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTags method whe the LoggedUser is not the owner
+   * Tests an execution of the getProjectsTags method whe the LoggedUser is not the owner.
    */
   @Test
-  public void testGetProjectsTags_NotOwner() {
-    //Arrange
+  public void testGetProjectsTagsNotOwner() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     project.setOwnerId("otherUserId");
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTags(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Only the project owner can see the tags!");
@@ -1270,18 +1261,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTags method when one of the artifactId list is null
+   * Tests an execution of the getProjectsTags method when one of the artifactId list is null.
    */
   @Test
-  public void testGetProjectsTags_NullArtifacts() {
-    //Arrange
+  public void testGetProjectsTagsNullArtifacts() {
+    // Arrange
     project.setArtifactIds(null);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTags(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "No artifacts found for the project.");
@@ -1289,19 +1280,19 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTags method when one of the artifactId List is Empty
+   * Tests an execution of the getProjectsTags method when one of the artifactId List is Empty.
    */
   @Test
-  public void testGetProjectsTags_NoArtifacts() {
-    //Arrange
+  public void testGetProjectsTagsNoArtifacts() {
+    // Arrange
     List<String> emptyList = new ArrayList<>();
     project.setArtifactIds(emptyList);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTags(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "No artifacts found for the project.");
@@ -1309,19 +1300,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTags method when an artifact is not found
+   * Tests an execution of the getProjectsTags method when an artifact is not found.
    */
   @Test
-  public void testGetProjectsTags_ArtifactNotFound() {
-    //Arrange
+  public void testGetProjectsTagsArtifactNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
-    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId())).
-        thenReturn(null);
+    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTags(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Artifact with ID " + artifact1.getArtifactId() + " not found.");
@@ -1329,15 +1319,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests a successful execution of the addUsersToProject method
+   * Tests a successful execution of the addUsersToProject method.
    *
    * @throws Exception if something goes wrong with the method
    */
   @Test
-  public void testAddUsersToProject_Success() throws Exception {
-    //Arrange
-    User userToAdd = new User("userId", "addme@example.com", "ryidawkmn"
-        , "Marco", "Rossi");
+  public void testAddUsersToProjectSuccess() throws Exception {
+    // Arrange
+    User userToAdd = new User("userId", "addme@example.com", "ryidawkmn", "Marco", "Rossi");
     userToAdd.setUserId("6798e2740b66b85362a8ba29");
     List<String> userEmails = new ArrayList<>();
     userEmails.add(otherUser.getEmail());
@@ -1353,13 +1342,12 @@ public class ProjectServiceTest {
     when(userRepository.save(userToAdd)).thenReturn(userToAdd);
     when(projectRepository.save(project)).thenReturn(project);
 
-    try (MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class,
-        (mock, context) ->
-            doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
-      //Act
+    try (MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class, (mock,
+        context) -> doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
+      // Act
       projectService.addUsersToProject(project.getProjectId(), userEmails);
 
-      //Assert
+      // Assert
       assertTrue(project.getUserIds().contains(otherUser.getUserId()));
       assertTrue(project.getUserIds().contains(userToAdd.getUserId()));
       assertTrue(otherUser.getProjectIds().contains(project.getProjectId()));
@@ -1371,51 +1359,46 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the addUsersToProject method when the projectId is not found
+   * Tests an execution of the addUsersToProject method when the projectId is not found.
    */
   @Test
-  public void testAddUsersToProject_ProjectNotFound() {
-    //Arrange
+  public void testAddUsersToProjectProjectNotFound() {
+    // Arrange
     List<String> userEmails = new ArrayList<>();
     userEmails.add(otherUser.getEmail());
 
-    //Act & Assert
-    ProjectValidationException exception = assertThrows(
-        ProjectValidationException.class,
-        () -> projectService.addUsersToProject(project.getProjectId(), userEmails)
-    );
-    assertEquals("Project with ID " + project.getProjectId() + " not found."
-        , exception.getMessage());
+    // Act & Assert
+    ProjectValidationException exception = assertThrows(ProjectValidationException.class,
+        () -> projectService.addUsersToProject(project.getProjectId(), userEmails));
+    assertEquals("Project with ID " + project.getProjectId() + " not found.",
+        exception.getMessage());
   }
 
   /**
    * Tests an execution of the addUsersToProject method when a user other than the owner tries to
-   * add users to the project
+   * add users to the project.
    */
   @Test
-  public void testAddUsersToProject_NotOwner() {
-    //Arrange
+  public void testAddUsersToProjectNotOwner() {
+    // Arrange
     project.setOwnerId("otherUserId");
     List<String> userEmails = new ArrayList<>();
     userEmails.add(otherUser.getEmail());
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act & Assert
-    ProjectValidationException exception = assertThrows(
-        ProjectValidationException.class,
-        () -> projectService.addUsersToProject(project.getProjectId(), userEmails)
-    );
-    assertEquals("Only the owner can add users to the project."
-        , exception.getMessage());
+    // Act & Assert
+    ProjectValidationException exception = assertThrows(ProjectValidationException.class,
+        () -> projectService.addUsersToProject(project.getProjectId(), userEmails));
+    assertEquals("Only the owner can add users to the project.", exception.getMessage());
   }
 
   /**
    * Tests an execution of the addUsersToProject method when the checkEmails method trows an
-   * exception
+   * exception.
    */
   @Test
-  public void testAddUsersToProject_CheckEmailsException() {
-    //Arrange
+  public void testAddUsersToProjectCheckEmailsException() {
+    // Arrange
     List<String> userEmails = new ArrayList<>();
     userEmails.add(otherUser.getEmail());
     userEmails.add(null);
@@ -1423,21 +1406,18 @@ public class ProjectServiceTest {
     when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
     when(userRepository.findByEmail(otherUser.getEmail())).thenReturn(otherUser);
 
-    //Act & Assert
-    ProjectValidationException exception = assertThrows(
-        ProjectValidationException.class,
-        () -> projectService.addUsersToProject(project.getProjectId(), userEmails)
-    );
-    assertEquals("There is an empty email in the list. Please remove it."
-        , exception.getMessage());
+    // Act & Assert
+    ProjectValidationException exception = assertThrows(ProjectValidationException.class,
+        () -> projectService.addUsersToProject(project.getProjectId(), userEmails));
+    assertEquals("There is an empty email in the list. Please remove it.", exception.getMessage());
   }
 
   /**
    * Tests an execution of the addUsersToProject method when one the users to add is already in the
-   * project
+   * project.
    */
   @Test
-  public void testAddUsersToProject_UserAlreadyInProject() throws Exception {
+  public void testAddUsersToProjectUserAlreadyInProject() throws Exception {
     List<String> userEmails = new ArrayList<>();
     userEmails.add(user1.getEmail());
     userEmails.add(otherUser.getEmail());
@@ -1451,13 +1431,12 @@ public class ProjectServiceTest {
     when(userRepository.save(otherUser)).thenReturn(otherUser);
     when(projectRepository.save(project)).thenReturn(project);
 
-    try (MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class,
-        (mock, context) ->
-            doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
-      //Act
+    try (MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class, (mock,
+        context) -> doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
+      // Act
       projectService.addUsersToProject(project.getProjectId(), userEmails);
 
-      //Assert
+      // Assert
       assertTrue(project.getUserIds().contains(otherUser.getUserId()));
       assertTrue(otherUser.getProjectIds().contains(project.getProjectId()));
       verify(userRepository, times(1)).save(otherUser);
@@ -1466,21 +1445,21 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests a successful execution of the getProjectArtifacts method
+   * Tests a successful execution of the getProjectArtifacts method.
    */
   @Test
-  public void testGetProjectsArtifacts_Success() {
-    //Arrange
+  public void testGetProjectsArtifactsSuccess() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
-    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId())).
-        thenReturn(artifact1);
-    when(artifactRepository.findArtifactByArtifactId(artifact2.getArtifactId())).
-        thenReturn(artifact2);
+    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId()))
+        .thenReturn(artifact1);
+    when(artifactRepository.findArtifactByArtifactId(artifact2.getArtifactId()))
+        .thenReturn(artifact2);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsArtifacts(project.getProjectId());
 
-    //Assert
+    // Assert
     List<Artifact> artifacts = new ArrayList<>();
     artifacts.add(artifact1);
     artifacts.add(artifact2);
@@ -1492,14 +1471,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsArtifacts method with a null project id
+   * Tests an execution of the getProjectsArtifacts method with a null project id.
    */
   @Test
-  public void testGetProjectsArtifacts_NullProjectId() {
-    //Act
+  public void testGetProjectsArtifactsNullProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsArtifacts(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1507,14 +1486,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsArtifacts method with an empty project id
+   * Tests an execution of the getProjectsArtifacts method with an empty project id.
    */
   @Test
-  public void testGetProjectsArtifacts_EmptyProjectId() {
-    //Act
+  public void testGetProjectsArtifactsEmptyProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsArtifacts("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1522,17 +1501,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsArtifacts method when the project is not found
+   * Tests an execution of the getProjectsArtifacts method when the project is not found.
    */
   @Test
-  public void testGetProjectsArtifacts_ProjectNotFound() {
-    //Arrange
+  public void testGetProjectsArtifactsProjectNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsArtifacts(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -1540,19 +1519,19 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsArtifacts method when the project has no artifacts
+   * Tests an execution of the getProjectsArtifacts method when the project has no artifacts.
    */
   @Test
-  public void testGetProjectsArtifacts_NoArtifacts() {
-    //Arrange
+  public void testGetProjectsArtifactsNoArtifacts() {
+    // Arrange
     List<String> emptyList = new ArrayList<>();
     project.setArtifactIds(emptyList);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsArtifacts(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "No artifacts found for the project.");
@@ -1560,19 +1539,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsArtifacts method when an artifact is not found
+   * Tests an execution of the getProjectsArtifacts method when an artifact is not found.
    */
   @Test
-  public void testGetProjectsArtifacts_ArtifactNotFound() {
-    //Arrange
+  public void testGetProjectsArtifactsArtifactNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
-    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId())).
-        thenReturn(null);
+    when(artifactRepository.findArtifactByArtifactId(artifact1.getArtifactId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsArtifacts(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Artifact with ID " + artifact1.getArtifactId() + " not found.");
@@ -1580,18 +1558,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests a successful execution of the getProjectsTeams method
+   * Tests a successful execution of the getProjectsTeams method.
    */
   @Test
-  public void testGetProjectsTeams_Success() {
-    //Arrange
+  public void testGetProjectsTeamsSuccess() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTeams(project.getProjectId());
 
-    //Assert
+    // Assert
     List<WholeTeamDto> teams = new ArrayList<>();
     teams.add(TeamMapper.toWholeTeamDto(team));
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1602,14 +1580,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTeams method with a null project id
+   * Tests an execution of the getProjectsTeams method with a null project id.
    */
   @Test
-  public void testGetProjectsTeams_NullProjectId() {
-    //Act
+  public void testGetProjectsTeamsNullProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTeams(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1617,14 +1595,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTeams method with an empty project id
+   * Tests an execution of the getProjectsTeams method with an empty project id.
    */
   @Test
-  public void testGetProjectsTeams_EmptyProjectId() {
-    //Act
+  public void testGetProjectsTeamsEmptyProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTeams("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1632,17 +1610,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTeams method when the project is not found
+   * Tests an execution of the getProjectsTeams method when the project is not found.
    */
   @Test
-  public void testGetProjectsTeams_ProjectNotFound() {
-    //Arrange
+  public void testGetProjectsTeamsProjectNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTeams(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -1650,18 +1628,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsTeams method when a team is not found
+   * Tests an execution of the getProjectsTeams method when a team is not found.
    */
   @Test
-  public void testGetProjectsTeams_TeamNotFound() {
-    //Arrange
+  public void testGetProjectsTeamsTeamNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectsTeams(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Team with ID " + team.getTeamId() + " not found.");
@@ -1669,18 +1647,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests a successful execution of the closeProject method
+   * Tests a successful execution of the closeProject method.
    */
   @Test
-  public void testCloseProject_Success() {
-    //Arrange
+  public void testCloseProjectSuccess() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
     when(projectRepository.save(project)).thenReturn(project);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.closeProject(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project closed successfully.");
@@ -1690,14 +1668,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the closeProject method with a null project id
+   * Tests an execution of the closeProject method with a null project id.
    */
   @Test
-  public void testCloseProject_NullProjectId() {
-    //Act
+  public void testCloseProjectNullProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.closeProject(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1705,14 +1683,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the closeProject method with an empty project id
+   * Tests an execution of the closeProject method with an empty project id.
    */
   @Test
-  public void testCloseProject_EmptyProjectId() {
-    //Act
+  public void testCloseProjectEmptyProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.closeProject("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1720,17 +1698,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the closeProject method when the project is not found
+   * Tests an execution of the closeProject method when the project is not found.
    */
   @Test
-  public void testCloseProject_ProjectNotFound() {
-    //Arrange
+  public void testCloseProjectProjectNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.closeProject(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -1738,18 +1716,18 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the closeProject method when the project is already closed
+   * Tests an execution of the closeProject method when the project is already closed.
    */
   @Test
-  public void testCloseProject_ProjectAlreadyClosed() {
-    //Arrange
+  public void testCloseProjectProjectAlreadyClosed() {
+    // Arrange
     project.setProjectStatus(ProjectStatus.CLOSED);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.closeProject(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project is already closed.");
@@ -1757,51 +1735,51 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the closeProject method when a users other than the
-   * owner tries to close the project
+   * Tests an execution of the closeProject method when a users other than the owner tries to close
+   * the project.
    */
   @Test
-  public void testCloseProject_NotOwner() {
-    //Arrange
+  public void testCloseProjectNotOwner() {
+    // Arrange
     project.setOwnerId("otherUserId");
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.closeProject(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Only the project owner can close the project.");
     assertEquals(responseBody, response.getBody());
   }
 
-  /**
-   * Tests a successful execution of the getProjectById method
+  /**.
+   * Tests a successful execution of the getProjectById method.
    */
   @Test
-  public void testGetProjectById_Success() {
-    //Arrange
+  public void testGetProjectByIdSuccess() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectById(project.getProjectId());
 
-    //Assert
+    // Assert
     WholeProjectDto wholeProjectDto = project.toResponseProjectDto();
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(wholeProjectDto, response.getBody());
   }
 
   /**
-   * Tests an execution of the getProjectById method with a null project id
+   * Tests an execution of the getProjectById method with a null project id.
    */
   @Test
-  public void testGetProjectById_NullProjectId() {
-    //Act
+  public void testGetProjectByIdNullProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectById(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1809,14 +1787,14 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectById method with an empty project id
+   * Tests an execution of the getProjectById method with an empty project id.
    */
   @Test
-  public void testGetProjectById_EmptyProjectId() {
-    //Act
+  public void testGetProjectByIdEmptyProjectId() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectById("");
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project ID cannot be null or empty.");
@@ -1824,17 +1802,17 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectById method when the project is not found
+   * Tests an execution of the getProjectById method when the project is not found.
    */
   @Test
-  public void testGetProjectById_ProjectNotFound() {
-    //Arrange
+  public void testGetProjectByIdProjectNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = projectService.getProjectById(project.getProjectId());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project not found.");
@@ -1842,11 +1820,11 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests a successful execution of the getProjectsByIds method
+   * Tests a successful execution of the getProjectsByIds method.
    */
   @Test
-  public void testGetProjectsByIds_Success() {
-    //Arrange
+  public void testGetProjectsByIdsSuccess() {
+    // Arrange
     Project anotherProject = new Project("projectName", "projectDescription",
         Instant.now().toEpochMilli(), Instant.parse("2025-12-31T23:59:59Z").toEpochMilli(),
         "6998e2740b87d85362a8ba58", new ArrayList<>());
@@ -1854,16 +1832,16 @@ public class ProjectServiceTest {
     project.setUserIds(new ArrayList<>(Arrays.asList("6998e2740b87d85362a8ba58",
         "6798e2740b80b85362a8ba90", otherUser.getUserId())));
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
-    when(projectRepository.findProjectByProjectId(anotherProject.getProjectId())).
-        thenReturn(anotherProject);
+    when(projectRepository.findProjectByProjectId(anotherProject.getProjectId()))
+        .thenReturn(anotherProject);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
-    List<String> projectIds = new ArrayList<>(Arrays.asList(project.getProjectId(),
-        anotherProject.getProjectId()));
+    // Act
+    List<String> projectIds =
+        new ArrayList<>(Arrays.asList(project.getProjectId(), anotherProject.getProjectId()));
     ResponseEntity<?> response = projectService.getProjectsByIds(projectIds);
 
-    //Assert
+    // Assert
     List<ProjectInfoDto> projects = new ArrayList<>();
     projects.add(project.toProjectInfoDto());
     projects.add(anotherProject.toProjectInfoDto());
@@ -1872,47 +1850,46 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the getProjectsByIds method with a null project id list
+   * Tests an execution of the getProjectsByIds method with a null project id list.
    */
   @Test
-  public void testGetProjectsByIds_NullProjectIds() {
-    //Act
+  public void testGetProjectsByIdsNullProjectIds() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsByIds(null);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Project IDs cannot be null or empty.", response.getBody());
   }
 
   /**
-   * Tests an execution of the getProjectsByIds method with an empty project id list
+   * Tests an execution of the getProjectsByIds method with an empty project id list.
    */
   @Test
-  public void testGetProjectsByIds_EmptyProjectIds() {
-    //Act
+  public void testGetProjectsByIdsEmptyProjectIds() {
+    // Act
     ResponseEntity<?> response = projectService.getProjectsByIds(new ArrayList<>());
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Project IDs cannot be null or empty.", response.getBody());
   }
 
   /**
-   * Tests an execution of the getProjectsByIds method when a project is not found
+   * Tests an execution of the getProjectsByIds method when a project is not found.
    */
   @Test
-  public void testGetProjectsByIds_ProjectNotFound() {
-    //Arrange
+  public void testGetProjectsByIdsProjectNotFound() {
+    // Arrange
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
-    when(projectRepository.findProjectByProjectId(project.getProjectId())).
-        thenReturn(project);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
 
-    //Act
-    List<String> projectIds = new ArrayList<>(Arrays.asList(project.getProjectId(),
-        "6998e2630b87d85462b8ca58"));
+    // Act
+    List<String> projectIds =
+        new ArrayList<>(Arrays.asList(project.getProjectId(), "6998e2630b87d85462b8ca58"));
     ResponseEntity<?> response = projectService.getProjectsByIds(projectIds);
 
-    //Assert
+    // Assert
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     assertEquals("Project with ID 6998e2630b87d85462b8ca58 not found.", response.getBody());
   }
