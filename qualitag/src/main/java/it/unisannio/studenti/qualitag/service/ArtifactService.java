@@ -81,8 +81,8 @@ public class ArtifactService {
 
     try {
       // Validate the DTO
-      Set<ConstraintViolation<ArtifactCreateDto>> violations =
-          validator.validate(artifactCreateDto);
+      Set<ConstraintViolation<ArtifactCreateDto>> violations = validator.validate(
+          artifactCreateDto);
       if (!violations.isEmpty()) {
         response.put("msg", "Invalid artifact data.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -179,8 +179,8 @@ public class ArtifactService {
       response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    if (!(project.getOwnerId().equals(user.getUserId())
-        || user.getTeamIds().contains(artifact.getTeamId()))) {
+    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
+        .contains(artifact.getTeamId()))) {
       response.put("msg", "User is not authorized to view this artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -240,8 +240,8 @@ public class ArtifactService {
       response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-    if (!(project.getOwnerId().equals(user.getUserId())
-        || user.getTeamIds().contains(artifact.getTeamId()))) {
+    if (!(project.getOwnerId().equals(user.getUserId()) || user.getTeamIds()
+        .contains(artifact.getTeamId()))) {
       response.put("msg", "User is not authorized to view this artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -262,7 +262,7 @@ public class ArtifactService {
    * Modifies an existing artifact.
    *
    * @param artifactModifyDto the dto used to modify the artifact
-   * @param artifactId the id of the artifact to modify
+   * @param artifactId        the id of the artifact to modify
    * @return the response entity
    */
   public ResponseEntity<?> updateArtifact(ArtifactCreateDto artifactModifyDto, String artifactId) {
@@ -301,14 +301,7 @@ public class ArtifactService {
   public ResponseEntity<?> addTags(String artifactId, AddTagsToArtifactDto dto) {
     Map<String, Object> response = new HashMap<>();
 
-    // Validate the DTO
-    Set<ConstraintViolation<AddTagsToArtifactDto>> violations = validator.validate(dto);
-    if (!violations.isEmpty()) {
-      response.put("msg", "Invalid data.");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    // Check artifact
+    // Check artifact first
     if (artifactId == null || artifactId.isEmpty()) {
       response.put("msg", "Artifact id is null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -318,6 +311,33 @@ public class ArtifactService {
     if (artifact == null) {
       response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Get the logged in userId
+    String loggedInUserId = getLoggedInUserId();
+
+    // retrieve the project
+    Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
+    if (project == null) {
+      response.put("msg", "Project not found.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // if the user is not the owner of the project, check if tagging is open
+    // if the user is the owner of the project, skip this check
+    if (!project.getOwnerId().equals(loggedInUserId)) {
+      // if tagging is not open, return forbidden
+      if (!artifact.isTaggingOpen()) {
+        response.put("msg", "Tagging is not open for this artifact.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+      }
+    }
+
+    // Validate the DTO
+    Set<ConstraintViolation<AddTagsToArtifactDto>> violations = validator.validate(dto);
+    if (!violations.isEmpty()) {
+      response.put("msg", "Invalid data.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Check tags
@@ -343,12 +363,11 @@ public class ArtifactService {
 
       // Check on the user adding the tag
       User user = userRepository.findByUserId(getLoggedInUserId());
-      Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
       Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
 
-      if (!(project.getOwnerId().equals(user.getUserId())
-          || (team.getUserIds().contains(user.getUserId())
-              && tag.getCreatedBy().equals(user.getUserId())))) {
+      if (!(project.getOwnerId().equals(user.getUserId()) || (
+          team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
+              .equals(user.getUserId())))) {
         if (!project.getOwnerId().equals(user.getUserId())) {
           response.put("msg", "User is not the project owner.");
           return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
@@ -449,8 +468,8 @@ public class ArtifactService {
     // Create tags from the processed tags and add them
     List<String> tagIds = new ArrayList<>();
     for (String tagValue : processedTagsList) {
-      ResponseEntity<?> responseRequest =
-          tagService.createTag(new TagCreateDto(tagValue, this.getLoggedInUserId(), "#000000"));
+      ResponseEntity<?> responseRequest = tagService.createTag(
+          new TagCreateDto(tagValue, this.getLoggedInUserId(), "#000000"));
 
       if (responseRequest.getStatusCode() != HttpStatus.CREATED
           && responseRequest.getStatusCode() != HttpStatus.CONFLICT) {
@@ -571,7 +590,7 @@ public class ArtifactService {
    * Removes a tag of an artifact.
    *
    * @param artifactId the id of the artifact which tag we want to remove
-   * @param tagId the id of the tag to remove
+   * @param tagId      the id of the tag to remove
    * @return the response entity
    */
   public ResponseEntity<?> removeTag(String artifactId, String tagId) {
@@ -599,9 +618,9 @@ public class ArtifactService {
     Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
     Team team = teamRepository.findTeamByTeamId(artifact.getTeamId());
     Tag tag = tagRepository.findTagByTagId(tagId);
-    if (!(project.getOwnerId().equals(user.getUserId())
-        || (team.getUserIds().contains(user.getUserId())
-            && tag.getCreatedBy().equals(user.getUserId())))) {
+    if (!(project.getOwnerId().equals(user.getUserId()) || (
+        team.getUserIds().contains(user.getUserId()) && tag.getCreatedBy()
+            .equals(user.getUserId())))) {
       response.put("msg", "User is not authorized to remove this tag from the artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -662,7 +681,7 @@ public class ArtifactService {
   /**
    * Retrieves the tags created by a user for a specific artifact.
    *
-   * @param artifactId the id of the artifact
+   * @param artifactId              the id of the artifact
    * @param userIdOrEmailOrUsername the id, email, or username of the user
    * @return the response entity
    */
@@ -875,4 +894,6 @@ public class ArtifactService {
     response.put("msg", "Tagging stopped successfully for all artifacts.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
+
+
 }

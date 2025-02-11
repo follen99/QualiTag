@@ -86,12 +86,12 @@ public class ArtifactController {
   /**
    * Gets the tags of an artifact by a user.
    *
-   * @param artifactId the id of the artifact to get the tags of
+   * @param artifactId              the id of the artifact to get the tags of
    * @param userIdOrEmailOrUsername the id, email, or username of the user to get the tags of
    * @return the response entity
    */
   @GetMapping("/{artifactId}/{userIdOrEmailOrUsername}/tags")
-  public ResponseEntity<?> getTagsByUser(@PathVariable String artifactId, 
+  public ResponseEntity<?> getTagsByUser(@PathVariable String artifactId,
       @PathVariable String userIdOrEmailOrUsername) {
     return this.artifactService.getTagsByUser(artifactId, userIdOrEmailOrUsername);
   }
