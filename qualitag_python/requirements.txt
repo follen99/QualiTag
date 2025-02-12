@@ -1,6 +1,5 @@
 flask
 gensim
-krippendorff
 nltk
 numpy
 pylint
