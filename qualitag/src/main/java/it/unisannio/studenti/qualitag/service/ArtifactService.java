@@ -404,7 +404,7 @@ public class ArtifactService {
     // Retrieve the artifact
     Artifact artifact = artifactRepository.findArtifactByArtifactId(artifactId);
     if (artifact == null) {
-      response.put("msg", "Artifact not found");
+      response.put("msg", "Artifact not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -412,11 +412,11 @@ public class ArtifactService {
     User user = userRepository.findByUserId(getLoggedInUserId());
     Project project = projectRepository.findProjectByProjectId(artifact.getProjectId());
     if (user == null) {
-      response.put("msg", "User not found");
+      response.put("msg", "User not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     if (!project.getOwnerId().equals(user.getUserId())) {
-      response.put("msg", "User is not authorized to view this artifact");
+      response.put("msg", "User is not authorized to view this artifact.");
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -431,7 +431,7 @@ public class ArtifactService {
     for (String tagId : artifact.getTags()) {
       ResponseEntity<?> removeTagResponse = removeTag(artifactId, tagId);
       if (removeTagResponse.getStatusCode() != HttpStatus.OK) {
-        response.put("msg", "Error removing tags from artifact");
+        response.put("msg", "Error removing tags from artifact.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
     }
@@ -439,7 +439,7 @@ public class ArtifactService {
     // Call the Python service to process the tags
     String processedTags = pythonClientService.processTags(tagValues);
     if (processedTags == null) {
-      response.put("msg", "Error processing tags");
+      response.put("msg", "Error processing tags.");
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
@@ -460,7 +460,7 @@ public class ArtifactService {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
     } catch (JsonProcessingException e) {
-      response.put("msg", "Error processing JSON");
+      response.put("msg", "Error processing JSON.");
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(response + e.getMessage());
     }
@@ -473,7 +473,7 @@ public class ArtifactService {
 
       if (responseRequest.getStatusCode() != HttpStatus.CREATED
           && responseRequest.getStatusCode() != HttpStatus.CONFLICT) {
-        response.put("msg", "Error creating tags from processed tags");
+        response.put("msg", "Error creating tags from processed tags.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
       }
 
@@ -500,7 +500,7 @@ public class ArtifactService {
     ResponseEntity<?> response2 = this.addTags(artifactId, new AddTagsToArtifactDto(tagIds));
     System.out.println("\n\nResponse2: " + response2 + "\n\n");
 
-    response.put("msg", "Tags processed successfully");
+    response.put("msg", "Tags processed successfully.");
     response.put("processedTags", processedTagsList);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }

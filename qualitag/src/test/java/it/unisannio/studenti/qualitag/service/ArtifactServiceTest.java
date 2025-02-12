@@ -5,7 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
@@ -15,6 +19,7 @@ import static org.mockito.Mockito.when;
 import it.unisannio.studenti.qualitag.dto.artifact.AddTagsToArtifactDto;
 import it.unisannio.studenti.qualitag.dto.artifact.ArtifactCreateDto;
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
+import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;
 import it.unisannio.studenti.qualitag.mapper.ArtifactMapper;
 import it.unisannio.studenti.qualitag.mapper.TagMapper;
@@ -47,6 +52,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -75,6 +81,10 @@ class ArtifactServiceTest {
   private Validator validator;
   @Mock
   private AuthenticationService authenticationService;
+  @Mock
+  private PythonClientService pythonClientService;
+  @Mock
+  private TagService tagService;
   @Mock
   private MultipartFile file;
 
@@ -121,19 +131,24 @@ class ArtifactServiceTest {
     tag4 = new Tag("TAG4", "6798e2740b80b85362a8ba90", "#295f98");
     tag4.setTagId("6755b79afc22f97c06a34277");
 
-    user1 = new User("user1", "user1@example.com", "password1", "Jane", "Doe");
+    user1 = new User("user1", "user1@example.com", "password1",
+        "Jane", "Doe");
     user1.setUserId("6798e2740b80b85362a8ba90");
     user1.setTagIds(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag2.getTagId())));
-    user2 = new User("user2", "user2@example.com", "password2", "John", "Doe");
+    user2 = new User("user2", "user2@example.com", "password2",
+        "John", "Doe");
     user2.setUserId("6798e6740b70b85362a8ba91");
-    owner = new User("owner", "owner@example.com", "password3", "Alice", "Smith");
+    owner = new User("owner", "owner@example.com", "password3",
+        "Alice", "Smith");
     owner.setUserId("6998e2740b87d85362a8ba58");
-    otherUser = new User("otherUser", "other@example.com", "password", "Bob", "Johnson");
+    otherUser = new User("otherUser", "other@example.com", "password",
+        "Bob", "Johnson");
     otherUser.setUserId("6798e2740b80b85362a8ba92");
 
     mockFilePath = Paths.get("/mock/path/to/file.txt");
 
-    artifact = new Artifact("artifactName", "projectId", "teamId", mockFilePath.toString());
+    artifact = new Artifact("artifactName", "projectId", "teamId",
+        mockFilePath.toString());
     artifact.setArtifactId("6754705c8d6446369ca02b62");
     artifact.setTags(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag2.getTagId())));
     tag1.setArtifactIds(new ArrayList<>(Collections.singletonList(artifact.getArtifactId())));
@@ -141,7 +156,8 @@ class ArtifactServiceTest {
 
     long creationDate = Instant.now().toEpochMilli();
     long deadline = Instant.parse("2025-12-31T23:59:59Z").toEpochMilli();
-    project = new Project("projectName", "projectDescription", creationDate, deadline,
+    project = new Project("projectName", "projectDescription",
+        creationDate, deadline,
         owner.getUserId(), new ArrayList<>());
     project.setProjectId("projectId");
     project.setUserIds(new ArrayList<>(Arrays.asList("6998e2740b87d85362a8ba58",
@@ -150,7 +166,8 @@ class ArtifactServiceTest {
     owner.setProjectIds(new ArrayList<>(List.of("projectId")));
     project.setTeamIds(new ArrayList<>(List.of("teamId")));
 
-    team = new Team("teamName", "projectId", 123456789L, "teamDescription",
+    team = new Team("teamName", "projectId", 123456789L,
+        "teamDescription",
         new ArrayList<>(Arrays.asList("6798e2740b80b85362a8ba90", "6798e6740b70b85362a8ba91")));
     team.setTeamId("teamId");
     user1.setTeamIds(new ArrayList<>(List.of("teamId")));
@@ -199,8 +216,6 @@ class ArtifactServiceTest {
     // Act
     ResponseEntity<?> response = artifactService.addArtifact(artifactCreateDto);
 
-    System.out.println(response);
-
     // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -217,7 +232,8 @@ class ArtifactServiceTest {
   public void testAddArtifactInvalidDto() {
     // Arrange
     ArtifactCreateDto invalidDto =
-        new ArtifactCreateDto(null, "artifactDescription", project.getProjectId(), null, file);
+        new ArtifactCreateDto(null, "artifactDescription",
+            project.getProjectId(), null, file);
 
     // Act
     ResponseEntity<?> response = artifactService.addArtifact(invalidDto);
@@ -236,7 +252,8 @@ class ArtifactServiceTest {
   @Test
   public void testAddArtifactProjectNotFound() {
     // Arrange
-    when(projectRepository.findProjectByProjectId(artifactCreateDto.projectId())).thenReturn(null);
+    when(projectRepository.findProjectByProjectId(artifactCreateDto.projectId())).
+        thenReturn(null);
 
     // Act
     ResponseEntity<?> response = artifactService.addArtifact(artifactCreateDto);
@@ -287,8 +304,6 @@ class ArtifactServiceTest {
 
       // Act
       ResponseEntity<?> response = artifactService.getArtifact(artifact.getArtifactId());
-
-      System.out.println(response.getBody());
 
       // Assert
       assertNotNull(response);
@@ -342,7 +357,7 @@ class ArtifactServiceTest {
   }
 
   /**
-   * Tests an execution of the getArtifact method when the user is not authorized to view the.
+   * Tests an execution of the getArtifact method when the user is not authorized to view the
    * artifact
    */
   @Test
@@ -933,8 +948,6 @@ class ArtifactServiceTest {
     ResponseEntity<?> response =
         artifactService.addTags(artifact.getArtifactId(), addTagsToArtifactDto);
 
-    System.out.println(response.getBody());
-
     // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1004,6 +1017,10 @@ class ArtifactServiceTest {
   public void testAddTagsInvalidDto() {
     // Arrange
     AddTagsToArtifactDto invalidDto = new AddTagsToArtifactDto(new ArrayList<>());
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).
+        thenReturn(project);
 
     // Act
     ResponseEntity<?> response = artifactService.addTags(artifact.getArtifactId(), invalidDto);
@@ -1084,6 +1101,8 @@ class ArtifactServiceTest {
         new AddTagsToArtifactDto(new ArrayList<>(Arrays.asList("", "")));
     when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
         .thenReturn(artifact);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).
+        thenReturn(project);
 
     // Act
     ResponseEntity<?> response = artifactService.addTags(artifact.getArtifactId(), invalidDto);
@@ -1106,6 +1125,8 @@ class ArtifactServiceTest {
         new AddTagsToArtifactDto(new ArrayList<>(Arrays.asList(null, null)));
     when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
         .thenReturn(artifact);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).
+        thenReturn(project);
 
     // Act
     ResponseEntity<?> response = artifactService.addTags(artifact.getArtifactId(), invalidDto);
@@ -1119,6 +1140,28 @@ class ArtifactServiceTest {
   }
 
   /**
+   * Tests an execution of the addTags method when the project is not found.
+   */
+  @Test
+  public void testAddTagsProjectNotFound() {
+    // Arrange
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).thenReturn(null);
+
+    // Act
+    ResponseEntity<?> response =
+        artifactService.addTags(artifact.getArtifactId(), addTagsToArtifactDto);
+
+    // Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
    * Tests an execution of the addTags method when the tag is not found.
    */
   @Test
@@ -1127,6 +1170,8 @@ class ArtifactServiceTest {
     when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
         .thenReturn(artifact);
     when(tagRepository.findTagByTagId(tag3.getTagId())).thenReturn(null);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).
+        thenReturn(project);
 
     // Act
     ResponseEntity<?> response =
@@ -1150,6 +1195,8 @@ class ArtifactServiceTest {
         new AddTagsToArtifactDto(new ArrayList<>(Arrays.asList(tag1.getTagId(), tag4.getTagId())));
     when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
         .thenReturn(artifact);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).
+        thenReturn(project);
     when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
 
     // Act
@@ -1242,8 +1289,6 @@ class ArtifactServiceTest {
     ResponseEntity<?> response =
         artifactService.getTagsByUser(artifact.getArtifactId(), user1.getUserId());
 
-    System.out.println(response.getBody());
-
     // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1270,8 +1315,6 @@ class ArtifactServiceTest {
     // Act
     ResponseEntity<?> response =
         artifactService.getTagsByUser(artifact.getArtifactId(), user1.getUsername());
-
-    System.out.println(response.getBody());
 
     // Assert
     assertNotNull(response);
@@ -1659,6 +1702,439 @@ class ArtifactServiceTest {
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Artifact not found.");
     assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests a successful execution of the processTags method
+   */
+  @Test
+  public void testProcessTagsSuccess() {
+    //Arrange
+    ArtifactService artifactServiceSpy = Mockito.spy(artifactService);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).thenReturn(project);
+    when(teamRepository.findTeamByTeamId(artifact.getTeamId())).thenReturn(team);
+    when(artifactRepository.save(artifact)).thenReturn(artifact);
+    when(tagRepository.save(tag1)).thenReturn(tag1);
+    when(tagRepository.save(tag2)).thenReturn(tag2);
+
+    doReturn(ResponseEntity.ok().build()).when(artifactServiceSpy).
+        addTags(eq(artifact.getArtifactId()), any(AddTagsToArtifactDto.class));
+    String mockProcessedTagsJson = "{ \"result\": [\"processedTag1\", \"processedTag2\"] }";
+    when(pythonClientService.processTags(anyList())).thenReturn(mockProcessedTagsJson);
+    when(tagService.createTag(any(TagCreateDto.class)))
+        .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CREATED)
+            .body(Map.of("tagId", "newTagId1")))
+        .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CREATED)
+            .body(Map.of("tagId", "newTagId2")));
+    List<String> tags = new ArrayList<>(Arrays.asList(tag1.getTagId(), tag2.getTagId()));
+    tags.add("newTagId1");
+    tags.add("newTagId2");
+    AddTagsToArtifactDto addTagsToArtifactDto = new AddTagsToArtifactDto(tags);
+    doReturn(ResponseEntity.ok().build()).when(artifactServiceSpy).
+        addTags(artifact.getArtifactId(), addTagsToArtifactDto);
+
+    //Act
+    ResponseEntity<?> response = artifactServiceSpy.processTags(artifact.getArtifactId());
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tags processed successfully.");
+    responseBody.put("processedTags", Arrays.asList("processedTag1", "processedTag2"));
+    assertEquals(responseBody, response.getBody());
+
+    verify(artifactServiceSpy, times(artifact.getTags().size())).
+        removeTag(eq(artifact.getArtifactId()), anyString());
+    verify(pythonClientService, times(1)).processTags(anyList());
+    verify(tagService, times(2)).createTag(any(TagCreateDto.class));
+  }
+
+  /**
+   * Tests an execution of the processTags method when the artifact is not found.
+   */
+  @Test
+  public void testProcessTagsArtifactNotFound() {
+    //Arrange
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(null);
+
+    //Act
+    ResponseEntity<?> response = artifactService.processTags(artifact.getArtifactId());
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Artifact not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the processTags method when the user is not found
+   */
+  @Test
+  public void testProcessTagsUserNotFound() {
+    //Arrange
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(null);
+
+    //Act
+    ResponseEntity<?> response = artifactService.processTags(artifact.getArtifactId());
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "User not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the processTags method when the user is not the owner of the project
+   */
+  @Test
+  public void testProcessTagsUserNotOwner() {
+    //Arrange
+    project.setOwnerId("6798e2740b80b85362a8ba92");
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).thenReturn(project);
+
+    //Act
+    ResponseEntity<?> response = artifactService.processTags(artifact.getArtifactId());
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "User is not authorized to view this artifact.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the processTags method when there is an error removing tags from
+   * artifact
+   */
+  @Test
+  public void testProcessTagsErrorRemovingTags() {
+    //Arrange
+    ArtifactService artifactServiceSpy = Mockito.spy(artifactService);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).thenReturn(project);
+    when(teamRepository.findTeamByTeamId(artifact.getTeamId())).thenReturn(team);
+    when(artifactRepository.save(artifact)).thenReturn(artifact);
+
+    doReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
+        .when(artifactServiceSpy).removeTag(eq(artifact.getArtifactId()), anyString());
+
+    //Act
+    ResponseEntity<?> response = artifactServiceSpy.processTags(artifact.getArtifactId());
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Error removing tags from artifact.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the processTags method when there is an error processing tags
+   */
+  @Test
+  public void testProcessTagsErrorProcessingTags() {
+    //Arrange
+    ArtifactService artifactServiceSpy = Mockito.spy(artifactService);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).thenReturn(project);
+    when(teamRepository.findTeamByTeamId(artifact.getTeamId())).thenReturn(team);
+    when(artifactRepository.save(artifact)).thenReturn(artifact);
+
+    when(pythonClientService.processTags(anyList())).thenReturn(null);
+
+    //Act
+    ResponseEntity<?> response = artifactServiceSpy.processTags(artifact.getArtifactId());
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Error processing tags.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the processTags method when there is an error processing JSO.N
+   */
+  @Test
+  public void testProcessTagsErrorProcessingJsonInvalidJson() {
+    // Arrange
+    ArtifactService artifactServiceSpy = Mockito.spy(artifactService);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).thenReturn(project);
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
+
+    doReturn(ResponseEntity.ok().build()).
+        when(artifactServiceSpy).removeTag(anyString(), anyString());
+
+    when(pythonClientService.processTags(anyList())).thenReturn("invalid-json");
+
+    //Act
+    ResponseEntity<?> response = artifactService.processTags(artifact.getArtifactId());
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+    assertNotNull(response.getBody());
+    String responseBody = response.getBody().toString();
+    // Ensure it contains the base error message
+    assertTrue(responseBody.contains("Error processing JSON."));
+
+    // Ensure it contains an exception message
+    assertTrue(responseBody.contains("Unrecognized token")
+        || responseBody.contains("Unexpected character"));
+  }
+
+  /**
+   * Tests an execution of the processTags method when there is an error creating tags
+   */
+  @Test
+  public void testProcessTagsErrorCreatingTagsFromProcessedTags() {
+    //Arrange
+    ArtifactService artifactServiceSpy = Mockito.spy(artifactService);
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(projectRepository.findProjectByProjectId(artifact.getProjectId())).thenReturn(project);
+    when(tagRepository.findTagByTagId(tag1.getTagId())).thenReturn(tag1);
+    when(tagRepository.findTagByTagId(tag2.getTagId())).thenReturn(tag2);
+
+    doReturn(ResponseEntity.ok().build()).when(artifactServiceSpy)
+        .removeTag(anyString(), anyString());
+
+    when(pythonClientService.processTags(anyList()))
+        .thenReturn("{ \"result\": [\"processedTag1\", \"processedTag2\"] }");
+
+    when(tagService.createTag(any(TagCreateDto.class)))
+        .thenReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+
+    //Act
+    ResponseEntity<?> response = artifactService.processTags(artifact.getArtifactId());
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Error creating tags from processed tags.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+
+  /**
+   * Tests a successful execution of the starTagging(List) method
+   */
+  @Test
+  public void testStartTaggingList() {
+    Artifact artifactToTag = new Artifact("artifactToTagName",
+        "projectId", "teamId",
+        mockFilePath.toString());
+    artifact.setArtifactId("6754740c8d6446369ba02b62");
+    List<String> artifacts = new ArrayList<>();
+    artifacts.add(artifact.getArtifactId());
+    artifacts.add(artifactToTag.getArtifactId());
+    artifact.setTaggingOpen(false);
+    artifactToTag.setTaggingOpen(false);
+
+    //Arrange
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifactToTag.getArtifactId()))
+        .thenReturn(artifactToTag);
+    when(artifactRepository.save(artifact)).thenReturn(artifact);
+    when(artifactRepository.save(artifactToTag)).thenReturn(artifactToTag);
+
+    //Act
+    ResponseEntity<?> response = artifactService.startTagging(artifacts);
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tagging started successfully for all artifacts.");
+    assertTrue(artifact.isTaggingOpen());
+    assertTrue(artifactToTag.isTaggingOpen());
+    verify(artifactRepository, times(1)).save(artifact);
+    verify(artifactRepository, times(1)).save(artifactToTag);
+  }
+
+  /**
+   * Tests an execution of the startTagging(List) method when the artifactId provided is empty.
+   */
+  @Test
+  public void testStartTaggingListEmptyArtifactId() {
+    //Arrange
+    List<String> emptyArtifacts = new ArrayList<>();
+
+    //Act
+    ResponseEntity<?> response = artifactService.startTagging(emptyArtifacts);
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Artifact id is null or empty.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the startTagging(List) method when the artifactId is null.
+   */
+  @Test
+  public void testStartTaggingListNullArtifactId() {
+    //Arrange
+    List<String> nullArtifacts = null;
+
+    //Act
+    ResponseEntity<?> response = artifactService.startTagging(nullArtifacts);
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Artifact id is null or empty.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the startTagging(List) method when the artifact is not found.
+   */
+  @Test
+  public void testStartTaggingListArtifactNotFound() {
+    //Arrange
+    List<String> artifacts = new ArrayList<>(List.of(artifact.getArtifactId()));
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(null);
+
+    //Act
+    ResponseEntity<?> response = artifactService.startTagging(artifacts);
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Artifact not found.");
+  }
+
+  /**
+   * Tests a successful execution of the stopTagging(List) method
+   */
+  @Test
+  public void testStopTaggingList() {
+    Artifact artifactToTag = new Artifact("artifactToTagName",
+        "projectId", "teamId",
+        mockFilePath.toString());
+    artifactToTag.setArtifactId("6754740c8d6446369ba02b62");
+    artifact.setTaggingOpen(true);
+    artifactToTag.setTaggingOpen(true);
+    List<String> artifacts = new ArrayList<>();
+    artifacts.add(artifact.getArtifactId());
+    artifacts.add(artifactToTag.getArtifactId());
+
+    //Arrange
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId()))
+        .thenReturn(artifact);
+    when(artifactRepository.findArtifactByArtifactId(artifactToTag.getArtifactId()))
+        .thenReturn(artifactToTag);
+    when(artifactRepository.save(artifact)).thenReturn(artifact);
+    when(artifactRepository.save(artifactToTag)).thenReturn(artifactToTag);
+
+    //Act
+    ResponseEntity<?> response = artifactService.stopTagging(artifacts);
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Tagging stopped successfully for all artifacts.");
+    assertFalse(artifact.isTaggingOpen());
+    assertFalse(artifactToTag.isTaggingOpen());
+    verify(artifactRepository, times(1)).save(artifact);
+    verify(artifactRepository, times(1)).save(artifactToTag);
+  }
+
+  /**
+   * Tests an execution of the stopTagging(List) method when the artifactId provided is empty.
+   */
+  @Test
+  public void testStopTaggingListEmptyArtifactId() {
+    //Arrange
+    List<String> emptyArtifacts = new ArrayList<>();
+
+    //Act
+    ResponseEntity<?> response = artifactService.stopTagging(emptyArtifacts);
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Artifact id is null or empty.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the stopTagging(List) method when the artifactId is null.
+   */
+  @Test
+  public void testStopTaggingListNullArtifactId() {
+    //Arrange
+    List<String> nullArtifacts = null;
+
+    //Act
+    ResponseEntity<?> response = artifactService.stopTagging(nullArtifacts);
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Artifact id is null or empty.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the stopTagging(List) method when the artifact is not found.
+   */
+  @Test
+  public void testStopTaggingListArtifactNotFound() {
+    //Arrange
+    List<String> artifacts = new ArrayList<>(List.of(artifact.getArtifactId()));
+    when(artifactRepository.findArtifactByArtifactId(artifact.getArtifactId())).thenReturn(null);
+
+    //Act
+    ResponseEntity<?> response = artifactService.stopTagging(artifacts);
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Artifact not found.");
   }
 
 
