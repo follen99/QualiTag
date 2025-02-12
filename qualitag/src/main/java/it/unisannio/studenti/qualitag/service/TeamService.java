@@ -387,16 +387,20 @@ public class TeamService {
       data.add(innerData);
     }
 
-    System.out.println("Data: " + data);
-
     String jsonAlpha = null;
     try {
       jsonAlpha = pythonClientService.getKrippendorffAlpha(data);
+      System.out.println("JSON Alpha: " + jsonAlpha);
     } catch (Exception e) {
       response.put("msg", "Error while retrieving Krippendorff's alpha");
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
     JSONObject jsonObject = new JSONObject(jsonAlpha);
+    if (!jsonObject.has("alpha")) {
+      response.put("msg", jsonObject.getString("error"));
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     double alphaValue = jsonObject.getDouble("alpha");
 
     response.put("msg", "Successfully retrieved Krippendorff's alpha.");

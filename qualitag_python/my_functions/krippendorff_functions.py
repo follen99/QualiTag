@@ -1,35 +1,60 @@
 """
   This module contains functions to calculate Krippendorff's Alpha
 """
-import krippendorff
-import numpy as np
+import nltk
+from nltk.metrics.distance import jaccard_distance
+
+
+def transform_data(data):
+  """
+    Transform the input data into the format required by nltk's AnnotationTask
+  """
+  transformed_data = []
+  for i, inner in enumerate(data):
+    for j, tags in enumerate(inner):
+      if not tags:
+        continue
+      else:
+        transformed_data.append((f"user_{j}", f"item_{i}", frozenset(tags)))
+
+  return transformed_data
+
+
+def safe_jaccard_distance(set1, set2):
+  """
+    Calculate the Jaccard distance between two sets, handling empty sets
+  """
+  if not set1 and not set2:
+    return 0.0
+  return jaccard_distance(set1, set2)
+
+
+def check_data(data):
+  """
+    Check if the input data is valid
+  """
+  # Iterate the List of Lists
+  for inner in data:
+    # Count the number of non-empty tag lists
+    count = 0
+    for tags in inner:
+      if tags:
+        count += 1
+    if count > 1:
+      return True
+
+  return False
 
 
 def calculate_krippendorff_alpha(data):
-  # Extract unique tags across all raters
-  unique_tags = sorted(
-      {tag for item in data for rater in item for tag in rater})
-  print(f"Unique tags: {unique_tags}\n")
+  """
+    Calculate Krippendorff's Alpha for the given data
+  """
+  if not check_data(data):
+    print("Invalid data")
+    return None
 
-  # Initialize binary matrix for each item
-  # (each row represents a rater, each column a tag)
-  binary_matrix = []
-  for item in data:
-    for rater_tags in item:
-      row = [1 if tag in rater_tags else 0 for tag in unique_tags]
-      binary_matrix.append(row)
+  task = nltk.AnnotationTask(distance=safe_jaccard_distance)
+  task.load_array(transform_data(data))
 
-  # Each row represents a tag. Coulumns are grouped by items
-  # (es. first 4 columns are for item 1)
-  binary_matrix = np.array(binary_matrix).T
-  print(f"Binary representation for all items:\n{binary_matrix}\n")
-  print("")
-
-  # Compute Krippendorff"s Alpha for the entire dataset
-  print("Calculating Krippendorff's Alpha...")
-  alpha_calculated = krippendorff.alpha(reliability_data=binary_matrix,
-                                        level_of_measurement="nominal")
-  print(f"Krippendorff's alpha for nominal metric: {alpha_calculated}")
-
-  # Result with current example: -0.12673611111111116
-  return alpha_calculated
+  return task.alpha()
