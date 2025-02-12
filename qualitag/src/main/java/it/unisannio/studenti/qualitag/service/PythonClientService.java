@@ -34,8 +34,9 @@ public class PythonClientService {
         .uri("/api/krippendorff")
         .contentType(MediaType.APPLICATION_JSON)
         .bodyValue(input)
-        .retrieve()
-        .bodyToMono(String.class)
+        .exchangeToMono(clientResponse -> {
+          return clientResponse.bodyToMono(String.class);
+        })
         .block();
   }
 

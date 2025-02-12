@@ -497,8 +497,7 @@ public class ArtifactService {
     }
 
     // Add tags to artifact
-    ResponseEntity<?> response2 = this.addTags(artifactId, new AddTagsToArtifactDto(tagIds));
-    System.out.println("\n\nResponse2: " + response2 + "\n\n");
+    this.addTags(artifactId, new AddTagsToArtifactDto(tagIds));
 
     response.put("msg", "Tags processed successfully.");
     response.put("processedTags", processedTagsList);

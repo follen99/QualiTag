@@ -37,13 +37,19 @@ def process_data():
 def krippendorff_compute():
   try:
     received = request.json  # Directly access the JSON payload
+    print("Data received:", received)
 
     alpha_value = mf.calculate_krippendorff_alpha(received)
     if alpha_value is None:
+      print(
+          jsonify(error=("Krippendorff's alpha could not be calculated due to "
+                         "insufficient data.")), 400)
+
       return jsonify(
           error=("Krippendorff's alpha could not be calculated due to "
                  "insufficient data.")), 400
 
+    print("Alpha value:", alpha_value)
     return jsonify(alpha=alpha_value)
   except KeyError as e:
     return jsonify(error=f"Key error: {str(e)}"), 400
