@@ -127,10 +127,8 @@ tasks.named('build') {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
-    exclude 'it/unisannio/studenti/qualitag/view/**'
+    // exclude 'it/unisannio/studenti/qualitag/view/**'
 }
-
-
 
 jacocoTestReport {
     dependsOn test
