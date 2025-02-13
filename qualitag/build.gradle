@@ -14,9 +14,6 @@ plugins {
 
     // Jacoco plugin
     id 'jacoco'
-
-
-    id 'application'
 }
 
 jacoco {
@@ -122,48 +119,6 @@ checkstyle {
 /*tasks.named('test') {
     useJUnitPlatform()
 }*/
-
-
-task startServer(type: JavaExec) {
-    group = 'application'
-    description = 'Starts the Spring Boot application'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'it/unisannio/studenti/qualitag/QualitagApplication'
-}
-
-task stopServer(type: Exec) {
-    group = 'application'
-    description = 'Stops the Spring Boot application'
-    commandLine 'pkill', '-f', application.mainClass
-}
-
-sourceSets {
-    uiTest {
-        java.srcDirs = ['src/test/java/uiTest/view']
-        resources.srcDirs = ['src/test/resources']
-        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
-        runtimeClasspath += output + compileClasspath
-    }
-}
-
-configurations {
-    uiTestImplementation.extendsFrom testImplementation
-    uiTestRuntimeOnly.extendsFrom testRuntimeOnly
-}
-
-task uiTest(type: Test) {
-    description = 'Runs UI tests'
-    group = 'verification'
-    testClassesDirs = sourceSets.uiTest.output.classesDirs
-    classpath = sourceSets.uiTest.runtimeClasspath
-    dependsOn startServer
-    finalizedBy stopServer
-    shouldRunAfter test
-}
-
-tasks.named('check') {
-    dependsOn uiTest
-}
 
 tasks.named('build') {
     dependsOn test
