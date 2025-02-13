@@ -13,6 +13,7 @@ public class UiTest {
 
   private WebDriver driver;
 
+
   @BeforeEach
   public void setUp() {
     // Set the path to the GeckoDriver executable
