@@ -31,7 +31,7 @@ public class TeamMapperTest {
         creationTimestamp, "teamDescription", new ArrayList<>());
     wholeTeamDto = new WholeTeamDto("teamId", "projectId",
         new ArrayList<>(), "teamName",
-        Instant.now().toEpochMilli(), "teamDescription");
+        creationTimestamp, "teamDescription");
   }
 
   /**
