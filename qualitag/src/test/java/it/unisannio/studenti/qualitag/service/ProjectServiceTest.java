@@ -1754,8 +1754,8 @@ public class ProjectServiceTest {
     assertEquals(responseBody, response.getBody());
   }
 
-  /**.
-   * Tests a successful execution of the getProjectById method.
+  /**
+   * . Tests a successful execution of the getProjectById method.
    */
   @Test
   public void testGetProjectByIdSuccess() {
@@ -1894,6 +1894,151 @@ public class ProjectServiceTest {
     assertEquals("Project with ID 6998e2630b87d85462b8ca58 not found.", response.getBody());
   }
 
+  /**
+   * Tests the deleteProject method
+   */
+  @Test
+  public void testDeleteProject() {
+    // Arrange
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
+    when(userRepository.save(owner)).thenReturn(owner);
+    when(userRepository.save(user1)).thenReturn(user1);
+    when(userRepository.save(user2)).thenReturn(user2);
+    when(teamService.deleteTeam(team.getTeamId())).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+    when(artifactService.deleteArtifact(artifact1.getArtifactId()))
+        .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+    when(artifactService.deleteArtifact(artifact2.getArtifactId()))
+        .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+    // Act
+    ResponseEntity<?> response = projectService.deleteProject(project.getProjectId());
+
+    // Assert
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project deleted successfully.");
+    assertEquals(responseBody, response.getBody());
+//    verify(projectRepository, times(1)).delete(project);
+//    verify(artifactService, times(1)).
+//        deleteArtifact(artifact1.getArtifactId());
+//    verify(artifactRepository, times(1)).
+//        delete(artifact1);
+//    verify(artifactService, times(1)).
+//        deleteArtifact(artifact2.getArtifactId());
+//    verify(artifactRepository, times(1)).
+//        delete(artifact2);
+//    verify(teamService, times(1)).
+//        deleteTeam(team.getTeamId());
+//    verify(teamRepository, times(1)).
+    //delete(team);
+    verify(userRepository, times(2)).save(owner);
+    verify(userRepository, times(1)).save(user1);
+    verify(userRepository, times(1)).save(user2);
+    assertTrue(owner.getProjectIds().isEmpty());
+    assertTrue(user1.getProjectIds().isEmpty());
+    assertTrue(user2.getProjectIds().isEmpty());
+  }
+
+  /**
+   * Tests an execution of the deleteProject method with a null project id.
+   */
+  @Test
+  public void testDeleteProjectNullProjectId() {
+    // Act
+    ResponseEntity<?> response = projectService.deleteProject(null);
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project ID cannot be null or empty.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the deleteProject method with an empty project id.
+   */
+  @Test
+  public void testDeleteProjectEmptyProjectId() {
+    // Act
+    ResponseEntity<?> response = projectService.deleteProject("");
+
+    // Assert
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project ID cannot be null or empty.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the deleteProject method when the project is not found.
+   */
+  @Test
+  public void testDeleteProjectProjectNotFound() {
+    // Arrange
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
+
+    // Act
+    ResponseEntity<?> response = projectService.deleteProject(project.getProjectId());
+
+    // Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the deleteProject method when a user other than owner
+   * tries to delete the project
+   */
+  @Test
+  public void testDeleteProjectNotOwner() {
+    // Arrange
+    project.setOwnerId("otherUserId");
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+
+    // Act
+    ResponseEntity<?> response = projectService.deleteProject(project.getProjectId());
+
+    // Assert
+    assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Only the owner can delete the project!");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of the deleteProject method when the project deletion fails
+   */
+  @Test
+  public void testDeleteProjectProjectDeletionFails() {
+    // Arrange
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByUserId(owner.getUserId())).thenReturn(owner);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
+    when(userRepository.save(owner)).thenReturn(owner);
+    when(userRepository.save(user1)).thenReturn(user1);
+    when(userRepository.save(user2)).thenReturn(user2);
+    when(teamService.deleteTeam(team.getTeamId())).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+    when(artifactService.deleteArtifact(artifact1.getArtifactId()))
+        .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+    when(artifactService.deleteArtifact(artifact2.getArtifactId()))
+        .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+    when(projectRepository.existsById(project.getProjectId())).thenReturn(true);
+
+    // Act
+    ResponseEntity<?> response = projectService.deleteProject(project.getProjectId());
+
+    // Assert
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project not deleted.");
+    assertEquals(responseBody, response.getBody());
+  }
 
 
 }

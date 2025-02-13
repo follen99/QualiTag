@@ -122,8 +122,8 @@ public class ProjectService {
     } catch (Exception e) {
       if (e instanceof TokenResponseException) {
         TokenResponseException tokenException = (TokenResponseException) e;
-        if (tokenException.getStatusCode() == 400 
-            && tokenException.getContent().contains("invalid_grant") 
+        if (tokenException.getStatusCode() == 400
+            && tokenException.getContent().contains("invalid_grant")
             && tokenException.getContent().contains("Token has been expired or revoked.")) {
           // Specific behavior for this exception
           response.put("msg", """
@@ -393,16 +393,16 @@ public class ProjectService {
 
     return ResponseEntity.status(HttpStatus.OK).body(
         new WholeProjectHeavyDto(
-                projectId, 
-                project.getProjectName(), 
-                project.getProjectDescription(),
-                project.getProjectCreationDate(), 
-                project.getProjectDeadline(), 
-                ownerDto,
-                project.getProjectStatus().name(),
-                responseUserDtos,
-                wholeArtifactDto,
-                wholeTeamDto));
+            projectId,
+            project.getProjectName(),
+            project.getProjectDescription(),
+            project.getProjectCreationDate(),
+            project.getProjectDeadline(),
+            ownerDto,
+            project.getProjectStatus().name(),
+            responseUserDtos,
+            wholeArtifactDto,
+            wholeTeamDto));
   }
 
   // PUT
@@ -492,7 +492,7 @@ public class ProjectService {
                   
                   Best regards,
                   %s
-                  """, 
+                  """,
               user.getUsername(), project.getProjectName(), project.getProjectDescription(),
               userRepository.findByUserId(project.getOwnerId()).getName() + " "
                   + userRepository.findByUserId(project.getOwnerId()).getSurname());
@@ -629,18 +629,17 @@ public class ProjectService {
       response.put("msg", "Project ID cannot be null or empty.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-    if (!projectRepository.existsById(projectId)) {
+    Project projectToDelete = projectRepository.findProjectByProjectId(projectId);
+    if (projectToDelete == null) {
       response.put("msg", "Project not found.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-
-    Project projectToDelete = projectRepository.findProjectByProjectId(projectId);
 
     // Check if the logged user is the owner of the project
     String currentUserId = getLoggedInUserId();
     if (!currentUserId.equals(projectToDelete.getOwnerId())) {
       response.put("msg", "Only the owner can delete the project!");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // TODO: Eventually delete the roles of the users

@@ -21,6 +21,7 @@ public class ArtifactMapper {
     entity.setArtifactName(dto.artifactName());
     entity.setDescription(dto.description());
     entity.setProjectId(dto.projectId());
+    entity.setTeamId(dto.teamId());
     return entity;
   }
 

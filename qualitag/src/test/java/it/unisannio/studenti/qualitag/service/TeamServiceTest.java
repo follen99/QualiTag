@@ -94,7 +94,8 @@ public class TeamServiceTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
     // Initialize entities
-    team = new Team("teamName", "projectId", 123456789L, "teamDescription",
+    team = new Team("teamName", "projectId", Instant.now().toEpochMilli(),
+        "teamDescription",
         new ArrayList<>(Arrays.asList("user1Id", "user2Id")));
     team.setTeamId("teamId");
 
@@ -1243,10 +1244,10 @@ public class TeamServiceTest {
   }
 
   /**
-   * Tests an execution for updateTeamUses where the user is not found.
+   * Tests an execution for updateTeamUsers where the user is not found in the project
    */
   @Test
-  void testUpdateTeamUsersUserNotFound() {
+  void testUpdateTeamUsersUserNotFoundProject() {
     // Arrange
     when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
     when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
@@ -1263,6 +1264,159 @@ public class TeamServiceTest {
     assertEquals(responseBody, response.getBody());
 
   }
+
+  /**
+   * Tests an execution of updateTeamUsers where the project is not found
+   */
+  @Test
+  public void testUpdateTeamUsersProjectNotFound(){
+    //Arrange
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(null);
+
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(),
+        Arrays.asList(user1.getEmail(), user3.getEmail()));
+
+    //Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Project not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of updateTeamUsers where the logged in user is not the project owner
+   */
+  @Test
+  public void testUpdateTeamUsersNotProjectOwner(){
+    //Arrange
+    project.setOwnerId("otherUserId");
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(),
+        Arrays.asList(user1.getEmail(), user3.getEmail()));
+
+    //Assert
+    assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Only the project owner can update the team users.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of updateTeamUsers where one of the users is not part of the project
+   */
+  @Test
+  public void testUpdateTeamUsersUserNotInProject(){
+    //Arrange
+    project.setUserIds(Arrays.asList("ownerId", "user2Id"));
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(),
+        Arrays.asList(user1.getEmail(), user3.getEmail()));
+
+    //Assert
+    assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "User with email " + user1.getEmail() +
+        " is not part of the project.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of updateTeamUsers where the user is not found (in the database)
+   */
+  @Test
+  public void testUpdateTeamUsersUserNotFound(){
+    //Arrange
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByEmail(user3.getEmail())).thenReturn(user3);
+
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(),
+        Arrays.asList(user1.getEmail(), user3.getEmail()));
+
+    //Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "User with ID " + user1.getUserId() + " not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of updateTeamUsers where the user to add to team is not found
+   */
+  @Test
+  public void testUpdateTeamUsersUserToAddNotFound(){
+    //Arrange
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByEmail(user3.getEmail())).thenReturn(user3);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
+    when(userRepository.findByUserId(user3.getUserId())).thenReturn(null);
+
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(),
+        Arrays.asList(user1.getEmail(), user3.getEmail()));
+
+    //Assert
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "User with ID " + user3.getUserId() + " not found.");
+    assertEquals(responseBody, response.getBody());
+  }
+
+  /**
+   * Tests an execution of updateTeamUsers where the user to add is already in another team
+   */
+  @Test
+  public void testUpdateTeamUsersUserToAddAlreadyInTeam(){
+    //Arrange
+    Team anotherTeam = new Team("anotherTeam", project.getProjectId(), 123456789L,
+        "teamDescription", new ArrayList<>(List.of(user3.getUserId())));
+    anotherTeam.setTeamId("anotherTeamId");
+    project.setTeamIds(Arrays.asList("teamId", "anotherTeamId"));
+    user3.setTeamIds(new ArrayList<>(List.of("anotherTeamId")));
+
+    when(teamRepository.findTeamByTeamId(team.getTeamId())).thenReturn(team);
+    when(teamRepository.findTeamByTeamId(anotherTeam.getTeamId())).thenReturn(anotherTeam);
+    when(projectRepository.findProjectByProjectId(project.getProjectId())).thenReturn(project);
+    when(userRepository.findByEmail(user1.getEmail())).thenReturn(user1);
+    when(userRepository.findByEmail(user3.getEmail())).thenReturn(user3);
+    when(userRepository.findByUserId(user1.getUserId())).thenReturn(user1);
+    when(userRepository.findByUserId(user2.getUserId())).thenReturn(user2);
+    when(userRepository.findByUserId(user3.getUserId())).thenReturn(user3);
+    when(userRepository.save(user1)).thenReturn(user1);
+    when(userRepository.save(user2)).thenReturn(user2);
+    when(userRepository.save(user3)).thenReturn(user3);
+
+    //Act
+    ResponseEntity<?> response = teamService.updateTeamUsers(team.getTeamId(),
+        Arrays.asList(user1.getEmail(), user3.getEmail()));
+
+    //Assert
+    assertNotNull(response);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Map<String, Object> responseBody = new HashMap<>();
+    responseBody.put("msg", "Team users updated successfully.");
+    assertEquals(responseBody, response.getBody());
+    assertEquals(Arrays.asList(user1.getUserId(), user3.getUserId()), team.getUserIds());
+    assertTrue(user3.getTeamIds().contains("teamId"));
+    assertFalse(user3.getTeamIds().contains("anotherTeamId"));
+    assertFalse(anotherTeam.getUserIds().contains(user3.getUserId()));
+    assertFalse(user2.getTeamIds().contains("teamId"));
+  }
+
 
 
 }

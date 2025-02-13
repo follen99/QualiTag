@@ -65,11 +65,11 @@ public class TagController {
    * @param artifactId  The id of the artifact to update the tags.
    * @return  The response entity.
    */
-  @PostMapping("/{artifactId}/updateTags")
-  public ResponseEntity<?> updateTags(@RequestBody List<TagCreateDto> tags,
-      @PathVariable String artifactId) {
-    return this.tagService.updateTagsOfAnArtifact(tags, artifactId);
-  }
+//  @PostMapping("/{artifactId}/updateTags")
+//  public ResponseEntity<?> updateTags(@RequestBody List<TagCreateDto> tags,
+//      @PathVariable String artifactId) {
+//    return this.tagService.updateTagsOfAnArtifact(tags, artifactId);
+//  }
   
   /**
    * Get a tag by its id.
