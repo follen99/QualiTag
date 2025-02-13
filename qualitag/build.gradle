@@ -105,6 +105,9 @@ dependencies {
 
     // JSON Library to parse JSON
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+    // selenium
+    implementation 'org.seleniumhq.selenium:selenium-java:4.12.1'
 }
 
 // Checkstyle configuration for Google Java Style
