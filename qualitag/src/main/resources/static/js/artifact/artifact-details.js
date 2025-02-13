@@ -229,7 +229,11 @@ async function populateSidebarOwner(artifactId, metadata) {
   sidebarContainer.appendChild(message);
 
   console.log("metadata:", metadata.artifact.isTaggingOpen);
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'd-flex mb-2';
+
   if (metadata.artifact.isTaggingOpen) {
+    // WHAT THE OWNER SEES WHEN THE TAGGING OPERATION IS OPEN
     sidebarContainer.appendChild(getExplainingText(
         'The tagging operation is currently in progress. You can stop it by clicking the button below.'));
 
@@ -245,9 +249,23 @@ async function populateSidebarOwner(artifactId, metadata) {
         window.location.reload();
       }
     });
-    sidebarContainer.appendChild(stopButton);
-  } else {
+    // sidebarContainer.appendChild(stopButton);
+    buttonContainer.appendChild(stopButton);
 
+    const fakeResolveTagsButton = document.createElement('button');
+    fakeResolveTagsButton.textContent = 'Resolve tags';
+    fakeResolveTagsButton.style.marginBottom = '2em';
+    fakeResolveTagsButton.style.marginLeft = '1em';
+    fakeResolveTagsButton.className = 'btn btn-info mt-3';
+    fakeResolveTagsButton.addEventListener('click', async () => {
+      alert("Stop tagging operation first to resolve tags.");
+    });
+
+    // sidebarContainer.appendChild(fakeResolveTagsButton);
+    buttonContainer.appendChild(fakeResolveTagsButton);
+    sidebarContainer.appendChild(buttonContainer);
+  } else {
+    // WHAT THE OWNER SEES WHEN THE TAGGING OPERATION IS CLOSED
     sidebarContainer.appendChild(getExplainingText(
         'No user can tag the artifact since the tagging operation is closed. You can resume it by clicking the button below.'));
 
@@ -263,7 +281,25 @@ async function populateSidebarOwner(artifactId, metadata) {
         window.location.reload();
       }
     });
-    sidebarContainer.appendChild(startButton);
+    // sidebarContainer.appendChild(startButton);
+    buttonContainer.appendChild(startButton);
+
+    const resolveTagsButton = document.createElement('button');
+    resolveTagsButton.textContent = 'Resolve tags';
+    resolveTagsButton.style.marginBottom = '2em';
+    resolveTagsButton.style.marginLeft= '1em';
+    resolveTagsButton.className = 'btn btn-primary mt-3';
+    resolveTagsButton.addEventListener('click', async () => {
+      if (confirm(
+          "Are you sure you want to resolve all tags?\nThis will delete all existing tags and the operation is not reversable.")) {
+        // TODO: qui è dove dovra essere chiamata la API che risolve i tags.
+      }
+    });
+
+    // sidebarContainer.appendChild(resolveTagsButton);
+    buttonContainer.appendChild(resolveTagsButton);
+    sidebarContainer.appendChild(buttonContainer);
+
   }
 
   const response = await fetchAllArtifactTags(artifactId);
