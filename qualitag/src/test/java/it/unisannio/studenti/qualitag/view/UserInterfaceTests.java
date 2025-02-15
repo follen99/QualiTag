@@ -17,20 +17,28 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class is used to run the Cucumber tests for the user interface. It starts the server before.
+ */
 @RunWith(Cucumber.class)
 @CucumberOptions(
-  features = "src/test/resources/features",
-  glue = "it.unisannio.studenti.qualitag.view.steps",
-  plugin = {"pretty", "html:build/cucumber/cucumber-reports.html"},
-  monochrome = true,
-  dryRun = false,
-  tags = "@Selenium"
+    features = "src/test/resources/features",
+    glue = "it.unisannio.studenti.qualitag.view.steps",
+    plugin = {"pretty", "html:build/cucumber/cucumber-reports.html"}, 
+    monochrome = true,
+    dryRun = false, 
+    tags = "@Selenium"
 )
 public class UserInterfaceTests {
 
   private static final Logger logger = LoggerFactory.getLogger(UserInterfaceTests.class);
   private static Process serverProcess;
 
+  /**
+   * Starts the server before running the tests.
+   *
+   * @throws IOException if an I/O error occurs
+   */
   @BeforeClass
   public static void startServer() throws IOException {
     // Start the server from jar
@@ -43,6 +51,11 @@ public class UserInterfaceTests {
     logger.info("Server started.");
   }
 
+  /**
+   * Stops the server after running the tests.
+   *
+   * @throws IOException if an I/O error occurs
+   */
   @AfterClass
   public static void stopServer() throws IOException {
     logger.info("Stopping server...");
@@ -68,15 +81,15 @@ public class UserInterfaceTests {
       public void checkClientTrusted(X509Certificate[] certs, String authType) {}
 
       public void checkServerTrusted(X509Certificate[] certs, String authType) {}
-    }};
+    } };
 
     // Install the all-trusting trust manager
     try {
       SSLContext sc = SSLContext.getInstance("SSL");
       sc.init(null, trustAllCerts, new java.security.SecureRandom());
       HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-      HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true); // Bypass hostname
-                                                                                  // verification
+      // Bypass hostname verification
+      HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
     } catch (Exception e) {
       logger.error("Error setting up trust-all: " + e.getMessage());
       return;

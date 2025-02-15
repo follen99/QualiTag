@@ -12,6 +12,9 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Test to check if the home page is shown.
+ */
 public class HomePageTest {
 
   private static final Logger logger = LoggerFactory.getLogger(HomePageTest.class);
@@ -19,6 +22,9 @@ public class HomePageTest {
   private String baseUrl = "http://localhost:8080";
   private String urlRedirect = "https://localhost:8443/";
 
+  /**
+   * User digits the homepage URL.
+   */
   @Given("User digits the homepage URL")
   public void userDigitsHomepageUrl() {
     logger.info("Starting userDigitsHomepageUrl");
@@ -64,6 +70,9 @@ public class HomePageTest {
     logger.info("Finished userDigitsHomepageUrl");
   }
 
+  /**
+   * Home page is shown.
+   */
   @Then("Home page is shown")
   public void homePageIsShown() {
     System.out.println("Home page is shown test is running");
