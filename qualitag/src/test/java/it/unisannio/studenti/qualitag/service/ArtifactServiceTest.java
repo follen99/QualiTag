@@ -1708,6 +1708,7 @@ class ArtifactServiceTest {
     when(tagRepository.save(tag1)).thenReturn(tag1);
     when(tagRepository.save(tag2)).thenReturn(tag2);
 
+    //We must use doRetun() for method for spies
     doReturn(ResponseEntity.ok().build()).when(artifactServiceSpy)
         .addTags(eq(artifact.getArtifactId()), any(AddTagsToArtifactDto.class));
     String mockProcessedTagsJson = "{ \"result\": [\"processedTag1\", \"processedTag2\"] }";

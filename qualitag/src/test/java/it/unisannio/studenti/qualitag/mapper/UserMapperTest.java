@@ -28,7 +28,7 @@ public class UserMapperTest {
   private PasswordUpdateDto passwordUpdateDto;
   private UserInfoDisplayDto infoDisplayDto;
   private PasswordConfig passwordConfig;
-  PasswordEncoder passwordEncoder;
+  private PasswordEncoder passwordEncoder;
   private UserMapper userMapper;
 
   /**

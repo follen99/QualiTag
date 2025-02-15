@@ -204,9 +204,6 @@ public class AuthenticationService {
     response.put("msg", "User logged in successfully.");
     response.put("token", jwt);
     response.put("user", returnDto);
-
-
-
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
