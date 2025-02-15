@@ -56,9 +56,14 @@ public class CustomUserDetailServiceTest {
     // Assert
     assertNotNull(userDetails);
     assertTrue(userDetails instanceof CustomUserDetails);
+    assertEquals(userDetails, new CustomUserDetails(user));
     assertEquals("testuser", userDetails.getUsername());
     assertEquals("hashedPassword", userDetails.getPassword());
-    assertEquals(userDetails, new CustomUserDetails(user));
+    assertEquals(userDetails.getAuthorities(), user.getAuthorities());
+    assertTrue(userDetails.isAccountNonExpired());
+    assertTrue(userDetails.isAccountNonLocked());
+    assertTrue(userDetails.isCredentialsNonExpired());
+    assertTrue(userDetails.isEnabled());
   }
 
   @Test
@@ -72,9 +77,14 @@ public class CustomUserDetailServiceTest {
     // Assert
     assertNotNull(userDetails);
     assertTrue(userDetails instanceof CustomUserDetails);
+    assertEquals(userDetails, new CustomUserDetails(user));
     assertEquals("testuser", userDetails.getUsername());
     assertEquals("hashedPassword", userDetails.getPassword());
-    assertEquals(userDetails, new CustomUserDetails(user));
+    assertEquals(userDetails.getAuthorities(), user.getAuthorities());
+    assertTrue(userDetails.isAccountNonExpired());
+    assertTrue(userDetails.isAccountNonLocked());
+    assertTrue(userDetails.isCredentialsNonExpired());
+    assertTrue(userDetails.isEnabled());
   }
 
   @Test
