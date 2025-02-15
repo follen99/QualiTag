@@ -1,4 +1,4 @@
-package it.unisannio.studenti.qualitag.securityservice;
+package it.unisannio.studenti.qualitag.security.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,8 +24,6 @@ import it.unisannio.studenti.qualitag.model.User;
 import it.unisannio.studenti.qualitag.repository.UserRepository;
 import it.unisannio.studenti.qualitag.security.config.PasswordConfig;
 import it.unisannio.studenti.qualitag.security.model.CustomUserDetails;
-import it.unisannio.studenti.qualitag.security.service.AuthenticationService;
-import it.unisannio.studenti.qualitag.security.service.JwtService;
 import it.unisannio.studenti.qualitag.service.GmailService;
 import it.unisannio.studenti.qualitag.service.UserService;
 import java.time.LocalDateTime;
@@ -45,6 +43,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * Test class for the AuthenticationService.
+ */
 public class AuthenticationServiceTest {
 
   @Mock
@@ -81,26 +82,24 @@ public class AuthenticationServiceTest {
 
     passwordConfig = new PasswordConfig();
     passwordEncoder = passwordConfig.passwordEncoder();
-    //We use spy so we can initialize the userMapper
+    // We use spy so we can initialize the userMapper
     userMapper = spy(new UserMapper(passwordEncoder));
 
     // Manually inject the spy into authenticationService
-    authenticationService = new AuthenticationService(userRepository, userMapper,
-        jwtTokenProvider, userService, authenticationManager);
+    authenticationService = new AuthenticationService(userRepository, userMapper, jwtTokenProvider,
+        userService, authenticationManager);
 
     String passwordHash = passwordEncoder.encode("pAssword12$");
-    user = new User("username", "username@example.com",
-        passwordHash, "Jane", "Doe");
+    user = new User("username", "username@example.com", passwordHash, "Jane", "Doe");
     user.setUserId("6798e2740b80b85362a8ba90");
-    LocalDateTime tokenExpiration = LocalDateTime.now().plusHours(24) ;
+    LocalDateTime tokenExpiration = LocalDateTime.now().plusHours(24);
     user.setResetTokenExpiration(tokenExpiration);
 
-    userRegistrationDto = new UserRegistrationDto("username", "username@example.com",
-        "pAssword12$", "Jane", "Doe");
+    userRegistrationDto =
+        new UserRegistrationDto("username", "username@example.com", "pAssword12$", "Jane", "Doe");
     userLoginDto = new UserLoginDto("username", "password1");
     forgotPasswordDto = new ForgotPasswordDto("username@example.com");
-    passwordUpdateDto = new PasswordUpdateDto("passWord23?",
-        "passWord23?");
+    passwordUpdateDto = new PasswordUpdateDto("passWord23?", "passWord23?");
   }
 
   /**
@@ -108,11 +107,9 @@ public class AuthenticationServiceTest {
    */
   @Test
   public void testRegisterSuccess() throws Exception {
-    //Arrange
-    when(userRepository.existsByUsername(userRegistrationDto.username()))
-        .thenReturn(false);
-    when(userRepository.existsByEmail(userRegistrationDto.email()))
-        .thenReturn(false);
+    // Arrange
+    when(userRepository.existsByUsername(userRegistrationDto.username())).thenReturn(false);
+    when(userRepository.existsByEmail(userRegistrationDto.email())).thenReturn(false);
     when(userRepository.save(user)).thenReturn(user);
     String jwt = "eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2Vf"
         + "dHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2Vu"
@@ -120,19 +117,18 @@ public class AuthenticationServiceTest {
         + "Iiwic3ViIjoiWXpFek1HZG9NSEpuT0hCaU9HMWliRGh5TlRBPSIsImF1ZCI6Imh0dHBzOi8v"
         + "bG9jYWxob3N0Ojg0NDMve3RpZH0ve2FpZH0vb2F1dGgyL2F1dGhvcml6ZSIsImp0aSI6IjE1"
         + "MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0";
-    when(jwtTokenProvider.generateToken(new CustomUserDetails(user))).thenReturn
-        (jwt);
-    //Use doReturn() for spies
+    when(jwtTokenProvider.generateToken(new CustomUserDetails(user))).thenReturn(jwt);
+    // Use doReturn() for spies
     doReturn(user).when(userMapper).toEntity(userRegistrationDto);
 
     try (MockedStatic<ProjectMapper> mockedMapper = mockStatic(ProjectMapper.class);
         MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class, (mock,
             context) -> doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
 
-      //Act
+      // Act
       ResponseEntity<?> response = authenticationService.register(userRegistrationDto);
 
-      //Assert
+      // Assert
       assertNotNull(response);
       assertEquals(HttpStatus.CREATED, response.getStatusCode());
       Map<String, Object> responseBody = new HashMap<>();
@@ -144,17 +140,17 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the register method where RegisterDTO is invalid
+   * Tests an execution of the register method where RegisterDTO is invalid.
    */
   @Test
   public void testRegisterInvalid() throws Exception {
-    //Arrange
+    // Arrange
     userRegistrationDto = new UserRegistrationDto("", "", "", "", "");
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.register(userRegistrationDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -163,18 +159,18 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the register method where the username is invalid
+   * Tests an execution of the register method where the username is invalid.
    */
   @Test
   public void testRegisterInvalidUsername() throws Exception {
-    //Arrange
-    userRegistrationDto = new UserRegistrationDto("u", "username@example.com",
-        "pAssword12$", "Jane", "Doe");
+    // Arrange
+    userRegistrationDto =
+        new UserRegistrationDto("u", "username@example.com", "pAssword12$", "Jane", "Doe");
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.register(userRegistrationDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -183,18 +179,18 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the register method where the email is invalid
+   * Tests an execution of the register method where the email is invalid.
    */
   @Test
   public void testRegisterInvalidEmail() throws Exception {
-    //Arrange
-    userRegistrationDto = new UserRegistrationDto("username", "username",
-        "pAssword12$", "Jane", "Doe");
+    // Arrange
+    userRegistrationDto =
+        new UserRegistrationDto("username", "username", "pAssword12$", "Jane", "Doe");
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.register(userRegistrationDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -203,18 +199,18 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the register method where the password is invalid
+   * Tests an execution of the register method where the password is invalid.
    */
   @Test
   public void testRegisterInvalidPassword() throws Exception {
-    //Arrange
-    userRegistrationDto = new UserRegistrationDto("username", "user@example.com"
-        , "password", "Jane", "Doe");
+    // Arrange
+    userRegistrationDto =
+        new UserRegistrationDto("username", "user@example.com", "password", "Jane", "Doe");
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.register(userRegistrationDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -223,18 +219,17 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the register method where the username is already taken
+   * Tests an execution of the register method where the username is already taken.
    */
   @Test
   public void testRegisterUsernameTaken() throws Exception {
-    //Arrange
-    when(userRepository.existsByUsername(userRegistrationDto.username()))
-        .thenReturn(true);
+    // Arrange
+    when(userRepository.existsByUsername(userRegistrationDto.username())).thenReturn(true);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.register(userRegistrationDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -243,20 +238,18 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the register method where the email is already taken
+   * Tests an execution of the register method where the email is already taken.
    */
   @Test
   public void testRegisterEmailTaken() throws Exception {
-    //Arrange
-    when(userRepository.existsByUsername(userRegistrationDto.username()))
-        .thenReturn(false);
-    when(userRepository.existsByEmail(userRegistrationDto.email()))
-        .thenReturn(true);
+    // Arrange
+    when(userRepository.existsByUsername(userRegistrationDto.username())).thenReturn(false);
+    when(userRepository.existsByEmail(userRegistrationDto.email())).thenReturn(true);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.register(userRegistrationDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -269,48 +262,46 @@ public class AuthenticationServiceTest {
    */
   @Test
   public void testLoginSuccess() {
-    //Arrange
+    // Arrange
     when(userRepository.findByUsernameOrEmail(userLoginDto.usernameOrEmail(),
-        userLoginDto.usernameOrEmail()))
-        .thenReturn(user);
+        userLoginDto.usernameOrEmail())).thenReturn(user);
     String jwt = "eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2Vf"
         + "dHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2Vu"
         + "cyIsImlzcyI6ImJqaElSak0xY1hwYWEyMXpkV3RJU25wNmVqbE1iazQ0YlRsTlpqazNkWEU9"
         + "Iiwic3ViIjoiWXpFek1HZG9NSEpuT0hCaU9HMWliRGh5TlRBPSIsImF1ZCI6Imh0dHBzOi8v"
         + "bG9jYWxob3N0Ojg0NDMve3RpZH0ve2FpZH0vb2F1dGgyL2F1dGhvcml6ZSIsImp0aSI6IjE1"
         + "MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0";
-    when(jwtTokenProvider.generateToken(new CustomUserDetails(user))).thenReturn
-        (jwt);
-    UserResponseDto userResponseDto = new UserResponseDto(user.getUsername(),
-        user.getEmail(), user.getName(), user.getSurname(), user.getProjectIds(),
-        user.getTeamIds(), user.getTagIds(), user.getProjectRolesAsString(),
-        user.getUserId());
+    when(jwtTokenProvider.generateToken(new CustomUserDetails(user))).thenReturn(jwt);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.login(userLoginDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "User logged in successfully.");
     responseBody.put("token", jwt);
+
+    UserResponseDto userResponseDto = new UserResponseDto(user.getUsername(), user.getEmail(),
+        user.getName(), user.getSurname(), user.getProjectIds(), user.getTeamIds(),
+        user.getTagIds(), user.getProjectRolesAsString(), user.getUserId());
     responseBody.put("user", userResponseDto);
     assertEquals(responseBody, response.getBody());
   }
 
   /**
-   * Test an execution of the login method with an invalid dto
+   * Test an execution of the login method with an invalid dto.
    */
   @Test
   public void testLoginInvalid() {
-    //Arrange
+    // Arrange
     userLoginDto = new UserLoginDto("", "");
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.login(userLoginDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -319,21 +310,20 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Test an execution of the login method with an invalid username or email
+   * Test an execution of the login method with an invalid username or email.
    */
   @Test
   public void testLoginInvalidUsernameOrEmail() {
-    //Arrange
+    // Arrange
     userLoginDto = new UserLoginDto("username", "password");
 
-    doThrow(new BadCredentialsException("Bad credentials"))
-        .when(authenticationManager)
+    doThrow(new BadCredentialsException("Bad credentials")).when(authenticationManager)
         .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.login(userLoginDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -342,19 +332,18 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the login method where the user is not found
+   * Tests an execution of the login method where the user is not found.
    */
   @Test
   public void testLoginUserNotFound() {
-    //Arrange
+    // Arrange
     when(userRepository.findByUsernameOrEmail(userLoginDto.usernameOrEmail(),
-        userLoginDto.usernameOrEmail()))
-        .thenReturn(null);
+        userLoginDto.usernameOrEmail())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.login(userLoginDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -367,26 +356,24 @@ public class AuthenticationServiceTest {
    */
   @Test
   public void testSendPasswordEmailSuccess() throws Exception {
-    //Arrange
-    when(userRepository.findByEmail(forgotPasswordDto.email()))
-        .thenReturn(user);
+    // Arrange
+    when(userRepository.findByEmail(forgotPasswordDto.email())).thenReturn(user);
     String jwt = "eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2Vf"
         + "dHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2Vu"
         + "cyIsImlzcyI6ImJqaElSak0xY1hwYWEyMXpkV3RJU25wNmVqbE1iazQ0YlRsTlpqazNkWEU9"
         + "Iiwic3ViIjoiWXpFek1HZG9NSEpuT0hCaU9HMWliRGh5TlRBPSIsImF1ZCI6Imh0dHBzOi8v"
         + "bG9jYWxob3N0Ojg0NDMve3RpZH0ve2FpZH0vb2F1dGgyL2F1dGhvcml6ZSIsImp0aSI6IjE1"
         + "MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0";
-    when(jwtTokenProvider.generateResetToken(new CustomUserDetails(user))).thenReturn
-        (jwt);
+    when(jwtTokenProvider.generateResetToken(new CustomUserDetails(user))).thenReturn(jwt);
     when(userRepository.save(user)).thenReturn(user);
     try (MockedStatic<ProjectMapper> mockedMapper = mockStatic(ProjectMapper.class);
         MockedConstruction<GmailService> mockedGmail = mockConstruction(GmailService.class, (mock,
             context) -> doNothing().when(mock).sendMail(anyString(), anyString(), anyString()))) {
 
-      //Act
+      // Act
       ResponseEntity<?> response = authenticationService.sendPasswordResetEmail(forgotPasswordDto);
 
-      //Assert
+      // Assert
       assertNotNull(response);
       assertEquals(HttpStatus.OK, response.getStatusCode());
       Map<String, Object> responseBody = new HashMap<>();
@@ -396,18 +383,17 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the sendPasswordEmail method where the user is not found with the email
+   * Tests an execution of the sendPasswordEmail method where the user is not found with the email.
    */
   @Test
   public void testSendPasswordEmailUserNotFound() throws Exception {
-    //Arrange
-    when(userRepository.findByEmail(forgotPasswordDto.email()))
-        .thenReturn(null);
+    // Arrange
+    when(userRepository.findByEmail(forgotPasswordDto.email())).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.sendPasswordResetEmail(forgotPasswordDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -420,7 +406,7 @@ public class AuthenticationServiceTest {
    */
   @Test
   public void testResetPasswordSuccess() {
-    //Arrange
+    // Arrange
     String jwt = "eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2Vf"
         + "dHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2Vu"
         + "cyIsImlzcyI6ImJqaElSak0xY1hwYWEyMXpkV3RJU25wNmVqbE1iazQ0YlRsTlpqazNkWEU9"
@@ -429,17 +415,16 @@ public class AuthenticationServiceTest {
         + "MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0";
 
     when(jwtTokenProvider.extractUserName(jwt)).thenReturn(user.getUsername());
-    when(userRepository.findByUsername(user.getUsername()))
-        .thenReturn(user);
+    when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
     when(jwtTokenProvider.isTokenValid(jwt, new CustomUserDetails(user))).thenReturn(true);
     when(userRepository.save(user)).thenReturn(user);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.resetPassword(jwt, passwordUpdateDto);
 
     System.out.println(response.getBody());
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -448,21 +433,20 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the resetPassword method where the password is invalid
+   * Tests an execution of the resetPassword method where the password is invalid.
    */
   @Test
   public void testResetPasswordInvalidPassword() {
-    //Arrange
-    PasswordUpdateDto invalidPasswordUpdateDto = new PasswordUpdateDto("password",
-        "password");
+    // Arrange
+    PasswordUpdateDto invalidPasswordUpdateDto = new PasswordUpdateDto("password", "password");
     when(userService.isValidPasswordUpdateDto(invalidPasswordUpdateDto))
         .thenReturn("Invalid password.");
 
-    //Act
-    ResponseEntity<?> response = authenticationService.resetPassword("jwt",
-        invalidPasswordUpdateDto );
+    // Act
+    ResponseEntity<?> response =
+        authenticationService.resetPassword("jwt", invalidPasswordUpdateDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -471,21 +455,20 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the resetPassword method where the token is expired
+   * Tests an execution of the resetPassword method where the token is expired.
    */
   @Test
   public void testResetPasswordTokenExpired() {
-    //Arrange
-    doThrow(new ExpiredJwtException(null, null, "Invalid token."))
-        .when(jwtTokenProvider).extractUserName("jwt");
+    // Arrange
+    doThrow(new ExpiredJwtException(null, null, "Invalid token.")).when(jwtTokenProvider)
+        .extractUserName("jwt");
 
-    //Act
-    ResponseEntity<?> response = authenticationService.resetPassword("jwt",
-        passwordUpdateDto);
+    // Act
+    ResponseEntity<?> response = authenticationService.resetPassword("jwt", passwordUpdateDto);
 
     System.out.println(response.getBody());
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -494,11 +477,11 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the resetPassword method where the user is not found
+   * Tests an execution of the resetPassword method where the user is not found.
    */
   @Test
   public void testResetPasswordUserNotFound() {
-    //Arrange
+    // Arrange
     String jwt = "eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2Vf"
         + "dHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2Vu"
         + "cyIsImlzcyI6ImJqaElSak0xY1hwYWEyMXpkV3RJU25wNmVqbE1iazQ0YlRsTlpqazNkWEU9"
@@ -506,13 +489,12 @@ public class AuthenticationServiceTest {
         + "bG9jYWxob3N0Ojg0NDMve3RpZH0ve2FpZH0vb2F1dGgyL2F1dGhvcml6ZSIsImp0aSI6IjE1"
         + "MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0";
     when(jwtTokenProvider.extractUserName(jwt)).thenReturn("username");
-    when(userRepository.findByUsername("username"))
-        .thenReturn(null);
+    when(userRepository.findByUsername("username")).thenReturn(null);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.resetPassword(jwt, passwordUpdateDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -521,12 +503,12 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the resetPassword method where the token is invalid
-   * (userTokenExpiration is null)
+   * Tests an execution of the resetPassword method where the token is invalid (userTokenExpiration
+   * is null).
    */
   @Test
   public void testResetPasswordInvalidToken() {
-    //Arrange
+    // Arrange
     String jwt = "eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2Vf"
         + "dHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2Vu"
         + "cyIsImlzcyI6ImJqaElSak0xY1hwYWEyMXpkV3RJU25wNmVqbE1iazQ0YlRsTlpqazNkWEU9"
@@ -535,13 +517,12 @@ public class AuthenticationServiceTest {
         + "MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0";
     user.setResetTokenExpiration(null);
     when(jwtTokenProvider.extractUserName(jwt)).thenReturn(user.getUsername());
-    when(userRepository.findByUsername(user.getUsername()))
-        .thenReturn(user);
+    when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.resetPassword(jwt, passwordUpdateDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -550,12 +531,11 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the resetPassword method where the token is invalid
-   * (token is expired)
+   * Tests an execution of the resetPassword method where the token is invalid (token is expired).
    */
   @Test
   public void testResetPasswordInvalidTokenExpired() {
-    //Arrange
+    // Arrange
     String jwt = "eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2Vf"
         + "dHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2Vu"
         + "cyIsImlzcyI6ImJqaElSak0xY1hwYWEyMXpkV3RJU25wNmVqbE1iazQ0YlRsTlpqazNkWEU9"
@@ -564,13 +544,12 @@ public class AuthenticationServiceTest {
         + "MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0";
     user.setResetTokenExpiration(LocalDateTime.now().minusHours(1));
     when(jwtTokenProvider.extractUserName(jwt)).thenReturn(user.getUsername());
-    when(userRepository.findByUsername(user.getUsername()))
-        .thenReturn(user);
+    when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.resetPassword(jwt, passwordUpdateDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
@@ -579,12 +558,11 @@ public class AuthenticationServiceTest {
   }
 
   /**
-   * Tests an execution of the resetPassword method where the token is invalid
-   * (token is invalid)
+   * Tests an execution of the resetPassword method where the token is invalid (token is invalid).
    */
   @Test
   public void testResetPasswordInvalidTokenInvalid() {
-    //Arrange
+    // Arrange
     String jwt = "eyJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT0cxaWJEaHlOVEE9IiwicmVzcG9uc2Vf"
         + "dHlwZSI6ImNvZGUiLCJzY29wZSI6ImludHJvc2NwZWN0X3Rva2VucywgcmV2b2tlX3Rva2Vu"
         + "cyIsImlzcyI6ImJqaElSak0xY1hwYWEyMXpkV3RJU25wNmVqbE1iazQ0YlRsTlpqazNkWEU9"
@@ -592,14 +570,13 @@ public class AuthenticationServiceTest {
         + "bG9jYWxob3N0Ojg0NDMve3RpZH0ve2FpZH0vb2F1dGgyL2F1dGhvcml6ZSIsImp0aSI6IjE1"
         + "MTYyMzkwMjIiLCJleHAiOiIyMDIxLTA1LTE3VDA3OjA5OjQ4LjAwMCswNTQ1In0";
     when(jwtTokenProvider.extractUserName(jwt)).thenReturn(user.getUsername());
-    when(userRepository.findByUsername(user.getUsername()))
-        .thenReturn(user);
+    when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
     when(jwtTokenProvider.isTokenValid(jwt, new CustomUserDetails(user))).thenReturn(false);
 
-    //Act
+    // Act
     ResponseEntity<?> response = authenticationService.resetPassword(jwt, passwordUpdateDto);
 
-    //Assert
+    // Assert
     assertNotNull(response);
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     Map<String, Object> responseBody = new HashMap<>();
