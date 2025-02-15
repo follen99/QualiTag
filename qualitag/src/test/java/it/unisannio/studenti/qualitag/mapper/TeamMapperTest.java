@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests the TeamMapper class.
+ */
 public class TeamMapperTest {
 
   private Team entity;
@@ -56,7 +59,7 @@ public class TeamMapperTest {
   }
 
   /**
-   * Tests the toEntity method of the TeamMapper class when the dto is null
+   * Tests the toEntity method of the TeamMapper class when the dto is null.
    */
   @Test
   public void testToEntityWithNull() {

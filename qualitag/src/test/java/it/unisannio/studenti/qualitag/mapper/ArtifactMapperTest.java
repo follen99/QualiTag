@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests the ArtifactMapper class.
+ */
 public class ArtifactMapperTest {
 
   private Artifact entity;

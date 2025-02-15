@@ -12,6 +12,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests the TagMapper class.
+ */
 public class TagMapperTest {
 
   private Tag entity;
@@ -37,11 +40,11 @@ public class TagMapperTest {
    */
   @Test
   public void testToEntityCreate() {
-    Tag entityFromDTO = tagMapper.toEntity(createDto);
-    assertNotNull(entityFromDTO);
-    assertEquals(entity.getTagValue(), entityFromDTO.getTagValue());
-    assertEquals(entity.getCreatedBy(), entityFromDTO.getCreatedBy());
-    assertEquals(entity.getColorHex(), entityFromDTO.getColorHex());
+    Tag entityFromDto = tagMapper.toEntity(createDto);
+    assertNotNull(entityFromDto);
+    assertEquals(entity.getTagValue(), entityFromDto.getTagValue());
+    assertEquals(entity.getCreatedBy(), entityFromDto.getCreatedBy());
+    assertEquals(entity.getColorHex(), entityFromDto.getColorHex());
   }
 
   /**
@@ -50,36 +53,36 @@ public class TagMapperTest {
   @Test
   public void testToEntityCreateNull() {
     createDto = null;
-    Tag entityFromDTO = tagMapper.toEntity(createDto);
-    assertNull(entityFromDTO);
+    Tag entityFromDto = tagMapper.toEntity(createDto);
+    assertNull(entityFromDto);
   }
 
   /**
-   * Tests the toEntity method of the TagMapper class (TagCreateDto) in the case when the colorHex
+   * Tests the toEntity method of the TagMapper class (TagCreateDto) in the case when the colorHex.
    * is null
    */
   @Test
   public void testToEntityCreateNullColorHex() {
     createDto = new TagCreateDto("tagValue", "userID", null);
-    Tag entityFromDTO = tagMapper.toEntity(createDto);
-    assertNotNull(entityFromDTO);
-    assertEquals(entity.getTagValue(), entityFromDTO.getTagValue());
-    assertEquals(entity.getCreatedBy(), entityFromDTO.getCreatedBy());
-    assertNotNull(entityFromDTO.getColorHex());
+    Tag entityFromDto = tagMapper.toEntity(createDto);
+    assertNotNull(entityFromDto);
+    assertEquals(entity.getTagValue(), entityFromDto.getTagValue());
+    assertEquals(entity.getCreatedBy(), entityFromDto.getCreatedBy());
+    assertNotNull(entityFromDto.getColorHex());
   }
 
   /**
    * Tests the toEntity method of the TagMapper class (TagCreateDto) in the case when the colorHex
-   * is empty
+   * is empty.
    */
   @Test
   public void testToEntityCreateEmptyColorHex() {
     createDto = new TagCreateDto("tagValue", "userID", "");
-    Tag entityFromDTO = tagMapper.toEntity(createDto);
-    assertNotNull(entityFromDTO);
-    assertEquals(entity.getTagValue(), entityFromDTO.getTagValue());
-    assertEquals(entity.getCreatedBy(), entityFromDTO.getCreatedBy());
-    assertNotNull(entityFromDTO.getColorHex());
+    Tag entityFromDto = tagMapper.toEntity(createDto);
+    assertNotNull(entityFromDto);
+    assertEquals(entity.getTagValue(), entityFromDto.getTagValue());
+    assertEquals(entity.getCreatedBy(), entityFromDto.getCreatedBy());
+    assertNotNull(entityFromDto.getColorHex());
   }
 
   /**
@@ -87,11 +90,11 @@ public class TagMapperTest {
    */
   @Test
   public void testToEntityResponse() {
-    Tag entityFromDTO = tagMapper.toEntity(responseDto);
-    assertNotNull(entityFromDTO);
-    assertEquals(entity.getTagValue(), entityFromDTO.getTagValue());
-    assertEquals(entity.getCreatedBy(), entityFromDTO.getCreatedBy());
-    assertEquals(entity.getColorHex(), entityFromDTO.getColorHex());
+    Tag entityFromDto = tagMapper.toEntity(responseDto);
+    assertNotNull(entityFromDto);
+    assertEquals(entity.getTagValue(), entityFromDto.getTagValue());
+    assertEquals(entity.getCreatedBy(), entityFromDto.getCreatedBy());
+    assertEquals(entity.getColorHex(), entityFromDto.getColorHex());
   }
 
   /**
@@ -100,38 +103,38 @@ public class TagMapperTest {
   @Test
   public void testToEntityResponseNull() {
     responseDto = null;
-    Tag entityFromDTO = tagMapper.toEntity(responseDto);
-    assertNull(entityFromDTO);
+    Tag entityFromDto = tagMapper.toEntity(responseDto);
+    assertNull(entityFromDto);
   }
 
   /**
    * Tests the toEntity method of the TagMapper class (TagResponseDto) in the case when the
-   * colorHex is null
+   * colorHex is null.
    */
   @Test
   public void testToEntityResponseNullColorHex() {
     responseDto = new TagResponseDto("6744ba6c60e0564864250e89",
         "TAGVALUE", "userID", null);
-    Tag entityFromDTO = tagMapper.toEntity(responseDto);
-    assertNotNull(entityFromDTO);
-    assertEquals(entity.getTagValue(), entityFromDTO.getTagValue());
-    assertEquals(entity.getCreatedBy(), entityFromDTO.getCreatedBy());
-    assertNotNull(entityFromDTO.getColorHex());
+    Tag entityFromDto = tagMapper.toEntity(responseDto);
+    assertNotNull(entityFromDto);
+    assertEquals(entity.getTagValue(), entityFromDto.getTagValue());
+    assertEquals(entity.getCreatedBy(), entityFromDto.getCreatedBy());
+    assertNotNull(entityFromDto.getColorHex());
   }
 
   /**
    * Tests the toEntity method of the TagMapper class (TagResponseDto) in the case when the
-   * colorHex is empty
+   * colorHex is empty.
    */
   @Test
   public void testToEntityResponseEmptyColorHex() {
     responseDto = new TagResponseDto("6744ba6c60e0564864250e89",
         "TAGVALUE", "userID", "");
-    Tag entityFromDTO = tagMapper.toEntity(responseDto);
-    assertNotNull(entityFromDTO);
-    assertEquals(entity.getTagValue(), entityFromDTO.getTagValue());
-    assertEquals(entity.getCreatedBy(), entityFromDTO.getCreatedBy());
-    assertNotNull(entityFromDTO.getColorHex());
+    Tag entityFromDto = tagMapper.toEntity(responseDto);
+    assertNotNull(entityFromDto);
+    assertEquals(entity.getTagValue(), entityFromDto.getTagValue());
+    assertEquals(entity.getCreatedBy(), entityFromDto.getCreatedBy());
+    assertNotNull(entityFromDto.getColorHex());
   }
 
   /**

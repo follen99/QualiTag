@@ -1895,7 +1895,7 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests the deleteProject method
+   * Tests the deleteProject method.
    */
   @Test
   public void testDeleteProject() {
@@ -1921,18 +1921,18 @@ public class ProjectServiceTest {
     Map<String, Object> responseBody = new HashMap<>();
     responseBody.put("msg", "Project deleted successfully.");
     assertEquals(responseBody, response.getBody());
-//    verify(projectRepository, times(1)).delete(project);
-//    verify(artifactService, times(1)).
-//        deleteArtifact(artifact1.getArtifactId());
-//    verify(artifactRepository, times(1)).
-//        delete(artifact1);
-//    verify(artifactService, times(1)).
-//        deleteArtifact(artifact2.getArtifactId());
-//    verify(artifactRepository, times(1)).
-//        delete(artifact2);
-//    verify(teamService, times(1)).
-//        deleteTeam(team.getTeamId());
-//    verify(teamRepository, times(1)).
+    // verify(projectRepository, times(1)).delete(project);
+    // verify(artifactService, times(1)).
+    //     deleteArtifact(artifact1.getArtifactId());
+    // verify(artifactRepository, times(1)).
+    //     delete(artifact1);
+    // verify(artifactService, times(1)).
+    //     deleteArtifact(artifact2.getArtifactId());
+    // verify(artifactRepository, times(1)).
+    //     delete(artifact2);
+    // verify(teamService, times(1)).
+    //     deleteTeam(team.getTeamId());
+    // verify(teamRepository, times(1)).
     //delete(team);
     verify(userRepository, times(2)).save(owner);
     verify(userRepository, times(1)).save(user1);
@@ -1992,7 +1992,7 @@ public class ProjectServiceTest {
 
   /**
    * Tests an execution of the deleteProject method when a user other than owner
-   * tries to delete the project
+   * tries to delete the project.
    */
   @Test
   public void testDeleteProjectNotOwner() {
@@ -2011,7 +2011,7 @@ public class ProjectServiceTest {
   }
 
   /**
-   * Tests an execution of the deleteProject method when the project deletion fails
+   * Tests an execution of the deleteProject method when the project deletion fails.
    */
   @Test
   public void testDeleteProjectProjectDeletionFails() {

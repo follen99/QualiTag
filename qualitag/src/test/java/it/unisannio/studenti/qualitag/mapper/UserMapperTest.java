@@ -18,6 +18,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * Test class for the UserMapper class.
+ */
 public class UserMapperTest {
 
   private User entity;
@@ -93,14 +96,14 @@ public class UserMapperTest {
    */
   @Test
   public void testToEntity() {
-    User entityFromDTO = userMapper.toEntity(registrationDto);
-    assertEquals(entity.getUsername(), entityFromDTO.getUsername());
-    assertEquals(entity.getEmail(), entityFromDTO.getEmail());
-    assertEquals(entity.getName(), entityFromDTO.getName());
-    assertEquals(entity.getSurname(), entityFromDTO.getSurname());
+    User entityFromDto = userMapper.toEntity(registrationDto);
+    assertEquals(entity.getUsername(), entityFromDto.getUsername());
+    assertEquals(entity.getEmail(), entityFromDto.getEmail());
+    assertEquals(entity.getName(), entityFromDto.getName());
+    assertEquals(entity.getSurname(), entityFromDto.getSurname());
 
     assertTrue(passwordEncoder.matches(registrationDto.password(),
-        entityFromDTO.getPasswordHash()));
+        entityFromDto.getPasswordHash()));
   }
 
   /**
@@ -109,8 +112,8 @@ public class UserMapperTest {
   @Test
   public void testToEntityNull() {
     registrationDto = null;
-    User entityFromDTO = userMapper.toEntity(registrationDto);
-    assertNull(entityFromDTO);
+    User entityFromDto = userMapper.toEntity(registrationDto);
+    assertNull(entityFromDto);
   }
 
   /**
@@ -204,10 +207,6 @@ public class UserMapperTest {
     userMapper.updateEntity(passwordUpdateDto, entity);
     assertNull(entity);
   }
-
-  /**
-   * Tests the updateEntity method of the UserMapper class when the dto is null.
-   */
 
   /**
    * Tests the toDisplayDto method of the UserMapper class.
