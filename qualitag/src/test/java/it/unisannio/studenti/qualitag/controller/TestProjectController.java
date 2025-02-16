@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import it.unisannio.studenti.qualitag.dto.project.ProjectCreateDto;
@@ -44,6 +45,10 @@ public class TestProjectController {
     mockMvc = MockMvcBuilders.standaloneSetup(projectController).build();
   }
 
+  /**
+   * Test the creation of a project.
+   * @throws Exception
+   */
   @Test
   public void testCreateProject() throws Exception {
     ProjectCreateDto projectCreateDto = new ProjectCreateDto(
@@ -64,6 +69,10 @@ public class TestProjectController {
     verifyNoMoreInteractions(projectService);
   }
 
+  /**
+   * Test the closure of a project.
+   * @throws Exception
+   */
   @Test
   public void testCloseProject() throws Exception {
     String projectId = "projectId";
@@ -77,6 +86,10 @@ public class TestProjectController {
     verifyNoMoreInteractions(projectService);
   }
 
+  /**
+   * Test the retrieval of projects by their IDs.
+   * @throws Exception
+   */
   @Test
   public void testGetProjectsByIds() throws Exception {
     List<String> projectIds = List.of("projectId1", "projectId2");
@@ -91,6 +104,32 @@ public class TestProjectController {
     verifyNoMoreInteractions(projectService);
   }
 
+  /**
+   * Tests the case when a projectId passed to getProjectsByIds is null.
+   */
+  @Test
+  public void testGetProjectsByIdsNull() throws Exception {
+    mockMvc.perform(post("/api/v1/project/get-by-ids")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("null"))
+        .andExpect(status().isBadRequest());
+  }
+
+  /**
+   * Tests the case when a projectId passed to getProjectsByIds is empty.
+   */
+  @Test
+  public void testGetProjectsByIdsEmpty() throws Exception {
+    mockMvc.perform(post("/api/v1/project/get-by-ids")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("[]"))
+        .andExpect(status().isBadRequest());
+  }
+
+  /**
+   * Test the retrieval of the human-readable status of a project.
+   * @throws Exception
+   */
   @Test
   public void testGetHumanReadableProjectStatus() throws Exception {
     String projectId = "projectId";
@@ -105,6 +144,10 @@ public class TestProjectController {
     verifyNoMoreInteractions(projectService);
   }
 
+  /**
+   * Test the retrieval of a project by user ID.
+   * @throws Exception
+   */
   @Test
   public void testGetProjectByProjectId() throws Exception {
     String projectId = "projectId";
@@ -115,7 +158,10 @@ public class TestProjectController {
     verifyNoMoreInteractions(projectService);
   }
 
-  //TODO: Create a project with tags and test this method
+  /**
+   * Test the retrieval of tags of a project.
+   * @throws Exception
+   */
   @Test
   public void testGetProjectTags() throws Exception {
     String projectId = "projectId";
@@ -126,7 +172,10 @@ public class TestProjectController {
     verifyNoMoreInteractions(projectService);
   }
 
-  //TODO: Create a project with artifacts and test this method
+  /**
+   * Tests the retrieval of artifacts of a project.
+   * @throws Exception
+   */
   @Test
   public void testGetProjectArtifacts() throws Exception {
     String projectId = "projectId";
@@ -137,6 +186,10 @@ public class TestProjectController {
     verifyNoMoreInteractions(projectService);
   }
 
+  /**
+   * Test the deletion of a project.
+   * @throws Exception
+   */
   @Test
   public void testDeleteProject() throws Exception {
     String projectId = "projectId";
@@ -144,6 +197,43 @@ public class TestProjectController {
     mockMvc.perform(delete("/api/v1/project/projectId"))
         .andExpect(status().isOk());
     verify(projectService, times(1)).deleteProject(projectId);
+    verifyNoMoreInteractions(projectService);
+  }
+
+  /**
+   * Tests the update of a project.
+   */
+  @Test
+  public void testUpdateProject() throws Exception {
+    ProjectCreateDto projectCreateDto = new ProjectCreateDto(
+        "projectNewName",
+        "projectDescription",
+        "2023-12-31",
+        List.of("user1@example.com", "user2@example.com")
+    );
+    when(projectService.updateProject(projectCreateDto, "projectId")).thenReturn(
+        ResponseEntity.ok().build());
+    mockMvc.perform(put("/api/v1/project/projectId")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                "{\"projectName\":\"projectNewName\",\"projectDescription\":"
+                    + "\"projectDescription\",\"deadlineDate\":\"2023-12-31\","
+                    + "\"userEmails\":[\"user1@example.com\",\"user2@example.com\"]}"))
+        .andExpect(status().isOk());
+    verify(projectService, times(1)).updateProject(projectCreateDto, "projectId");
+    verifyNoMoreInteractions(projectService);
+  }
+
+  /**
+   * Tests the retrieval of the project Teams.
+   */
+  @Test
+  public void testGetProjectsTeams() throws Exception {
+    String projectId = "projectId";
+    when(projectService.getProjectsTeams(projectId)).thenReturn(ResponseEntity.ok().build());
+    mockMvc.perform(get("/api/v1/project/projectId/teams"))
+        .andExpect(status().isOk());
+    verify(projectService, times(1)).getProjectsTeams(projectId);
     verifyNoMoreInteractions(projectService);
   }
 

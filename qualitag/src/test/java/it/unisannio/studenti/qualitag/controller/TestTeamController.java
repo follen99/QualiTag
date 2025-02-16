@@ -8,8 +8,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unisannio.studenti.qualitag.dto.team.TeamCreateDto;
 import it.unisannio.studenti.qualitag.service.TeamService;
 import java.util.List;
@@ -45,6 +47,10 @@ public class TestTeamController {
     mockMvc = MockMvcBuilders.standaloneSetup(teamController).build();
   }
 
+  /**
+   * Test the creation of a team.
+   * @throws Exception
+   */
   @Test
   public void testAddTeam() throws Exception {
     TeamCreateDto teamCreateDto = new TeamCreateDto(
@@ -64,6 +70,10 @@ public class TestTeamController {
     verifyNoMoreInteractions(teamService);
   }
 
+  /**
+   * Test the retrieval of teams by project ID.
+   * @throws Exception
+   */
   @Test
   public void testGetTeamsByProjectId() throws Exception {
     String projectId = "projectId";
@@ -74,6 +84,10 @@ public class TestTeamController {
     verifyNoMoreInteractions(teamService);
   }
 
+  /**
+   * Test the retrieval of teams by user ID.
+   * @throws Exception
+   */
   @Test
   public void testGetTeamsByUserId() throws Exception {
     String userId = "userId";
@@ -84,6 +98,10 @@ public class TestTeamController {
     verifyNoMoreInteractions(teamService);
   }
 
+  /**
+   * Test the retrieval of team IRR.
+   * @throws Exception
+   */
   @Test
   public void testGetTeamIrr() throws Exception {
     String teamId = "teamId";
@@ -94,6 +112,10 @@ public class TestTeamController {
     verifyNoMoreInteractions(teamService);
   }
 
+  /**
+   * Test the deletion of a team.
+   * @throws Exception
+   */
   @Test
   public void testDeleteTeam() throws Exception {
     String teamId = "teamId";
@@ -101,6 +123,22 @@ public class TestTeamController {
     mockMvc.perform(delete("/api/v1/team/{teamId}", teamId))
         .andExpect(status().isOk());
     verify(teamService, times(1)).deleteTeam(teamId);
+    verifyNoMoreInteractions(teamService);
+  }
+
+  /**
+   * Tests the update of a team.
+   */
+  @Test
+  public void testUpdateTeamUsers() throws Exception {
+    List<String> userEmails = List.of("user1@example.com", "user3@example.com");
+    when(teamService.updateTeamUsers("teamId", userEmails)).
+        thenReturn(ResponseEntity.ok().build());
+    mockMvc.perform(put("/api/v1/team/teamId/updateusers")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(userEmails)))
+        .andExpect(status().isOk());
+    verify(teamService, times(1)).updateTeamUsers("teamId", userEmails);
     verifyNoMoreInteractions(teamService);
   }
 

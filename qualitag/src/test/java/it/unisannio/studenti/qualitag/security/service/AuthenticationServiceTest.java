@@ -1,12 +1,16 @@
 package it.unisannio.studenti.qualitag.security.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
@@ -41,6 +45,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -58,6 +65,10 @@ public class AuthenticationServiceTest {
   private UserService userService;
   @Mock
   private UserMapper userMapper;
+  @Mock
+  private SecurityContext securityContext;
+  @Mock
+  private Authentication authentication;
 
   @InjectMocks
   private AuthenticationService authenticationService;
@@ -100,6 +111,45 @@ public class AuthenticationServiceTest {
     userLoginDto = new UserLoginDto("username", "password1");
     forgotPasswordDto = new ForgotPasswordDto("username@example.com");
     passwordUpdateDto = new PasswordUpdateDto("passWord23?", "passWord23?");
+  }
+
+  /**
+   * Tests a successful execution of the getAuthority method.
+   */
+  @Test
+  public void testGetAuthoritySuccess() {
+    // Arrange
+    when(authentication.isAuthenticated()).thenReturn(true);
+    when(authentication.getName()).thenReturn(user.getUsername());
+    when(authentication.getPrincipal()).thenReturn(new CustomUserDetails(user));
+    when(securityContext.getAuthentication()).thenReturn(authentication);
+    SecurityContextHolder.setContext(securityContext);
+
+    //Act
+    boolean result = AuthenticationService.getAuthority(user.getUsername());
+
+    //Assert
+    assertFalse(result, "Expected false when the authenticated user is the same.");
+  }
+
+  /**
+   * Test an execution of the getAuthority method where the authenticated user
+   * is different from the current user
+   */
+  @Test
+  public void testGetAuthorityDifferentUser() {
+    // Arrange
+    when(authentication.isAuthenticated()).thenReturn(true);
+    when(authentication.getName()).thenReturn("differentUser");
+    when(authentication.getPrincipal()).thenReturn(new CustomUserDetails(user));
+    when(securityContext.getAuthentication()).thenReturn(authentication);
+    SecurityContextHolder.setContext(securityContext);
+
+    //Act
+    boolean result = AuthenticationService.getAuthority(user.getUsername());
+
+    //Assert
+    assertTrue(result, "Expected true when the authenticated user is different.");
   }
 
   /**

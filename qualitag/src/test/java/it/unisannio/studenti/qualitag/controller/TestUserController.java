@@ -44,6 +44,10 @@ public class TestUserController {
     mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
   }
 
+  /**
+   * Test the retrieval of a user.
+   * @throws Exception
+   */
   @Test
   public void testGetUser() throws Exception {
     when(userService.getUser("username")).thenReturn(ResponseEntity.ok().build());
@@ -53,6 +57,10 @@ public class TestUserController {
     verifyNoMoreInteractions(userService);
   }
 
+  /**
+   * Test the retrieval of a user's tags.
+   * @throws Exception
+   */
   @Test
   public void testGetUserTags() throws Exception {
     when(userService.getUserTags("username")).thenReturn(ResponseEntity.ok().build());
@@ -62,6 +70,10 @@ public class TestUserController {
     verifyNoMoreInteractions(userService);
   }
 
+  /**
+   * Test the update of a user.
+   * @throws Exception
+   */
   @Test
   public void testUpdateUser() throws Exception {
     UserModifyDto userModifyDto = new UserModifyDto(
@@ -81,6 +93,10 @@ public class TestUserController {
     verifyNoMoreInteractions(userService);
   }
 
+  /**
+   * Test the update of a user's password.
+   * @throws Exception
+   */
   @Test
   public void testUpdateUserPassword() throws Exception {
     PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(
@@ -97,6 +113,10 @@ public class TestUserController {
     verifyNoMoreInteractions(userService);
   }
 
+  /**
+   * Test the deletion of a user.
+   * @throws Exception
+   */
   @Test
   public void testDeleteUser() throws Exception {
     when(userService.deleteUser("username")).thenReturn(ResponseEntity.ok().build());

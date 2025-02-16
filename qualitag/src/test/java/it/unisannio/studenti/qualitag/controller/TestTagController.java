@@ -10,9 +10,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagUpdateDto;
 import it.unisannio.studenti.qualitag.service.TagService;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -45,6 +47,10 @@ public class TestTagController {
     mockMvc = MockMvcBuilders.standaloneSetup(tagController).build();
   }
 
+  /**
+   * Test the creation of a tag.
+   * @throws Exception
+   */
   @Test
   public void testCreateTag() throws Exception {
     TagCreateDto tagCreateDto = new TagCreateDto(
@@ -64,6 +70,10 @@ public class TestTagController {
     verifyNoMoreInteractions(tagService);
   }
 
+  /**
+   * Test getting a tag by ID.
+   * @throws Exception
+   */
   @Test
   public void testGetTagById() throws Exception {
     String tagId = "tagId";
@@ -74,6 +84,10 @@ public class TestTagController {
     verify(tagService, times(1)).getTagById(tagId);
   }
 
+  /**
+   * Test getting tags by value.
+   * @throws Exception
+   */
   @Test
   public void testGetTagsByValue() throws Exception {
     String tagValue = "tagValue";
@@ -84,6 +98,10 @@ public class TestTagController {
     verify(tagService, times(1)).getTagsByValue(tagValue);
   }
 
+  /**
+   * Test updating a tag.
+   * @throws Exception
+   */
   @Test
   public void testUpdateTag() throws Exception {
     String tagId = "tagId";
@@ -101,6 +119,10 @@ public class TestTagController {
     verifyNoMoreInteractions(tagService);
   }
 
+  /**
+   * Test deleting a tag.
+   * @throws Exception
+   */
   @Test
   public void testDeleteTag() throws Exception {
     String tagId = "tagId";
@@ -108,6 +130,43 @@ public class TestTagController {
     mockMvc.perform(delete("/api/v1/tag/" + tagId))
         .andExpect(status().isOk());
     verify(tagService, times(1)).deleteTag(tagId);
+  }
+
+  /**
+   * Test adding a list of tags to an artifact.
+   */
+  @Test
+  public void testAddTags() throws Exception {
+    TagCreateDto tagCreateDto1 = new TagCreateDto(
+        "TAGVALUE",
+        "userId",
+        "#fff8de");
+    TagCreateDto tagCreateDto2 = new TagCreateDto(
+        "TAGVALUE2",
+        "userId",
+        "#295f98");
+    List<TagCreateDto> tags= List.of(tagCreateDto1, tagCreateDto2);
+    when(tagService.addTagsToArtifactAndUser(tags, "artifactId")).
+        thenReturn(ResponseEntity.ok().build());
+    mockMvc.perform(post("/api/v1/tag/artifactId/addtags")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(tags)))
+        .andExpect(status().isOk());
+    verify(tagService, times(1)).addTagsToArtifactAndUser(tags, "artifactId");
+    verifyNoMoreInteractions(tagService);
+  }
+
+  /**
+   * Test getting tags by user ID.
+   */
+  @Test
+  public void testGetTagsByUserId() throws Exception {
+    String userId = "userId";
+    when(tagService.getTagsByUser(userId)).thenReturn(ResponseEntity.ok().build());
+    mockMvc.perform(get("/api/v1/tag/byuser/userId/all"))
+        .andExpect(status().isOk());
+    verify(tagService, times(1)).getTagsByUser(userId);
+    verifyNoMoreInteractions(tagService);
   }
 
 }
