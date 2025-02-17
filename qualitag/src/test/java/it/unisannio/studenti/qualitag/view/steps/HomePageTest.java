@@ -30,9 +30,8 @@ public class HomePageTest {
     logger.info("Starting userDigitsHomepageUrl");
 
     // Use 127.0.0.1 instead of localhost
-    baseUrl = baseUrl.replace("localhost", "127.0.0.1");
-    urlRedirect = urlRedirect.replace("localhost", "127.0.0.1");
-
+    // baseUrl = baseUrl.replace("localhost", "127.0.0.1");
+    // urlRedirect = urlRedirect.replace("localhost", "127.0.0.1");
 
     // System.setProperty("webdriver.gecko.driver",
     //     "src/test/resources/selenium_web_drivers/windows/geckodriver.exe");
