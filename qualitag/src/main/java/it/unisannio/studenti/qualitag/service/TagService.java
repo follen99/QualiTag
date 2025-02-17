@@ -1,6 +1,5 @@
 package it.unisannio.studenti.qualitag.service;
 
-import com.google.common.base.Optional;
 import it.unisannio.studenti.qualitag.constants.TagConstants;
 import it.unisannio.studenti.qualitag.dto.tag.TagCreateDto;
 import it.unisannio.studenti.qualitag.dto.tag.TagResponseDto;

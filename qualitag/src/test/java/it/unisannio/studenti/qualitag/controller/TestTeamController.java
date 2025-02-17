@@ -49,7 +49,8 @@ public class TestTeamController {
 
   /**
    * Test the creation of a team.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testAddTeam() throws Exception {
@@ -72,7 +73,8 @@ public class TestTeamController {
 
   /**
    * Test the retrieval of teams by project ID.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetTeamsByProjectId() throws Exception {
@@ -86,7 +88,8 @@ public class TestTeamController {
 
   /**
    * Test the retrieval of teams by user ID.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetTeamsByUserId() throws Exception {
@@ -100,7 +103,8 @@ public class TestTeamController {
 
   /**
    * Test the retrieval of team IRR.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetTeamIrr() throws Exception {
@@ -114,7 +118,8 @@ public class TestTeamController {
 
   /**
    * Test the deletion of a team.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testDeleteTeam() throws Exception {
@@ -132,8 +137,8 @@ public class TestTeamController {
   @Test
   public void testUpdateTeamUsers() throws Exception {
     List<String> userEmails = List.of("user1@example.com", "user3@example.com");
-    when(teamService.updateTeamUsers("teamId", userEmails)).
-        thenReturn(ResponseEntity.ok().build());
+    when(teamService.updateTeamUsers("teamId", userEmails))
+        .thenReturn(ResponseEntity.ok().build());
     mockMvc.perform(put("/api/v1/team/teamId/updateusers")
             .contentType(MediaType.APPLICATION_JSON)
             .content(new ObjectMapper().writeValueAsString(userEmails)))

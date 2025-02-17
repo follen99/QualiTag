@@ -49,7 +49,8 @@ public class TestTagController {
 
   /**
    * Test the creation of a tag.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testCreateTag() throws Exception {
@@ -72,7 +73,8 @@ public class TestTagController {
 
   /**
    * Test getting a tag by ID.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testGetTagById() throws Exception {
@@ -86,7 +88,8 @@ public class TestTagController {
 
   /**
    * Test getting tags by value.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testGetTagsByValue() throws Exception {
@@ -100,7 +103,8 @@ public class TestTagController {
 
   /**
    * Test updating a tag.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testUpdateTag() throws Exception {
@@ -121,7 +125,8 @@ public class TestTagController {
 
   /**
    * Test deleting a tag.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testDeleteTag() throws Exception {
@@ -145,9 +150,9 @@ public class TestTagController {
         "TAGVALUE2",
         "userId",
         "#295f98");
-    List<TagCreateDto> tags= List.of(tagCreateDto1, tagCreateDto2);
-    when(tagService.addTagsToArtifactAndUser(tags, "artifactId")).
-        thenReturn(ResponseEntity.ok().build());
+    List<TagCreateDto> tags = List.of(tagCreateDto1, tagCreateDto2);
+    when(tagService.addTagsToArtifactAndUser(tags, "artifactId"))
+        .thenReturn(ResponseEntity.ok().build());
     mockMvc.perform(post("/api/v1/tag/artifactId/addtags")
             .contentType(MediaType.APPLICATION_JSON)
             .content(new ObjectMapper().writeValueAsString(tags)))

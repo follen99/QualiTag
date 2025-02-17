@@ -47,7 +47,8 @@ public class TestProjectController {
 
   /**
    * Test the creation of a project.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testCreateProject() throws Exception {
@@ -71,7 +72,8 @@ public class TestProjectController {
 
   /**
    * Test the closure of a project.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testCloseProject() throws Exception {
@@ -88,7 +90,8 @@ public class TestProjectController {
 
   /**
    * Test the retrieval of projects by their IDs.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetProjectsByIds() throws Exception {
@@ -128,7 +131,8 @@ public class TestProjectController {
 
   /**
    * Test the retrieval of the human-readable status of a project.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetHumanReadableProjectStatus() throws Exception {
@@ -146,7 +150,8 @@ public class TestProjectController {
 
   /**
    * Test the retrieval of a project by user ID.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetProjectByProjectId() throws Exception {
@@ -160,7 +165,8 @@ public class TestProjectController {
 
   /**
    * Test the retrieval of tags of a project.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetProjectTags() throws Exception {
@@ -174,7 +180,8 @@ public class TestProjectController {
 
   /**
    * Tests the retrieval of artifacts of a project.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetProjectArtifacts() throws Exception {
@@ -188,7 +195,8 @@ public class TestProjectController {
 
   /**
    * Test the deletion of a project.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testDeleteProject() throws Exception {

@@ -46,7 +46,8 @@ public class TestUserController {
 
   /**
    * Test the retrieval of a user.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testGetUser() throws Exception {
@@ -59,7 +60,8 @@ public class TestUserController {
 
   /**
    * Test the retrieval of a user's tags.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testGetUserTags() throws Exception {
@@ -72,7 +74,8 @@ public class TestUserController {
 
   /**
    * Test the update of a user.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testUpdateUser() throws Exception {
@@ -95,7 +98,8 @@ public class TestUserController {
 
   /**
    * Test the update of a user's password.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testUpdateUserPassword() throws Exception {
@@ -115,7 +119,8 @@ public class TestUserController {
 
   /**
    * Test the deletion of a user.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs
    */
   @Test
   public void testDeleteUser() throws Exception {

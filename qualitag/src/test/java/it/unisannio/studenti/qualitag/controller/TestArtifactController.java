@@ -50,7 +50,8 @@ public class TestArtifactController {
 
   /**
    * Test the creation of an artifact.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testCreateArtifact() throws Exception {
@@ -72,7 +73,8 @@ public class TestArtifactController {
 
   /**
    * Test the retrieval of an artifact.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetArtifact() throws Exception {
@@ -85,7 +87,8 @@ public class TestArtifactController {
 
   /**
    * Test the retrieval of the metadata of an artifact.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testGetArtifactMetadata() throws Exception {
@@ -98,7 +101,8 @@ public class TestArtifactController {
 
   /**
    * Test the addition of tahs to an artifact.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testAddTagsToArtifact() throws Exception {
@@ -116,7 +120,8 @@ public class TestArtifactController {
 
   /**
    * Test the removal of tags from an artifact.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testRemoveTagsFromArtifact() throws Exception {
@@ -131,7 +136,8 @@ public class TestArtifactController {
 
   /**
    * Test the deletion of an artifact.
-   * @throws Exception
+   *
+   * @throws Exception if an error occurs during the test.
    */
   @Test
   public void testeDeleteArtifact() throws Exception {
@@ -180,7 +186,7 @@ public class TestArtifactController {
   }
 
   /**
-   * Tests the start tagging of a list of artifacts
+   * Tests the start tagging of a list of artifacts.
    */
   @Test
   public void testStartTaggingList() throws Exception {
@@ -234,7 +240,5 @@ public class TestArtifactController {
     verify(artifactService, times(1)).processTags("artifactId");
     verifyNoMoreInteractions(artifactService);
   }
-
-
 }
 
