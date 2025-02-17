@@ -38,7 +38,6 @@ import org.apache.commons.codec.binary.Base64;
  * This class is used to send e-mails using the Gmail API.
  */
 public class GmailService {
-  private static final String TEST_EMAIL = "qualitag.project@gmail.com";
   private static final String FROM_EMAIL = "qualitag.project@gmail.com";
   private final Gmail service;
 
@@ -180,17 +179,5 @@ public class GmailService {
         throw e;
       }
     }
-  }
-
-  /**
-   * Main method used to test the Gmail service.
-   *
-   * @param args the command-line arguments.
-   * @throws Exception if an error occurs while sending the e-mail.
-   */
-  public static void main(String[] args) throws Exception {
-    new GmailService().sendMail(" Test e-mail",
-        TEST_EMAIL,
-        "This is a test e-mail.");
   }
 }
