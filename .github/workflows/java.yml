@@ -43,7 +43,7 @@ jobs:
       - name: Create credentials email json file
         run: |
           mkdir -p qualitag/src/main/resources/credentials
-          echo "${{ secrets.CREDENTIALS_EMAIL }}" | jq . > qualitag/src/main/resources/credentials/credentials_email_service.json
+          echo '${{ secrets.CREDENTIALS_EMAIL }}' | jq . > qualitag/src/main/resources/credentials/credentials_email_service.json
 
       - name: Create certificate files for HTTPS
         run: |
