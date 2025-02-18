@@ -40,6 +40,11 @@ jobs:
       - name: Copy .env in qualitag directory
         run: cp .env qualitag/.env
 
+      - name: Create credentials email json file
+        run: |
+          mkdir -p qualitag/src/main/resources/credentials
+          echo "${{ secrets.CREDENTIALS_EMAIL }}" | tee qualitag/src/main/resources/credentials/credentials_email_service.json
+
       - name: Create certificate files for HTTPS
         run: |
           mkdir -p qualitag/src/main/resources/credentials/certs
