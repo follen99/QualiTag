@@ -35,6 +35,7 @@ Thumbs.db
 
 # Credentials
 /qualitag/src/main/resources/credentials/**
+/qualitag/src/test/resources/credentials/**
 
 # Environment variables
 .env
