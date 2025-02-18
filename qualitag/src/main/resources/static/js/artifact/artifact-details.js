@@ -225,7 +225,7 @@ async function populateSidebarOwner(artifactId, metadata) {
   sidebarContainer.innerHTML = ''; // Clear existing content
 
   const message = document.createElement('p');
-  message.textContent = 'You are the owner, you cannot tag an artifact; you can only stop the tagging operation.';
+  message.textContent = 'You are the owner, you cannot tag an artifact; you can only stop the tagging operation or resolve tags.';
   sidebarContainer.appendChild(message);
 
   console.log("metadata:", metadata.artifact.isTaggingOpen);
@@ -292,7 +292,27 @@ async function populateSidebarOwner(artifactId, metadata) {
     resolveTagsButton.addEventListener('click', async () => {
       if (confirm(
           "Are you sure you want to resolve all tags?\nThis will delete all existing tags and the operation is not reversable.")) {
-        // TODO: qui è dove dovra essere chiamata la API che risolve i tags.
+
+        fetch(`/api/v1/artifact/${artifactId}/process-tags`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          }
+        }).then(response => {
+          if (response.ok) {
+            return response.json().then(data => {
+              return data.msg;
+            });
+          } else {
+            return response.json().then(errorData => {
+              console.error("Error message: " + errorData.msg);
+              alert("Error: " + errorData.msg);
+              throw new Error(errorData.msg);
+            });
+          }
+        });
+
+        window.location.reload();
       }
     });
 
