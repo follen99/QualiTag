@@ -1,7 +1,38 @@
 [![Build QualiTag Java](https://github.com/follen99/QualiTag/actions/workflows/java.yml/badge.svg?branch=main&event=push)](https://github.com/follen99/QualiTag/actions/workflows/java.yml)
 [![License](https://img.shields.io/github/license/follen99/QualiTag)](https://github.com/follen99/QualiTag/blob/main/LICENSE)
+
 # QualiTag
 GitHub repository dedicated to SoftwareEngineering project exam
+
+## Navigating the UI
+
+| Home page                          | Login Page                           | Register Page                              |
+| ---------------------------------- | ------------------------------------ | ------------------------------------------ |
+| ![homepage](./assets/homepage.png) | ![loginpage](./assets/loginpage.png) | ![registerpage](./assets/registerpage.png) |
+
+### Projects Page
+
+| My Projects Page                       | Create New Project                     |
+| -------------------------------------- | -------------------------------------- |
+| ![myprojects](./assets/myprojects.png) | ![newproject](./assets/newproject.png) |
+
+### Projects Details Page (Owner)
+
+![projectsdetails](./assets/projectsdetails.png)
+
+### Artifact
+
+#### Uploading an artifact
+
+![uploadartifact](./assets/uploadartifact.png)
+
+#### Tag an artifact (Normal user side)
+
+<img src="./assets/tagginguser.png" alt="tagginguser" style="zoom:67%;" />
+
+#### Tag an artifact (Owner side)
+
+<img src="./assets/taggingowner.png" alt="taggingowner" style="zoom: 67%;" />
 
 ## Running the system
 
@@ -20,6 +51,27 @@ GitHub repository dedicated to SoftwareEngineering project exam
 5. A folder will be created in `C:\Users\<username>\AppData\Local\Temp\tokens####`
 6. Inside the folder will be a file named `StoredCredential`; copy it inside the folder: `qualitag/src/main/resources/credentials/tokens/`.
 7. You're good to go.
+
+### Run docker
+
+#### Main Project
+
+To run the project using docker just move into the same folder as the file "docker-compose.yaml" and run the commands:
+
+```pseudocode
+$ docker compose build 			// build the project
+$ docker compose compose up -d	// run the app
+```
+
+#### Tests
+
+Move into the `scripts` folder and run:
+
+```shell
+./test_docker.sh
+```
+
+
 
 ## System Requirements
 A user can connect to the system *only after logging in*; if they do not have an account, they can register using email:password.
