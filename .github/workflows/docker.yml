@@ -27,6 +27,16 @@ jobs:
       - name: Copy .env in qualitag directory
         run: cp .env qualitag/.env
   
+      - name: Create credentials email json file
+        run: |
+          mkdir -p qualitag/src/main/resources/credentials
+          echo '${{ secrets.CREDENTIALS_EMAIL }}' | jq . > qualitag/src/main/resources/credentials/credentials_email_service.json
+
+      - name: Create stored credentials file
+        run: |
+          mkdir -p qualitag/src/main/resources/credentials/tokens
+          echo "${{ secrets.STORED_CREDENTIAL }}" | base64 -d > qualitag/src/main/resources/credentials/tokens/StoredCredential
+
       - name: Create certificate files for HTTPS
         run: |
           mkdir -p qualitag/src/main/resources/credentials/certs
@@ -40,7 +50,7 @@ jobs:
         
       - name: Run tests
         run: |
-          docker compose exec -T qualitag-java ./gradlew test
+          docker compose exec -T qualitag-java ./gradlew test --info
           docker compose exec -T qualitag-python pytest -s
   
       - name: Tear down Docker environment
