@@ -51,7 +51,7 @@ jobs:
           echo "${{ secrets.STORED_CREDENTIAL }}" | base64 -d > qualitag/src/main/resources/credentials/tokens/StoredCredential
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --info
         working-directory: qualitag
 
       - name: Store reports in case of failure
