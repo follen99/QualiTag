@@ -19,16 +19,16 @@ def test_client():
     yield client
 
 
-def test_krippendorff_compute(test_client):  # pylint: disable=redefined-outer-name
+def test_process_tags(test_client):  # pylint: disable=redefined-outer-name
   test_payload = [
-      [["A", "B"], ["A", "C"], ["A"], ["B", "D"]],  # Item 1
-      [["B", "C", "E"], ["B", "E"], ["C"], ["B", "C", "D"]],  # Item 2
-      [["A", "D"], ["D"], ["A", "B"], ["A", "C", "D"]],  # Item 3
+      "Artificial Intelligence", "AI", "Data Science", "Machine Learning",
+      "Bug", "Bugged", "Buggy"
   ]
-  resp = test_client.post("/api/krippendorff",
+  resp = test_client.post("/api/process-tags",
                           data=json.dumps(test_payload),
                           content_type="application/json")
   assert resp.status_code == 200
   data = resp.get_json()
-  assert "alpha" in data
-  assert data["alpha"] == -0.12673611111111116
+  assert "result" in data
+  print(data["result"])
+  assert data["result"] == ["ai", "bug", "data science", "machine learning"]

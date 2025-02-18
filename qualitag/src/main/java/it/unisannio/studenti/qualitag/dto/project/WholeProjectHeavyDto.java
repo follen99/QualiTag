@@ -2,6 +2,7 @@ package it.unisannio.studenti.qualitag.dto.project;
 
 import it.unisannio.studenti.qualitag.dto.artifact.WholeArtifactDto;
 import it.unisannio.studenti.qualitag.dto.team.WholeTeamDto;
+import it.unisannio.studenti.qualitag.dto.user.UserResponseDto;
 import it.unisannio.studenti.qualitag.dto.user.UserShortResponseDto;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public record WholeProjectHeavyDto(
         long projectDeadline,
         UserShortResponseDto owner,
         String projectStatus,
-        List<UserShortResponseDto> users,
+        List<UserResponseDto> users,
         List<WholeArtifactDto> artifacts,
         List<WholeTeamDto> teams) {
 

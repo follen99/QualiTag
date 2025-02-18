@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,21 +22,43 @@ public class UserTest {
    */
   @BeforeEach
   public void setUp() {
-    user = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
+    user = new User("username", "user@example.com",
+        "hashedPassword123", "John", "Doe");
     user.setUserId("userId1");
-    equalUser = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
+    equalUser = new User("username", "user@example.com",
+        "hashedPassword123", "John", "Doe");
     equalUser.setUserId("userId1");
-    differentUser = new User("differentUsername", "user2@example.com", "hashedPassword456", "Jane",
+    differentUser = new User("differentUsername", "user2@example.com",
+        "hashedPassword456", "Jane",
         "Smith");
     differentUser.setUserId("userId2");
   }
+
+  /**
+   * Test the empty constructor of the User class.
+   */
+  @Test
+  public void testEmptyConstructor() {
+    User newUser = new User();
+    assertNull(newUser.getUserId());
+    assertNull(newUser.getUsername());
+    assertNull(newUser.getEmail());
+    assertNull(newUser.getPasswordHash());
+    assertNull(newUser.getName());
+    assertNull(newUser.getSurname());
+    assertEquals(new ArrayList<>(), newUser.getProjectIds());
+    assertEquals(new ArrayList<>(), newUser.getTeamIds());
+    assertEquals(new ArrayList<>(), newUser.getTagIds());
+  }
+
 
   /**
    * Test if the id of a newly created user is null.
    */
   @Test
   public void testGetInitialUserId() {
-    User newUser = new User("username", "user@example.com", "hashedPassword123", "John", "Doe");
+    User newUser = new User("username", "user@example.com",
+        "hashedPassword123", "John", "Doe");
     assertNull(newUser.getUserId()); // Initially, userId should be null
   }
 
@@ -141,6 +164,22 @@ public class UserTest {
   }
 
   /**
+   * Test the equals method when the users are the same object.
+   */
+  @Test
+  public void testEqualsSameObject() {
+    assertEquals(user, user);
+  }
+
+  /**
+   * Test the equals method with a null object.
+   */
+  @Test
+  public void testNotEqualsNull() {
+    assertNotEquals(user, null);
+  }
+
+  /**
    * Test the equals method with different objects.
    */
   @Test
@@ -171,5 +210,17 @@ public class UserTest {
   public void testNotHashCode() {
     assertNotEquals(user.hashCode(), differentUser.hashCode());
   }
+
+  /**
+   * Test the toString method.
+   */
+  @Test
+  public void testToString() {
+    assertEquals("User{userId='userId1', username='username', email='user@example.com', "
+        + "name='John', surname='Doe', projectIds=[], teamIds=[], "
+        + "tagIds=[], roles={}}", user.toString());
+  }
+
+
 
 }

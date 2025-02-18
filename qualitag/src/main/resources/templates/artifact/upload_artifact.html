@@ -143,7 +143,7 @@
 
     confirmButton.addEventListener('click', function () {
       // getting the team id
-      const teamId = document.querySelector('#dropdownMenuButtonTeams').dataset.teamId;
+      let teamId = document.querySelector('#dropdownMenuButtonTeams').dataset.teamId;
 
       // getting the files
       const files = document.querySelector('#formFileMultiple').files;
@@ -158,14 +158,16 @@
 
       // max number of files = 5
       if (files.length > 5) {
-        alert('You can upload up to 5 files at a time.');
+        alert('You cannot upload more than 5 artifacts at a time.');
         return;
       }
 
       if (!teamId) {
-        alert('Please select a team to upload the artifacts.');
-        return;
-
+        if (!confirm('You have not selected a team. \n' +
+            'The target team(s) will be selected automatically by the system.')) {
+          return;
+        }
+        teamId = null;
       }
 
       if (!confirm('Are you sure you want to upload the artifacts?')) {
@@ -173,6 +175,7 @@
       }
 
       console.log("teamId: " + teamId);
+      // TODO: ATTENZIONE IL TEAMID NON VIENE USATO
 
       for (let i = 0; i < files.length; i++) {
         console.log(`File ${i + 1}:`);
@@ -194,6 +197,7 @@
         formData.append('description', description || 'No description for this artifact.');
         formData.append('projectId', projectId);
         formData.append('file', files[i]);
+        formData.append('teamId', teamId);
 
         console.log(formData);
 

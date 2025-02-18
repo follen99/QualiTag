@@ -50,6 +50,103 @@
       width: auto; /* Allow the dropdown to adjust its width based on content */
       min-width: 300px; /* Optional: Set a minimum width */
     }
+    .irr-card {
+      background-color: #634760;
+      border-radius: 15px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      color: white;
+      text-align: center;
+    }
+
+    .irr-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .irr-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 20px;
+    }
+
+    .irr-slider {
+      position: relative;
+      width: 100%;
+      height: 10px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .irr-slider-bar {
+      position: absolute;
+      height: 100%;
+      width: 50%;
+      background-color: transparent;
+      transition: all 0.3s ease;
+      border-radius: 5px; /* Arrotonda i bordi esterni */
+    }
+
+    /* Arrotonda solo il bordo destro per la barra verde (irr > 0) */
+    .irr-slider-bar[style*="green"] {
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    /* Arrotonda solo il bordo sinistro per la barra rossa (irr < 0) */
+    .irr-slider-bar[style*="red"] {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .irr-slider-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      background-color: orange;
+      border-radius: 50%;
+      opacity: 0; /* Nascondi di default */
+      transition: opacity 0.3s ease;
+    }
+
+    .irr-slider-center.visible {
+      opacity: 1; /* Mostra solo quando necessario */
+    }
+
+    .irr-value {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+
+    .team-card {
+      background-color: #3e495a;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      color: white;
+      text-align: center;
+    }
+
+    .team-list {
+      background-color: #4d6a7b;
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 1em;
+      margin-bottom: 1em;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      color: white;
+      text-align: center;
+    }
   </style>
 
 
@@ -74,170 +171,302 @@
 <!--end of Navigation bar-->
 
 <section class="py-5">
-  <div class="container py-5">
-    <div class="row mb-4 mb-lg-5">
-      <div class="row">
-        <div class="col-md-8 col-xl-6 text-center mx-auto">
-          <h2 class="fw-bold">Team Details</h2>
-        </div>
-      </div>
-    </div>
-    <div class="row d-flex justify-content-center">
-      <div class="col-md-12 col-xl-12">
-        <div class="card">
-          <div class="card-body">
-            <p class="card-text"><strong>Team Name:</strong> <span th:text="${team.teamName}">teamName</span>
-            </p>
-            <p class="card-text"><strong>Creation date:</strong> <span
-                th:text="${#dates.format(team.creationTimeStamp, 'dd/MM/yyyy')}">creationTimeStamp</span>
-            </p>
-            <p class="card-text"><strong>Team Description:</strong> <span
-                th:text="${team.teamDescription}">teamDescription</span></p>
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <!-- team info -->
+      <div class="col-md-8" id="details-div">
+        <div class="container py-5">
+          <div class="row mb-4 mb-lg-5">
+            <div class="row">
+              <div class="col-md-8 col-xl-6 text-center mx-auto">
+                <h2 class="fw-bold">Team Details</h2>
+              </div>
+            </div>
+          </div>
+          <div class="row d-flex justify-content-center">
+            <div class="col-md-12 col-xl-12">
+              <div class="team-card">
+                <div class="card-body">
+                  <p class="card-text"><strong>Team Name:</strong> <span th:text="${team.teamName}">teamName</span>
+                  </p>
+                  <p class="card-text"><strong>Creation date:</strong> <span
+                      th:text="${#dates.format(team.creationTimeStamp, 'dd/MM/yyyy')}">creationTimeStamp</span>
+                  </p>
+                  <p class="card-text"><strong>Team Description:</strong> <span
+                      th:text="${team.teamDescription}">teamDescription</span></p>
 
 
-            <h6>Linked Team:</h6>
-            <p class="card-text">
-              <strong>Project Name:</strong> <span
-                th:text="${team.project.projectName}">projectName</span> -
+                  <div class="team-list">
+                    <h4>Linked Team:</h4>
+                    <p class="card-text">
+                      <strong>Project Name:</strong> <span
+                        th:text="${team.project.projectName}">projectName</span> -
 
-              <!--<script th:inline="javascript">
-                // var showtext = [[${team.project.projectName}]];
-                var showtext = /*[[${team.project.projectName}]]*/ "";
-                console.log("data from thymeleaf: " + showtext);
-              </script>-->
+                      <!--<script th:inline="javascript">
+                        // var showtext = [[${team.project.projectName}]];
+                        var showtext = /*[[${team.project.projectName}]]*/ "";
+                        console.log("data from thymeleaf: " + showtext);
+                      </script>-->
 
-              <strong>Project Description:</strong> <span
-                th:text="${team.project.projectDescription}">projectDescription</span> -
-              <strong>Project Status:</strong> <span th:text="${team.project.projectStatus}">projectStatus</span>
-            </p>
-
-
-            <div>
-              <h6>Users:</h6>
-
-              <ul>
-                <li th:if="${team.users.isEmpty()}">No users available</li>
-                <li th:each="user : ${team.users}">
-                  <span th:text="${user.username}">username</span> -
-                  <span th:text="${user.email}">email</span> -
-                  <span th:text="${user.name}">name</span>
-                  <span th:text="${user.surname}">surname</span>
-                </li>
-              </ul>
-
-              <!-- dialog to edit mails              -->
-
-              <!-- Bottone per aprire il dialog -->
-              <!-- TODO: visualizzare o meno questo bottone nel caso in cui l'utente che visualizza la pagina puo effettivamente modificare la lista degli utenti del progetto.-->
-              <button id="openDialogBtn" class="btn btn-primary" style="margin-bottom: 2em">Edit
-                users
-              </button>
-
-
-              <!-- Dialog Bootstrap -->
-              <div class="modal fade" id="emailDialog" tabindex="-1"
-                   aria-labelledby="emailDialogLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="emailDialogLabel">
-                        Edit users who are part of the project
-                      </h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal"
-                              aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-
-                      <label for="emailList" class="form-label">
-                        Enter the email list (separate emails with a comma):
-                      </label>
-                      <textarea id="emailList" class="form-control" rows="5"></textarea>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                        Cancel
-                      </button>
-                      <button id="saveEmailsBtn" type="button" class="btn btn-primary">
-                        Confirm
-                      </button>
-                    </div>
+                      <strong>Project Description:</strong> <span
+                        th:text="${team.project.projectDescription}">projectDescription</span> -
+                      <strong>Project Status:</strong> <span th:text="${team.project.projectStatus}">projectStatus</span>
+                    </p>
                   </div>
+
+                  <div class="team-list">
+                    <h4>Users:</h4>
+
+                    <ul>
+                      <li th:if="${team.users.isEmpty()}">No users available</li>
+                      <li th:each="user : ${team.users}">
+                        <span th:text="${user.username}">username</span> -
+                        <span th:text="${user.email}">email</span> -
+                        <span th:text="${user.name}">name</span>
+                        <span th:text="${user.surname}">surname</span>
+                      </li>
+                    </ul>
+
+                    <!-- dialog to edit mails              -->
+
+                    <!-- Bottone per aprire il dialog -->
+                    <div class="d-flex justify-content-center align-items-center">
+                      <button id="openDialogBtn" class="btn btn-primary">Edit users</button>
+                    </div>
+
+
+                    <!-- Dialog Bootstrap -->
+                    <div class="modal fade" id="emailDialog" tabindex="-1"
+                         aria-labelledby="emailDialogLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="emailDialogLabel">
+                              Edit users who are part of the project
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+
+                            <label for="emailList" class="form-label">
+                              Enter the email list (separate emails with a comma):
+                            </label>
+                            <textarea id="emailList" class="form-control" rows="5"></textarea>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                              Cancel
+                            </button>
+                            <button id="saveEmailsBtn" type="button" class="btn btn-primary">
+                              Confirm
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+                  </div>
+
+                  <div class="team-list">
+                    <h4>Artifacts:</h4>
+                    <ul>
+                      <li th:if="${team.artifacts.isEmpty()}">No artifacts available</li>
+                      <li th:each="artifact : ${team.artifacts}">
+                        <span th:text="${artifact.artifactName}">artifactName</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <!-- delete team -->
+                  <div class="d-flex justify-content-center align-items-center">
+                    <button type="button" class="btn btn-danger mx-auto" id="deleteTeamButton"
+                            style="margin-bottom:1em;">Delete Team
+                    </button>
+
+                    <script th:inline="javascript">
+                      const teamId2 = window.location.pathname.split('/')[2];
+                      const projectId = /*[[${team.project.projectId}]]*/ "";
+                      console.log("projectid: " + projectId);
+
+                      document.getElementById('deleteTeamButton').addEventListener('click', () => {
+                        if (teamId2 === "" || teamId2 === null || teamId2 === undefined) {
+                          alert("Error: team ID not found");
+                          return;
+                        }
+
+                        const confirmation = confirm(
+                            'Are you sure you want to delete this team? This action is irreversible.');
+                        if (!confirmation) {
+                          return;
+                        }
+
+                        // deleting the team
+                        fetch("/api/v1/team/" + teamId2, {
+                          method: 'DELETE', headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
+                          }
+                        })
+                        .then(response => {
+                          if (response.ok) {
+                            return response.json().then(data => {
+                              console.log(data);
+                              alert(data.msg);
+                              emailDialog.hide();   // close the dialog
+                              window.location.href = "/project/detail?id=" + projectId;
+                            });
+                          } else {
+                            return response.json().then(body => {
+                              console.log("response: " + body.msg);
+                              alert("Error updating emails: " + body.msg);
+                            });
+                          }
+                        })
+                        .catch(error => console.error('Error fetching user projects:', error));
+                      });
+                    </script>
+                  </div>
+
                 </div>
               </div>
 
-
             </div>
-
-            <div>
-              <h6>Artifacts:</h6>
-              <ul>
-                <li th:if="${team.artifacts.isEmpty()}">No artifacts available</li>
-                <li th:each="artifact : ${team.artifacts}">
-                  <span th:text="${artifact.artifactName}">artifactName</span>
-                </li>
-              </ul>
-            </div>
-
-            <!-- delete team -->
-            <div>
-              <button type="button" class="btn btn-danger mx-auto" id="deleteTeamButton"
-                      style="margin-bottom:1em;">Delete Team
-              </button>
-
-              <script th:inline="javascript">
-                const teamId2 = window.location.pathname.split('/')[2];
-                const projectId = /*[[${team.project.projectId}]]*/ "";
-                console.log("projectid: " + projectId);
-
-                document.getElementById('deleteTeamButton').addEventListener('click', () => {
-                  if (teamId2 === "" || teamId2 === null || teamId2 === undefined) {
-                    alert("Error: team ID not found");
-                    return;
-                  }
-
-                  const confirmation = confirm(
-                      'Are you sure you want to delete this team? This action is irreversible.');
-                  if (!confirmation) {
-                    return;
-                  }
-
-                  // deleting the team
-                  fetch("/api/v1/team/" + teamId2, {
-                    method: 'DELETE', headers: {
-                      'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
-                    }
-                  })
-                  .then(response => {
-                    if (response.ok) {
-                      return response.json().then(data => {
-                        console.log(data);
-                        alert(data.msg);
-                        emailDialog.hide();   // close the dialog
-                        window.location.href = "/project/detail?id=" + projectId;
-                      });
-                    } else {
-                      return response.json().then(body => {
-                        console.log("response: " + body.msg);
-                        alert("Error updating emails: " + body.msg);
-                      });
-                    }
-                  })
-                  .catch(error => console.error('Error fetching user projects:', error));
-                });
-              </script>
-            </div>
-
           </div>
         </div>
+      </div>
 
+      <!-- IRR -->
+      <div class="col-md-4 mx-auto">
+        <div class="container-fluid d-flex justify-content-center">
+          <!-- IRR container -->
+          <div class="irr-card" id="irr-card-id" style="margin-top: 2em">
+            <div class="irr-title">Team inter-rater agreement</div>
+            <div class="irr-subtitle">Calculated using Krippendorff's Alpha.</div>
+            <div id="irr-container">
+              <div class="irr-slider">
+                <div class="irr-slider-bar"></div>
+                <div class="irr-slider-center"></div>
+              </div>
+              <div class="irr-value">IRR: <span id="irr-value">0.00</span></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
+
 </section>
+
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function () {
+    let teamId = /*[[${team.teamId}]]*/ "";     // Team ID using thymeleaf
+    const dialogButton = document.getElementById("openDialogBtn");
+    const deleteTeamButton = document.getElementById("deleteTeamButton");
+    const irrContainer = document.getElementById("irr-card-id");
+
+    const projectOwnerUsername = /*[[${ownerUsername}]]*/ "";
+    console.log("projectOwnerUsername: " + projectOwnerUsername);
+
+    if (projectOwnerUsername === localStorage.getItem('username')) {
+      dialogButton.style.display = "block";
+      deleteTeamButton.style.display = "block";
+      irrContainer.style.display = "block";
+
+      fetchTeamIrr(teamId).then(data => {
+        const irr = data.irr;
+        displayTeamIrr(irr);
+      });
+
+    } else {
+      dialogButton.style.display = "none";
+      deleteTeamButton.style.display = "none";
+      irrContainer.style.display = "none";
+
+      const detailsDiv = document.getElementById("details-div");
+      detailsDiv.classList.remove('col-md-8');
+      detailsDiv.classList.add("col-md-12");
+    }
+
+
+
+    async function fetchTeamIrr(teamId){
+      return fetch(`/api/v1/team/${teamId}/irr`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+      }).then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          /*return response.json().then(errorData => {
+            console.error("Error message: " + errorData.msg);
+            alert("Error: " + errorData.msg);
+            throw new Error(errorData.msg);
+          });*/
+          // If the IRR cannot be calculated, return an invalid default value
+          return { irr: 5 };
+        }
+      });
+    }
+
+    function displayTeamIrr(irr) {
+
+      const sliderBar = document.querySelector('.irr-slider-bar');
+      const irrValue = document.getElementById('irr-value');
+      // irrValue.textContent = irr.toFixed(3);
+      const sliderCenter = document.querySelector('.irr-slider-center');
+
+      // Update the IRR value text
+      irrValue.textContent = irr.toFixed(2);
+
+      // Reset the slider bar
+      sliderBar.style.width = '0%';
+      sliderBar.style.left = '50%';
+      sliderBar.style.backgroundColor = 'transparent';
+
+      if (irr > 1 || irr < -1) {
+        // Invalid IRR: show orange circle
+        sliderBar.style.backgroundColor = 'transparent';
+        sliderCenter.classList.add('visible'); // Show the circle
+        sliderCenter.style.width = `100%`;
+        sliderCenter.style.backgroundColor = `red`;
+        sliderCenter.style.borderRadius = `0%`;
+
+        irrValue.textContent = "There was an error calculating the IRR. ";
+      } else if (irr > 0) {
+        // Positive IRR: fill to the right with green
+        const fillWidth = (irr * 50); // Calculate proportional width
+        sliderBar.style.width = `${fillWidth}%`; // Fill to the right
+        sliderBar.style.left = '50%'; // Start from the center
+        sliderBar.style.backgroundColor = 'green';
+        sliderCenter.classList.remove('visible'); // Hide the circle
+      } else if (irr < 0) {
+        // Negative IRR: fill to the left with red
+        const fillWidth = (Math.abs(irr) * 50); // Calculate proportional width
+        sliderBar.style.width = `${fillWidth}%`; // Fill to the left
+        sliderBar.style.left = `${50 - fillWidth}%`; // Adjust the start position
+        sliderBar.style.backgroundColor = 'red';
+        sliderCenter.classList.remove('visible'); // Hide the circle
+      } else {
+        // IRR is zero: show orange circle
+        sliderBar.style.backgroundColor = 'transparent';
+        sliderCenter.classList.add('visible'); // Show the circle
+      }
+    }
+
+  });
+</script>
 
 <!-- dialog to edit users -->
 <!-- do not move the script source otherwise it will not work (dk why) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- showing or hiding edit users / delete team buttons (only the owner can view them) -->
+
+
 <script th:inline="javascript">
 
   let users = /*[[${team.users}]]*/ "";       // Array of users using thymeleaf

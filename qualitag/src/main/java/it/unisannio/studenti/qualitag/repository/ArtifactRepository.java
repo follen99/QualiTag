@@ -1,8 +1,6 @@
 package it.unisannio.studenti.qualitag.repository;
 
 import it.unisannio.studenti.qualitag.model.Artifact;
-import it.unisannio.studenti.qualitag.model.Tag;
-import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**

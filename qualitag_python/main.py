@@ -16,21 +16,40 @@ Usage:
   Run this module to start the Flask web application. 
   The default host is 'localhost' and the default port is 5000.
 """
-import krippendorff
-import numpy as np
+
 import os
+
+import my_functions as mf
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
+
+
+@app.route("/api/process", methods=["GET"])
+def process_data():
+  data = request.args.get("data")
+  # Simulate processing and returning a result
+  result = f"Processed data: {data.upper()}"
+  return jsonify(result=result)
 
 
 @app.route("/api/krippendorff", methods=["POST"])
 def krippendorff_compute():
   try:
     received = request.json  # Directly access the JSON payload
-    print(f"Data (Python): {received}")
+    print("Data received:", received)
 
-    alpha_value = calculate_krippendorff_alpha(received)
+    alpha_value = mf.calculate_krippendorff_alpha(received)
+    if alpha_value is None:
+      print(
+          jsonify(error=("Krippendorff's alpha could not be calculated due to "
+                         "insufficient data.")), 400)
+
+      return jsonify(
+          error=("Krippendorff's alpha could not be calculated due to "
+                 "insufficient data.")), 400
+
+    print("Alpha value:", alpha_value)
     return jsonify(alpha=alpha_value)
   except KeyError as e:
     return jsonify(error=f"Key error: {str(e)}"), 400
@@ -38,37 +57,21 @@ def krippendorff_compute():
     return jsonify(error=f"Type error: {str(e)}"), 400
   except ValueError as e:
     return jsonify(error=f"Value error: {str(e)}"), 400
-  except krippendorff.KrippendorffError as e:
-    return jsonify(error=f"Krippendorff error: {str(e)}"), 400
 
 
-def calculate_krippendorff_alpha(data):
-  # Extract unique tags across all raters
-  unique_tags = sorted(
-      {tag for item in data for rater in item for tag in rater})
-  print(f"Unique tags: {unique_tags}\n")
+@app.route("/api/process-tags", methods=["POST"])
+def process_tags():
+  try:
+    received = request.json  # Directly access the JSON payload
 
-  # Initialize binary matrix for each item
-  # (each row represents a rater, each column a tag)
-  binary_matrix = []
-  for item in data:
-    for rater_tags in item:
-      row = [1 if tag in rater_tags else 0 for tag in unique_tags]
-      binary_matrix.append(row)
-
-  # Each row represents a tag. Coulumns are grouped by items
-  # (es. first 4 columns are for item 1)
-  binary_matrix = np.array(binary_matrix).T
-  print(f"Binary representation for all items:\n{binary_matrix}\n")
-  print("")
-
-  # Compute Krippendorff's Alpha for the entire dataset
-  print("Calculating Krippendorff's Alpha...")
-  alpha_calculated = krippendorff.alpha(reliability_data=binary_matrix,
-                                        level_of_measurement="nominal")
-  print(f"Krippendorff's alpha for nominal metric: {alpha_calculated}")
-
-  return alpha_calculated
+    result = mf.reduce_similar_tags(received, threshold=0.7)
+    return jsonify(result=result)
+  except KeyError as e:
+    return jsonify(error=f"Key error: {str(e)}"), 400
+  except TypeError as e:
+    return jsonify(error=f"Type error: {str(e)}"), 400
+  except ValueError as e:
+    return jsonify(error=f"Value error: {str(e)}"), 400
 
 
 if __name__ == "__main__":

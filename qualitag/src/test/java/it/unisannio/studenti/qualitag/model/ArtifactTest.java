@@ -64,6 +64,21 @@ public class ArtifactTest {
     assertTrue(artifactWithoutDescription.getTags().isEmpty());
   }
 
+  /**
+   * Test the constructor with tagging open.
+   */
+  @Test
+  public void testConstructorWithTaggingOpen() {
+    Artifact artifactWithTaggingOpen = new Artifact("artifactName", "projectId",
+        "teamId", "filePath", true);
+    assertEquals("artifactName", artifactWithTaggingOpen.getArtifactName());
+    assertEquals("projectId", artifactWithTaggingOpen.getProjectId());
+    assertEquals("teamId", artifactWithTaggingOpen.getTeamId());
+    assertEquals("filePath", artifactWithTaggingOpen.getFilePath());
+    assertTrue(artifactWithTaggingOpen.getTags().isEmpty());
+    assertTrue(artifactWithTaggingOpen.isTaggingOpen());
+  }
+
 
   /**
    * Test the getArtifactId method.
@@ -195,12 +210,29 @@ public class ArtifactTest {
   }
 
   /**
+   * Test the equals method when the artifacts are the same object.
+   */
+  @Test
+  public void testEqualsSameObject() {
+    assertEquals(artifact, artifact);
+  }
+
+  /**
    * Test the equals method with null.
    */
   @Test
   public void testEqualsWithNull() {
     assertFalse(artifact.equals(null));
   }
+
+  /**
+   * Test the equals method with a different object.
+   */
+  @Test
+  public void testNotEqualsDifferentObject() {
+    assertFalse(artifact.equals("I am a string"));
+  }
+
 
   /**
    * Test the equals method with a different object.
@@ -256,7 +288,8 @@ public class ArtifactTest {
     artifact.setTaggingOpen(true);
     String expected = "Artifact{artifactId='null', "
         + "artifactName='artifactName', description='description', "
-        + "projectId='projectId', teamId='teamId', filePath='filePath', tags=[], isTaggingOpen=true}";
+        + "projectId='projectId', teamId='teamId', filePath='filePath', "
+        + "tags=[], isTaggingOpen=true}";
     assertEquals(expected, artifact.toString());
   }
 

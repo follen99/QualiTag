@@ -23,19 +23,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.codec.binary.Base64;
 
 /**
  * This class is used to send e-mails using the Gmail API.
  */
 public class GmailService {
-  // TODO: poter copiare stored credentials nelle risorse
-  private static final String TEST_EMAIL = "qualitag.project@gmail.com";
   private static final String FROM_EMAIL = "qualitag.project@gmail.com";
   private final Gmail service;
 
@@ -63,10 +65,11 @@ public class GmailService {
    * @param jsonFactory   the JSON factory.
    * @return the Gmail service instance.
    * @throws IOException if an error occurs while loading the credentials.
+   * @throws URISyntaxException if an error occurs while copying the credentials. 
    */
   private Credential getCredentials(final NetHttpTransport httpTransport,
       GsonFactory jsonFactory)
-      throws IOException {
+      throws IOException, URISyntaxException {
     // Load client secrets from the credentials file
     GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory,
         new InputStreamReader(GmailService.class.getResourceAsStream(
@@ -95,22 +98,40 @@ public class GmailService {
     // Authorize the credentials
     Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
-    // Delete the temporary directory
-    // try (Stream<Path> walk = Files.walk(tempDir)) {
-    //   walk.sorted(Comparator.reverseOrder())
-    //       .forEach(p -> {
-    //         try {
-    //           Files.delete(p);
-    //         } catch (IOException e) {
-    //           e.printStackTrace();
-    //         }
-    //       });
-    // }
+    if (!isResourceFileExists(resourcePath)) {
+      if (!isRunningFromJar()) {
+        Files.copy(tempDir.resolve("StoredCredential"), 
+            Paths.get(getClass().getClassLoader().getResource("credentials/tokens")
+                .toURI()).resolve("StoredCredential"), 
+            StandardCopyOption.REPLACE_EXISTING);
+      }
+
+      // Delete the temporary directory
+      try (Stream<Path> walk = Files.walk(tempDir)) {
+        walk.sorted(Comparator.reverseOrder())
+            .forEach(p -> {
+              try {
+                Files.delete(p);
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            });
+      }
+    }
 
     return credential;
   }
 
-  private boolean isResourceFileExists(String resourcePath) {
+  private boolean isRunningFromJar() {
+    String className = getClass().getName().replace('.', '/');
+    String classJar = getClass().getResource("/" + className + ".class").toString();
+    
+    System.out.println("Class name: " + className);
+    System.out.println("Class jar: " + classJar);
+    return classJar.startsWith("jar:");
+  }
+
+  private boolean isResourceFileExists(String resourcePath) throws URISyntaxException {
     try (InputStream resourceStream = getClass().getResourceAsStream(resourcePath)) {
       return resourceStream != null;
     } catch (IOException e) {
@@ -158,17 +179,5 @@ public class GmailService {
         throw e;
       }
     }
-  }
-
-  /**
-   * Main method used to test the Gmail service.
-   *
-   * @param args the command-line arguments.
-   * @throws Exception if an error occurs while sending the e-mail.
-   */
-  public static void main(String[] args) throws Exception {
-    new GmailService().sendMail(" Test e-mail",
-        TEST_EMAIL,
-        "This is a test e-mail.");
   }
 }

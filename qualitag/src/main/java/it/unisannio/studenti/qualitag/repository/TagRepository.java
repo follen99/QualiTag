@@ -2,7 +2,6 @@ package it.unisannio.studenti.qualitag.repository;
 
 import com.google.common.base.Optional;
 import it.unisannio.studenti.qualitag.model.Tag;
-import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

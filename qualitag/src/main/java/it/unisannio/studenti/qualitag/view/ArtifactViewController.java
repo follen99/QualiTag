@@ -40,7 +40,6 @@ public class ArtifactViewController {
         artifactRepository.findById(artifactId).orElseThrow(NoSuchElementException::new));
     model.addAttribute("artifact", artifactDto);*/
     model.addAttribute("ownerUsername", projectOwnerUsername);
-    System.out.println("projectId: " + projectOwnerUsername);
     return "artifact/artifact_details";
   }
 

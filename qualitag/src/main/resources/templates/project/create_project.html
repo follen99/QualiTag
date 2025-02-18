@@ -169,6 +169,16 @@
           closeModalButton.style.display = 'block';           // showing close button
           return response.json().then(errorData => {
             modalMessage.innerText = "Error: " + errorData.msg; // setting error message
+
+            if (errorData.createdAnyway){
+              done = true;
+
+              // updating local cache
+              const projectIds = JSON.parse(localStorage.getItem('user-projectIds')) || [];
+              console.log("data: ", JSON.stringify(errorData));
+              projectIds.push(errorData.projectId);
+              localStorage.setItem('user-projectIds', JSON.stringify(projectIds));
+            }
           });
         } else {
           loadingWheel.style.display = 'none';                // hiding loading wheel

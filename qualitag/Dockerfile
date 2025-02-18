@@ -3,6 +3,22 @@
 FROM openjdk:21-jdk-slim AS build
 LABEL authors="Mattia Marino"
 
+# Install Firefox and necessary dependencies
+RUN apt-get update && apt-get install -y firefox-esr
+
+# Download GeckoDriver
+RUN apt-get install -y wget
+RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.35.0/geckodriver-v0.35.0-linux64.tar.gz
+RUN tar -xvzf geckodriver-v0.35.0-linux64.tar.gz
+RUN mv geckodriver /usr/local/bin/
+RUN chmod +x /usr/local/bin/geckodriver
+
+# Set the GeckoDriver path (adjust version if needed)
+ENV WEBDRIVER_GECKO_DRIVER=/usr/local/bin/geckodriver
+
+# Set Firefox binary location (needed for Selenium)
+ENV FIREFOX_BIN=/usr/bin/firefox
+
 # Set the working directory in the container
 WORKDIR /app
 
@@ -26,7 +42,7 @@ RUN chmod +x gradlew
 RUN ./gradlew dependencies --no-daemon
 
 # Run the gradle build to download dependencies and build the project
-RUN ./gradlew build --no-daemon
+RUN ./gradlew build --no-daemon --info
 
 # Stage 2: Runtime
 FROM build

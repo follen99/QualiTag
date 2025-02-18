@@ -37,10 +37,10 @@ public class Artifact {
 
   @Field(name = "artifactTags")
   private List<String> tags;
-  
+
   @Field(name = "isTaggingOpen")
   private boolean isTaggingOpen;
-  
+
 
   /**
    * Default constructor for Artifact.
@@ -53,9 +53,9 @@ public class Artifact {
    * Constructor for Artifact, without description.
    *
    * @param artifactName The name of the artifact
-   * @param projectId    The id of the project the artifact belongs to
-   * @param teamId       The id of the team the artifact belongs to
-   * @param filePath     The path of the file of the artifact in the system
+   * @param projectId The id of the project the artifact belongs to
+   * @param teamId The id of the team the artifact belongs to
+   * @param filePath The path of the file of the artifact in the system
    */
   public Artifact(String artifactName, String projectId, String teamId, String filePath) {
     this.artifactName = artifactName;
@@ -69,13 +69,14 @@ public class Artifact {
   /**
    * Constructor for Artifact, without description.
    *
-   * @param artifactName  The name of the artifact
-   * @param projectId     The id of the project the artifact belongs to
-   * @param teamId        The id of the team the artifact belongs to
-   * @param filePath      The path of the file of the artifact in the system
+   * @param artifactName The name of the artifact
+   * @param projectId The id of the project the artifact belongs to
+   * @param teamId The id of the team the artifact belongs to
+   * @param filePath The path of the file of the artifact in the system
    * @param isTaggingOpen The tagging status of the artifact
    */
-  public Artifact(String artifactName, String projectId, String teamId, String filePath, Boolean isTaggingOpen) {
+  public Artifact(String artifactName, String projectId, String teamId, String filePath,
+      Boolean isTaggingOpen) {
     this.artifactName = artifactName;
     this.projectId = projectId;
     this.teamId = teamId;
@@ -88,10 +89,10 @@ public class Artifact {
    * Constructor for Artifact, with description.
    *
    * @param artifactName The name of the artifact
-   * @param description  The description of the artifact
-   * @param projectId    The id of the project the artifact belongs to
-   * @param teamId       The id of the team the artifact belongs to
-   * @param filePath     The path of the file of the artifact in the system
+   * @param description The description of the artifact
+   * @param projectId The id of the project the artifact belongs to
+   * @param teamId The id of the team the artifact belongs to
+   * @param filePath The path of the file of the artifact in the system
    */
   public Artifact(String artifactName, String description, String projectId, String teamId,
       String filePath) {
@@ -141,16 +142,10 @@ public class Artifact {
    */
   @Override
   public String toString() {
-    return "Artifact{"
-        + "artifactId='" + artifactId + '\''
-        + ", artifactName='" + artifactName + '\''
-        + ", description='" + description + '\''
-        + ", projectId='" + projectId + '\''
-        + ", teamId='" + teamId + '\''
-        + ", filePath='" + filePath + '\''
-        + ", tags=" + tags
-        + ", isTaggingOpen=" + isTaggingOpen
-        + '}';
+    return "Artifact{" + "artifactId='" + artifactId + '\'' + ", artifactName='" + artifactName
+        + '\'' + ", description='" + description + '\'' + ", projectId='" + projectId + '\''
+        + ", teamId='" + teamId + '\'' + ", filePath='" + filePath + '\'' + ", tags=" + tags
+        + ", isTaggingOpen=" + isTaggingOpen + '}';
   }
 
 }

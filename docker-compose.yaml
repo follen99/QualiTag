@@ -12,6 +12,8 @@ services:
       - JAVA_OPTS=-Xmx512m
       - SERVER_PORT=8443 # Specify HTTPS port
       - SPRING_PROFILES_ACTIVE=docker
+      - WEBDRIVER_GECKO_DRIVER=/usr/local/bin/geckodriver
+      - FIREFOX_BIN=/usr/bin/firefox
     env_file:
       - .env
     volumes:

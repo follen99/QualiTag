@@ -54,22 +54,22 @@ public class TagController {
   @PostMapping("/{artifactId}/addtags")
   public ResponseEntity<?> addTags(@RequestBody List<TagCreateDto> tags,
       @PathVariable String artifactId) {
-    return this.tagService.addTagsToArtfactAndUser(tags, artifactId);
+    return this.tagService.addTagsToArtifactAndUser(tags, artifactId);
   }
 
-  /**
-   * DO NOT USE, WORK IN PROGRESS.
-   * Updates the tags of an artifact.
-   *
-   * @param tags     The tags to update.
-   * @param artifactId  The id of the artifact to update the tags.
-   * @return  The response entity.
-   */
-  @PostMapping("/{artifactId}/updateTags")
-  public ResponseEntity<?> updateTags(@RequestBody List<TagCreateDto> tags,
-      @PathVariable String artifactId) {
-    return this.tagService.updateTagsOfAnArtifact(tags, artifactId);
-  }
+  // /**
+  //  * DO NOT USE, WORK IN PROGRESS.
+  //  * Updates the tags of an artifact.
+  //  *
+  //  * @param tags     The tags to update.
+  //  * @param artifactId  The id of the artifact to update the tags.
+  //  * @return  The response entity.
+  //  */
+  // @PostMapping("/{artifactId}/updateTags")
+  // public ResponseEntity<?> updateTags(@RequestBody List<TagCreateDto> tags,
+  //     @PathVariable String artifactId) {
+  //   return this.tagService.updateTagsOfAnArtifact(tags, artifactId);
+  // }
   
   /**
    * Get a tag by its id.

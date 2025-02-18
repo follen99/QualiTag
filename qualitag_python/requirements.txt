@@ -1,6 +1,8 @@
 flask
-krippendorff
+gensim
+nltk
 numpy
 pylint
 pytest
+sentence_transformers
 yapf

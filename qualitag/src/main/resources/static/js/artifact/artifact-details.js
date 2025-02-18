@@ -10,7 +10,6 @@ const tagIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em
 // Main control flow
 let allTagsContainer;
 document.addEventListener('DOMContentLoaded', async function () {
-  const artifactContainer = document.getElementById('artifact-container');
   allTagsContainer = document.getElementById('tags-container');
 
   const tagInput = document.getElementById('tagInput');
@@ -23,10 +22,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   // before displaying the artifact, check artifact metadata
   const metadata = await fetchArtifactMetadata(artifactId);
-  console.log("metadata:", metadata);
 
   // fetch and display artifact content
   fetchArtifact(artifactId);
+
+
 
   // if the user is the owner of the artifact he cannot tag it,
   // but he can stop the tagging operation, see other users' tags and IRR
@@ -84,6 +84,7 @@ function fetchAllArtifactTags(artifactId) {
  * @param username the username of the user to fetch tags for
  */
 function fetchTagsFromUser(artifactId, username) {
+  console.log("username: " + username);
   return fetch(`/api/v1/artifact/${artifactId}/${username}/tags`, {
     method: 'GET',
     headers: {
@@ -220,8 +221,6 @@ function detectLanguage(contentType) {
 }
 
 async function populateSidebarOwner(artifactId, metadata) {
-  // TODO: mostrare tutti i tag aggiunti dagli altri utenti finora, mostrare IRR
-
   const sidebarContainer = document.getElementById('sidebar-container');
   sidebarContainer.innerHTML = ''; // Clear existing content
 
@@ -230,7 +229,11 @@ async function populateSidebarOwner(artifactId, metadata) {
   sidebarContainer.appendChild(message);
 
   console.log("metadata:", metadata.artifact.isTaggingOpen);
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'd-flex mb-2';
+
   if (metadata.artifact.isTaggingOpen) {
+    // WHAT THE OWNER SEES WHEN THE TAGGING OPERATION IS OPEN
     sidebarContainer.appendChild(getExplainingText(
         'The tagging operation is currently in progress. You can stop it by clicking the button below.'));
 
@@ -246,9 +249,23 @@ async function populateSidebarOwner(artifactId, metadata) {
         window.location.reload();
       }
     });
-    sidebarContainer.appendChild(stopButton);
-  } else {
+    // sidebarContainer.appendChild(stopButton);
+    buttonContainer.appendChild(stopButton);
 
+    const fakeResolveTagsButton = document.createElement('button');
+    fakeResolveTagsButton.textContent = 'Resolve tags';
+    fakeResolveTagsButton.style.marginBottom = '2em';
+    fakeResolveTagsButton.style.marginLeft = '1em';
+    fakeResolveTagsButton.className = 'btn btn-info mt-3';
+    fakeResolveTagsButton.addEventListener('click', async () => {
+      alert("Stop tagging operation first to resolve tags.");
+    });
+
+    // sidebarContainer.appendChild(fakeResolveTagsButton);
+    buttonContainer.appendChild(fakeResolveTagsButton);
+    sidebarContainer.appendChild(buttonContainer);
+  } else {
+    // WHAT THE OWNER SEES WHEN THE TAGGING OPERATION IS CLOSED
     sidebarContainer.appendChild(getExplainingText(
         'No user can tag the artifact since the tagging operation is closed. You can resume it by clicking the button below.'));
 
@@ -264,7 +281,25 @@ async function populateSidebarOwner(artifactId, metadata) {
         window.location.reload();
       }
     });
-    sidebarContainer.appendChild(startButton);
+    // sidebarContainer.appendChild(startButton);
+    buttonContainer.appendChild(startButton);
+
+    const resolveTagsButton = document.createElement('button');
+    resolveTagsButton.textContent = 'Resolve tags';
+    resolveTagsButton.style.marginBottom = '2em';
+    resolveTagsButton.style.marginLeft= '1em';
+    resolveTagsButton.className = 'btn btn-primary mt-3';
+    resolveTagsButton.addEventListener('click', async () => {
+      if (confirm(
+          "Are you sure you want to resolve all tags?\nThis will delete all existing tags and the operation is not reversable.")) {
+        // TODO: qui è dove dovra essere chiamata la API che risolve i tags.
+      }
+    });
+
+    // sidebarContainer.appendChild(resolveTagsButton);
+    buttonContainer.appendChild(resolveTagsButton);
+    sidebarContainer.appendChild(buttonContainer);
+
   }
 
   const response = await fetchAllArtifactTags(artifactId);
@@ -372,7 +407,7 @@ async function startTaggingOperation(artifactId) {
   });
 }
 
-async function populateSidebarUser(artifactId, username) {
+async function populateSidebarUser(artifactId) {
   const metadata = await fetchArtifactMetadata(artifactId);
 
   if (metadata.artifact.isTaggingOpen) {
@@ -414,7 +449,7 @@ async function populateSidebarUser(artifactId, username) {
       alert("Errore: " + error.message);
     });
 
-    populateExistingTags(artifactId, username);
+    populateExistingTags(artifactId);
 
     // when the user clicks the confirm button
     confirmButton.addEventListener('click', () => {
@@ -463,10 +498,10 @@ function removeDuplicates(array, key) {
   return uniqueTags;
 }
 
-function populateExistingTags(artifactId, username) {
+function populateExistingTags(artifactId) {
   const existingTagList = document.getElementById('existingTagsList');
 
-  fetchTagsFromUser(artifactId, username).then(tags => {
+  fetchTagsFromUser(artifactId, localStorage.getItem("username")).then(tags => {
     console.log("tags:", tags.tags);
     // tagInput.value = tags.tags.map(tag => tag.tagValue).join(', ');
     existingTagList.innerHTML = ''; // Clear existing tags
