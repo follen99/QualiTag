@@ -1,0 +1,64 @@
+NOTICE AND ATTRIBUTIONS
+
+Project: QualiTag
+License: GNU General Public License v3.0 (GPL-3.0)
+
+This project includes open-source software developed by various contributors, subject to their respective licenses. Below is a list of dependencies and their corresponding licenses:
+
+---
+
+## Apache License 2.0
+- mongodb-connection-string-url (c) 2020 MongoDB Inc.
+- bson
+- mongodb
+
+Full text: https://www.apache.org/licenses/LICENSE-2.0
+
+---
+
+## BSD 2-Clause License
+- webidl-conversions (c) 2014 Domenic Denicola
+
+Full text: https://opensource.org/licenses/BSD-2-Clause
+
+---
+
+## MIT License
+- punycode (c) Mathias Bynens
+- tr46 (c) Sebastian Mayr
+- memory-pager (c) 2017 Mathias Buus
+- sparse-bitfield (c) 2016 Mathias Buus
+- @types/webidl-conversions (c) Microsoft Corporation
+- whatwg-url
+- @types/whatwg-url (c) Microsoft Corporation
+- @mongodb-js/saslprep (c) Dmitriy Tsvettsikh
+
+Full text: https://opensource.org/licenses/MIT
+
+---
+
+## Other Dependencies (License Not Specified in SBOM)
+These dependencies are included in the project but their licenses were not explicitly listed in the SBOM. Please refer to their respective package repositories for licensing information:
+- flask
+- numpy
+- pytest
+- pylint
+- sentence-transformers
+- nltk
+- gensim
+- yapf
+
+For details, refer to:
+- PyPI: https://pypi.org/
+- NPM: https://www.npmjs.com/
+
+---
+
+## Important Notes
+- The inclusion of software under different licenses does not modify or override the primary license of this project (GPL-3.0).
+- Please review individual licenses for compliance obligations.
+- If distributing a modified version of this project, ensure that proper attribution and license terms are upheld.
+
+For more information on licensing and compliance, visit: https://opensource.org/licenses/
+
+
